@@ -3,3 +3,4 @@
 **/node_modules/**
 **/obj/**
 **/ClientApp/build/**
+LastApple/appsettings.Development.json
