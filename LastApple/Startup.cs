@@ -1,6 +1,6 @@
+using AppleMusicApi;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
@@ -27,6 +27,13 @@ namespace LastApple
             {
                 configuration.RootPath = "ClientApp/build";
             });
+
+            services.AddOptions();
+
+            services.Configure<AppCredentials>(Configuration.GetSection("AppleAppCredentials"));
+
+            services.AddTransient<IDeveloperTokenGenerator, DeveloperTokenGenerator>();
+            services.AddSingleton<IDeveloperTokenProvider, DeveloperTokenProvider>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
