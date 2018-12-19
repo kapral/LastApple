@@ -1,7 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Security.Cryptography;
 using Jose;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.OpenSsl;
+using Security.Cryptography;
 
 namespace AppleMusicApi
 {
@@ -25,10 +29,19 @@ namespace AppleMusicApi
                 { "exp", expiresAt }
             };
 
-            var secret     = Convert.FromBase64String(credentials.SecretBase64);
-            var privateKey = CngKey.Import(secret, CngKeyBlobFormat.Pkcs8PrivateBlob);
+            var privateKey = GetPrivateKey(credentials.PrivateKey);
 
             return JWT.Encode(payload, privateKey, JwsAlgorithm.ES256, headers);
+        }
+
+        private static CngKey GetPrivateKey(string key)
+        {
+            var ecPrivateKeyParameters = (ECPrivateKeyParameters)new PemReader(new StringReader(key)).ReadObject();
+            var x                      = ecPrivateKeyParameters.Parameters.G.AffineXCoord.GetEncoded();
+            var y                      = ecPrivateKeyParameters.Parameters.G.AffineYCoord.GetEncoded();
+            var d                      = ecPrivateKeyParameters.D.ToByteArrayUnsigned();
+
+            return EccKey.New(x, y, d);
         }
     }
 }
