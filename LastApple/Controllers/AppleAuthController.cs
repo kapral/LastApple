@@ -15,9 +15,9 @@ namespace LastApple.Controllers
 
         [HttpGet]
         [Route("token")]
-        public string GetToken()
+        public IActionResult GetToken()
         {
-            return _tokenProvider.GetToken();
+            return Json(_tokenProvider.GetToken());
         }
     }
 }
