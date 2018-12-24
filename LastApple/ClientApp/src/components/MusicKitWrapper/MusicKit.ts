@@ -1,4 +1,4 @@
- enum PlaybackState {
+enum PlaybackState {
     Completed = 'completed',
     Ended = 'ended',
     Loading = 'loading',
@@ -19,33 +19,32 @@ interface ISetQueueOptions {
     startPosition?: number;
 }
 
-interface IMediaItem {
+export interface IMediaItem {
     title: string;
-    subtitle: string;
-    description: string;
-    artworkImageURL: string;
+    albumName: string;
+    artistName: string;
+    artworkURL: string;
     type: string;
-    url: string;
-
-    resumeTime: number;
+    releaseDate: Date;
 }
 
 interface IQueue {
     length: number;
     position: number;
+    items: Array<IMediaItem>;
 
     item(index: number): IMediaItem;
     append(object: IMediaItem): void;
     prepend(object: IMediaItem): void;
     remove(position: number);
-    splice(start: number, deleteCount: number, elements: Array<IMediaItem>);
+
+    addEventListener(name: string, callback: () => any);
 }
 
 interface IMusicKitPlayer {
     isPlaying: boolean;
     nowPlayingItem: IMediaItem;
     queue: IQueue;
-    items: Array<IMediaItem>;
 
     play(): Promise<void>;
     pause(): void;
@@ -57,9 +56,11 @@ interface IMusicKitPlayer {
     changeToMediaAtIndex(index: number): Promise<void>;
     changeToMediaItem(descriptor: IMediaItem|string): Promise<void>;
     prepareToPlay(descriptor: IMediaItem|string): Promise<void>;
+
+    addEventListener(name: string, callback: () => any);
 }
 
-interface IMusicKit {
+export interface IMusicKit {
     player: IMusicKitPlayer;
     playbackState: PlaybackState;
     authorize(): Promise<void>;
@@ -85,13 +86,7 @@ interface IConfiguration {
     developerToken?: string;
 }
 
-interface MusicKitStatic {
+export interface IMusicKitStatic {
     getInstance(): IMusicKit;
     configure(configuration: IConfiguration): IMusicKit;
-}
-
-declare var MusicKit: MusicKitStatic;
-
-declare module "MusicKit" {
-    export = MusicKit;
 }
