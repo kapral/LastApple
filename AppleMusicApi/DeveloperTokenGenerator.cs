@@ -29,7 +29,7 @@ namespace AppleMusicApi
                 { "exp", expiresAt }
             };
 
-            var privateKey = GetPrivateKey(credentials.PrivateKey);
+            var privateKey = GetPrivateKey(string.Format(credentials.PrivateKey, Environment.NewLine));
 
             return JWT.Encode(payload, privateKey, JwsAlgorithm.ES256, headers);
         }
