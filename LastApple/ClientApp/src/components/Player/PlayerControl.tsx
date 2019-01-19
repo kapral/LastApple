@@ -1,7 +1,5 @@
 import * as React from "react";
-import { IMusicKit, IMediaItem, IMusicKitStatic } from "../MusicKitWrapper/MusicKit";
-
-declare var MusicKit: IMusicKitStatic;
+import musicKit, { IMusicKit, IMediaItem, IMusicKitStatic } from "../MusicKitWrapper/MusicKit";
 
 const secondaryColor = '#250202';
 
@@ -13,20 +11,27 @@ const buttonStyles = {
     margin: '0 20px'
 };
 
-const headingStyles = {
+const headingStyles: React.CSSProperties = {
     textAlign: 'left',
     paddingLeft: '20px'
 };
 
-interface IPlayerState {
-    musicKit?: IMusicKit;
-    currentTrack?: IMediaItem;
-};
+interface IPlayerProps {
+    artistId: string;
+}
 
-export class PlayerControl extends React.Component<{}, IPlayerState> {
-    constructor() {
-        super();
-        this.state = {};
+interface IPlayerState {
+    currentTrack?: IMediaItem;
+    currentArtistId?: string;
+    kitInitialized: boolean;
+}
+
+export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
+    musicKit: IMusicKit;
+
+    constructor(props) {
+        super(props);
+        this.state = {kitInitialized: false};
     }
 
     async componentDidMount() {
@@ -34,7 +39,7 @@ export class PlayerControl extends React.Component<{}, IPlayerState> {
 
         const token = await tokenResponse.json();
 
-        const kit = MusicKit.configure({
+        this.musicKit = musicKit.configure({
             app: {
                 name: 'Last Apple',
                 build: '0.0.1'
@@ -42,54 +47,65 @@ export class PlayerControl extends React.Component<{}, IPlayerState> {
             developerToken: token
         });
 
-        await kit.authorize();
-        await kit.setQueue({ album: '14716026' });
-        await kit.player.prepareToPlay(kit.player.queue.items[this.getCurrentQueuePosition(kit)]);
+        await this.musicKit.authorize();
+
+        this.musicKit.player.addEventListener('playbackStateDidChange', () => this.refresh());
+    }
+
+    async componentDidUpdate() {
+        if(this.props.artistId === this.state.currentArtistId) {
+            return;
+        }
+
+        const songsResponse = await fetch(`songs/${this.props.artistId}`);
+        const songs = await songsResponse.json();
+
+        await this.musicKit.setQueue({ songs });
+        await this.musicKit.player.prepareToPlay(this.musicKit.player.queue.items[this.getCurrentQueuePosition()]);
+
+        this.setState({kitInitialized: true, currentArtistId: this.props.artistId});
 
         this.refresh();
-
-        kit.player.addEventListener('playbackStateDidChange', () => this.refresh());
     }
 
     refresh() {
-        const musicKit = MusicKit.getInstance();
+        const kit = musicKit.getInstance();
 
-        const currentTrack = musicKit.player.nowPlayingItem || musicKit.player.queue.items[this.getCurrentQueuePosition(musicKit)] || {};
-        this.setState({musicKit, currentTrack});
+        const currentTrack = kit.player.nowPlayingItem || kit.player.queue.items[this.getCurrentQueuePosition()];
+        this.setState({currentTrack});
     }
 
-    getCurrentQueuePosition(musicKit?: IMusicKit) {
-        const kit = musicKit || this.state.musicKit;
-        const queuePosition = kit.player.queue.position;
+    getCurrentQueuePosition() {
+        const queuePosition = this.musicKit.player.queue.position;
 
         return queuePosition !== -1 ? queuePosition : 0;
     }
 
     async handlePlayPause() {
-        if(this.state.musicKit.player.isPlaying) {
-            await this.state.musicKit.player.pause();
+        if(this.musicKit.player.isPlaying) {
+            await this.musicKit.player.pause();
             return;
         }
 
-        await this.state.musicKit.player.play();
+        await this.musicKit.player.play();
     }
 
     async switchPrev() {
-        await this.state.musicKit.player.skipToPreviousItem();
+        await this.musicKit.player.skipToPreviousItem();
     }
 
     async switchNext() {
-        await this.state.musicKit.player.skipToNextItem();
+        await this.musicKit.player.skipToNextItem();
     }
 
     render() {
-        if(!this.state.musicKit) {
+        if(!this.state.kitInitialized || !this.props.artistId) {
             return null;
         }
 
         return <div style={{ margin: '5px 0' }}>
             <div className="player-controls" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                <img style={{ verticalAlign: 'top', width: '200px', height: '200px' }} src={this.state.currentTrack.artworkURL}/>
+                <img style={{ verticalAlign: 'top', width: '200px', height: '200px' }} src={this.state.currentTrack && this.state.currentTrack.artworkURL}/>
                 <div style={{ textAlign: 'center', display: 'inline-block', width: 'calc(100% - 200px)', height: '200px' }}>
                     {this.renderHeadings()}
                     {this.renderButtons()}
@@ -115,7 +131,7 @@ export class PlayerControl extends React.Component<{}, IPlayerState> {
         return <div style={{marginTop: '45px'}}>
             <button style={buttonStyles} className={'glyphicon glyphicon-step-backward'}
                     onClick={() => this.switchPrev()}></button>
-            <button style={buttonStyles} className={this.state.musicKit.player.isPlaying
+            <button style={buttonStyles} className={this.musicKit.player.isPlaying
                 ? 'glyphicon glyphicon-pause'
                 : 'glyphicon glyphicon-play'} onClick={() => this.handlePlayPause()}></button>
             <button style={buttonStyles} className={'glyphicon glyphicon-step-forward'}
@@ -125,7 +141,7 @@ export class PlayerControl extends React.Component<{}, IPlayerState> {
 
     renderPlaylist() {
         return <div className="playlist" style={{marginTop: '15px'}}>
-            {this.state.musicKit.player.queue.items.map((item, index) =>
+            {this.musicKit.player.queue.items.map((item, index) =>
                 <div key={index} style={{
                     whiteSpace: 'nowrap',
                     overflow: 'hidden',
