@@ -35,7 +35,7 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
     }
 
     async componentDidMount() {
-        const tokenResponse = await fetch('/auth/token');
+        const tokenResponse = await fetch('/apple/auth/token');
 
         const token = await tokenResponse.json();
 
