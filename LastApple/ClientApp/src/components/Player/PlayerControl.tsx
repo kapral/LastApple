@@ -1,5 +1,5 @@
 import * as React from "react";
-import musicKit, { IMusicKit, IMediaItem, IMusicKitStatic } from "../MusicKitWrapper/MusicKit";
+import musicKit, {IEvent, IMediaItem, IMusicKit, IStateChangeEvent, PlaybackState} from "../MusicKitWrapper/MusicKit";
 
 const secondaryColor = '#250202';
 
@@ -49,11 +49,11 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
 
         await this.musicKit.authorize();
 
-        this.musicKit.player.addEventListener('playbackStateDidChange', () => this.refresh());
+        this.musicKit.player.addEventListener('playbackStateDidChange', async (x: IEvent) => await this.handleStateChange(x as IStateChangeEvent));
     }
 
     async componentDidUpdate() {
-        if(this.props.artistId === this.state.currentArtistId) {
+        if(!this.props.artistId || this.props.artistId === this.state.currentArtistId) {
             return;
         }
 
@@ -66,6 +66,41 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
         this.setState({kitInitialized: true, currentArtistId: this.props.artistId});
 
         this.refresh();
+    }
+
+    async handleStateChange(event: IStateChangeEvent) {
+        if(!event) {
+            return;
+        }
+
+        this.refresh();
+
+        if(event.state === PlaybackState.Ended) {
+            await this.scrobble();
+        }
+
+        if(event.state === PlaybackState.Playing) {
+            await this.setNowPlaying();
+        }
+    }
+
+    async scrobble() {
+        await this.sendToLastfm('scrobble');
+    }
+
+    async setNowPlaying() {
+        await this.sendToLastfm('nowplaying');
+    }
+
+    async sendToLastfm(method: string) {
+        const currentTrack = {
+            artist: this.state.currentTrack.artistName,
+            track: this.state.currentTrack.title
+        };
+
+        const url = `lastfm/${method}?artist=${this.state.currentTrack.artistName}&song=${this.state.currentTrack.title}`;
+
+        await fetch(url.toString(), { method: 'POST', body: JSON.stringify(currentTrack) });
     }
 
     refresh() {
