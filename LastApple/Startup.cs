@@ -1,4 +1,5 @@
 using AppleMusicApi;
+using LastfmApi;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -34,6 +35,7 @@ namespace LastApple
 
             services.AddTransient<IDeveloperTokenGenerator, DeveloperTokenGenerator>();
             services.AddSingleton<IDeveloperTokenProvider, DeveloperTokenProvider>();
+            services.AddSingleton<ILastfmApi, LastfmApi.LastfmApi>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
