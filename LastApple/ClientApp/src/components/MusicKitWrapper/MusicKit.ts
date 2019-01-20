@@ -1,14 +1,14 @@
-enum PlaybackState {
-    Completed = 'completed',
-    Ended = 'ended',
-    Loading = 'loading',
-    None = 'none',
-    Paused = 'paused',
-    Playing = 'playing',
-    Seeking = 'seeking',
-    Stalled = 'stalled',
-    Stopped = 'stopped',
-    Waiting = 'waiting'
+export enum PlaybackState {
+    None = 0,
+    Loading = 1,
+    Playing = 2,
+    Paused = 3,
+    Stopped = 4,
+    Ended = 5,
+    Seeking = 6,
+    Waiting = 8,
+    Stalled = 9,
+    Completed = 10
 };
 
 interface ISetQueueOptions {
@@ -40,7 +40,7 @@ interface IQueue {
     prepend(object: IMediaItem): void;
     remove(position: number): void;
 
-    addEventListener(name: string, callback: () => any): void;
+    addEventListener(name: string, callback: (e: IEvent) => Promise<void>): void;
 }
 
 interface IMusicKitPlayer {
@@ -59,7 +59,7 @@ interface IMusicKitPlayer {
     changeToMediaItem(descriptor: IMediaItem|string): Promise<void>;
     prepareToPlay(descriptor: IMediaItem|string): Promise<void>;
 
-    addEventListener(name: string, callback: () => any): void;
+    addEventListener(name: string, callback: (e: IEvent) => Promise<void>): void;
 }
 
 export interface IMusicKit {
@@ -123,6 +123,17 @@ export interface IConfiguration {
 export interface IMusicKitStatic {
     getInstance(): IMusicKit;
     configure(configuration: IConfiguration): IMusicKit;
+}
+
+export interface IEvent {}
+
+export interface IStateChangeEvent extends IEvent {
+    oldState: PlaybackState;
+    state: PlaybackState;
+}
+
+export interface IProgressUpdatedEvent extends IEvent {
+    progress: number;
 }
 
 declare var MusicKit: IMusicKitStatic;
