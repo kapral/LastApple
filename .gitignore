@@ -4,3 +4,4 @@
 **/obj/**
 **/ClientApp/build/**
 LastApple/appsettings.Development.json
+*.user
