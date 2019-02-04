@@ -16,21 +16,22 @@ namespace LastApple.Controllers
         }
 
         [Route("")]
-        public async Task<IActionResult> InitAuth()
+        public async Task<IActionResult> InitAuth(string redirectUrl)
         {
-            var link        = Url.Link("CompleteAuth", new { token = "" });
-            var redirectUrl = new Uri(link);
-            var authUrl     = await _lastfmApi.StartWebAuthentication(redirectUrl);
+            if (!Uri.TryCreate(redirectUrl, UriKind.Absolute, out var uri))
+                return BadRequest();
 
-            return Redirect(authUrl.ToString());
+            var authUrl = await _lastfmApi.StartWebAuthentication(uri);
+
+            return Json(authUrl.ToString());
         }
 
-        [Route("complete", Name = "CompleteAuth")]
+        [HttpPost]
         public async Task<IActionResult> CompleteAuth(string token)
         {
             await _lastfmApi.CompleteAuthentication(token);
 
-            return Redirect("/");
+            return NoContent();
         }
 
         [Route("state")]
