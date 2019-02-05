@@ -12,13 +12,17 @@ namespace LastfmApi
 {
     public class LastfmApi : ILastfmApi
     {
+        private readonly ISessionKey _sessionKey;
+
         private readonly HttpClient _httpClient = new HttpClient
             { BaseAddress = new Uri("https://ws.audioscrobbler.com/2.0/") };
 
-        private string _sessionKey;
-        private string _accessToken;
+        public LastfmApi(ISessionKey sessionKey)
+        {
+            _sessionKey = sessionKey ?? throw new ArgumentNullException(nameof(sessionKey));
+        }
 
-        public bool IsAuthenticated => !string.IsNullOrWhiteSpace(_sessionKey);
+        public bool IsAuthenticated => !string.IsNullOrWhiteSpace(_sessionKey.Value);
 
         public async Task<IEnumerable<Artist>> GetSimilarArtists(string name)
         {
@@ -124,7 +128,7 @@ namespace LastfmApi
         public async Task NowPlaying(string artist, string track, TimeSpan duration)
         {
             const string method = "track.updateNowPlaying";
-            var query = LastfmQuery.AuthorizableMethod(method, _sessionKey)
+            var query = LastfmQuery.AuthorizableMethod(method, _sessionKey.Value)
                 .AddParam("artist", artist)
                 .AddParam("track", track)
                 .AddParam("duration", duration.TotalSeconds.ToString(CultureInfo.InvariantCulture));
@@ -137,7 +141,7 @@ namespace LastfmApi
             const string method = "track.scrobble";
             var timestamp =
                 Math.Floor(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1, 0, 0, 0)).TotalSeconds);
-            var query = LastfmQuery.AuthorizableMethod(method, _sessionKey)
+            var query = LastfmQuery.AuthorizableMethod(method, _sessionKey.Value)
                 .AddParam("artist", artist)
                 .AddParam("track", track)
                 .AddParam("timestamp", timestamp.ToString(CultureInfo.InvariantCulture));
@@ -145,51 +149,27 @@ namespace LastfmApi
             await _httpClient.PostAsync(string.Empty, query.AsFormUrlEncodedContent());
         }
 
-        public async Task<Uri> StartDesktopAuthentication()
-        {
-            var tokenResponse = await _httpClient.GetAsync(LastfmQuery.GetToken().Build());
-
-            if (tokenResponse.StatusCode != HttpStatusCode.OK)
-            {
-                throw new InvalidOperationException("Unable to authenticate.");
-            }
-
-            var json = await tokenResponse.Content.ReadAsStringAsync();
-
-            _accessToken = JsonConvert.DeserializeObject<GetTokenResponse>(json).Token;
-
-            return new Uri($"http://www.last.fm/api/auth?api_key={LastfmQuery.ApiKey}&token={_accessToken}");
-        }
-
         public Task<Uri> StartWebAuthentication(Uri redirectUrl)
         {
             return Task.FromResult(new Uri($"http://www.last.fm/api/auth?api_key={LastfmQuery.ApiKey}&cb={redirectUrl}"));
         }
 
-        public async Task<bool> CompleteAuthentication(string token = null)
+        public async Task<string> CompleteAuthentication(string accessToken)
         {
-            var accessToken = token ?? _accessToken;
-
             if (string.IsNullOrWhiteSpace(accessToken))
-            {
-                throw new InvalidOperationException("Authentication was not started");
-            }
+                throw new ArgumentException(nameof(accessToken));
 
             var requestUri      = LastfmQuery.GetSession(accessToken).Build();
             var sessionResponse = await _httpClient.GetAsync(requestUri);
 
             if (sessionResponse.StatusCode != HttpStatusCode.OK)
-            {
-                return false;
-            }
+                return null;
 
             var sessionJson = await sessionResponse.Content.ReadAsStringAsync();
 
-            _sessionKey = JsonConvert.DeserializeObject<GetSessionResponse>(sessionJson)
+            return JsonConvert.DeserializeObject<GetSessionResponse>(sessionJson)
                 .Session
                 .Key;
-
-            return true;
         }
     }
 }
