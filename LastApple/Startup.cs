@@ -35,7 +35,11 @@ namespace LastApple
 
             services.AddTransient<IDeveloperTokenGenerator, DeveloperTokenGenerator>();
             services.AddSingleton<IDeveloperTokenProvider, DeveloperTokenProvider>();
-            services.AddSingleton<ILastfmApi, LastfmApi.LastfmApi>();
+            services.AddSingleton<ILastfmSessionProvider, LastfmSessionProvider>();
+            services.AddScoped<ILastfmApi, LastfmApi.LastfmApi>();
+            services.AddScoped<ILastfmSessionKeyProvider, LastfmSessionKeyProvider>();
+            services.AddScoped<ISessionKey>(x => x.GetService<ILastfmSessionKeyProvider>());
+            services.AddScoped<LastfmAuthFilter>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

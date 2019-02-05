@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using LastfmApi;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LastApple.Controllers
@@ -9,10 +10,12 @@ namespace LastApple.Controllers
     public class LastfmAuthController : Controller
     {
         private readonly ILastfmApi _lastfmApi;
+        private readonly ILastfmSessionProvider _sessionProvider;
 
-        public LastfmAuthController(ILastfmApi lastfmApi)
+        public LastfmAuthController(ILastfmApi lastfmApi, ILastfmSessionProvider sessionProvider)
         {
             _lastfmApi = lastfmApi ?? throw new ArgumentNullException(nameof(lastfmApi));
+            _sessionProvider = sessionProvider ?? throw new ArgumentNullException(nameof(sessionProvider));
         }
 
         [Route("")]
@@ -29,12 +32,19 @@ namespace LastApple.Controllers
         [HttpPost]
         public async Task<IActionResult> CompleteAuth(string token)
         {
-            await _lastfmApi.CompleteAuthentication(token);
+            var sessionKey = await _lastfmApi.CompleteAuthentication(token);
+
+            var sessionId = Guid.NewGuid();
+
+            _sessionProvider.AddKey(sessionId, sessionKey);
+
+            Response.Cookies.Append("SessionId", sessionId.ToString(), new CookieOptions { Secure = true, HttpOnly = true });
 
             return NoContent();
         }
 
         [Route("state")]
+        [ServiceFilter(typeof(LastfmAuthFilter))]
         public IActionResult IsAuthenticated()
         {
             return Json(_lastfmApi.IsAuthenticated);

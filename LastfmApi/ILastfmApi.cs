@@ -15,11 +15,9 @@ namespace LastfmApi {
 
         Task Scrobble(string artist, string track);
 
-        Task<Uri> StartDesktopAuthentication();
-
         Task<Uri> StartWebAuthentication(Uri redirectUrl);
 
-        Task<bool> CompleteAuthentication(string token = null);
+        Task<string> CompleteAuthentication(string token);
 
         Task<TrackInfo> GetTrackInfo(string artist, string track);
 
