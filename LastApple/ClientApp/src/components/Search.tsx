@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { AsyncTypeahead } from 'react-bootstrap-typeahead';
-import musicKit, { IMediaItemOptions } from "./MusicKitWrapper/MusicKit";
+import { IMediaItemOptions } from "./MusicKitWrapper/MusicKitDefinitions";
+import musicKit from "../musicKit";
 
 interface ISearchState {
     isLoading: boolean;
@@ -8,6 +9,7 @@ interface ISearchState {
 }
 
 interface ISearchProps {
+    placeholder: string,
     onFound: (artistId: string) => void;
 }
 
@@ -20,7 +22,7 @@ export class Search extends React.Component<ISearchProps, ISearchState> {
 
     async search(term: string) {
         this.setState({isLoading: true});
-        const kit = musicKit.getInstance();
+        const kit = await musicKit.getInstance();
 
         let result = await kit.api.search(term);
 
@@ -42,7 +44,8 @@ export class Search extends React.Component<ISearchProps, ISearchState> {
 
     render() {
         return <div>
-            <AsyncTypeahead isLoading={this.state.isLoading}
+            <AsyncTypeahead placeholder={this.props.placeholder}
+                            isLoading={this.state.isLoading}
                             onSearch={query => this.search(query)}
                             delay={500}
                             options={this.state.matches}

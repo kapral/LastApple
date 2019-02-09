@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace LastApple.Controllers
 {
-    [Route("lastfm/auth")]
+    [Route("api/lastfm/auth")]
     public class LastfmAuthController : Controller
     {
         private readonly ILastfmApi _lastfmApi;

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace LastApple.Controllers
 {
-    [Route("apple/auth")]
+    [Route("api/apple/auth")]
     public class AppleAuthController : Controller
     {
         private readonly IDeveloperTokenProvider _tokenProvider;

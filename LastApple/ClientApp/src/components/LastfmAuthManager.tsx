@@ -14,18 +14,18 @@ export class LastfmAuthManager extends Component<{}, {authenticated: boolean}> {
 
 
         if (token) {
-            await fetch(`lastfm/auth?token=${token}`, {method: 'POST'});
+            await fetch(`api/lastfm/auth?token=${token}`, {method: 'POST'});
             this.setState({authenticated: true});
             document.location.search = '';
         }
 
-        const authStateResponse = await fetch('/lastfm/auth/state');
+        const authStateResponse = await fetch('api/lastfm/auth/state');
 
         this.setState({authenticated: await authStateResponse.json()});
     }
 
     async authenticate() {
-        const authUrlResponse = await fetch(`/lastfm/auth?redirectUrl=${window.location.href}`);
+        const authUrlResponse = await fetch(`api/lastfm/auth?redirectUrl=${window.location.href}`);
 
         window.location.href = await authUrlResponse.json();
     }

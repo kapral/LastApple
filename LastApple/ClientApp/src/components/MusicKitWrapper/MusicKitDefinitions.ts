@@ -135,7 +135,3 @@ export interface IStateChangeEvent extends IEvent {
 export interface IProgressUpdatedEvent extends IEvent {
     progress: number;
 }
-
-declare var MusicKit: IMusicKitStatic;
-
-export default (<any>window).MusicKit;
