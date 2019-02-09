@@ -1,26 +1,22 @@
 import React, { Component } from 'react';
-import {PlayerControl} from "./Player/PlayerControl";
-import {Search} from "./Search";
-import {LastfmAuthManager} from "./LastfmAuthManager";
+import { LastfmAuthManager } from "./LastfmAuthManager";
+import { StationsList } from "./StationsList";
+import { SingleArtist } from "./Stations/SingleArtist";
+import { Col, Grid, Row } from "react-bootstrap";
 
-interface IHomeState {
-    currentArtistId: string;
-}
-
-export class Home extends Component<{}, IHomeState> {
+export class Home extends Component {
     displayName = Home.name
-
-    constructor(props){
-        super(props);
-
-        this.state = { currentArtistId: null };
-    }
 
     render() {
         return <div>
             <LastfmAuthManager/>
-            <Search onFound={artistId => this.setState({currentArtistId: artistId})}/>
-            <PlayerControl artistId={this.state.currentArtistId}/>
+            <StationsList>
+                <Grid fluid={true}>
+                    <Row>
+                        <Col md={6}><SingleArtist/></Col>
+                    </Row>
+                </Grid>
+            </StationsList>
         </div>;
     }
 }

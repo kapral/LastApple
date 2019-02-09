@@ -9,3 +9,8 @@ body {
 a {
     cursor: pointer;
 }
+
+.col-md-6 {
+    padding-left: 5px;
+    padding-right: 5px;
+}

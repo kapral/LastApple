@@ -40,6 +40,7 @@ namespace LastApple
             services.AddScoped<ILastfmSessionKeyProvider, LastfmSessionKeyProvider>();
             services.AddScoped<ISessionKey>(x => x.GetService<ILastfmSessionKeyProvider>());
             services.AddScoped<LastfmAuthFilter>();
+            services.AddSingleton<IStationRepository, StationRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

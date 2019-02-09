@@ -1,5 +1,6 @@
 import * as React from "react";
-import musicKit, {IEvent, IMediaItem, IMusicKit, IStateChangeEvent, PlaybackState} from "../MusicKitWrapper/MusicKit";
+import musicKit from '../../musicKit';
+import { IEvent, IMediaItem, IMusicKit, IStateChangeEvent, PlaybackState } from "../MusicKitWrapper/MusicKitDefinitions";
 
 const secondaryColor = '#250202';
 
@@ -17,13 +18,17 @@ const headingStyles: React.CSSProperties = {
 };
 
 interface IPlayerProps {
-    artistId: string;
+    stationId: string;
 }
 
 interface IPlayerState {
     currentTrack?: IMediaItem;
-    currentArtistId?: string;
     kitInitialized: boolean;
+}
+
+interface IStation {
+    id: string;
+    songIds: Array<string>;
 }
 
 export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
@@ -35,37 +40,19 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
     }
 
     async componentDidMount() {
-        const tokenResponse = await fetch('/apple/auth/token');
-
-        const token = await tokenResponse.json();
-
-        this.musicKit = musicKit.configure({
-            app: {
-                name: 'Last Apple',
-                build: '0.0.1'
-            },
-            developerToken: token
-        });
-
-        await this.musicKit.authorize();
+        this.musicKit = await musicKit.getInstance();
 
         this.musicKit.player.addEventListener('playbackStateDidChange', async (x: IEvent) => await this.handleStateChange(x as IStateChangeEvent));
-    }
 
-    async componentDidUpdate() {
-        if(!this.props.artistId || this.props.artistId === this.state.currentArtistId) {
-            return;
-        }
+        const stationResponse = await fetch(`api/station/${this.props.stationId}`);
+        const station: IStation = await stationResponse.json();
 
-        const songsResponse = await fetch(`songs/${this.props.artistId}`);
-        const songs = await songsResponse.json();
-
-        await this.musicKit.setQueue({ songs });
+        await this.musicKit.setQueue({ songs: station.songIds });
         await this.musicKit.player.prepareToPlay(this.musicKit.player.queue.items[this.getCurrentQueuePosition()]);
 
-        this.setState({kitInitialized: true, currentArtistId: this.props.artistId});
+        this.setState({ kitInitialized: true });
 
-        this.refresh();
+        await this.refresh();
     }
 
     async handleStateChange(event: IStateChangeEvent) {
@@ -73,7 +60,7 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
             return;
         }
 
-        this.refresh();
+        await this.refresh();
 
         if(event.state === PlaybackState.Ended) {
             await this.scrobble();
@@ -98,13 +85,13 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
             track: this.state.currentTrack.title
         };
 
-        const url = `lastfm/${method}?artist=${this.state.currentTrack.artistName}&song=${this.state.currentTrack.title}`;
+        const url = `api/lastfm/${method}?artist=${this.state.currentTrack.artistName}&song=${this.state.currentTrack.title}`;
 
         await fetch(url.toString(), { method: 'POST', body: JSON.stringify(currentTrack) });
     }
 
-    refresh() {
-        const kit = musicKit.getInstance();
+    async refresh() {
+        const kit = await musicKit.getInstance();
 
         const currentTrack = kit.player.nowPlayingItem || kit.player.queue.items[this.getCurrentQueuePosition()];
         this.setState({currentTrack});
@@ -134,7 +121,7 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
     }
 
     render() {
-        if(!this.state.kitInitialized || !this.props.artistId) {
+        if(!this.state.kitInitialized) {
             return null;
         }
 
