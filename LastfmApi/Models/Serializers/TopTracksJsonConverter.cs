@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace LastfmApi.Api.Serializers
+namespace LastfmApi.Models.Serializers
 {
     public class TopTracksJsonConverter : JsonConverter
     {

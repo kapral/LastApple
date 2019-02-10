@@ -4,8 +4,8 @@ using System.Globalization;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using LastfmApi.Api;
-using LastfmApi.Api.Serializers;
+using LastfmApi.Models;
+using LastfmApi.Models.Serializers;
 using Newtonsoft.Json;
 
 namespace LastfmApi

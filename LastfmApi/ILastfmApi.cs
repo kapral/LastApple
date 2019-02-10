@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using LastfmApi.Api;
+using LastfmApi.Models;
 
 namespace LastfmApi {
     public interface ILastfmApi {
