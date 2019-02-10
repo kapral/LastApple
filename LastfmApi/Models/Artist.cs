@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace LastfmApi.Api
+namespace LastfmApi.Models
 {
     public class Artist
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace LastfmApi.Api {
+namespace LastfmApi.Models {
     public class Session {
         public Session(string name, string key) {
             Name = name ?? throw new ArgumentNullException(nameof(name));

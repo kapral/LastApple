@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace LastfmApi.Api
+namespace LastfmApi.Models
 {
     public class TopTracks
     {
