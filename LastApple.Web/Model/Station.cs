@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace LastApple.Model
+namespace LastApple.Web.Model
 {
     public class Station
     {

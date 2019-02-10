@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using LastApple.Model;
+using LastApple.Web.Model;
 
-namespace LastApple
+namespace LastApple.Web
 {
     public class StationRepository : IStationRepository
     {

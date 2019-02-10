@@ -4,7 +4,7 @@ using LastfmApi;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace LastApple.Controllers
+namespace LastApple.Web.Controllers
 {
     [Route("api/lastfm/auth")]
     public class LastfmAuthController : Controller

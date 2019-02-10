@@ -1,7 +1,7 @@
 using System;
 using Microsoft.AspNetCore.Mvc;
 
-namespace LastApple.Controllers
+namespace LastApple.Web.Controllers
 {
     [Route("api/station")]
     public class StationController: Controller
