@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using LastfmApi;
 using Microsoft.AspNetCore.Mvc;
 
-namespace LastApple.Controllers
+namespace LastApple.Web.Controllers
 {
     [Route("api/lastfm")]
     [ServiceFilter(typeof(LastfmAuthFilter))]

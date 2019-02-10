@@ -1,7 +1,7 @@
 using System;
-using LastApple.Model;
+using LastApple.Web.Model;
 
-namespace LastApple
+namespace LastApple.Web
 {
     public interface IStationRepository
     {

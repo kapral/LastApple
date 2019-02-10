@@ -1,8 +1,7 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 
-namespace LastApple
+namespace LastApple.Web
 {
     public class LastfmSessionProvider : ILastfmSessionProvider
     {

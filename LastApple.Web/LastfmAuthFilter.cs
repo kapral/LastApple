@@ -1,7 +1,7 @@
 using System;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace LastApple
+namespace LastApple.Web
 {
     public class LastfmAuthFilter : ActionFilterAttribute
     {

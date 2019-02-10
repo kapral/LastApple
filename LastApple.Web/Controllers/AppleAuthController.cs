@@ -1,7 +1,7 @@
 using System;
 using Microsoft.AspNetCore.Mvc;
 
-namespace LastApple.Controllers
+namespace LastApple.Web.Controllers
 {
     [Route("api/apple/auth")]
     public class AppleAuthController : Controller

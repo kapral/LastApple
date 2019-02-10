@@ -1,4 +1,4 @@
-namespace LastApple
+namespace LastApple.Web
 {
     public class LastfmSessionKeyProvider : ILastfmSessionKeyProvider
     {

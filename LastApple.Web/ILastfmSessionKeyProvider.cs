@@ -1,6 +1,6 @@
 using LastfmApi;
 
-namespace LastApple
+namespace LastApple.Web
 {
     public interface ILastfmSessionKeyProvider : ISessionKey
     {

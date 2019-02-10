@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LastApple", "LastApple\LastApple.csproj", "{5DAA0ACE-4A29-46D1-902B-D478643CBBB4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LastApple.Web", "LastApple.Web\LastApple.Web.csproj", "{5DAA0ACE-4A29-46D1-902B-D478643CBBB4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppleMusicApi", "AppleMusicApi\AppleMusicApi.csproj", "{DCA3E40D-AB3F-4720-A555-71D8B671E20C}"
 EndProject

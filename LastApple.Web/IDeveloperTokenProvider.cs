@@ -1,4 +1,4 @@
-namespace LastApple
+namespace LastApple.Web
 {
     public interface IDeveloperTokenProvider
     {

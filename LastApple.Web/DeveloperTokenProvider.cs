@@ -2,7 +2,7 @@ using System;
 using AppleMusicApi;
 using Microsoft.Extensions.Options;
 
-namespace LastApple
+namespace LastApple.Web
 {
     public class DeveloperTokenProvider : IDeveloperTokenProvider
     {

@@ -4,10 +4,10 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using LastApple.Model;
+using LastApple.Web.Model;
 using Microsoft.AspNetCore.Mvc;
 
-namespace LastApple.Controllers
+namespace LastApple.Web.Controllers
 {
     [Route("api/station/artist")]
     public class ArtistStationController : Controller
