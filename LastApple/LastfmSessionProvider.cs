@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace LastApple.Web
+namespace LastApple
 {
     public class LastfmSessionProvider : ILastfmSessionProvider
     {

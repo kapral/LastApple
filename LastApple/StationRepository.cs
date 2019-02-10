@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
-using LastApple.Web.Model;
+using LastApple.Model;
 
-namespace LastApple.Web
+namespace LastApple
 {
     public class StationRepository : IStationRepository
     {
-        private IDictionary<Guid, Station> _stations = new Dictionary<Guid, Station>();
+        private readonly IDictionary<Guid, Station> _stations = new Dictionary<Guid, Station>();
 
         public Station Get(Guid id)
         {
