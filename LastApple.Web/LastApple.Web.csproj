@@ -23,6 +23,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\AppleMusicApi\AppleMusicApi.csproj" />
+      <ProjectReference Include="..\LastApple\LastApple.csproj" />
       <ProjectReference Include="..\LastfmApi\LastfmApi.csproj" />
     </ItemGroup>
 

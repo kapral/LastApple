@@ -4,7 +4,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using LastApple.Web.Model;
+using LastApple.Model;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LastApple.Web.Controllers

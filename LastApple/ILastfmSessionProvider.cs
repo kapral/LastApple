@@ -1,6 +1,6 @@
 using System;
 
-namespace LastApple.Web
+namespace LastApple
 {
     public interface ILastfmSessionProvider
     {
