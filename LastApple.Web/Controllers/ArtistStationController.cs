@@ -50,12 +50,12 @@ namespace LastApple.Web.Controllers
 
             var httpResponse = await _httpClient.GetAsync($"catalog/ru/artists/{artistId}/songs");
 
-            var response = await httpResponse.Content.ReadAsAsync<Response>();
+            var response = await httpResponse.Content.ReadAsAsync<ApiResponse>();
 
             return response.Data.Select(x => x.Id).ToArray();
         }
 
-        private class Response
+        private class ApiResponse
         {
             public IEnumerable<Song> Data { get; set; }
         }
