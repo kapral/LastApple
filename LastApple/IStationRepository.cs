@@ -5,8 +5,8 @@ namespace LastApple
 {
     public interface IStationRepository
     {
-        Station Get(Guid id);
+        StationBase Get(Guid id);
 
-        void Create(Station station);
+        void Create(StationBase station);
     }
 }

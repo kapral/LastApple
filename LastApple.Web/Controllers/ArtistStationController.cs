@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using LastApple.Model;
+using LastApple.PlaylistGeneration;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LastApple.Web.Controllers
@@ -27,7 +28,7 @@ namespace LastApple.Web.Controllers
         [Route("{artistId}")]
         public async Task<ActionResult> Create(string artistId)
         {
-            var station = new Station
+            var station = new Station<ArtistsStationDefinition>
             {
                 Id = Guid.NewGuid()
             };
@@ -39,7 +40,7 @@ namespace LastApple.Web.Controllers
 
             _stationRepository.Create(station);
 
-            return Json(station.Id);
+            return Json(station);
         }
 
         private async Task<IEnumerable<string>> GetSongs(string artistId)

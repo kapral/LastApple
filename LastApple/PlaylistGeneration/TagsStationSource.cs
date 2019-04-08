@@ -11,19 +11,17 @@ namespace LastApple.PlaylistGeneration
     {
         private readonly ILastfmApi _lastfmApi;
         private const int MaxLastFmPageSize     = 1000;
-        private const int MaxPageNumber         = 100;
+        private const int MaxPageNumber         = 10;
         private const int MinIntersectionLength = 5;
 
         public TagsStationSource(ILastfmApi lastfmApi)
         {
-            _lastfmApi     = lastfmApi ?? throw new ArgumentNullException(nameof(lastfmApi));
+            _lastfmApi = lastfmApi ?? throw new ArgumentNullException(nameof(lastfmApi));
         }
 
-        public TagsStationDefinition StationDefinition { get; set; }
-
-        public async Task<IEnumerable<Artist>> GetStationArtists()
+        public async Task<IEnumerable<Artist>> GetStationArtists(TagsStationDefinition definition)
         {
-            var artistsByTag = StationDefinition.Tags.ToDictionary(x => x, x => new List<Artist>());
+            var artistsByTag = definition.Tags.ToDictionary(x => x, x => new List<Artist>());
 
             var intersection = new Artist[0];
 

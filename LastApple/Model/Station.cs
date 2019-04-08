@@ -1,12 +1,9 @@
-using System;
-using System.Collections.Generic;
+using LastApple.PlaylistGeneration;
 
 namespace LastApple.Model
 {
-    public class Station
+    public class Station<TDefinition> : StationBase where TDefinition : IStationDefinition
     {
-        public Guid Id { get; set; }
-
-        public IList<string>  SongIds { get; } = new List<string>();
+        public TDefinition Definition { get; set; }
     }
 }

@@ -7,34 +7,23 @@ using LastfmApi.Models;
 
 namespace LastApple.PlaylistGeneration
 {
-    public class StationTrackGenerator : IStationTrackGenerator
+    public class StationTrackGenerator<TStation> : IStationTrackGenerator<TStation> where TStation : IStationDefinition
     {
-        private readonly ILastfmApi     _lastfmApi;
-        private readonly IRandomizer    _randomizer;
-        private          IStationSource _source;
-        private          StationCache   _cache;
+        private readonly ILastfmApi               _lastfmApi;
+        private readonly IRandomizer              _randomizer;
+        private readonly IStationSource<TStation> _source;
+        private          StationCache             _cache;
+        private          TStation                 _station;
 
-        public StationTrackGenerator(IRandomizer randomizer, ILastfmApi lastfmApi)
+        public StationTrackGenerator(IRandomizer randomizer, ILastfmApi lastfmApi, IStationSource<TStation> source)
         {
             _randomizer = randomizer ?? throw new ArgumentNullException(nameof(randomizer));
             _lastfmApi  = lastfmApi ?? throw new ArgumentNullException(nameof(lastfmApi));
-        }
-
-        public IStationSource Source
-        {
-            get => _source;
-            set
-            {
-                _source = value;
-                _cache  = new StationCache(_source);
-            }
+            _source     = source ?? throw new ArgumentNullException(nameof(source));
         }
 
         public async Task<TrackInfo> GetNext()
         {
-            if (Source == null)
-                throw new InvalidOperationException("Station source is not set.");
-
             var artists      = (await _cache.GetArtists()).ToArray();
             var randomArtist = artists.ElementAtOrDefault(_randomizer.NextDecreasing(artists.Length));
 
@@ -44,6 +33,16 @@ namespace LastApple.PlaylistGeneration
             var tracks = await _cache.GetOrAddTracks(randomArtist, () => _lastfmApi.GetTopTracks(randomArtist.Name));
 
             return await GetRandomTrack(randomArtist.Name, tracks.ToArray());
+        }
+
+        public TStation Station
+        {
+            get => _station;
+            set
+            {
+                _station = value;
+                _cache = new StationCache(_source, value);
+            }
         }
 
         private async Task<TrackInfo> GetRandomTrack(string artist, IReadOnlyCollection<Track> tracks)
@@ -60,17 +59,20 @@ namespace LastApple.PlaylistGeneration
 
         private class StationCache
         {
-            private readonly IStationSource               _source;
+            private readonly IStationSource<TStation>     _source;
+            private readonly TStation                     _stationDefinition;
             private readonly IDictionary<string, Track[]> _tracksCache;
             private          IEnumerable<Artist>          _artists;
 
-            public StationCache(IStationSource source)
+            public StationCache(IStationSource<TStation> source, TStation stationDefinition)
             {
-                _source = source;
+                _source      = source;
+                _stationDefinition = stationDefinition;
                 _tracksCache = new Dictionary<string, Track[]>();
             }
 
-            public async Task<IEnumerable<Track>> GetOrAddTracks(Artist artist, Func<Task<IEnumerable<Track>>> getTracks)
+            public async Task<IEnumerable<Track>> GetOrAddTracks(Artist artist,
+                Func<Task<IEnumerable<Track>>> getTracks)
             {
                 if (_tracksCache.TryGetValue(artist.Name, out var topTracks))
                     return topTracks;
@@ -88,7 +90,7 @@ namespace LastApple.PlaylistGeneration
                 if (_artists != null)
                     return _artists;
 
-                _artists = await _source.GetStationArtists();
+                _artists = await _source.GetStationArtists(_stationDefinition);
 
                 return _artists;
             }

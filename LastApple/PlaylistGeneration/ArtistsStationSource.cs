@@ -7,11 +7,9 @@ namespace LastApple.PlaylistGeneration
 {
     public class ArtistsStationSource : IStationSource<ArtistsStationDefinition>
     {
-        public ArtistsStationDefinition StationDefinition { get; set; }
-
-        public Task<IEnumerable<Artist>> GetStationArtists()
+        public Task<IEnumerable<Artist>> GetStationArtists(ArtistsStationDefinition definition)
         {
-            return Task.FromResult(StationDefinition.Artists.Select(x => new Artist(x)));
+            return Task.FromResult(definition.Artists.Select(x => new Artist(x)));
         }
     }
 }
