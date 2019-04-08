@@ -3,6 +3,7 @@ import { LastfmAuthManager } from "./LastfmAuthManager";
 import { StationsList } from "./StationsList";
 import { SingleArtist } from "./Stations/SingleArtist";
 import { Col, Grid, Row } from "react-bootstrap";
+import { Tag } from "./Stations/Tag";
 
 export class Home extends Component {
     displayName = Home.name
@@ -14,6 +15,7 @@ export class Home extends Component {
                 <Grid fluid={true}>
                     <Row>
                         <Col md={6}><SingleArtist/></Col>
+                        <Col md={6}><Tag/></Col>
                     </Row>
                 </Grid>
             </StationsList>
