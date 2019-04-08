@@ -4,13 +4,8 @@ using LastfmApi.Models;
 
 namespace LastApple.PlaylistGeneration
 {
-    public interface IStationSource
+    public interface IStationSource<in TDefinition> where TDefinition : IStationDefinition
     {
-        Task<IEnumerable<Artist>> GetStationArtists();
-    }
-
-    public interface IStationSource<out TDefinition> : IStationSource where TDefinition : IStationDefinition
-    {
-        TDefinition StationDefinition { get; }
+        Task<IEnumerable<Artist>> GetStationArtists(TDefinition definition);
     }
 }

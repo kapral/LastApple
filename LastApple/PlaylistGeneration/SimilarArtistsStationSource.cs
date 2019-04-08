@@ -16,13 +16,10 @@ namespace LastApple.PlaylistGeneration
             _lastfmApi = lastfmApi ?? throw new ArgumentNullException(nameof(lastfmApi));
         }
 
-        public SimilarArtistsStationDefinition StationDefinition { get; set; }
-
-
-        public async Task<IEnumerable<Artist>> GetStationArtists()
+        public async Task<IEnumerable<Artist>> GetStationArtists(SimilarArtistsStationDefinition definition)
         {
-            var similarArtists = await _lastfmApi.GetSimilarArtists(StationDefinition.SourceArtist);
-            return new[] { new Artist(StationDefinition.SourceArtist) }.Concat(similarArtists ?? new Artist[0])
+            var similarArtists = await _lastfmApi.GetSimilarArtists(definition.SourceArtist);
+            return new[] { new Artist(definition.SourceArtist) }.Concat(similarArtists ?? new Artist[0])
                 .ToArray();
         }
     }

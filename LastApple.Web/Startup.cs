@@ -1,5 +1,8 @@
 using AppleMusicApi;
+using LastApple.Model;
+using LastApple.PlaylistGeneration;
 using LastfmApi;
+using LastfmPlayer.Core.PlaylistGeneration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -35,6 +38,28 @@ namespace LastApple.Web
 
             services.AddTransient<IDeveloperTokenGenerator, DeveloperTokenGenerator>();
             services.AddSingleton<IDeveloperTokenProvider, DeveloperTokenProvider>();
+
+            services.AddScoped<IStationGenerator<ArtistsStationDefinition>, StationGenerator<ArtistsStationDefinition>>();
+            services.AddScoped<IStationGenerator<SimilarArtistsStationDefinition>, StationGenerator<SimilarArtistsStationDefinition>>();
+            services.AddScoped<IStationGenerator<TagsStationDefinition>, StationGenerator<TagsStationDefinition>>();
+            services.AddScoped<IStationTrackGenerator<ArtistsStationDefinition>, StationTrackGenerator<ArtistsStationDefinition>>();
+            services.AddScoped<IStationTrackGenerator<SimilarArtistsStationDefinition>, StationTrackGenerator<SimilarArtistsStationDefinition>>();
+            services.AddScoped<IStationTrackGenerator<TagsStationDefinition>, StationTrackGenerator<TagsStationDefinition>>();
+            services.AddTransient<ITrackIdProvider, TrackIdProvider>();
+            services.AddTransient<IRandomizer, Randomizer>();
+            services.AddTransient<ICatalogApi, CatalogApi>();
+
+            services.AddTransient(container =>
+            {
+                var tokenProvider = container.GetService<IDeveloperTokenProvider>();
+
+                return new ApiAuthentication { DeveloperToken = tokenProvider.GetToken() };
+            });
+
+            services.AddScoped<IStationSource<ArtistsStationDefinition>, ArtistsStationSource>();
+            services.AddScoped<IStationSource<SimilarArtistsStationDefinition>, SimilarArtistsStationSource>();
+            services.AddScoped<IStationSource<TagsStationDefinition>, TagsStationSource>();
+
             services.AddSingleton<ILastfmSessionProvider, LastfmSessionProvider>();
             services.AddScoped<ILastfmApi, LastfmApi.LastfmApi>();
             services.AddScoped<ILastfmSessionKeyProvider, LastfmSessionKeyProvider>();

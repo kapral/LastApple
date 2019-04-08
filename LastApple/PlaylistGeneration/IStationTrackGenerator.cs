@@ -2,9 +2,9 @@
 using LastfmApi.Models;
 
 namespace LastApple.PlaylistGeneration {
-    public interface IStationTrackGenerator {
+    public interface IStationTrackGenerator<TStation> where TStation : IStationDefinition {
         Task<TrackInfo> GetNext();
 
-        IStationSource Source { get; set; }
+        TStation Station { get; set; }
     }
 }
