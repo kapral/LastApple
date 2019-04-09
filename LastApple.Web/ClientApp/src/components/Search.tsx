@@ -49,7 +49,7 @@ export class Search extends React.Component<ISearchProps, ISearchState> {
                             onSearch={query => this.search(query)}
                             delay={500}
                             options={this.state.matches}
-                            labelKey={x => x.attributes.name}
+                            labelKey={x => (x as any).attributes.name}
                             onChange={items => this.select(items[0])}/>
         </div>
     }
