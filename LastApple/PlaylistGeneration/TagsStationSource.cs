@@ -10,7 +10,7 @@ namespace LastApple.PlaylistGeneration
     public class TagsStationSource : IStationSource<TagsStationDefinition>
     {
         private readonly ILastfmApi _lastfmApi;
-        private const int MaxLastFmPageSize     = 1000;
+        private const int LastFmPageSize        = 200;
         private const int MaxPageNumber         = 10;
         private const int MinIntersectionLength = 5;
 
@@ -31,7 +31,7 @@ namespace LastApple.PlaylistGeneration
 
                 foreach (var (tag, artists) in artistsByTag)
                 {
-                    var pageArtists = (await _lastfmApi.GetTagArtists(tag, page, MaxLastFmPageSize)).ToArray();
+                    var pageArtists = (await _lastfmApi.GetTagArtists(tag, page, LastFmPageSize)).ToArray();
 
                     if (page == 1 && !pageArtists.Any())
                         return new Artist[0];
