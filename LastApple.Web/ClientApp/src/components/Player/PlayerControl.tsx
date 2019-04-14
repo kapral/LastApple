@@ -188,7 +188,7 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
                     {this.renderButtons()}
                 </div>
             </div>
-            <Playlist musicKit={this.musicKit} currentTrack={this.state.currentTrack}/>
+            <Playlist musicKit={this.musicKit} currentTrack={this.state.currentTrack} visibleOffset={this.getCurrentQueuePosition()} visibleCount={10}/>
         </div>;
     }
 
