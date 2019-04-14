@@ -2,6 +2,7 @@ import * as React from "react";
 import musicKit from '../../musicKit';
 import { IEvent, IMediaItem, IMusicKit, IStateChangeEvent, PlaybackState } from "../MusicKitWrapper/MusicKitDefinitions";
 import * as signalR from "@aspnet/signalr";
+import { Playlist } from "./Playlist";
 
 const secondaryColor = '#250202';
 
@@ -125,6 +126,19 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
         }
     }
 
+    async refresh() {
+        const kit = await musicKit.getInstance();
+
+        const currentTrack = kit.player.nowPlayingItem || kit.player.queue.items[this.getCurrentQueuePosition()];
+        this.setState({currentTrack});
+    }
+
+    getCurrentQueuePosition() {
+        const queuePosition = this.musicKit.player.queue.position;
+
+        return queuePosition !== -1 ? queuePosition : 0;
+    }
+
     async scrobble() {
         await this.sendToLastfm('scrobble');
     }
@@ -142,19 +156,6 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
         const url = `api/lastfm/${method}?artist=${this.state.currentTrack.artistName}&song=${this.state.currentTrack.title}`;
 
         await fetch(url.toString(), { method: 'POST', body: JSON.stringify(currentTrack) });
-    }
-
-    async refresh() {
-        const kit = await musicKit.getInstance();
-
-        const currentTrack = kit.player.nowPlayingItem || kit.player.queue.items[this.getCurrentQueuePosition()];
-        this.setState({currentTrack});
-    }
-
-    getCurrentQueuePosition() {
-        const queuePosition = this.musicKit.player.queue.position;
-
-        return queuePosition !== -1 ? queuePosition : 0;
     }
 
     async handlePlayPause() {
@@ -187,7 +188,7 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
                     {this.renderButtons()}
                 </div>
             </div>
-            {this.renderPlaylist()}
+            <Playlist musicKit={this.musicKit} currentTrack={this.state.currentTrack}/>
         </div>;
     }
 
@@ -212,20 +213,6 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
                 : 'glyphicon glyphicon-play'} onClick={() => this.handlePlayPause()}></button>
             <button style={buttonStyles} className={'glyphicon glyphicon-step-forward'}
                     onClick={() => this.switchNext()}></button>
-        </div>
-    }
-
-    renderPlaylist() {
-        return <div className="playlist" style={{marginTop: '15px'}}>
-            {this.musicKit.player.queue.items.map((item, index) =>
-                <div key={index} style={{
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    background: this.getCurrentQueuePosition() === index ? secondaryColor : 'none'
-                }}>
-                    <h5 style={{display: 'inline-block', marginLeft: '10px'}}>{item.title}</h5>
-                </div>)}
         </div>
     }
 }
