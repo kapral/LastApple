@@ -22,6 +22,7 @@ interface ISetQueueOptions {
 }
 
 export interface IMediaItem {
+    id: string;
     title: string;
     albumName: string;
     artistName: string;
@@ -106,6 +107,7 @@ export interface IQueryParameters {
 export interface IMusicKitApi {
     search(term: string, parameters?: IQueryParameters): Promise<ISearchResponse>;
     searchHints(term: string, parameters?: IQueryParameters): Promise<ISearchHints>;
+    song(trackId: string): Promise<IMediaItem>;
 }
 
 interface IAppConfiguration {
