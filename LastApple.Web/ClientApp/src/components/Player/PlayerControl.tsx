@@ -1,6 +1,7 @@
 import * as React from "react";
 import musicKit from '../../musicKit';
 import { IEvent, IMediaItem, IMusicKit, IStateChangeEvent, PlaybackState } from "../MusicKitWrapper/MusicKitDefinitions";
+import * as signalR from "@aspnet/signalr";
 
 const secondaryColor = '#250202';
 
@@ -31,8 +32,14 @@ interface IStation {
     songIds: Array<string>;
 }
 
+interface IAddTrackEvent {
+    trackId: string;
+    position: number;
+}
+
 export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
     musicKit: IMusicKit;
+    pendingEvents: Array<IAddTrackEvent> = [];
 
     constructor(props) {
         super(props);
@@ -40,6 +47,8 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
     }
 
     async componentDidMount() {
+        await this.subscribeToStationEvents();
+
         this.musicKit = await musicKit.getInstance();
 
         this.musicKit.player.addEventListener('playbackStateDidChange', async (x: IEvent) => await this.handleStateChange(x as IStateChangeEvent));
@@ -51,8 +60,53 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
         await this.musicKit.player.prepareToPlay(this.musicKit.player.queue.items[this.getCurrentQueuePosition()]);
 
         this.setState({ kitInitialized: true });
+        await this.addTracks(this.pendingEvents);
+        this.pendingEvents = [];
 
         await this.refresh();
+    }
+
+    async subscribeToStationEvents() {
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/hubs")
+            .build();
+
+        await connection.start();
+
+        connection.on('trackAdded', async (stationId: string, trackId: string, position: number) => {
+            if(stationId !== this.props.stationId) {
+                return;
+            }
+
+            const event = { trackId, position };
+
+            if(!this.state.kitInitialized) {
+                this.pendingEvents.push(event);
+                return;
+            }
+
+            await this.addTracks([event]);
+            await this.refresh();
+        });
+    }
+
+    async addTracks(addTrackEvents: Array<IAddTrackEvent>) {
+        for (let event of addTrackEvents) {
+            let existingItem = this.musicKit.player.queue.item(event.position);
+
+            if(!existingItem) {
+                const song = await this.musicKit.api.song(event.trackId);
+
+                this.musicKit.player.queue.append(song);
+                return;
+            }
+
+            if(existingItem.id === event.trackId) {
+                return;
+            }
+
+            console.warn(`Position ${event.position} already occupied by a different item.`);
+        }
     }
 
     async handleStateChange(event: IStateChangeEvent) {

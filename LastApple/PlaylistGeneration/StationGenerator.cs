@@ -8,14 +8,17 @@ namespace LastApple.PlaylistGeneration {
     public class StationGenerator<TStation> : IStationGenerator<TStation> where TStation : IStationDefinition {
         private readonly IStationTrackGenerator<TStation> _trackGenerator;
         private readonly ITrackIdProvider _trackIdProvider;
+        private readonly IStationEventMediator _stationEventMediator;
 
         private const int AttemptsLimit = 50;
 
         public StationGenerator(IStationTrackGenerator<TStation> stationTrackGenerator,
-            ITrackIdProvider trackIdProvider)
+            ITrackIdProvider trackIdProvider,
+            IStationEventMediator stationEventMediator)
         {
             _trackGenerator  = stationTrackGenerator ?? throw new ArgumentNullException(nameof(stationTrackGenerator));
             _trackIdProvider = trackIdProvider ?? throw new ArgumentNullException(nameof(trackIdProvider));
+            _stationEventMediator = stationEventMediator ?? throw new ArgumentNullException(nameof(stationEventMediator));
         }
 
         public async Task Generate(Station<TStation> station) {
@@ -46,6 +49,7 @@ namespace LastApple.PlaylistGeneration {
                     continue;
 
                 station.SongIds.Add(trackId);
+                _stationEventMediator.NotifyTrackAdded(station.Id, trackId, station.SongIds.Count - 1);
                 attempts = 0;
             }
         }

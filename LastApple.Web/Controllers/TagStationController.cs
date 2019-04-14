@@ -12,18 +12,22 @@ namespace LastApple.Web.Controllers
     {
         private readonly IStationRepository                       _stationRepository;
         private readonly IStationGenerator<TagsStationDefinition> _stationGenerator;
+        private readonly IBackgroundProcessManager                _backgroundProcessManager;
 
         public TagStationController(IStationRepository stationRepository,
-            IStationGenerator<TagsStationDefinition> stationGenerator)
+            IStationGenerator<TagsStationDefinition> stationGenerator,
+            IBackgroundProcessManager backgroundProcessManager)
         {
             _stationRepository = stationRepository ?? throw new ArgumentNullException(nameof(stationRepository));
             _stationGenerator  = stationGenerator ?? throw new ArgumentNullException(nameof(stationGenerator));
+            _backgroundProcessManager = backgroundProcessManager ??
+                                        throw new ArgumentNullException(nameof(backgroundProcessManager));
         }
 
         [HttpPost]
         [Route("{tag}")]
 
-        public async Task<IActionResult> Create(string tag)
+        public IActionResult Create(string tag)
         {
             if (string.IsNullOrWhiteSpace(tag))
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(tag));
@@ -33,7 +37,7 @@ namespace LastApple.Web.Controllers
 
             _stationRepository.Create(station);
 
-            await _stationGenerator.Generate(station);
+            _backgroundProcessManager.AddProcess(() => _stationGenerator.Generate(station));
 
             return Json(station);
         }
