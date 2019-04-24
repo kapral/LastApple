@@ -16,7 +16,7 @@ export class Playlist extends Component<{musicKit: IMusicKit, currentTrack: IMed
                     textOverflow: 'ellipsis',
                     background: item === this.props.currentTrack ? secondaryColor : 'none'
                 }}>
-                    <h5 style={{display: 'inline-block', marginLeft: '10px'}}>{item.title}</h5>
+                    <h5 style={{display: 'inline-block', marginLeft: '10px'}}>{`${item.artistName} - ${item.title}`}</h5>
                 </div>)}
         </div>
     }
