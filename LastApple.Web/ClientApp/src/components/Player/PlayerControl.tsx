@@ -119,6 +119,7 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
 
         if(event.state === PlaybackState.Ended) {
             await this.scrobble();
+            await this.musicKit.authorize();
         }
 
         if(event.state === PlaybackState.Playing) {
