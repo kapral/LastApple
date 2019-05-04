@@ -2,7 +2,7 @@ import * as React from "react";
 import musicKit from '../../musicKit';
 import { IEvent, IMediaItem, IMusicKit, IStateChangeEvent, PlaybackState } from "../MusicKitWrapper/MusicKitDefinitions";
 import * as signalR from "@aspnet/signalr";
-import { Playlist } from "./Playlist";
+import { Playlist, IPagingParams } from "./Playlist";
 
 const secondaryColor = '#250202';
 
@@ -28,9 +28,16 @@ interface IPlayerState {
     kitInitialized: boolean;
 }
 
+interface IStationDefinition {
+    stationType: string;
+}
+
 interface IStation {
     id: string;
-    songIds: Array<string>;
+    songIds: Array<string>
+    size: number;
+    isContinuous: boolean;
+    definition: IStationDefinition;
 }
 
 interface IAddTrackEvent {
@@ -41,6 +48,8 @@ interface IAddTrackEvent {
 export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
     musicKit: IMusicKit;
     pendingEvents: Array<IAddTrackEvent> = [];
+    station: IStation;
+    requestedItems = 0;
 
     constructor(props) {
         super(props);
@@ -55,9 +64,9 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
         this.musicKit.player.addEventListener('playbackStateDidChange', async (x: IEvent) => await this.handleStateChange(x as IStateChangeEvent));
 
         const stationResponse = await fetch(`api/station/${this.props.stationId}`);
-        const station: IStation = await stationResponse.json();
+        this.station = await stationResponse.json();
 
-        await this.musicKit.setQueue({ songs: station.songIds });
+        await this.musicKit.setQueue({ songs: this.station.songIds });
         await this.musicKit.player.prepareToPlay(this.musicKit.player.queue.items[this.getCurrentQueuePosition()]);
 
         this.setState({ kitInitialized: true });
@@ -95,6 +104,10 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
         for (let event of addTrackEvents) {
             let existingItem = this.musicKit.player.queue.item(event.position);
 
+            if(this.requestedItems > 0) {
+                this.requestedItems--;
+            }
+
             if(!existingItem) {
                 const song = await this.musicKit.api.song(event.trackId);
 
@@ -117,12 +130,26 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
 
         await this.refresh();
 
+        if(this.station.isContinuous) {
+            await this.topUp();
+        }
+
         if(event.state === PlaybackState.Ended) {
             await this.scrobble();
         }
 
         if(event.state === PlaybackState.Playing) {
             await this.setNowPlaying();
+        }
+    }
+
+    async topUp() {
+        const itemsLeft = this.musicKit.player.queue.items.length - this.getCurrentQueuePosition() + this.requestedItems;
+        const itemsToAdd = this.station.size - itemsLeft;
+
+        if(itemsToAdd > 0) {
+            this.requestedItems += itemsToAdd;
+            await fetch(`api/station/${this.station.definition.stationType}/${this.props.stationId}/topup/${itemsToAdd}`, { method: 'POST' });
         }
     }
 
@@ -175,6 +202,20 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
         await this.musicKit.player.skipToNextItem();
     }
 
+    getPlaylistPaging(): IPagingParams {
+        if(this.station.isContinuous) {
+            return {
+                offset: this.getCurrentQueuePosition(),
+                limit: 10
+            };
+        }
+
+        return {
+            offset: 0,
+            limit: 1000
+        };
+    }
+
     render() {
         if(!this.state.kitInitialized) {
             return null;
@@ -188,7 +229,7 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
                     {this.renderButtons()}
                 </div>
             </div>
-            <Playlist musicKit={this.musicKit} currentTrack={this.state.currentTrack} visibleOffset={this.getCurrentQueuePosition()} visibleCount={10}/>
+            <Playlist musicKit={this.musicKit} currentTrack={this.state.currentTrack} pagingParams={this.getPlaylistPaging()}/>
         </div>;
     }
 
