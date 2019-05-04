@@ -11,7 +11,7 @@ export class Tag extends Component<{}, { tagName: string, stationId: string, red
     }
 
     async playStation() {
-        const apiResponse = await fetch(`api/station/tag/${this.state.tagName}`, { method: 'POST' });
+        const apiResponse = await fetch(`api/station/tags/${this.state.tagName}`, { method: 'POST' });
 
         this.setState({
             stationId: (await apiResponse.json()).id,

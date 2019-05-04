@@ -72,6 +72,7 @@ namespace LastApple.Web
             services.AddSingleton<IStationEventMediator, SignalrStationEventMediator>();
             services.AddSingleton<IBackgroundProcessManager, BackgroundProcessManager>();
             services.AddSingleton(container => (IHostedService)container.GetService<IBackgroundProcessManager>());
+            services.AddSingleton<ILastfmCache, LastfmCache>();
             services.AddSignalR();
         }
 

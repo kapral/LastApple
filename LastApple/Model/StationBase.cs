@@ -9,6 +9,8 @@ namespace LastApple.Model
 
         public int Size { get; } = 20;
 
+        public bool IsContinuous { get; set; }
+
         public IList<string> SongIds { get; } = new List<string>();
     }
 }
