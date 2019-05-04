@@ -7,14 +7,14 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace LastApple.Web.Controllers
 {
-    [Route("api/station/tag")]
-    public class TagStationController : Controller
+    [Route("api/station/tags")]
+    public class TagsStationController : Controller
     {
         private readonly IStationRepository                       _stationRepository;
         private readonly IStationGenerator<TagsStationDefinition> _stationGenerator;
         private readonly IBackgroundProcessManager                _backgroundProcessManager;
 
-        public TagStationController(IStationRepository stationRepository,
+        public TagsStationController(IStationRepository stationRepository,
             IStationGenerator<TagsStationDefinition> stationGenerator,
             IBackgroundProcessManager backgroundProcessManager)
         {
@@ -33,13 +33,27 @@ namespace LastApple.Web.Controllers
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(tag));
 
             var station = new Station<TagsStationDefinition>
-                { Definition = new TagsStationDefinition(new[] { tag }), Id = Guid.NewGuid() };
+            {
+                IsContinuous = true,
+                Definition   = new TagsStationDefinition(new[] { tag }), Id = Guid.NewGuid()
+            };
 
             _stationRepository.Create(station);
 
             _backgroundProcessManager.AddProcess(() => _stationGenerator.Generate(station));
 
             return Json(station);
+        }
+
+        [HttpPost]
+        [Route("{stationId}/topup/{count}")]
+        public ActionResult TopUp(Guid stationId, int count)
+        {
+            var station = _stationRepository.Get(stationId) as Station<TagsStationDefinition>;
+
+            _backgroundProcessManager.AddProcess(() => _stationGenerator.TopUp(station, count));
+
+            return NoContent();
         }
     }
 }

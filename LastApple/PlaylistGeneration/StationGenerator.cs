@@ -22,22 +22,26 @@ namespace LastApple.PlaylistGeneration {
         }
 
         public async Task Generate(Station<TStation> station) {
-            _trackGenerator.Station = station.Definition;
-
             await Populate(station);
         }
 
-        private async Task Populate(Station<TStation> station)
+        public async Task TopUp(Station<TStation> station, int count) {
+            await Populate(station, count);
+        }
+
+        private async Task Populate(Station<TStation> station, int? topUpCount = null)
         {
             var attempts = 0;
 
-            while (station.SongIds.Count < station.Size)
+            var targetCount = topUpCount.HasValue ? station.SongIds.Count + topUpCount : station.Size;
+
+            while (station.SongIds.Count < targetCount)
             {
                 attempts++;
                 if(attempts > AttemptsLimit)
                     return;
 
-                var nextTrack = await _trackGenerator.GetNext();
+                var nextTrack = await _trackGenerator.GetNext(station.Definition);
                 if (nextTrack == null)
                     continue;
 
