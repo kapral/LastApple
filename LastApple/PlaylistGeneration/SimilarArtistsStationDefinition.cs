@@ -15,6 +15,6 @@ namespace LastApple.PlaylistGeneration
 
         public string SourceArtist { get; }
 
-        public StationType StationType => StationType.ArtistAndSimilar;
+        public StationType StationType => StationType.SimilarArtists;
     }
 }

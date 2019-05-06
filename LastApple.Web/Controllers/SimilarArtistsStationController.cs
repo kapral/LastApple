@@ -32,13 +32,24 @@ namespace LastApple.Web.Controllers
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(artist));
 
             var station = new Station<SimilarArtistsStationDefinition>
-                { Definition = new SimilarArtistsStationDefinition(artist), Id = Guid.NewGuid() };
+                { Definition = new SimilarArtistsStationDefinition(artist), Id = Guid.NewGuid(), IsContinuous = true };
 
             _stationRepository.Create(station);
 
             _backgroundProcessManager.AddProcess(() => _stationGenerator.Generate(station));
 
             return Json(station);
+        }
+
+        [HttpPost]
+        [Route("{stationId}/topup/{count}")]
+        public ActionResult TopUp(Guid stationId, int count)
+        {
+            var station = _stationRepository.Get(stationId) as Station<SimilarArtistsStationDefinition>;
+
+            _backgroundProcessManager.AddProcess(() => _stationGenerator.TopUp(station, count));
+
+            return NoContent();
         }
     }
 }

@@ -8,6 +8,6 @@ namespace LastApple.Model
     {
         Artists,
         Tags,
-        ArtistAndSimilar
+        SimilarArtists
     }
 }
