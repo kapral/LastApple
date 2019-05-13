@@ -20,7 +20,7 @@ namespace LastApple
         {
             if (_currentToken.ExpiresAt < DateTimeOffset.UtcNow.AddMinutes(30))
             {
-                var nextExpiresAt = DateTimeOffset.UtcNow.AddHours(1);
+                var nextExpiresAt = DateTimeOffset.UtcNow.AddHours(24);
 
                 _currentToken = (nextExpiresAt, _tokenGenerator.GenerateDeveloperToken(_credentials, TimeSpan.FromHours(1)));
             }
