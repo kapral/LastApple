@@ -10,6 +10,8 @@ namespace LastApple
         private readonly AppCredentials _credentials;
         private (DateTimeOffset ExpiresAt, string Value) _currentToken;
 
+        private readonly TimeSpan _tokenLifetime = TimeSpan.FromHours(24);
+
         public DeveloperTokenProvider(IDeveloperTokenGenerator tokenGenerator, IOptions<AppCredentials> credentials)
         {
             _tokenGenerator = tokenGenerator ?? throw new ArgumentNullException(nameof(tokenGenerator));
@@ -18,11 +20,11 @@ namespace LastApple
 
         public string GetToken()
         {
-            if (_currentToken.ExpiresAt < DateTimeOffset.UtcNow.AddMinutes(30))
+            if (_currentToken.ExpiresAt < DateTimeOffset.UtcNow.Add(_tokenLifetime / 2))
             {
-                var nextExpiresAt = DateTimeOffset.UtcNow.AddHours(24);
+                var nextExpiresAt = DateTimeOffset.UtcNow.Add(_tokenLifetime);
 
-                _currentToken = (nextExpiresAt, _tokenGenerator.GenerateDeveloperToken(_credentials, TimeSpan.FromHours(1)));
+                _currentToken = (nextExpiresAt, _tokenGenerator.GenerateDeveloperToken(_credentials, _tokenLifetime));
             }
 
             return _currentToken.Value;
