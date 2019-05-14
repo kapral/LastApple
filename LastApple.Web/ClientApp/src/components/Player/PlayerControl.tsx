@@ -267,13 +267,13 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
                 background: '#00000099',
                 padding: '5px'
             }}>
-                <button style={buttonStyles} className={'glyphicon glyphicon-step-backward'}
-                        onClick={() => this.switchPrev()}></button>
-                <button style={buttonStyles} className={this.musicKit.player.isPlaying
+                <span style={buttonStyles} className={'glyphicon glyphicon-step-backward'}
+                        onClick={() => this.switchPrev()}></span>
+                <span style={buttonStyles} className={this.musicKit.player.isPlaying
                     ? 'glyphicon glyphicon-pause'
-                    : 'glyphicon glyphicon-play'} onClick={() => this.handlePlayPause()}></button>
-                <button style={buttonStyles} className={'glyphicon glyphicon-step-forward'}
-                        onClick={() => this.switchNext()}></button>
+                    : 'glyphicon glyphicon-play'} onClick={() => this.handlePlayPause()}></span>
+                <span style={buttonStyles} className={'glyphicon glyphicon-step-forward'}
+                        onClick={() => this.switchNext()}></span>
             </div>
         </div>
     }
