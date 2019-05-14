@@ -4,8 +4,6 @@ import { IEvent, IMediaItem, IMusicKit, IStateChangeEvent, PlaybackState } from 
 import * as signalR from "@aspnet/signalr";
 import { Playlist, IPagingParams } from "./Playlist";
 
-const secondaryColor = '#250202';
-
 const buttonStyles = {
     background: 'none',
     border: 'none',
@@ -224,8 +222,7 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
 
         return <div style={{ margin: '5px 0' }}>
             <div className="player-controls" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                <img style={{ verticalAlign: 'top', width: '200px', height: '200px' }} src={this.state.currentTrack && this.state.currentTrack.artworkURL}/>
-                <div style={{ textAlign: 'center', display: 'inline-block', width: 'calc(100% - 200px)', height: '200px' }}>
+                <div style={{ textAlign: 'center', position: 'relative' }}>
                     {this.renderHeadings()}
                     {this.renderButtons()}
                 </div>
@@ -237,7 +234,14 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
     renderHeadings() {
         if (this.state.currentTrack) {
             return (
-                <div style={{marginLeft: '10px', padding: '5px', background: secondaryColor}}>
+                <div style={{
+                    padding: '5px',
+                    background: '#00000099',
+                    position: 'absolute',
+                    left: 0,
+                    top: 0,
+                    right: 0
+                }}>
                     <h4 style={headingStyles}>{this.state.currentTrack.title}</h4>
                     <h5 style={headingStyles}>{`${this.state.currentTrack.artistName} - ${this.state.currentTrack.albumName}`}</h5>
                 </div>
@@ -247,14 +251,30 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
     }
 
     renderButtons() {
-        return <div style={{marginTop: '45px'}}>
-            <button style={buttonStyles} className={'glyphicon glyphicon-step-backward'}
-                    onClick={() => this.switchPrev()}></button>
-            <button style={buttonStyles} className={this.musicKit.player.isPlaying
-                ? 'glyphicon glyphicon-pause'
-                : 'glyphicon glyphicon-play'} onClick={() => this.handlePlayPause()}></button>
-            <button style={buttonStyles} className={'glyphicon glyphicon-step-forward'}
-                    onClick={() => this.switchNext()}></button>
+        return <div className={'album-art'} style={{
+            textAlign: 'center',
+            backgroundImage: `url(${this.state.currentTrack && this.state.currentTrack.artworkURL})`,
+            backgroundPosition: 'center',
+            height: '400px',
+            backgroundSize: 'cover',
+            padding: '300px 0 0',
+            display: 'inline-block'
+        }}>
+            <div style={{
+                display: 'inline-block',
+                width: '300px',
+                borderRadius: '30px',
+                background: '#00000099',
+                padding: '5px'
+            }}>
+                <button style={buttonStyles} className={'glyphicon glyphicon-step-backward'}
+                        onClick={() => this.switchPrev()}></button>
+                <button style={buttonStyles} className={this.musicKit.player.isPlaying
+                    ? 'glyphicon glyphicon-pause'
+                    : 'glyphicon glyphicon-play'} onClick={() => this.handlePlayPause()}></button>
+                <button style={buttonStyles} className={'glyphicon glyphicon-step-forward'}
+                        onClick={() => this.switchNext()}></button>
+            </div>
         </div>
     }
 }

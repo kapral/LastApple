@@ -14,3 +14,17 @@ a {
     padding-left: 5px;
     padding-right: 5px;
 }
+
+.secondary-artwork {
+    display: none;
+}
+
+.album-art {
+    width: 400px;
+}
+
+@media (max-width: 400px) {
+    .album-art {
+        width: auto;
+    }
+}
