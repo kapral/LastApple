@@ -9,7 +9,8 @@ const buttonStyles = {
     border: 'none',
     fontSize: '40px',
     outline: 'none',
-    margin: '0 20px'
+    margin: '0 20px',
+    cursor: 'pointer'
 };
 
 const headingStyles: React.CSSProperties = {
