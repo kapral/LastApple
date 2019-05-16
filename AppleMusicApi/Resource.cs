@@ -9,5 +9,7 @@ namespace AppleMusicApi
         public string Href { get; set; }
 
         public TAttributes Attributes { get; set; }
+        
+        public Relationships Relationships { get; set; }
     }
 }

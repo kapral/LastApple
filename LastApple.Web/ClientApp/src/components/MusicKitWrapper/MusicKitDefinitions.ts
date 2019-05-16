@@ -22,6 +22,7 @@ interface ISetQueueOptions {
 }
 
 export interface IMediaItem {
+    albumInfo: string;
     id: string;
     title: string;
     albumName: string;

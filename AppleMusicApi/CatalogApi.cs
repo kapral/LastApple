@@ -42,6 +42,30 @@ namespace AppleMusicApi
             return apiResponse.Results;
         }
 
+        public async Task<Resource<ArtistAttributes>> GetArtist(string id)
+        {
+            var httpResponse = await _httpClient.GetAsync($"catalog/ru/artists/{id}");
+
+            if(!httpResponse.IsSuccessStatusCode)
+                throw new Exception("todo");
+
+            var apiResponse = await httpResponse.Content.ReadAsAsync<ResourceMatches<ArtistAttributes>>();
+
+            return apiResponse.Data.FirstOrDefault();
+        }
+
+        public async Task<IEnumerable<Resource<AlbumAttributes>>> GetAlbums(IEnumerable<string> ids)
+        {
+            var httpResponse = await _httpClient.GetAsync($"catalog/ru/albums?ids={string.Join(',', ids)}");
+
+            if(!httpResponse.IsSuccessStatusCode)
+                throw new Exception("todo");
+
+            var apiResponse = await httpResponse.Content.ReadAsAsync<ResourceMatches<AlbumAttributes>>();
+
+            return apiResponse.Data;
+        }
+
         private static string SerializeTypes(ResourceType types)
         {
             var values = Enum.GetValues(typeof(ResourceType))

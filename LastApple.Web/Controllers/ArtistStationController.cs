@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using AppleMusicApi;
 using LastApple.Model;
 using LastApple.PlaylistGeneration;
 using Microsoft.AspNetCore.Mvc;
@@ -13,15 +12,13 @@ namespace LastApple.Web.Controllers
     [Route("api/station/artist")]
     public class ArtistStationController : Controller
     {
-        private readonly IDeveloperTokenProvider _tokenProvider;
-        private readonly HttpClient              _httpClient;
-        private readonly IStationRepository     _stationRepository;
+        private readonly IStationRepository _stationRepository;
+        private readonly ICatalogApi        _catalogApi;
 
-        public ArtistStationController(IDeveloperTokenProvider tokenProvider, IStationRepository stationRepository)
+        public ArtistStationController(IStationRepository stationRepository, ICatalogApi catalogApi)
         {
-            _tokenProvider     = tokenProvider ?? throw new ArgumentNullException(nameof(tokenProvider));
             _stationRepository = stationRepository ?? throw new ArgumentNullException(nameof(stationRepository));
-            _httpClient        = new HttpClient { BaseAddress = new Uri("https://api.music.apple.com/v1/") };
+            _catalogApi        = catalogApi;
         }
 
         [HttpPost]
@@ -45,24 +42,11 @@ namespace LastApple.Web.Controllers
 
         private async Task<IEnumerable<string>> GetSongs(string artistId)
         {
-            _httpClient.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", _tokenProvider.GetToken());
+            var artist   = await _catalogApi.GetArtist(artistId);
+            var albumIds = artist.Relationships.Albums.Data.Select(x => x.Id);
+            var albums   = await _catalogApi.GetAlbums(albumIds);
 
-            var httpResponse = await _httpClient.GetAsync($"catalog/ru/artists/{artistId}/songs");
-
-            var response = await httpResponse.Content.ReadAsAsync<ApiResponse>();
-
-            return response.Data.Select(x => x.Id).ToArray();
-        }
-
-        private class ApiResponse
-        {
-            public IEnumerable<Song> Data { get; set; }
-        }
-
-        private class Song
-        {
-            public string Id { get; set; }
+            return albums.SelectMany(x => x.Relationships.Tracks.Data.Select(t => t.Id));
         }
     }
 }

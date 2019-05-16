@@ -227,7 +227,7 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
                     {this.renderButtons()}
                 </div>
             </div>
-            <Playlist musicKit={this.musicKit} currentTrack={this.state.currentTrack} pagingParams={this.getPlaylistPaging()}/>
+            <Playlist musicKit={this.musicKit} currentTrack={this.state.currentTrack} pagingParams={this.getPlaylistPaging()} showAlbumInfo={!this.station.isContinuous} />
         </div>;
     }
 
