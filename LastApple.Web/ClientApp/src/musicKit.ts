@@ -21,8 +21,6 @@ class MusicKit {
             developerToken: token
         });
 
-        await this.instance.authorize();
-
         return this.instance;
     }
 }

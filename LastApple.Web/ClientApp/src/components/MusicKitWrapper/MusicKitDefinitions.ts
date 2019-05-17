@@ -77,6 +77,7 @@ export interface IMusicKit {
     skipToPreviousItem(): Promise<void>;
     changeToMediaAtIndex(index: number): Promise<void>;
     api: IMusicKitApi;
+    isAuthorized: boolean;
 }
 
 export interface IMediaItemAttributes {
