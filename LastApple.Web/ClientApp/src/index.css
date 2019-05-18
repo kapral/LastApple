@@ -28,3 +28,34 @@ a {
         width: auto;
     }
 }
+
+.playlist .album-header .delete-button {
+    opacity: 0.1;
+    transition: opacity 0.3s;
+}
+
+.playlist .album-header:hover .delete-button {
+    opacity: 0.8;
+}
+
+.playlist .playlist-item .delete-button {
+    opacity: 0.1;
+    transition: opacity 0.3s;
+}
+
+.playlist .playlist-item {
+    transition: background-color 0.3s;
+}
+
+.playlist .playlist-item.current {
+    background: #E0E0E0;
+    color: #000;
+}
+
+.playlist .playlist-item:not(.current):hover {
+    background: #2A2A2A;
+}
+
+.playlist .playlist-item:hover .delete-button {
+    opacity: 0.8;
+}

@@ -7,24 +7,38 @@ export interface IPagingParams {
     limit: number;
 }
 
-export class Playlist extends Component<{musicKit: IMusicKit, currentTrack: IMediaItem, pagingParams: IPagingParams, showAlbumInfo: boolean }> {
+interface PlaylistParams {
+    musicKit: IMusicKit,
+    currentTrack: IMediaItem,
+    pagingParams: IPagingParams,
+    showAlbumInfo: boolean,
+    onRemove(position: number, count: number);
+}
+
+export class Playlist extends Component<PlaylistParams, { items: Array<IMediaItem> }> {
+    constructor(props){
+        super(props);
+
+        this.state = { items: props.musicKit.player.queue.items };
+    }
+
     render() {
         const firstTrackIndex = this.props.pagingParams.offset;
         const lastTrackIndex = firstTrackIndex + this.props.pagingParams.limit;
-        const visibleItems = this.props.musicKit.player.queue.items.slice(firstTrackIndex, lastTrackIndex);
+        const visibleItems = this.state.items.slice(firstTrackIndex, lastTrackIndex);
 
         return <div className="playlist" style={{ marginTop: '15px' }}>
-            {this.props.showAlbumInfo ? this.renderGrouped(visibleItems) : this.renderTracks(visibleItems)}
+            {this.props.showAlbumInfo ? this.renderGrouped(visibleItems) : this.renderTracks(visibleItems, 0)}
         </div>
     }
 
     renderGrouped(items) {
-        const grouped = items.reduce((groups, next) => {
+        const grouped = items.reduce((groups, next, index) => {
             if(groups.current === next.albumInfo) {
-                groups.all[groups.all.length - 1].push(next);
+                groups.all[groups.all.length - 1].items.push(next);
             } else {
                 groups.current = next.albumInfo;
-                groups.all.push([next]);
+                groups.all.push({ items: [next], index });
             }
             return groups;
         }, { all: [], current: '' });
@@ -43,27 +57,48 @@ export class Playlist extends Component<{musicKit: IMusicKit, currentTrack: IMed
                         height: '60px',
                         width: '60px',
                         verticalAlign: 'top'
-                    }} src={group[0].artworkURL.replace('{w}x{h}', '60x60')} />
-                    <div style={{ display: 'inline-block', padding: '7px 0 0 10px' }}>
-                        <h4 style={{ margin: '0' }}>{group[0].albumName}</h4>
-                        <h5 style={{ margin: '7px 0 0 0', color: '#BBB' }}>{group[0].artistName}</h5>
+                    }} src={group.items[0].artworkURL.replace('{w}x{h}', '60x60')} />
+                    <div className={'album-header'} style={{
+                        display: 'inline-block',
+                        width: 'calc(100% - 60px)',
+                        padding: '7px 0 0 10px' }}>
+                        <span style={{
+                            float: 'right',
+                            margin: '5px 5px 0 0',
+                            fontSize: '22px',
+                            cursor: 'pointer'
+                        }} className={'delete-button glyphicon glyphicon-remove'} onClick={() => this.removeItems(group.index, group.items.length)}></span>
+                        <h4 style={{ margin: '0' }}>{group.items[0].albumName}</h4>
+                        <h5 style={{ margin: '7px 0 0 0', color: '#BBB' }}>{group.items[0].artistName}</h5>
                     </div>
                 </div>
-                {this.renderTracks(group)}
+                {this.renderTracks(group.items, group.index)}
             </div>);
     }
 
-    renderTracks(tracks) {
+    removeItems(position, count) {
+        for (let i = 0; i < count; i++) {
+            this.props.musicKit.player.queue.remove(position);
+        }
+
+        this.setState({ items: this.props.musicKit.player.queue.items });
+
+        this.props.onRemove(position, count);
+    }
+
+    renderTracks(tracks, groupOffset) {
         return tracks.map((item, index) =>
-            <div key={index} style={{
+            <div key={index} className={`playlist-item ${item === this.props.currentTrack ? 'current' : ''}`} style={{
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                background: item === this.props.currentTrack ? '#E0E0E0' : 'none',
-                color: item === this.props.currentTrack ? '#000' : 'inherit',
+                textOverflow: 'ellipsis'
             }}>
+                <span style={{
+                    float: 'right',
+                    margin: '8px 5px 0 0',
+                    cursor: 'pointer'
+                }} className={'delete-button glyphicon glyphicon-remove'} onClick={() => this.removeItems(groupOffset + index, 1)}></span>
                 <h5 style={{
-                    display: 'inline-block',
                     marginLeft: '10px'
                 }}>{`${item.artistName} - ${item.title}`}</h5>
             </div>);
