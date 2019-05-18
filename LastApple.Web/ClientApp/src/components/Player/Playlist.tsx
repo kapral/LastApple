@@ -13,13 +13,14 @@ interface PlaylistParams {
     pagingParams: IPagingParams,
     showAlbumInfo: boolean,
     onRemove(position: number, count: number);
+    onTrackSwitch(track: IMediaItem): Promise<void>;
 }
 
-export class Playlist extends Component<PlaylistParams, { items: Array<IMediaItem> }> {
+export class Playlist extends Component<PlaylistParams, { items: Array<IMediaItem>, currentTrack: IMediaItem }> {
     constructor(props){
         super(props);
 
-        this.state = { items: props.musicKit.player.queue.items };
+        this.state = { items: props.musicKit.player.queue.items, currentTrack: props.currentTrack };
     }
 
     render() {
@@ -94,8 +95,14 @@ export class Playlist extends Component<PlaylistParams, { items: Array<IMediaIte
                 textOverflow: 'ellipsis'
             }}>
                 <span style={{
+                    float: 'left',
+                    padding: '8px 10px',
+                    cursor: 'pointer'
+                }} className={`play-button glyphicon ${ item === this.props.currentTrack && this.props.musicKit.player.isPlaying ? 'glyphicon-pause' : 'glyphicon-play' }`}
+                      onClick={() => this.props.onTrackSwitch(item)}></span>
+                <span style={{
                     float: 'right',
-                    margin: '8px 5px 0 0',
+                    padding: '8px 5px',
                     cursor: 'pointer'
                 }} className={'delete-button glyphicon glyphicon-remove'} onClick={() => this.removeItems(groupOffset + index, 1)}></span>
                 <h5 style={{

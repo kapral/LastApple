@@ -215,6 +215,22 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
         };
     }
 
+    async handleTrackSwitched(item) {
+        if(this.state.currentTrack === item) {
+            await this.handlePlayPause();
+
+            return;
+        }
+
+        await this.musicKit.player.changeToMediaItem(item);
+
+        this.setState({ currentTrack: item });
+
+        if(this.station.isContinuous) {
+            await this.topUp();
+        }
+    }
+
     async handleTracksRemoved(position: number, count: number) {
         await fetch(`api/station/${this.station.id}/songs?position=${position}&count=${count}`, { method: 'DELETE' });
 
@@ -240,6 +256,7 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
                 currentTrack={this.state.currentTrack}
                 pagingParams={this.getPlaylistPaging()}
                 showAlbumInfo={!this.station.isContinuous}
+                onTrackSwitch={t => this.handleTrackSwitched(t)}
                 onRemove={(p, c) => this.handleTracksRemoved(p, c)}
             />
         </div>;
