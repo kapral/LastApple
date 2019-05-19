@@ -5,6 +5,7 @@ import { Home } from './components/Home';
 import { Play } from './components/Play';
 import { LastfmAuthManager } from "./components/LastfmAuthManager";
 import { AppleAuthManager } from "./components/AppleAuthManager";
+import { Header } from "./components/Header";
 
 export default class App extends Component {
     displayName = App.name
@@ -12,8 +13,8 @@ export default class App extends Component {
     render() {
         return (
             <Layout>
+                <Header/>
                 <AppleAuthManager/>
-                <LastfmAuthManager/>
                 <Route exact path='/' component={Home}/>
                 <Route exact path='/station/:station' component={Play}/>
             </Layout>

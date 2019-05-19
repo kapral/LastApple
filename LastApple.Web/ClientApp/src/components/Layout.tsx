@@ -3,7 +3,6 @@ import { Grid, Row } from 'react-bootstrap';
 
 const styles = {
     backgroundColor: '#222',
-    padding: '10px',
     color: '#CCC',
     maxWidth: '800px',
     margin: '0 auto'

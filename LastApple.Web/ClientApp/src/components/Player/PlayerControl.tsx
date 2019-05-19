@@ -244,7 +244,7 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
             return null;
         }
 
-        return <div style={{ margin: '5px 0' }}>
+        return <div>
             <div className="player-controls" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 <div style={{ textAlign: 'center', position: 'relative' }}>
                     {this.renderHeadings()}

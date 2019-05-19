@@ -28,7 +28,7 @@ export class Playlist extends Component<PlaylistParams, { items: Array<IMediaIte
         const lastTrackIndex = firstTrackIndex + this.props.pagingParams.limit;
         const visibleItems = this.state.items.slice(firstTrackIndex, lastTrackIndex);
 
-        return <div className="playlist" style={{ marginTop: '15px' }}>
+        return <div className="playlist">
             {this.props.showAlbumInfo ? this.renderGrouped(visibleItems) : this.renderTracks(visibleItems, 0)}
         </div>
     }
@@ -65,7 +65,7 @@ export class Playlist extends Component<PlaylistParams, { items: Array<IMediaIte
                         padding: '7px 0 0 10px' }}>
                         <span style={{
                             float: 'right',
-                            margin: '5px 5px 0 0',
+                            margin: '5px 8px 0 0',
                             fontSize: '22px',
                             cursor: 'pointer'
                         }} className={'delete-button glyphicon glyphicon-remove'} onClick={() => this.removeItems(group.index, group.items.length)}></span>
@@ -92,7 +92,8 @@ export class Playlist extends Component<PlaylistParams, { items: Array<IMediaIte
             <div key={index} className={`playlist-item ${item === this.props.currentTrack ? 'current' : ''}`} style={{
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',
-                textOverflow: 'ellipsis'
+                textOverflow: 'ellipsis',
+                margin: '0 5px'
             }}>
                 <span style={{
                     float: 'left',
