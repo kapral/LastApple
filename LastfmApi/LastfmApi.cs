@@ -125,6 +125,21 @@ namespace LastfmApi
             return topArtistsResponse.TopArtists.Artists;
         }
 
+        public async Task<User> GetUserInfo(string user = null)
+        {
+            var query = LastfmQuery.AuthorizableMethod("user.getInfo", _sessionKey.Value);
+
+            if (user != null)
+                query.AddParam("user", user);
+
+            var response = await _httpClient.GetAsync(query.Build());
+            var json     = await response.Content.ReadAsStringAsync();
+
+            var userInfoResponse = JsonConvert.DeserializeObject<UserInfoResponse>(json);
+
+            return userInfoResponse.User;
+        }
+
         public async Task NowPlaying(string artist, string track, TimeSpan duration)
         {
             const string method = "track.updateNowPlaying";

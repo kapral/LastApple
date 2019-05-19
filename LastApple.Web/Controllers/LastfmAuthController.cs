@@ -43,11 +43,14 @@ namespace LastApple.Web.Controllers
             return NoContent();
         }
 
-        [Route("state")]
+        [Route("user")]
         [ServiceFilter(typeof(LastfmAuthFilter))]
-        public IActionResult IsAuthenticated()
+        public async Task<IActionResult> GetAuthenticatedUser()
         {
-            return Json(_lastfmApi.IsAuthenticated);
+            if(!_lastfmApi.IsAuthenticated)
+                return Json(null);
+
+            return Json(await _lastfmApi.GetUserInfo());
         }
     }
 }
