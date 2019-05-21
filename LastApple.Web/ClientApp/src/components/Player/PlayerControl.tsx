@@ -3,6 +3,8 @@ import musicKit from '../../musicKit';
 import { IEvent, IMediaItem, IMusicKit, IStateChangeEvent, PlaybackState } from "../MusicKitWrapper/MusicKitDefinitions";
 import * as signalR from "@aspnet/signalr";
 import { Playlist, IPagingParams } from "./Playlist";
+import { BaseProps } from "../../BaseProps";
+import { HubConnection } from "@aspnet/signalr";
 
 const buttonStyles = {
     background: 'none',
@@ -18,7 +20,7 @@ const headingStyles: React.CSSProperties = {
     paddingLeft: '20px'
 };
 
-interface IPlayerProps {
+interface IPlayerProps extends BaseProps {
     stationId: string;
 }
 
@@ -49,6 +51,8 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
     pendingEvents: Array<IAddTrackEvent> = [];
     station: IStation;
     requestedItems = 0;
+    hubConnection: HubConnection;
+    private playbackStateSubscription: (x: IEvent) => Promise<void>;
 
     constructor(props) {
         super(props);
@@ -56,33 +60,47 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
     }
 
     async componentDidMount() {
-        await this.subscribeToStationEvents();
-
         this.musicKit = await musicKit.getInstance();
-
-        this.musicKit.player.addEventListener('playbackStateDidChange', async (x: IEvent) => await this.handleStateChange(x as IStateChangeEvent));
 
         const stationResponse = await fetch(`api/station/${this.props.stationId}`);
         this.station = await stationResponse.json();
+
+        await this.subscribeToStationEvents();
+
+        this.playbackStateSubscription = async (x: IEvent) => await this.handleStateChange(x as IStateChangeEvent);
+        this.musicKit.player.addEventListener('playbackStateDidChange', this.playbackStateSubscription);
+
+        if(this.props.appState.currentKitStationId === this.props.stationId) {
+            this.setState({ kitInitialized: true });
+            await this.refresh();
+
+            return;
+        }
 
         await this.musicKit.setQueue({ songs: this.station.songIds });
         await this.musicKit.player.prepareToPlay(this.musicKit.player.queue.items[this.getCurrentQueuePosition()]);
 
         this.setState({ kitInitialized: true });
+        this.props.appState.currentKitStationId = this.station.id;
         await this.addTracks(this.pendingEvents);
         this.pendingEvents = [];
 
         await this.refresh();
     }
 
+    componentWillUnmount() {
+        this.hubConnection.off('trackAdded');
+        this.musicKit.player.removeEventListener('playbackStateDidChange', this.playbackStateSubscription);
+    }
+
     async subscribeToStationEvents() {
-        const connection = new signalR.HubConnectionBuilder()
+        this.hubConnection = new signalR.HubConnectionBuilder()
             .withUrl("/hubs")
             .build();
 
-        await connection.start();
+        await this.hubConnection.start();
 
-        connection.on('trackAdded', async (stationId: string, trackId: string, position: number) => {
+        this.hubConnection.on('trackAdded', async (stationId: string, trackId: string, position: number) => {
             if(stationId !== this.props.stationId) {
                 return;
             }

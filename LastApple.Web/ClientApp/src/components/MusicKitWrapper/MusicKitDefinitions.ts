@@ -62,6 +62,7 @@ interface IMusicKitPlayer {
     prepareToPlay(descriptor: IMediaItem|string): Promise<void>;
 
     addEventListener(name: string, callback: (e: IEvent) => Promise<void>): void;
+    removeEventListener(name: string, callback: (e: IEvent) => Promise<void>): void;
 }
 
 export interface IMusicKit {

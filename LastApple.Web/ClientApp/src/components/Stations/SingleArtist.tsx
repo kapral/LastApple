@@ -1,8 +1,9 @@
 import React, { Component } from "react";
 import { Search } from "../Search";
 import { Redirect } from "react-router";
+import { BaseProps } from "../../BaseProps";
 
-export class SingleArtist extends Component<{}, { currentArtistId: string, stationId: string, redirect: boolean }> {
+export class SingleArtist extends Component<BaseProps, { currentArtistId: string, stationId: string, redirect: boolean }> {
     constructor(props) {
         super(props);
 
@@ -14,8 +15,11 @@ export class SingleArtist extends Component<{}, { currentArtistId: string, stati
     async playStation() {
         const apiResponse = await fetch(`api/station/artist/${this.state.currentArtistId}`, { method: 'POST' });
 
+        const station = await apiResponse.json();
+        this.props.appState.latestStationId = station.id;
+
         this.setState({
-            stationId: (await apiResponse.json()).id,
+            stationId: station.id,
             redirect: true
         });
     }

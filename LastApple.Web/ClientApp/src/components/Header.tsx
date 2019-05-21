@@ -2,8 +2,12 @@ import { Component } from "react";
 import * as React from "react";
 import { LastfmAuthManager } from "./LastfmAuthManager";
 import { NavLink } from "react-router-dom";
+import { inject, observer } from "mobx-react";
+import { BaseRouterProps } from "../BaseRouterProps";
 
-export class Header extends Component {
+@inject('appState')
+@observer
+export class Header extends Component<BaseRouterProps> {
     render() {
         return <div className={'header'} style={{
             background: '#000',
@@ -20,6 +24,7 @@ export class Header extends Component {
                         <LastfmAuthManager/>
                     </div>
                     <NavLink activeStyle={{ background: '#222' }} style={{ color: '#DDD', padding: '10px', textDecoration: 'none', display: 'inline-block' }} exact to={'/'}>New station</NavLink>
+                    {this.props.appState.latestStationId && <NavLink activeStyle={{ background: '#0E0E0E' }} style={{ color: '#DDD', padding: '10px', textDecoration: 'none', display: 'inline-block' }}  to={`/station/${this.props.appState.latestStationId}`}>Now playing</NavLink> }
                 </div>
             </div>
         </div>;

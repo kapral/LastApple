@@ -4,8 +4,11 @@ import { SingleArtist } from "./Stations/SingleArtist";
 import { Col, Grid, Row } from "react-bootstrap";
 import { Tag } from "./Stations/Tag";
 import { SimilarArtists } from "./Stations/SimilarArtists";
+import { inject } from "mobx-react";
+import { BaseProps } from "../BaseProps";
 
-export class Home extends Component {
+@inject('appState')
+export class Home extends Component<BaseProps> {
     displayName = Home.name
 
     render() {
@@ -13,7 +16,7 @@ export class Home extends Component {
             <StationsList>
                 <Grid fluid={true}>
                     <Row>
-                        <Col md={6}><SingleArtist/></Col>
+                        <Col md={6}><SingleArtist appState={this.props.appState}/></Col>
                         <Col md={6}><Tag/></Col>
                     </Row>
                     <Row>
