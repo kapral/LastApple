@@ -246,7 +246,7 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
 
         return <div>
             <div className="player-controls" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                <div style={{ textAlign: 'center', position: 'relative' }}>
+                <div style={{ textAlign: 'center', position: 'relative', padding: '10px', borderBottom: '1px solid #222' }}>
                     {this.renderHeadings()}
                     {this.renderButtons()}
                 </div>
@@ -288,15 +288,15 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
             backgroundPosition: 'center',
             height: '400px',
             backgroundSize: 'cover',
-            padding: '300px 0 0',
             display: 'inline-block'
         }}>
             <div style={{
-                display: 'inline-block',
-                width: '300px',
-                borderRadius: '30px',
+                position: 'absolute',
+                left: 0,
+                right: 0,
+                bottom: 0,
                 background: '#00000099',
-                padding: '5px'
+                padding: '15px'
             }}>
                 <span style={buttonStyles} className={'glyphicon glyphicon-step-backward'}
                         onClick={() => this.switchPrev()}></span>

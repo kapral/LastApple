@@ -1,6 +1,5 @@
 import {Component} from "react";
 import React from "react";
-import { Link } from "react-router-dom";
 
 interface Image {
     size: string;
@@ -51,13 +50,12 @@ export class LastfmAuthManager extends Component<{}, { pending: boolean, user: L
                 <a style={{
                     color: '#DDD',
                     padding: '10px',
-                    textDecoration: 'none',
-                    fontSize: '18px'
+                    textDecoration: 'none'
                 }} href={this.state.user.url}
                    title={'Open lastfm profile'}
                    target="_blank">
                     {this.state.user.name}
-                    <img style={{ borderRadius: '20px', marginLeft: '10px', height: '28px' }} src={this.state.user.image[0].url} />
+                    <img style={{ borderRadius: '20px', marginLeft: '10px', height: '25px' }} src={this.state.user.image[0].url} />
                 </a>
             </div>
 

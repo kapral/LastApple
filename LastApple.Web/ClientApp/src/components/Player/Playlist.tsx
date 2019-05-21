@@ -48,7 +48,7 @@ export class Playlist extends Component<PlaylistParams, { items: Array<IMediaIte
             <div
                 key={index}
                 style={{
-                    margin: '5px 0 15px'
+                    marginBottom: '20px'
                 }}>
                 <div style={{
                     background: '#00000099',

@@ -1,32 +1,25 @@
 import { Component } from "react";
 import * as React from "react";
-import logo from '../content/headphones-logo.png'
 import { LastfmAuthManager } from "./LastfmAuthManager";
+import { NavLink } from "react-router-dom";
 
 export class Header extends Component {
     render() {
         return <div className={'header'} style={{
             background: '#000',
-            padding: '10px 10px 10px 25px'
+            padding: '10px 10px 0'
         }}>
-            <img style={{
-                height: '80px'
-            }} src={logo} alt={'logo'}/>
-            <div style={{
-                display: 'inline-block',
-                verticalAlign: 'top',
-                width: 'calc(100% - 75px)'
-            }}>
-                <div style={{ float: 'right' }}>
-                    <LastfmAuthManager/>
-                </div>
+            <div>
                 <h2 style={{
-                    margin: '0 0 20px',
-                    color: '#DDD'
-                }}><span style={{ marginLeft: 'calc(50% - 100px)'}}>last apple</span></h2>
-                <div style={{
-                    display: 'inline-block'
-                }}>
+                    margin: '5px 0',
+                    color: '#DDD',
+                    textAlign: 'center'
+                }}>last apple</h2>
+                <div>
+                    <div style={{ float: 'right', marginTop: '11px' }}>
+                        <LastfmAuthManager/>
+                    </div>
+                    <NavLink activeStyle={{ background: '#222' }} style={{ color: '#DDD', padding: '10px', textDecoration: 'none', display: 'inline-block' }} exact to={'/'}>New station</NavLink>
                 </div>
             </div>
         </div>;
