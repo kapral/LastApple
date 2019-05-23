@@ -5,6 +5,8 @@ import * as signalR from "@aspnet/signalr";
 import { Playlist, IPagingParams } from "./Playlist";
 import { BaseProps } from "../../BaseProps";
 import { HubConnection } from "@aspnet/signalr";
+import ReactSwitch from "react-switch";
+import { observer } from "mobx-react";
 
 const buttonStyles = {
     background: 'none',
@@ -13,11 +15,6 @@ const buttonStyles = {
     outline: 'none',
     margin: '0 20px',
     cursor: 'pointer'
-};
-
-const headingStyles: React.CSSProperties = {
-    textAlign: 'left',
-    paddingLeft: '20px'
 };
 
 interface IPlayerProps extends BaseProps {
@@ -46,17 +43,20 @@ interface IAddTrackEvent {
     position: number;
 }
 
+@observer
 export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
     musicKit: IMusicKit;
     pendingEvents: Array<IAddTrackEvent> = [];
     station: IStation;
     requestedItems = 0;
     hubConnection: HubConnection;
+
     private playbackStateSubscription: (x: IEvent) => Promise<void>;
 
     constructor(props) {
         super(props);
-        this.state = {kitInitialized: false};
+
+        this.state = { kitInitialized: false };
     }
 
     async componentDidMount() {
@@ -151,6 +151,10 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
             await this.topUp();
         }
 
+        if(!this.isScrobblingEnabled()) {
+            return;
+        }
+
         if(event.state === PlaybackState.Ended) {
             await this.scrobble();
         }
@@ -158,6 +162,10 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
         if(event.state === PlaybackState.Playing) {
             await this.setNowPlaying();
         }
+    }
+
+    isScrobblingEnabled() {
+        return this.props.appState.lastfmAuthenticated && this.props.appState.enableScrobbling;
     }
 
     async topUp() {
@@ -202,15 +210,6 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
         await fetch(url.toString(), { method: 'POST', body: JSON.stringify(currentTrack) });
     }
 
-    async handlePlayPause() {
-        if(this.musicKit.player.isPlaying) {
-            await this.musicKit.player.pause();
-            return;
-        }
-
-        await this.musicKit.player.play();
-    }
-
     async switchPrev() {
         await this.musicKit.player.skipToPreviousItem();
     }
@@ -231,30 +230,6 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
             offset: 0,
             limit: 1000
         };
-    }
-
-    async handleTrackSwitched(item) {
-        if(this.state.currentTrack === item) {
-            await this.handlePlayPause();
-
-            return;
-        }
-
-        await this.musicKit.player.changeToMediaItem(item);
-
-        this.setState({ currentTrack: item });
-
-        if(this.station.isContinuous) {
-            await this.topUp();
-        }
-    }
-
-    async handleTracksRemoved(position: number, count: number) {
-        await fetch(`api/station/${this.station.id}/songs?position=${position}&count=${count}`, { method: 'DELETE' });
-
-        if(this.station.isContinuous) {
-            await this.topUp();
-        }
     }
 
     render() {
@@ -284,15 +259,31 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
         if (this.state.currentTrack) {
             return (
                 <div style={{
-                    padding: '5px',
+                    padding: '5px 20px',
                     background: '#00000099',
                     position: 'absolute',
                     left: 0,
                     top: 0,
                     right: 0
                 }}>
-                    <h4 style={headingStyles}>{this.state.currentTrack.title}</h4>
-                    <h5 style={headingStyles}>{`${this.state.currentTrack.artistName} - ${this.state.currentTrack.albumName}`}</h5>
+                    <div style={{
+                        float: 'right'
+                    }}>
+                        <div style={{ marginBottom: '5px' }}>Scrobble</div>
+                        <ReactSwitch
+                            checked={this.isScrobblingEnabled()}
+                            onChange={x => this.handleScrobblingSwitch(x)}
+                            uncheckedIcon={false}
+                            checkedIcon={false}
+                            height={22}
+                            width={44}
+                            offColor={'#222'}
+                            onColor={'#8e0000'}
+                            disabled={!this.props.appState.lastfmAuthenticated}
+                        />
+                    </div>
+                    <h4 style={{ textAlign: 'left' }}>{this.state.currentTrack.title}</h4>
+                    <h5 style={{ textAlign: 'left' }}>{`${this.state.currentTrack.artistName} - ${this.state.currentTrack.albumName}`}</h5>
                 </div>
             );
         }
@@ -325,5 +316,42 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
                         onClick={() => this.switchNext()}></span>
             </div>
         </div>
+    }
+
+    async handlePlayPause() {
+        if(this.musicKit.player.isPlaying) {
+            await this.musicKit.player.pause();
+            return;
+        }
+
+        await this.musicKit.player.play();
+    }
+
+    async handleTrackSwitched(item) {
+        if(this.state.currentTrack === item) {
+            await this.handlePlayPause();
+
+            return;
+        }
+
+        await this.musicKit.player.changeToMediaItem(item);
+
+        this.setState({ currentTrack: item });
+
+        if(this.station.isContinuous) {
+            await this.topUp();
+        }
+    }
+
+    async handleTracksRemoved(position: number, count: number) {
+        await fetch(`api/station/${this.station.id}/songs?position=${position}&count=${count}`, { method: 'DELETE' });
+
+        if(this.station.isContinuous) {
+            await this.topUp();
+        }
+    }
+
+    handleScrobblingSwitch(value: boolean) {
+        this.props.appState.enableScrobbling = value;
     }
 }

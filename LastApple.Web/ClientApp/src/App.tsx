@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Route, Router, withRouter } from 'react-router';
+import { Route, Router } from 'react-router';
 import { Layout } from './components/Layout';
 import { Home } from './components/Home';
 import { Play } from './components/Play';

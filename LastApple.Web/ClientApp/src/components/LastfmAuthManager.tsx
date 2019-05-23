@@ -1,5 +1,6 @@
 import {Component} from "react";
 import React from "react";
+import { BaseProps } from "../BaseProps";
 
 interface Image {
     size: string;
@@ -12,7 +13,7 @@ interface LastfmUser {
     image: Array<Image>
 }
 
-export class LastfmAuthManager extends Component<{}, { pending: boolean, user: LastfmUser }> {
+export class LastfmAuthManager extends Component<BaseProps, { pending: boolean, user: LastfmUser }> {
     constructor(props) {
         super(props);
 
@@ -33,6 +34,8 @@ export class LastfmAuthManager extends Component<{}, { pending: boolean, user: L
         const user = await userResponse.json();
 
         this.setState({ pending: false, user });
+
+        this.props.appState.lastfmAuthenticated = !!user;
     }
 
     async authenticate() {
@@ -49,7 +52,7 @@ export class LastfmAuthManager extends Component<{}, { pending: boolean, user: L
             return <div>
                 <a style={{
                     color: '#DDD',
-                    padding: '10px',
+                    padding: '6px 10px',
                     textDecoration: 'none'
                 }} href={this.state.user.url}
                    title={'Open lastfm profile'}
@@ -58,7 +61,6 @@ export class LastfmAuthManager extends Component<{}, { pending: boolean, user: L
                     <img style={{ borderRadius: '20px', marginLeft: '10px', height: '25px' }} src={this.state.user.image[0].url} />
                 </a>
             </div>
-
 
         return <div>
             <a style={{

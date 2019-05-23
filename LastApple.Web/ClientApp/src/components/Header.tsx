@@ -9,7 +9,7 @@ import { BaseRouterProps } from "../BaseRouterProps";
 @observer
 export class Header extends Component<BaseRouterProps> {
     render() {
-        return <div className={'header'} style={{
+        return <div className={'header clearfix'} style={{
             background: '#000',
             padding: '10px 10px 0'
         }}>
@@ -20,8 +20,8 @@ export class Header extends Component<BaseRouterProps> {
                     textAlign: 'center'
                 }}>last apple</h2>
                 <div>
-                    <div style={{ float: 'right', marginTop: '11px' }}>
-                        <LastfmAuthManager/>
+                    <div style={{ float: 'right', marginTop: '6px' }}>
+                        <LastfmAuthManager appState={this.props.appState} />
                     </div>
                     <NavLink activeStyle={{ background: '#222' }} style={{ color: '#DDD', padding: '10px', textDecoration: 'none', display: 'inline-block' }} exact to={'/'}>New station</NavLink>
                     {this.props.appState.latestStationId && <NavLink activeStyle={{ background: '#0E0E0E' }} style={{ color: '#DDD', padding: '10px', textDecoration: 'none', display: 'inline-block' }}  to={`/station/${this.props.appState.latestStationId}`}>Now playing</NavLink> }

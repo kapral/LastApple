@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import { PlayerControl } from "./Player/PlayerControl";
-import { inject, observer } from "mobx-react";
+import { inject } from "mobx-react";
 import { BaseRouterProps } from "../BaseRouterProps";
 
 @inject('appState')
