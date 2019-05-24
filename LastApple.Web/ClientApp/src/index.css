@@ -14,9 +14,26 @@ a {
     color: #FFF !important;
 }
 
-.col-md-6 {
+.col-md-4 {
     padding-left: 5px;
     padding-right: 5px;
+}
+
+.search-control-0 .rbt-input-main {
+    border-radius: 0;
+}
+
+.search-control .rbt-input-main::placeholder {
+    color: #AAA;
+}
+
+.station-parameters input::placeholder {
+    color: #AAA;
+}
+
+
+.station-descriptor:hover {
+    background-color: #000000CC !important;
 }
 
 .secondary-artwork {

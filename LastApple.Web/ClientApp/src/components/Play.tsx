@@ -5,7 +5,8 @@ import { BaseRouterProps } from "../BaseRouterProps";
 
 @inject('appState')
 export class Play extends Component<BaseRouterProps>{
-    private stationId: string;
+    private readonly stationId: string;
+
     constructor(props){
         super(props);
 

@@ -1,44 +1,32 @@
 import React, { Component } from "react";
-import { Redirect } from "react-router";
 
-export class Tag extends Component<{}, { tagName: string, stationId: string, redirect: boolean }> {
+export class Tag extends Component<{ submit: boolean, onCreated(id: string): void }, { tagName: string }> {
     constructor(props) {
         super(props);
 
-        this.state = {
-            tagName: null, stationId: null, redirect: false
-        };
+        this.state = { tagName: null };
     }
 
-    async playStation() {
-        const apiResponse = await fetch(`api/station/tags/${this.state.tagName}`, { method: 'POST' });
+    async componentDidUpdate() {
+        if (this.props.submit) {
+            const apiResponse = await fetch(`api/station/tags/${this.state.tagName}`, { method: 'POST' });
 
-        this.setState({
-            stationId: (await apiResponse.json()).id,
-            redirect: true
-        });
-    }
-
-    setTag(tag) {
-        this.setState({ tagName: tag });
+            this.props.onCreated((await apiResponse.json()).id);
+        }
     }
 
     render(): React.ReactNode {
-        if (this.state.redirect)
-            return <Redirect to={`/station/${this.state.stationId}`}/>
-
-        return <div className={'clearfix'} style={{ background: '#C8C8C8', padding: '10px' }}>
-            <h5 style={{ color: '#151515' }}>One tag</h5>
-            <input placeholder={'Type tag'} type={'text'} onChange={e => this.setTag(e.currentTarget.value)}/>
-            <button style={{
-                float: 'right',
-                margin: '10px 0 5px',
-                background: '#100404',
-                border: 'none',
-                padding: '10px',
-                color: '#C8C8C8'
-            }} onClick={() => this.playStation()}>Play Station
-            </button>
+        return <div className={'station-parameters'} style={{ padding: '10px' }}>
+            <input style={{ color: '#555', width: '100%', padding: '6px 12px', borderWidth: '1px' }}
+                   placeholder={'Type tag'}
+                   type={'text'}
+                   onChange={e => this.setState({ tagName: e.currentTarget.value })}/>
         </div>
     }
+
+    static Definition = {
+        title: 'Tag',
+        description: 'Play a continuous station of tracks related to a lastfm tag.',
+        type: Tag
+    };
 }

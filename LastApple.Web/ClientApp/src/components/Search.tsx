@@ -11,6 +11,7 @@ interface ISearchState {
 interface ISearchProps {
     placeholder: string,
     onFound: (artistId: string) => void;
+    elementIndex?: number;
 }
 
 export class Search extends React.Component<ISearchProps, ISearchState> {
@@ -43,14 +44,15 @@ export class Search extends React.Component<ISearchProps, ISearchState> {
     }
 
     render() {
-        return <div>
-            <AsyncTypeahead placeholder={this.props.placeholder}
+        return <div className={`search-control-${this.props.elementIndex || 0}`}>
+            <AsyncTypeahead id={'artist-search-'}
+                            placeholder={this.props.placeholder}
                             isLoading={this.state.isLoading}
                             onSearch={query => this.search(query)}
                             delay={500}
                             options={this.state.matches}
                             labelKey={x => (x as any).attributes.name}
-                            onChange={items => this.select(items[0])}/>
+                            onChange={items => this.select(items[0])} />
         </div>
     }
 }
