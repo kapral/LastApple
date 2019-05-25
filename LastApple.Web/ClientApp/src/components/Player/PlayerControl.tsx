@@ -77,7 +77,16 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
             return;
         }
 
-        await this.musicKit.setQueue({ songs: this.station.songIds });
+        const batchItems = (arr, size) =>
+            arr.length > size
+                ? [arr.slice(0, size), ...batchItems(arr.slice(size), size)]
+                : [arr];
+
+        for (let batch of batchItems(this.station.songIds, 300)) {
+            const songs = await this.musicKit.api.songs(batch);
+            await this.musicKit.player.queue.append(songs);
+        }
+
         await this.musicKit.player.prepareToPlay(this.musicKit.player.queue.items[this.getCurrentQueuePosition()]);
 
         this.setState({ kitInitialized: true });

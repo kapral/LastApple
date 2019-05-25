@@ -38,7 +38,7 @@ interface IQueue {
     items: Array<IMediaItem>;
 
     item(index: number): IMediaItem;
-    append(object: IMediaItem): void;
+    append(object: IMediaItem | Array<IMediaItem>): void;
     prepend(object: IMediaItem): void;
     remove(position: number): void;
 
@@ -111,6 +111,7 @@ export interface IMusicKitApi {
     search(term: string, parameters?: IQueryParameters): Promise<ISearchResponse>;
     searchHints(term: string, parameters?: IQueryParameters): Promise<ISearchHints>;
     song(trackId: string): Promise<IMediaItem>;
+    songs(trackIds: string[]): Promise<IMediaItem>;
 }
 
 interface IAppConfiguration {
