@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace LastApple.Web.Controllers
 {
     [Route("api/lastfm")]
-    [ServiceFilter(typeof(LastfmAuthFilter))]
     public class LastfmController : Controller
     {
         private readonly ILastfmApi _lastfmApi;
@@ -16,8 +15,20 @@ namespace LastApple.Web.Controllers
             _lastfmApi = lastfmApi ?? throw new ArgumentNullException(nameof(lastfmApi));
         }
 
+        [HttpGet]
+        [Route("artist/search")]
+        public async Task<IActionResult> Search(string term)
+        {
+            if (string.IsNullOrWhiteSpace(term)) throw new ArgumentException(nameof(term));
+
+            var results = await _lastfmApi.SearchArtists(term);
+
+            return Json(results);
+        }
+
         [HttpPost]
         [Route("scrobble")]
+        [ServiceFilter(typeof(LastfmAuthFilter))]
         public async Task<IActionResult> Scrobble(string artist, string song)
         {
             var validationResponse = Validate(artist, song);
@@ -32,6 +43,7 @@ namespace LastApple.Web.Controllers
 
         [HttpPost]
         [Route("nowplaying")]
+        [ServiceFilter(typeof(LastfmAuthFilter))]
         public async Task<IActionResult> NowPlaying(string artist, string song)
         {
             var validationResponse = Validate(artist, song);
