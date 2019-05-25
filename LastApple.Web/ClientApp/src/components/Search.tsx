@@ -1,20 +1,20 @@
 import * as React from 'react';
-import { AsyncTypeahead } from 'react-bootstrap-typeahead';
-import { IMediaItemOptions } from "./MusicKitWrapper/MusicKitDefinitions";
-import musicKit from "../musicKit";
+import { AsyncTypeahead, TypeaheadLabelKey, TypeaheadModel } from 'react-bootstrap-typeahead';
 
-interface ISearchState {
+interface ISearchState<TItem extends TypeaheadModel> {
     isLoading: boolean;
-    matches: Array<IMediaItemOptions>;
+    matches: Array<TItem>;
 }
 
-interface ISearchProps {
+interface ISearchProps<TItem extends TypeaheadModel> {
+    search: (term: string) => Promise<TItem[]>,
     placeholder: string,
-    onFound: (artistId: string) => void;
+    onChanged: (item: TItem) => void;
+    labelAccessor?: TypeaheadLabelKey<TItem>;
     elementIndex?: number;
 }
 
-export class Search extends React.Component<ISearchProps, ISearchState> {
+export class Search<TItem extends TypeaheadModel> extends React.Component<ISearchProps<TItem>, ISearchState<TItem>> {
     constructor(props) {
         super(props);
 
@@ -22,25 +22,11 @@ export class Search extends React.Component<ISearchProps, ISearchState> {
     }
 
     async search(term: string) {
-        this.setState({isLoading: true});
-        const kit = await musicKit.getInstance();
+        this.setState({ isLoading: true, matches: this.state.matches });
 
-        let result = await kit.api.search(term);
+        const matches = await this.props.search(term);
 
-        if(!result.artists) {
-            this.setState({isLoading: false, matches: []});
-            return;
-        }
-
-        this.setState({ isLoading: false, matches: result.artists.data.map(x => x)});
-    }
-
-    select(artist: IMediaItemOptions) {
-        if(!artist) {
-            return;
-        }
-
-        this.props.onFound(artist.id);
+        this.setState({ isLoading: false, matches });
     }
 
     render() {
@@ -51,8 +37,8 @@ export class Search extends React.Component<ISearchProps, ISearchState> {
                             onSearch={query => this.search(query)}
                             delay={500}
                             options={this.state.matches}
-                            labelKey={x => (x as any).attributes.name}
-                            onChange={items => this.select(items[0])} />
+                            labelKey={this.props.labelAccessor}
+                            onChange={items => this.props.onChanged(items[0])} />
         </div>
     }
 }

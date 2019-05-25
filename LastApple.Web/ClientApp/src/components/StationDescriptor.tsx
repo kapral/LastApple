@@ -2,12 +2,6 @@ import React, { Component } from "react";
 import { IStationDefinition } from "./IStationDefinition";
 
 export class StationDescriptor extends Component<{ definition: IStationDefinition, selected: boolean, onSelected(type: Function): void }> {
-    constructor(props) {
-        super(props);
-
-        this.state = { selected: false };
-    }
-
     render(): React.ReactNode {
         return <div className={'col-md-4'}>
             <div className={'station-descriptor'} onClick={() => this.handleSelected()}
@@ -25,6 +19,5 @@ export class StationDescriptor extends Component<{ definition: IStationDefinitio
 
     handleSelected() {
         this.props.onSelected(this.props.definition.type);
-        this.setState({ selected: true });
     }
 }

@@ -5,11 +5,11 @@ import { SimilarArtists } from "./Stations/SimilarArtists";
 import { Redirect } from "react-router";
 import { StationDescriptor } from "./StationDescriptor";
 
-export class StationsList extends Component<{}, {selectedStation: Function, submit: boolean, createdStationId: string}> {
+export class StationsList extends Component<{}, {selectedStation: Function, isValid: boolean, triggerStationCreate: boolean, createdStationId: string}> {
     constructor(props) {
         super(props);
 
-        this.state = { selectedStation: null, submit: false, createdStationId: null };
+        this.state = { selectedStation: null, isValid: false, triggerStationCreate: false, createdStationId: null };
     }
 
     render(): React.ReactNode {
@@ -31,16 +31,19 @@ export class StationsList extends Component<{}, {selectedStation: Function, subm
                                    onSelected={s => this.handleSelected(s)}
                                    selected={this.state.selectedStation === Tag.Definition.type}/>
             </div>
-            {SelectedStation && <div><SelectedStation submit={this.state.submit}
-                                                      onCreated={id => this.setState({ createdStationId: id })}/>
+            {SelectedStation && <div><SelectedStation triggerCreate={this.state.triggerStationCreate}
+                                                      onStationCreated={id => this.setState({ createdStationId: id })}
+                                                      onOptionsChanged={x => this.setState({ isValid: x })}/>
                 <div style={{ textAlign: 'center', paddingBottom: '10px' }}>
-                    <button style={{
+                    <button disabled={!this.state.isValid}
+                        style={{
                         margin: '10px auto',
                         background: '#100404',
                         border: 'none',
                         padding: '10px',
-                        color: '#C8C8C8'
-                    }} onClick={() => this.setState({ submit: true })}>Play Station
+                        color: '#C8C8C8',
+                        opacity: this.state.isValid ? 1.0 : 0.3
+                    }} onClick={() => this.setState({ triggerStationCreate: true })}>Play Station
                     </button>
                 </div>
             </div>}

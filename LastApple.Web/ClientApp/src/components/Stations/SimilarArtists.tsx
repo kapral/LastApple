@@ -1,6 +1,9 @@
 import React, { Component } from "react";
+import { Search } from "../Search";
+import { IStationParams } from "../IStationParams";
+import { IMediaItemOptions } from "../MusicKitWrapper/MusicKitDefinitions";
 
-export class SimilarArtists extends Component<{submit: boolean, onCreated(id: string): void}, { artist: string }> {
+export class SimilarArtists extends Component<IStationParams, { artist: string }> {
     constructor(props) {
         super(props);
 
@@ -10,20 +13,32 @@ export class SimilarArtists extends Component<{submit: boolean, onCreated(id: st
     }
 
     async componentDidUpdate() {
-        if (this.props.submit) {
+        if (this.props.triggerCreate) {
             const apiResponse = await fetch(`api/station/similarartists/${this.state.artist}`, { method: 'POST' });
 
-            this.props.onCreated((await apiResponse.json()).id);
+            this.props.onStationCreated((await apiResponse.json()).id);
         }
+    }
+
+    async search(term: string) {
+        const apiResponse = await fetch(`api/lastfm/artist/search?term=${term}`);
+
+        const results = await apiResponse.json();
+
+        return results.map(x => x.name);
     }
 
     render(): React.ReactNode {
         return <div className={'station-parameters'} style={{ padding: '10px' }}>
-            <input style={{ color: '#555', width: '100%', padding: '6px 12px', borderWidth: '1px' }}
-                   placeholder={'Type artist'}
-                   type={'text'}
-                   onChange={e => this.setState({ artist: e.currentTarget.value })}/>
+            <Search<string> search={term => this.search(term)}
+                                       onChanged={artist => this.handleChanged(artist)}
+                                       placeholder={'Search for an artist'}/>
         </div>
+    }
+
+    handleChanged(artist: string) {
+        this.setState({ artist: artist });
+        this.props.onOptionsChanged(!!artist);
     }
 
     static Definition = {
