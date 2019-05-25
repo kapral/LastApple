@@ -26,5 +26,7 @@ namespace LastfmApi {
         Task<IEnumerable<Artist>> GetUserArtists(string user, int page = 1, int limit = 50);
 
         Task<User> GetUserInfo(string user = null);
+
+        Task<IEnumerable<Artist>> SearchArtists(string name);
     }
 }

@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using LastfmApi.Models;
+using LastfmApi.Models.Search;
 using LastfmApi.Models.Serializers;
 using Newtonsoft.Json;
 
@@ -185,6 +186,22 @@ namespace LastfmApi
             return JsonConvert.DeserializeObject<GetSessionResponse>(sessionJson)
                 .Session
                 .Key;
+        }
+        
+        public async Task<IEnumerable<Artist>> SearchArtists(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException(nameof(name));
+
+            var query = LastfmQuery.Method("artist.search")
+                .AddParam("artist", name)
+                .Build();
+            
+            var response = await _httpClient.GetAsync(query);
+            var json     = await response.Content.ReadAsStringAsync();
+
+            var searchResponse = JsonConvert.DeserializeObject<SearchResponse>(json);
+
+            return searchResponse.Results.ArtistMatches.Artist;
         }
     }
 }
