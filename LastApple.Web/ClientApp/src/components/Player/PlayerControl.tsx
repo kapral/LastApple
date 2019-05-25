@@ -311,7 +311,7 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
     renderButtons() {
         return <div className={'album-art'} style={{
             textAlign: 'center',
-            backgroundImage: `url(${this.state.currentTrack && this.state.currentTrack.artworkURL})`,
+            backgroundImage: `url(${this.state.currentTrack && this.state.currentTrack.artworkURL.replace('2000x2000', '400x400')})`,
             backgroundPosition: 'center',
             height: '400px',
             backgroundSize: 'cover',
