@@ -313,9 +313,11 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
             textAlign: 'center',
             backgroundImage: `url(${this.state.currentTrack && this.state.currentTrack.artworkURL.replace('2000x2000', '400x400')})`,
             backgroundPosition: 'center',
-            height: '400px',
             backgroundSize: 'cover',
-            display: 'inline-block'
+            display: 'inline-block',
+            width: '100%',
+            maxWidth: '400px',
+            height: '400px'
         }}>
             <div style={{
                 position: 'absolute',

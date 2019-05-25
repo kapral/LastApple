@@ -40,13 +40,23 @@ a {
     display: none;
 }
 
-.album-art {
-    width: 400px;
+.small-screen-label {
+    display: none;
 }
 
-@media (max-width: 400px) {
+@media (max-width: 410px) {
     .album-art {
-        width: auto;
+        height: auto !important;
+        padding-top: 100%;
+    }
+    .lastfm-connect-link {
+        padding: 10px 5px !important;
+    }
+    .small-screen-label {
+        display: inline;
+    }
+    .large-screen-label {
+        display: none;
     }
 }
 

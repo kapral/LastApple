@@ -20,7 +20,7 @@ export class Header extends Component<BaseRouterProps> {
                     textAlign: 'center'
                 }}>last apple</h2>
                 <div>
-                    <div style={{ float: 'right', marginTop: '6px' }}>
+                    <div className={'lastfm-auth-container'} style={{ float: 'right', marginTop: '10px', maxWidth: 'calc(100% - 190px)' }}>
                         <LastfmAuthManager appState={this.props.appState} />
                     </div>
                     <NavLink activeStyle={{ background: '#222' }} style={{ color: '#DDD', padding: '10px', textDecoration: 'none', display: 'inline-block' }} exact to={'/'}>New station</NavLink>

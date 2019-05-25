@@ -52,23 +52,27 @@ export class LastfmAuthManager extends Component<BaseProps, { pending: boolean, 
             return <div>
                 <a style={{
                     color: '#DDD',
-                    padding: '6px 10px',
-                    textDecoration: 'none'
+                    padding: '2px 10px',
+                    textDecoration: 'none',
+                    display: 'block'
                 }} href={this.state.user.url}
                    title={'Open lastfm profile'}
                    target="_blank">
-                    {this.state.user.name}
-                    <img style={{ borderRadius: '20px', marginLeft: '10px', height: '25px' }} src={this.state.user.image[0].url} />
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'inline-block', width: 'calc(100% - 35px)' }}>{this.state.user.name}</span>
+                    <img style={{ borderRadius: '20px', marginLeft: '10px', height: '25px', verticalAlign: 'top' }} src={this.state.user.image[0].url} />
                 </a>
             </div>
 
         return <div>
-            <a style={{
+            <a className={'lastfm-connect-link'} style={{
                 color: '#DDD',
                 padding: '10px',
                 textDecoration: 'none'
             }}
-               onClick={() => this.authenticate()}>Connect your last.fm account</a>
+               onClick={() => this.authenticate()}>
+                <span className={'large-screen-label'}>Connect your last.fm account</span>
+                <span className={'small-screen-label'}>Log in to last.fm</span>
+            </a>
         </div>
     }
 }
