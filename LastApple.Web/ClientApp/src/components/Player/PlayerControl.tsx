@@ -91,7 +91,9 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
             }
         }
 
-        await this.musicKit.player.prepareToPlay(this.musicKit.player.queue.items[this.getCurrentQueuePosition()]);
+        if (this.musicKit.isAuthorized) {
+            await this.musicKit.player.prepareToPlay(this.musicKit.player.queue.items[this.getCurrentQueuePosition()]);
+        }
 
         this.setState({ kitInitialized: true });
         this.props.appState.currentKitStationId = this.station.id;
@@ -143,7 +145,7 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
 
                 this.musicKit.player.queue.append(song);
 
-                if (this.musicKit.player.queue.items.length === 1) {
+                if (this.musicKit.player.queue.items.length === 1 && this.musicKit.isAuthorized) {
                     await this.musicKit.player.prepareToPlay(this.musicKit.player.queue.items[this.getCurrentQueuePosition()]);
                 }
 
@@ -308,10 +310,15 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
         return null;
     }
 
+    get400x400ImageUrl(sourceUrl: string) {
+        return sourceUrl && sourceUrl.replace('{w}x{h}', '400x400')
+            .replace('2000x2000', '400x400');
+    }
+
     renderButtons() {
         return <div className={'album-art'} style={{
             textAlign: 'center',
-            backgroundImage: `url(${this.state.currentTrack && this.state.currentTrack.artworkURL.replace('2000x2000', '400x400')})`,
+            backgroundImage: `url(${this.get400x400ImageUrl(this.state.currentTrack && this.state.currentTrack.artworkURL)})`,
             backgroundPosition: 'center',
             backgroundSize: 'cover',
             display: 'inline-block',
