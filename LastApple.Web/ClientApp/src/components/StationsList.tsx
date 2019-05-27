@@ -4,6 +4,8 @@ import { SingleArtist } from "./Stations/SingleArtist";
 import { SimilarArtists } from "./Stations/SimilarArtists";
 import { Redirect } from "react-router";
 import { StationDescriptor } from "./StationDescriptor";
+import Row from "react-bootstrap/Row";
+import Container from "react-bootstrap/Container";
 
 export class StationsList extends Component<{}, {selectedStation: Function, isValid: boolean, triggerStationCreate: boolean, createdStationId: string}> {
     constructor(props) {
@@ -19,8 +21,8 @@ export class StationsList extends Component<{}, {selectedStation: Function, isVa
 
         const SelectedStation = this.state.selectedStation;
 
-        return <div>
-            <div className={'clearfix'}>
+        return <Container>
+            <Row className={'clearfix'}>
                 <StationDescriptor definition={SingleArtist.Definition}
                                    onSelected={s => this.handleSelected(s)}
                                    selected={this.state.selectedStation === SingleArtist.Definition.type}/>
@@ -30,7 +32,7 @@ export class StationsList extends Component<{}, {selectedStation: Function, isVa
                 <StationDescriptor definition={Tag.Definition}
                                    onSelected={s => this.handleSelected(s)}
                                    selected={this.state.selectedStation === Tag.Definition.type}/>
-            </div>
+            </Row>
             {SelectedStation && <div><SelectedStation triggerCreate={this.state.triggerStationCreate}
                                                       onStationCreated={id => this.setState({ createdStationId: id })}
                                                       onOptionsChanged={x => this.setState({ isValid: x })}/>
@@ -47,7 +49,7 @@ export class StationsList extends Component<{}, {selectedStation: Function, isVa
                     </button>
                 </div>
             </div>}
-        </div>;
+        </Container>;
     }
 
     handleSelected(type: Function) {

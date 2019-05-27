@@ -10,6 +10,10 @@ a {
     cursor: pointer;
 }
 
+h1, h2, h3, h4, h5, h6 {
+    line-height: 1.1;
+}
+
 .header a:hover {
     color: #FFF !important;
 }
@@ -60,19 +64,15 @@ a {
     }
 }
 
-.playlist .album-header .delete-button {
+.playlist .album-header svg,
+.playlist .playlist-item svg {
     opacity: 0.1;
     transition: opacity 0.3s;
 }
 
-.playlist .album-header:hover .delete-button {
+.playlist .album-header:hover svg,
+.playlist .playlist-item:hover svg {
     opacity: 0.8;
-}
-
-.playlist .playlist-item .play-button,
-.playlist .playlist-item .delete-button {
-    opacity: 0.1;
-    transition: opacity 0.3s;
 }
 
 .playlist .playlist-item {
@@ -87,7 +87,4 @@ a {
 .playlist .playlist-item:not(.current):hover {
     background: #2A2A2A;
 }
-.playlist .playlist-item:hover .play-button,
-.playlist .playlist-item:hover .delete-button {
-    opacity: 0.8;
 }

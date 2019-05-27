@@ -2,6 +2,8 @@ import musicKit from '../musicKit';
 import { Component } from "react";
 import { IMusicKit } from "./MusicKitWrapper/MusicKitDefinitions";
 import * as React from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHeadphonesAlt } from "@fortawesome/free-solid-svg-icons";
 
 export class AppleAuthManager extends Component<{}, { isAuthorized: boolean, tourMode: boolean }> {
     musicKit: IMusicKit;
@@ -51,17 +53,17 @@ export class AppleAuthManager extends Component<{}, { isAuthorized: boolean, tou
                 textAlign: 'center',
                 position: 'relative'
             }}>
-                <span style={{
+                <FontAwesomeIcon style={{
                     position: 'absolute',
                     left: '50px',
                     top: '15px',
                     color: '#E0E0E0',
-                    fontSize: '150px'
-                }} className={'glyphicon glyphicon-headphones'}></span>
-                <h4 style={{ position: 'relative', fontWeight: 'bold' }}>Welcome to Last Apple music player</h4>
-                <h5 style={{ position: 'relative', color: '#444', marginTop: '20px', marginBottom: '30px', lineHeight: 1.5 }}>
+                    fontSize: '160px'
+                }} icon={faHeadphonesAlt}/>
+                <h5 style={{ position: 'relative', fontWeight: 'bold', marginTop: '10px' }}>Welcome to Last Apple music player</h5>
+                <h6 style={{ position: 'relative', color: '#444', marginTop: '20px', marginBottom: '30px', lineHeight: 1.5 }}>
                     You need to log into your AppleMusic account to start listening. Or click Explore to take a tour and listen to track previews. Some music might be not available in this mode.
-                </h5>
+                </h6>
                 <button style={{
                     border: 'none',
                     padding: '10px',

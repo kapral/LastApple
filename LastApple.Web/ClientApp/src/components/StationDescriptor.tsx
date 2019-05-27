@@ -1,9 +1,10 @@
 import React, { Component } from "react";
 import { IStationDefinition } from "./IStationDefinition";
+import { Col } from "react-bootstrap";
 
 export class StationDescriptor extends Component<{ definition: IStationDefinition, selected: boolean, onSelected(type: Function): void }> {
     render(): React.ReactNode {
-        return <div className={'col-md-4'}>
+        return <Col md={4}>
             <div className={'station-descriptor'} onClick={() => this.handleSelected()}
                  style={{
                      margin: '10px 0',
@@ -11,10 +12,10 @@ export class StationDescriptor extends Component<{ definition: IStationDefinitio
                      background: !this.props.selected ? '#00000099' : '#000',
                      cursor: 'pointer',
                      height: '110px'
-                 }}><h4 style={{ fontSize: '15px', textAlign: 'center', color: '#EEE' }}>{this.props.definition.title}</h4>
+                 }}><h4 style={{ marginTop: '10px', fontSize: '15px', textAlign: 'center', color: '#EEE' }}>{this.props.definition.title}</h4>
                 <div style={{ color: '#AAA' }}>{this.props.definition.description}</div>
             </div>
-        </div>
+        </Col>
     }
 
     handleSelected() {

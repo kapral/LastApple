@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { Grid, Row } from 'react-bootstrap';
 
 const styles = {
     backgroundColor: '#222',
@@ -12,14 +11,8 @@ export class Layout extends Component {
     displayName = Layout.name
 
     render() {
-        return (
-            <Grid fluid>
-                <Row>
-                    <div style={styles}>
-                        {this.props.children}
-                    </div>
-                </Row>
-            </Grid>
-        );
+        return <div style={styles}>
+            {this.props.children}
+        </div>;
     }
 }

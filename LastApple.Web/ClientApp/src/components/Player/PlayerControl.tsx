@@ -7,13 +7,16 @@ import { BaseProps } from "../../BaseProps";
 import { HubConnection } from "@aspnet/signalr";
 import ReactSwitch from "react-switch";
 import { observer } from "mobx-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPause, faPlay, faStepForward } from "@fortawesome/free-solid-svg-icons";
+import { faStepBackward } from "@fortawesome/free-solid-svg-icons/faStepBackward";
 
 const buttonStyles = {
     background: 'none',
     border: 'none',
-    fontSize: '40px',
+    fontSize: '35px',
     outline: 'none',
-    margin: '0 20px',
+    margin: '0 25px',
     cursor: 'pointer'
 };
 
@@ -302,8 +305,8 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
                             disabled={!this.props.appState.lastfmAuthenticated}
                         />
                     </div>
-                    <h4 style={{ textAlign: 'left' }}>{this.state.currentTrack.title}</h4>
-                    <h5 style={{ textAlign: 'left' }}>{`${this.state.currentTrack.artistName} - ${this.state.currentTrack.albumName}`}</h5>
+                    <h5 style={{ textAlign: 'left', marginTop: '0.7rem' }}>{this.state.currentTrack.title}</h5>
+                    <h6 style={{ textAlign: 'left', margin: '0.7rem 0 0.7rem' }}>{`${this.state.currentTrack.artistName} - ${this.state.currentTrack.albumName}`}</h6>
                 </div>
             );
         }
@@ -332,15 +335,17 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
                 right: 0,
                 bottom: 0,
                 background: '#00000099',
-                padding: '15px'
+                padding: '10px'
             }}>
-                <span style={buttonStyles} className={'glyphicon glyphicon-step-backward'}
-                        onClick={() => this.switchPrev()}></span>
-                <span style={buttonStyles} className={this.musicKit.player.isPlaying
-                    ? 'glyphicon glyphicon-pause'
-                    : 'glyphicon glyphicon-play'} onClick={() => this.handlePlayPause()}></span>
-                <span style={buttonStyles} className={'glyphicon glyphicon-step-forward'}
-                        onClick={() => this.switchNext()}></span>
+                <span style={buttonStyles} onClick={() => this.switchPrev()}>
+                    <FontAwesomeIcon icon={faStepBackward}/>
+                </span>
+                <span style={buttonStyles} onClick={() => this.handlePlayPause()}>
+                    <FontAwesomeIcon icon={this.musicKit.player.isPlaying ? faPause : faPlay } />
+                </span>
+                <span style={buttonStyles} onClick={() => this.switchNext()}>
+                    <FontAwesomeIcon icon={faStepForward}/>
+                </span>
             </div>
         </div>
     }

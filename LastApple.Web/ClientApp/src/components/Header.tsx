@@ -15,6 +15,7 @@ export class Header extends Component<BaseRouterProps> {
         }}>
             <div>
                 <h2 style={{
+                    fontSize: '30px',
                     margin: '5px 0',
                     color: '#DDD',
                     textAlign: 'center'
