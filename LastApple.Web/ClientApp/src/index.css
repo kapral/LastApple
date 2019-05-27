@@ -64,6 +64,13 @@ h1, h2, h3, h4, h5, h6 {
     }
 }
 
+.playlist .album-header .dropdown-menu svg,
+.playlist .album-header:hover .dropdown-menu svg,
+.playlist .playlist-item .dropdown-menu svg,
+.playlist .playlist-item:hover .dropdown-menu svg {
+    opacity: 0.35;
+}
+
 .playlist .album-header svg,
 .playlist .playlist-item svg {
     opacity: 0.1;
@@ -87,4 +94,11 @@ h1, h2, h3, h4, h5, h6 {
 .playlist .playlist-item:not(.current):hover {
     background: #2A2A2A;
 }
+
+.dropdown-menu .dropdown-item {
+    padding: 0.25rem 1rem;
+}
+
+.dropdown-menu .dropdown-item:hover {
+    background: #EEE;
 }

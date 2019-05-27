@@ -21,6 +21,14 @@ interface ISetQueueOptions {
     items?: Array<IMediaItem|string>;
 }
 
+interface IRelationship {
+    data: IMediaItem[];
+}
+
+export interface IRelationships {
+    albums: IRelationship;
+}
+
 export interface IMediaItem {
     albumInfo: string;
     id: string;
@@ -30,6 +38,8 @@ export interface IMediaItem {
     artworkURL: string;
     type: string;
     releaseDate: Date;
+
+    relationships: IRelationships;
 }
 
 interface IQueue {
@@ -112,6 +122,8 @@ export interface IMusicKitApi {
     searchHints(term: string, parameters?: IQueryParameters): Promise<ISearchHints>;
     song(trackId: string): Promise<IMediaItem>;
     songs(trackIds: string[]): Promise<IMediaItem>;
+
+    addToLibrary(params: { songs?: string[], albums?: string[] }): Promise<void>;
 }
 
 interface IAppConfiguration {
