@@ -45,9 +45,11 @@ namespace LastApple.Web
             services.AddScoped<IStationGenerator<ArtistsStationDefinition>, StationGenerator<ArtistsStationDefinition>>();
             services.AddScoped<IStationGenerator<SimilarArtistsStationDefinition>, StationGenerator<SimilarArtistsStationDefinition>>();
             services.AddScoped<IStationGenerator<TagsStationDefinition>, StationGenerator<TagsStationDefinition>>();
+            services.AddScoped<IStationGenerator<LastfmLibraryStationDefinition>, StationGenerator<LastfmLibraryStationDefinition>>();
             services.AddScoped<IStationTrackGenerator<ArtistsStationDefinition>, StationTrackGenerator<ArtistsStationDefinition>>();
             services.AddScoped<IStationTrackGenerator<SimilarArtistsStationDefinition>, StationTrackGenerator<SimilarArtistsStationDefinition>>();
             services.AddScoped<IStationTrackGenerator<TagsStationDefinition>, StationTrackGenerator<TagsStationDefinition>>();
+            services.AddScoped<IStationTrackGenerator<LastfmLibraryStationDefinition>, StationTrackGenerator<LastfmLibraryStationDefinition>>();
             services.AddTransient<ITrackIdProvider, TrackIdProvider>();
             services.AddTransient<IRandomizer, Randomizer>();
             services.AddTransient<ICatalogApi, CatalogApi>();
@@ -62,6 +64,7 @@ namespace LastApple.Web
             services.AddScoped<IStationSource<ArtistsStationDefinition>, ArtistsStationSource>();
             services.AddScoped<IStationSource<SimilarArtistsStationDefinition>, SimilarArtistsStationSource>();
             services.AddScoped<IStationSource<TagsStationDefinition>, TagsStationSource>();
+            services.AddScoped<IStationSource<LastfmLibraryStationDefinition>, LastfmLibraryStationSource>();
 
             services.AddSingleton<ILastfmSessionProvider, LastfmSessionProvider>();
             services.AddScoped<ILastfmApi, LastfmApi.LastfmApi>();

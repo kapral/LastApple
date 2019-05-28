@@ -4,10 +4,10 @@ import { Col } from "react-bootstrap";
 
 export class StationDescriptor extends Component<{ definition: IStationDefinition, selected: boolean, onSelected(type: Function): void }> {
     render(): React.ReactNode {
-        return <Col md={4}>
+        return <Col md={3}>
             <div className={'station-descriptor'} onClick={() => this.handleSelected()}
                  style={{
-                     margin: '10px 0',
+                     margin: '5px 0',
                      padding: '15px',
                      background: !this.props.selected ? '#00000099' : '#000',
                      cursor: 'pointer',
@@ -19,6 +19,7 @@ export class StationDescriptor extends Component<{ definition: IStationDefinitio
     }
 
     handleSelected() {
+        console.log(this.props.definition);
         this.props.onSelected(this.props.definition.type);
     }
 }

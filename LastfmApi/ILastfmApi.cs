@@ -23,7 +23,7 @@ namespace LastfmApi {
 
         Task<IEnumerable<Artist>> GetTagArtists(string tag, int page = 1, int limit = 50);
 
-        Task<IEnumerable<Artist>> GetUserArtists(string user, int page = 1, int limit = 50);
+        Task<IEnumerable<Artist>> GetUserArtists(string user, int page = 1, int limit = 50, string period = "overall");
 
         Task<User> GetUserInfo(string user = null);
 

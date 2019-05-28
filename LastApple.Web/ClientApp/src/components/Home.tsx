@@ -7,7 +7,7 @@ import { BaseProps } from "../BaseProps";
 export class Home extends Component<BaseProps> {
     render() {
         return <div>
-            <StationsList />
+            <StationsList appState={this.props.appState} />
         </div>;
     }
 }

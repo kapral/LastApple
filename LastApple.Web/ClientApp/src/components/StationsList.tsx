@@ -6,8 +6,12 @@ import { Redirect } from "react-router";
 import { StationDescriptor } from "./StationDescriptor";
 import Row from "react-bootstrap/Row";
 import Container from "react-bootstrap/Container";
+import { MyLibrary } from "./Stations/MyLibrary";
+import { BaseProps } from "../BaseProps";
+import { observer } from "mobx-react";
 
-export class StationsList extends Component<{}, {selectedStation: Function, isValid: boolean, triggerStationCreate: boolean, createdStationId: string}> {
+@observer
+export class StationsList extends Component<BaseProps, {selectedStation: Function, isValid: boolean, triggerStationCreate: boolean, createdStationId: string}> {
     constructor(props) {
         super(props);
 
@@ -19,23 +23,27 @@ export class StationsList extends Component<{}, {selectedStation: Function, isVa
             return <Redirect to={`/station/${this.state.createdStationId}`}/>
         }
 
-        const SelectedStation = this.state.selectedStation;
+        const SelectedStation = this.state.selectedStation && observer(this.state.selectedStation as any) as Function;
 
         return <Container>
-            <Row className={'clearfix'}>
+            <Row className={'clearfix'} style={{ padding: '5px' }}>
+                <StationDescriptor definition={MyLibrary.Definition}
+                                   onSelected={s => this.handleSelected(s)}
+                                   selected={SelectedStation === MyLibrary.Definition.type}/>
                 <StationDescriptor definition={SingleArtist.Definition}
                                    onSelected={s => this.handleSelected(s)}
-                                   selected={this.state.selectedStation === SingleArtist.Definition.type}/>
+                                   selected={SelectedStation === SingleArtist.Definition.type}/>
                 <StationDescriptor definition={SimilarArtists.Definition}
                                    onSelected={s => this.handleSelected(s)}
-                                   selected={this.state.selectedStation === SimilarArtists.Definition.type}/>
+                                   selected={SelectedStation === SimilarArtists.Definition.type}/>
                 <StationDescriptor definition={Tag.Definition}
                                    onSelected={s => this.handleSelected(s)}
-                                   selected={this.state.selectedStation === Tag.Definition.type}/>
+                                   selected={SelectedStation === Tag.Definition.type}/>
             </Row>
-            {SelectedStation && <div><SelectedStation triggerCreate={this.state.triggerStationCreate}
-                                                      onStationCreated={id => this.setState({ createdStationId: id })}
-                                                      onOptionsChanged={x => this.setState({ isValid: x })}/>
+            {SelectedStation && <div><SelectedStation appState={this.props.appState}
+                                                                                       triggerCreate={this.state.triggerStationCreate}
+                                                                                       onStationCreated={id => this.setState({ createdStationId: id })}
+                                                                                       onOptionsChanged={x => this.handleOptionsChanged(x)}/>
                 <div style={{ textAlign: 'center', paddingBottom: '10px' }}>
                     <button disabled={!this.state.isValid}
                         style={{
@@ -52,7 +60,15 @@ export class StationsList extends Component<{}, {selectedStation: Function, isVa
         </Container>;
     }
 
+    handleOptionsChanged(isValid) {
+        if(this.state.isValid !== isValid) {
+            this.setState({ isValid });
+        }
+    }
+
     handleSelected(type: Function) {
+        console.log('selected');
+        console.log(type);
         this.setState({ selectedStation: type });
     }
 }

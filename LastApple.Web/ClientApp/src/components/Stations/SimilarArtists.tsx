@@ -43,7 +43,7 @@ export class SimilarArtists extends Component<IStationParams, { artist: string }
 
     static Definition = {
         title: 'Similar Artists',
-        description: 'Play a continuous station containing an artist and similar performers.',
+        description: 'A station containing an artist and similar performers.',
         type: SimilarArtists
     };
 }

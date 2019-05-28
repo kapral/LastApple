@@ -106,13 +106,15 @@ namespace LastfmApi
             return topArtistsResponse.TopArtists.Artists;
         }
 
-        public async Task<IEnumerable<Artist>> GetUserArtists(string user, int page = 1, int limit = 50)
+        public async Task<IEnumerable<Artist>> GetUserArtists(string user, int page = 1, int limit = 50, string period = "overall")
         {
             var query = LastfmQuery.Method("user.getTopArtists")
                 .AddParam("limit", limit.ToString(CultureInfo.InvariantCulture))
                 .AddParam("page", page.ToString(CultureInfo.InvariantCulture))
                 .AddParam("user", user)
+                .AddParam("period", period)
                 .Build();
+
             var response = await _httpClient.GetAsync(query);
             var json     = await response.Content.ReadAsStringAsync();
 

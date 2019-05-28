@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 const styles = {
     backgroundColor: '#222',
     color: '#CCC',
-    maxWidth: '800px',
+    maxWidth: '900px',
     margin: '0 auto'
 };
 

@@ -32,7 +32,7 @@ export class Tag extends Component<IStationParams, { tagName: string }> {
 
     static Definition = {
         title: 'Tag',
-        description: 'Play a continuous station of tracks related to a lastfm tag.',
+        description: 'A station consisting of tracks related to a last.fm tag.',
         type: Tag
     };
 }
