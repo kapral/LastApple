@@ -88,7 +88,7 @@ export class Playlist extends Component<PlaylistParams, { items: Array<IMediaIte
                                     }}>
                                         <FontAwesomeIcon icon={faFolderPlus}/>
                                     </span>
-                                    <span>Add to AppleMusic Library</span>
+                                    <span>Add to your AppleMusic Library</span>
                                 </Dropdown.Item>
                                 <Dropdown.Item onSelect={() => this.removeItems(group.index, group.items.length)}>
                                     <span style={{
@@ -99,7 +99,7 @@ export class Playlist extends Component<PlaylistParams, { items: Array<IMediaIte
                                     }}>
                                         <FontAwesomeIcon icon={faTrashAlt}/>
                                     </span>
-                                    <span>Delete</span>
+                                    <span>Delete from this station</span>
                                 </Dropdown.Item>
                             </Dropdown.Menu>
                         </Dropdown>
@@ -153,19 +153,19 @@ export class Playlist extends Component<PlaylistParams, { items: Array<IMediaIte
                             <span style={{ display: 'inline-block', width: '16px', fontSize: '16px', marginRight: '10px' }}>
                                 <FontAwesomeIcon icon={faPlusSquare}/>
                             </span>
-                            <span>Add song to AppleMusic Library</span>
+                            <span>Add song to your AppleMusic Library</span>
                         </Dropdown.Item>
                         <Dropdown.Item onSelect={() => this.addAlbumToLibrary(item)} disabled={!this.props.musicKit.isAuthorized}>
                             <span style={{ display: 'inline-block', width: '16px', fontSize: '16px', marginRight: '10px' }}>
                                 <FontAwesomeIcon icon={faFolderPlus}/>
                             </span>
-                            <span>Add album to AppleMusic Library</span>
+                            <span>Add album to your AppleMusic Library</span>
                         </Dropdown.Item>
                         <Dropdown.Item onSelect={() => this.removeItems(groupOffset + index, 1)}>
                             <span style={{ display: 'inline-block', width: '16px', fontSize: '16px', marginRight: '10px' }}>
                                 <FontAwesomeIcon icon={faTrashAlt}/>
                             </span>
-                            <span>Delete</span>
+                            <span>Delete from this station</span>
                         </Dropdown.Item>
                     </Dropdown.Menu>
                 </Dropdown>
