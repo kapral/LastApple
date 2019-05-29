@@ -12,7 +12,7 @@ export class Play extends Component<BaseRouterProps>{
 
         const stationId = this.props.match.params['station'];
 
-        if(!this.props.appState.latestStationId) {
+        if(this.props.appState.latestStationId != stationId) {
             this.props.appState.latestStationId = stationId;
         }
 

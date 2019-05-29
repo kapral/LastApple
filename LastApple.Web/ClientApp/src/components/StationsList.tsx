@@ -67,8 +67,6 @@ export class StationsList extends Component<BaseProps, {selectedStation: Functio
     }
 
     handleSelected(type: Function) {
-        console.log('selected');
-        console.log(type);
         this.setState({ selectedStation: type });
     }
 }

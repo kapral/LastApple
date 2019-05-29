@@ -95,7 +95,7 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
         }
 
         if (this.musicKit.isAuthorized) {
-            await this.musicKit.player.prepareToPlay(this.musicKit.player.queue.items[this.getCurrentQueuePosition()]);
+            await this.musicKit.player.play();
         }
 
         this.setState({ kitInitialized: true });

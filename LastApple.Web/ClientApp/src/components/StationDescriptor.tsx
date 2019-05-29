@@ -19,7 +19,6 @@ export class StationDescriptor extends Component<{ definition: IStationDefinitio
     }
 
     handleSelected() {
-        console.log(this.props.definition);
         this.props.onSelected(this.props.definition.type);
     }
 }
