@@ -234,10 +234,12 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
     }
 
     async switchPrev() {
+        this.musicKit.player.stop();
         await this.musicKit.player.skipToPreviousItem();
     }
 
     async switchNext() {
+        this.musicKit.player.stop();
         await this.musicKit.player.skipToNextItem();
     }
 
