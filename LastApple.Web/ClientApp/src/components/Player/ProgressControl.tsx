@@ -4,14 +4,13 @@ const progressStyles: React.CSSProperties = {
     width: '100%',
     height: '10px',
     borderRadius: '2px',
-    background: '#2d2d2d',
     position: 'relative',
     cursor: 'pointer'
 };
 
 const bufferingStyles: React.CSSProperties = {
     height: '10px',
-    background: '#404040',
+    background: '#40404054',
     position: 'absolute',
     top: 0,
     bottom: 0,
@@ -22,7 +21,7 @@ const bufferingStyles: React.CSSProperties = {
 
 const playingStyles: React.CSSProperties = {
     height: '10px',
-    background: '#E0E0E0',
+    background: '#e0e0e066',
     position: 'absolute',
     top: 0,
     bottom: 0,
