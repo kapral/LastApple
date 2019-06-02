@@ -122,8 +122,10 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
             }
         }
 
-        if (this.musicKit.isAuthorized) {
+        if (this.musicKit.player.queue.items.length) {
             await this.musicKit.player.play();
+        } else {
+            this.musicKit.player.stop();
         }
 
         this.setState({ kitInitialized: true });
@@ -176,8 +178,8 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
 
                 this.musicKit.player.queue.append(song);
 
-                if (this.musicKit.player.queue.items.length === 1 && this.musicKit.isAuthorized) {
-                    await this.musicKit.player.prepareToPlay(this.musicKit.player.queue.items[this.getCurrentQueuePosition()]);
+                if (this.musicKit.player.queue.items.length === 1) {
+                    await this.musicKit.player.play();
                 }
 
                 return;
