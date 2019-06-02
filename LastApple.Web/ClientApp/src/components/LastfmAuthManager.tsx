@@ -57,9 +57,9 @@ export class LastfmAuthManager extends Component<BaseProps, { pending: boolean, 
                     display: 'block'
                 }} href={this.state.user.url}
                    title={'Open lastfm profile'}
-                   target="_blank">
+                   target="_blank" rel="noopener noreferrer">
                     <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'inline-block', width: 'calc(100% - 35px)' }}>{this.state.user.name}</span>
-                    <img style={{ borderRadius: '20px', marginLeft: '10px', height: '25px', verticalAlign: 'top' }} src={this.state.user.image[0].url} />
+                    <img alt={''} style={{ borderRadius: '20px', marginLeft: '10px', height: '25px', verticalAlign: 'top' }} src={this.state.user.image[0].url} />
                 </a>
             </div>
 

@@ -64,7 +64,7 @@ export class Playlist extends Component<PlaylistParams, { items: Array<IMediaIte
                         height: '60px',
                         width: '60px',
                         verticalAlign: 'top'
-                    }} src={group.items[0].artworkURL.replace('{w}x{h}', '60x60')}/>
+                    }} alt={'album logo'} src={group.items[0].artworkURL.replace('{w}x{h}', '60x60')}/>
                     <div className={'album-header'} style={{
                         display: 'inline-block',
                         width: 'calc(100% - 60px)',

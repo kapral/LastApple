@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import { Search } from "../Search";
 import { IStationParams } from "../IStationParams";
-import { IMediaItemOptions } from "../MusicKitWrapper/MusicKitDefinitions";
 
 export class SimilarArtists extends Component<IStationParams, { artist: string }> {
     constructor(props) {
