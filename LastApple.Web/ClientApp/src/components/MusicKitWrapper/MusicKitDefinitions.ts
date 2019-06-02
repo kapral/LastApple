@@ -59,6 +59,10 @@ interface IMusicKitPlayer {
     isPlaying: boolean;
     nowPlayingItem: IMediaItem;
     queue: IQueue;
+    currentPlaybackProgress: number;
+    currentPlaybackTime: number;
+    currentBufferingProgress: number;
+    currentPlaybackDuration: number;
 
     play(): Promise<void>;
     pause(): void;
@@ -71,7 +75,7 @@ interface IMusicKitPlayer {
     changeToMediaItem(descriptor: IMediaItem|string): Promise<void>;
     prepareToPlay(descriptor: IMediaItem|string): Promise<void>;
 
-    addEventListener(name: string, callback: (e: IEvent) => Promise<void>): void;
+    addEventListener(name: string, callback: (e: IEvent) => Promise<void>|void): void;
     removeEventListener(name: string, callback: (e: IEvent) => Promise<void>): void;
 }
 

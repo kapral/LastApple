@@ -10,6 +10,7 @@ import { observer } from "mobx-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPause, faPlay, faStepForward } from "@fortawesome/free-solid-svg-icons";
 import { faStepBackward } from "@fortawesome/free-solid-svg-icons/faStepBackward";
+import { ProgressControl } from "./ProgressControl";
 
 const buttonStyles = {
     background: 'none',
@@ -27,6 +28,8 @@ interface IPlayerProps extends BaseProps {
 interface IPlayerState {
     currentTrack?: IMediaItem;
     kitInitialized: boolean;
+    currentPlaybackTime: number;
+    currentPlaybackPercent: number;
 }
 
 interface IStationDefinition {
@@ -59,7 +62,31 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
     constructor(props) {
         super(props);
 
-        this.state = { kitInitialized: false };
+        this.state = {
+            kitInitialized: false,
+            currentPlaybackTime: 0,
+            currentPlaybackPercent: 0
+        };
+    }
+
+    handlePlaybackTimeChanged(event) {
+        const currentPlaybackTime = event.currentPlaybackTime;
+        const currentPlaybackDuration = event.currentPlaybackDuration;
+
+        if(event.currentPlaybackDuration === 0 || !Number.isFinite(event.currentPlaybackDuration)) {
+            this.setState({ currentPlaybackTime: event.currentPlaybackTime, currentPlaybackPercent: 0 });
+        }
+
+        if(currentPlaybackTime === this.state.currentPlaybackTime) {
+            const diff = 1 / currentPlaybackDuration / 4 * 100;
+
+            this.setState({ currentPlaybackPercent: this.state.currentPlaybackPercent + diff });
+
+            return;
+        }
+
+        const currentPlaybackPercent = currentPlaybackTime / currentPlaybackDuration * 100;
+        this.setState({ currentPlaybackTime, currentPlaybackPercent });
     }
 
     async componentDidMount() {
@@ -72,6 +99,7 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
 
         this.playbackStateSubscription = async (x: IEvent) => await this.handleStateChange(x as IStateChangeEvent);
         this.musicKit.player.addEventListener('playbackStateDidChange', this.playbackStateSubscription);
+        this.musicKit.player.addEventListener('playbackTimeDidChange', x => this.handlePlaybackTimeChanged(x));
 
         if(this.props.appState.currentKitStationId === this.props.stationId) {
             this.setState({ kitInitialized: true });
@@ -315,7 +343,7 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
         return null;
     }
 
-    get400x400ImageUrl(sourceUrl: string) {
+    static get400x400ImageUrl(sourceUrl: string) {
         return sourceUrl && sourceUrl.replace('{w}x{h}', '400x400')
             .replace('2000x2000', '400x400');
     }
@@ -323,7 +351,7 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
     renderButtons() {
         return <div className={'album-art'} style={{
             textAlign: 'center',
-            backgroundImage: `url(${this.get400x400ImageUrl(this.state.currentTrack && this.state.currentTrack.artworkURL)})`,
+            backgroundImage: `url(${PlayerControl.get400x400ImageUrl(this.state.currentTrack && this.state.currentTrack.artworkURL)})`,
             backgroundPosition: 'center',
             backgroundSize: 'cover',
             display: 'inline-block',
@@ -337,13 +365,28 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
                 right: 0,
                 bottom: 0,
                 background: '#00000099',
-                padding: '10px'
+                padding: '10px',
+                lineHeight: 1
             }}>
+                <div style={{ marginBottom: '2px' }}>
+                    <span style={{ display: 'inline-block', verticalAlign: 'top', marginTop: '2px' }}>{musicKit.formatMediaTime(this.state.currentPlaybackTime)}</span>
+                    <div style={{
+                        display: 'inline-block',
+                        width: 'calc(100% - 100px)',
+                        margin: '0 15px'
+                    }}>
+                    <ProgressControl bufferingPercent={100}
+                                     playingPercent={this.state.currentPlaybackPercent}
+                                     duration={this.musicKit.player.currentPlaybackDuration}
+                                     onPositionChange={t => this.handleSeek(t)}/>
+                    </div>
+                    <span style={{ display: 'inline-block', verticalAlign: 'top', marginTop: '2px' }}>{musicKit.formatMediaTime(this.musicKit.player.currentPlaybackDuration)}</span>
+                </div>
                 <span style={buttonStyles} onClick={() => this.switchPrev()}>
                     <FontAwesomeIcon icon={faStepBackward}/>
                 </span>
                 <span style={buttonStyles} onClick={() => this.handlePlayPause()}>
-                    <FontAwesomeIcon icon={this.musicKit.player.isPlaying ? faPause : faPlay } />
+                    <FontAwesomeIcon icon={this.musicKit.player.isPlaying ? faPause : faPlay}/>
                 </span>
                 <span style={buttonStyles} onClick={() => this.switchNext()}>
                     <FontAwesomeIcon icon={faStepForward}/>
@@ -352,12 +395,18 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
         </div>
     }
 
+    async handleSeek(time) {
+        this.setState({ currentPlaybackPercent: (time / this.musicKit.player.currentPlaybackDuration) * 100 });
+        await this.musicKit.player.seekToTime(time);
+    }
+
     async handlePlayPause() {
         if(this.musicKit.player.isPlaying) {
             await this.musicKit.player.pause();
             return;
         }
 
+        await this.musicKit.player.prepareToPlay(this.musicKit.player.queue.items[this.getCurrentQueuePosition()]);
         await this.musicKit.player.play();
     }
 

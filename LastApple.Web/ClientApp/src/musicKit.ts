@@ -2,6 +2,7 @@ import { IMusicKit } from "./components/MusicKitWrapper/MusicKitDefinitions";
 
 class MusicKit {
     private instance: IMusicKit;
+    private musicKit = (window as any).MusicKit;
 
     async getInstance() {
         if(this.instance)
@@ -11,9 +12,7 @@ class MusicKit {
 
         const token = await tokenResponse.json();
 
-        const musicKit = (<any>window).MusicKit;
-
-        this.instance = musicKit.configure({
+        this.instance = this.musicKit.configure({
             app: {
                 name: 'Last Apple',
                 build: '0.0.1'
@@ -22,6 +21,10 @@ class MusicKit {
         });
 
         return this.instance;
+    }
+
+    formatMediaTime(seconds: number):string {
+        return this.musicKit.formatMediaTime(Number.isFinite(seconds) ? seconds : 0);
     }
 }
 
