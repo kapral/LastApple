@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.Serialization;
 
 namespace AppleMusicApi
 {
@@ -7,6 +8,8 @@ namespace AppleMusicApi
     {
         Artists,
         Albums,
-        Songs
+        Songs,
+        [EnumMember(Value = "music-videos")]
+        MusicVideos
     }
 }
