@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { IStationParams } from "../IStationParams";
+import stationApi from "../../restClients/StationApi";
 
 export class MyLibrary extends Component<IStationParams> {
     componentDidMount(): void {
@@ -12,15 +13,13 @@ export class MyLibrary extends Component<IStationParams> {
         }
 
         if (this.props.triggerCreate) {
-            const apiResponse = await fetch(`api/station/lastfmlibrary/my`, { method: 'POST' });
+            const station = await stationApi.postStation('lastfmlibrary', 'my');
 
-            this.props.onStationCreated((await apiResponse.json()).id);
+            this.props.onStationCreated(station.id);
         }
     }
 
     render(): React.ReactNode {
-        console.log(`Last authenticated: ${this.props.appState.lastfmAuthenticated}`);
-
         if(this.props.appState.lastfmAuthenticated) {
             return null;
         }

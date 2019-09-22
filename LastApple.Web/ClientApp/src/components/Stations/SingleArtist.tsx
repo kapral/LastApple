@@ -3,6 +3,7 @@ import { Search } from "../Search";
 import musicKit from "../../musicKit";
 import { IMediaItemOptions } from "../MusicKitWrapper/MusicKitDefinitions";
 import { IStationParams } from "../IStationParams";
+import stationApi from "../../restClients/StationApi";
 
 export class SingleArtist extends Component<IStationParams, { currentArtistId: string }> {
     constructor(props) {
@@ -13,9 +14,9 @@ export class SingleArtist extends Component<IStationParams, { currentArtistId: s
 
     async componentDidUpdate() {
         if (this.props.triggerCreate) {
-            const apiResponse = await fetch(`api/station/artist/${this.state.currentArtistId}`, { method: 'POST' });
+            const station = await stationApi.postStation('artist', this.state.currentArtistId);
 
-            this.props.onStationCreated((await apiResponse.json()).id);
+            this.props.onStationCreated(station.id);
         }
     }
 

@@ -1,4 +1,5 @@
 import { IMusicKit } from "./components/MusicKitWrapper/MusicKitDefinitions";
+import appleMusicApi from "./restClients/AppleMusicApi";
 
 class MusicKit {
     private instance: IMusicKit;
@@ -8,9 +9,7 @@ class MusicKit {
         if(this.instance)
             return this.instance;
 
-        const tokenResponse = await fetch('api/apple/auth/token');
-
-        const token = await tokenResponse.json();
+        const token = await appleMusicApi.getDeveloperToken();
 
         this.instance = this.musicKit.configure({
             app: {

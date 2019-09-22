@@ -11,6 +11,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPause, faPlay, faStepForward } from "@fortawesome/free-solid-svg-icons";
 import { faStepBackward } from "@fortawesome/free-solid-svg-icons/faStepBackward";
 import { ProgressControl } from "./ProgressControl";
+import lastfmApi from "../../restClients/LastfmApi";
+import stationApi, { IStation } from "../../restClients/StationApi"
+import environment from "../../Environment";
 
 const buttonStyles = {
     background: 'none',
@@ -30,18 +33,6 @@ interface IPlayerState {
     kitInitialized: boolean;
     currentPlaybackTime: number;
     currentPlaybackPercent: number;
-}
-
-interface IStationDefinition {
-    stationType: string;
-}
-
-interface IStation {
-    id: string;
-    songIds: Array<string>
-    size: number;
-    isContinuous: boolean;
-    definition: IStationDefinition;
 }
 
 interface IAddTrackEvent {
@@ -92,8 +83,7 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
     async componentDidMount() {
         this.musicKit = await musicKit.getInstance();
 
-        const stationResponse = await fetch(`api/station/${this.props.stationId}`);
-        this.station = await stationResponse.json();
+        this.station = await stationApi.getStation(this.props.stationId);
 
         await this.subscribeToStationEvents();
 
@@ -143,7 +133,7 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
 
     async subscribeToStationEvents() {
         this.hubConnection = new signalR.HubConnectionBuilder()
-            .withUrl("/hubs")
+            .withUrl(`${environment.baseUrl}hubs`)
             .build();
 
         await this.hubConnection.start();
@@ -227,7 +217,7 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
 
         if(itemsToAdd > 0) {
             this.requestedItems += itemsToAdd;
-            await fetch(`api/station/${this.station.definition.stationType}/${this.props.stationId}/topup/${itemsToAdd}`, { method: 'POST' });
+            await stationApi.topUp(this.props.stationId, this.station.definition.stationType, itemsToAdd);
         }
     }
 
@@ -245,22 +235,11 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
     }
 
     async scrobble() {
-        await this.sendToLastfm('scrobble');
+        await lastfmApi.postScrobble(this.state.currentTrack.artistName, this.state.currentTrack.title);
     }
 
     async setNowPlaying() {
-        await this.sendToLastfm('nowplaying');
-    }
-
-    async sendToLastfm(method: string) {
-        const currentTrack = {
-            artist: this.state.currentTrack.artistName,
-            track: this.state.currentTrack.title
-        };
-
-        const url = `api/lastfm/${method}?artist=${this.state.currentTrack.artistName}&song=${this.state.currentTrack.title}`;
-
-        await fetch(url.toString(), { method: 'POST', body: JSON.stringify(currentTrack) });
+        await lastfmApi.postNowPlaying(this.state.currentTrack.artistName, this.state.currentTrack.title);
     }
 
     async switchPrev() {
@@ -429,7 +408,7 @@ export class PlayerControl extends React.Component<IPlayerProps, IPlayerState> {
     }
 
     async handleTracksRemoved(position: number, count: number) {
-        await fetch(`api/station/${this.station.id}/songs?position=${position}&count=${count}`, { method: 'DELETE' });
+        await stationApi.deleteSongs(this.station.id, position, count);
 
         if(this.station.isContinuous) {
             await this.topUp();
