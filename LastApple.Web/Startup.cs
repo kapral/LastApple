@@ -1,3 +1,4 @@
+using System;
 using AppleMusicApi;
 using LastApple.Model;
 using LastApple.PlaylistGeneration;
@@ -5,6 +6,7 @@ using LastfmApi;
 using LastfmPlayer.Core.PlaylistGeneration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
@@ -66,11 +68,30 @@ namespace LastApple.Web
             services.AddScoped<IStationSource<TagsStationDefinition>, TagsStationSource>();
             services.AddScoped<IStationSource<LastfmLibraryStationDefinition>, LastfmLibraryStationSource>();
 
-            services.AddSingleton<ILastfmSessionProvider, LastfmSessionProvider>();
+            services.AddSingleton<ISessionRepository, SessionRepository>();
             services.AddScoped<ILastfmApi, LastfmApi.LastfmApi>();
-            services.AddScoped<ILastfmSessionKeyProvider, LastfmSessionKeyProvider>();
-            services.AddScoped<ISessionKey>(x => x.GetService<ILastfmSessionKeyProvider>());
-            services.AddScoped<LastfmAuthFilter>();
+            services.AddScoped<ISessionKey>(x =>
+            {
+                var sessionProvider = x.GetService<ISessionProvider>();
+
+                return new SessionKey(sessionProvider.Session?.LastfmSessionKey);
+            });
+
+            services.AddHttpContextAccessor();
+
+            services.AddScoped<ISessionProvider>(context =>
+            {
+                var contextAccessor   = context.GetService<IHttpContextAccessor>();
+                var sessionRepository = context.GetService<ISessionRepository>();
+
+                var sessionId = contextAccessor.HttpContext.Request.Headers["X-SessionId"];
+
+                if (!Guid.TryParse(sessionId, out var id))
+                    return new SessionProvider(null);
+
+                return new SessionProvider(sessionRepository.GetSession(id));
+            });
+
             services.AddSingleton<IStationRepository, StationRepository>();
             services.AddSingleton<IStationEventMediator, SignalrStationEventMediator>();
             services.AddSingleton<IBackgroundProcessManager, BackgroundProcessManager>();

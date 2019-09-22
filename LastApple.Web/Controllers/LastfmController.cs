@@ -28,7 +28,6 @@ namespace LastApple.Web.Controllers
 
         [HttpPost]
         [Route("scrobble")]
-        [ServiceFilter(typeof(LastfmAuthFilter))]
         public async Task<IActionResult> Scrobble(string artist, string song)
         {
             var validationResponse = Validate(artist, song);
@@ -43,7 +42,6 @@ namespace LastApple.Web.Controllers
 
         [HttpPost]
         [Route("nowplaying")]
-        [ServiceFilter(typeof(LastfmAuthFilter))]
         public async Task<IActionResult> NowPlaying(string artist, string song)
         {
             var validationResponse = Validate(artist, song);
