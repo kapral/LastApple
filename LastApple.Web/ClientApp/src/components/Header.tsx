@@ -5,13 +5,15 @@ import { NavLink } from "react-router-dom";
 import { inject, observer } from "mobx-react";
 import { BaseRouterProps } from "../BaseRouterProps";
 
+type HeaderProps = BaseRouterProps & { showNav: boolean };
+
 @inject('appState')
 @observer
-export class Header extends Component<BaseRouterProps> {
+export class Header extends Component<HeaderProps> {
     render() {
         return <div className={'header clearfix'} style={{
             background: '#000',
-            padding: '10px 10px 0'
+            padding: `10px 10px ${this.props.showNav ? 0 : 10}px`
         }}>
             <div>
                 <h2 style={{
@@ -20,13 +22,13 @@ export class Header extends Component<BaseRouterProps> {
                     color: '#DDD',
                     textAlign: 'center'
                 }}>last apple</h2>
-                <div>
+                { this.props.showNav && <div>
                     <div className={'lastfm-auth-container'} style={{ float: 'right', marginTop: '10px', maxWidth: 'calc(100% - 190px)' }}>
                         <LastfmAuthManager appState={this.props.appState} />
                     </div>
                     <NavLink activeStyle={{ background: '#222' }} style={{ color: '#DDD', padding: '10px', textDecoration: 'none', display: 'inline-block' }} exact to={'/'}>New station</NavLink>
                     {this.props.appState.latestStationId && <NavLink activeStyle={{ background: '#0E0E0E' }} style={{ color: '#DDD', padding: '10px', textDecoration: 'none', display: 'inline-block' }}  to={`/station/${this.props.appState.latestStationId}`}>Now playing</NavLink> }
-                </div>
+                </div>}
             </div>
         </div>;
     }

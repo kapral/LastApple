@@ -1,13 +1,11 @@
-import musicKit from '../musicKit';
 import { Component } from "react";
-import { IMusicKit } from "./MusicKitWrapper/MusicKitDefinitions";
 import * as React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeadphonesAlt } from "@fortawesome/free-solid-svg-icons";
+import environment from '../Environment';
+import appleAuthService from '../AppleAuthService';
 
 export class AppleAuthManager extends Component<{}, { isAuthorized: boolean, tourMode: boolean }> {
-    musicKit: IMusicKit;
-
     constructor(props) {
         super(props);
 
@@ -15,17 +13,22 @@ export class AppleAuthManager extends Component<{}, { isAuthorized: boolean, tou
     }
 
     async componentDidMount() {
-        this.musicKit = await musicKit.getInstance();
+        if (!await appleAuthService.isAuthenticated()) {
+            await appleAuthService.tryGetExistingAuthentication();
+        }
 
-        const authorized = this.musicKit.isAuthorized;
-
-        this.setState({ isAuthorized: authorized });
+        this.setState({ isAuthorized: await appleAuthService.isAuthenticated() });
     }
 
     async authenticate() {
-        await this.musicKit.authorize();
+        if (environment.isMobile) {
+            window.location.href = `${environment.baseUrl}#/mobileauth`;
+            return;
+        }
 
-        this.setState({ isAuthorized: this.musicKit.isAuthorized });
+        await appleAuthService.authenticate();
+
+        this.setState({ isAuthorized: await appleAuthService.isAuthenticated() });
     }
 
     render() {
@@ -65,18 +68,10 @@ export class AppleAuthManager extends Component<{}, { isAuthorized: boolean, tou
                     You need to log into your AppleMusic account to start listening. Or click Explore to take a tour and listen to track previews. Some music might be not available in this mode.
                 </h6>
                 <button style={{
-                    border: 'none',
-                    padding: '10px',
-                    background: '#100404',
-                    color: '#c8c8c8',
                     position: 'relative',
                     marginRight: '10px'
                 }} onClick={() => this.authenticate()}>Log in</button>
                 <button style={{
-                    border: 'none',
-                    padding: '10px',
-                    background: '#100404',
-                    color: '#c8c8c8',
                     position: 'relative',
                     marginLeft: '10px'
                 }} onClick={() => this.setState({ tourMode: true })}>Explore</button>

@@ -1,6 +1,8 @@
 import {Component} from "react";
 import React from "react";
 import { BaseProps } from "../BaseProps";
+import lastfmAuthService from '../LastfmAuthService';
+import environment from "../Environment";
 
 interface Image {
     size: string;
@@ -21,17 +23,9 @@ export class LastfmAuthManager extends Component<BaseProps, { pending: boolean, 
     }
 
     async componentDidMount() {
-        const url = new URL(window.location.href);
-        const token = url.searchParams.get('token');
+        await lastfmAuthService.tryGetAuthFromParams();
 
-
-        if (token) {
-            await fetch(`api/lastfm/auth?token=${token}`, {method: 'POST'});
-            document.location.search = '';
-        }
-
-        const userResponse = await fetch('api/lastfm/auth/user');
-        const user = await userResponse.json();
+        const user = await lastfmAuthService.getAuthenticatedUser();
 
         this.setState({ pending: false, user });
 
@@ -39,9 +33,11 @@ export class LastfmAuthManager extends Component<BaseProps, { pending: boolean, 
     }
 
     async authenticate() {
-        const authUrlResponse = await fetch(`api/lastfm/auth?redirectUrl=${window.location.href}`);
+        if (environment.isMobile) {
+            window.location.href = `${environment.baseUrl}#/mobileauth`;
+        }
 
-        window.location.href = await authUrlResponse.json();
+        await lastfmAuthService.authenticate();
     }
 
     render(): React.ReactNode {
@@ -61,7 +57,7 @@ export class LastfmAuthManager extends Component<BaseProps, { pending: boolean, 
                     <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'inline-block', width: 'calc(100% - 35px)' }}>{this.state.user.name}</span>
                     <img alt={''} style={{ borderRadius: '20px', marginLeft: '10px', height: '25px', verticalAlign: 'top' }} src={this.state.user.image[0].url} />
                 </a>
-            </div>
+            </div>;
 
         return <div>
             <a className={'lastfm-connect-link'} style={{
@@ -73,6 +69,6 @@ export class LastfmAuthManager extends Component<BaseProps, { pending: boolean, 
                 <span className={'large-screen-label'}>Connect your last.fm account</span>
                 <span className={'small-screen-label'}>Log in to last.fm</span>
             </a>
-        </div>
+        </div>;
     }
 }
