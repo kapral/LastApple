@@ -6,9 +6,7 @@ import ReactDOM from 'react-dom';
 import App from './App';
 import registerServiceWorker from './registerServiceWorker';
 
-declare var cordova:any;
-
-(window as any).handleOpenURL = function(href) {
+window.handleOpenURL = href => {
   const url = new URL(href);
   const sessionId = url.searchParams.get('sessionId');
 
@@ -19,8 +17,7 @@ declare var cordova:any;
     }
 };
 
-const rootElement = document.getElementById('root');
-
+const cordova = window.cordova;
 document.addEventListener('deviceready', function () {
     cordova.plugins.backgroundMode.enable();
 
@@ -28,6 +25,7 @@ document.addEventListener('deviceready', function () {
     cordova.plugins.backgroundMode.ondeactivate = () => {};
 }, false);
 
+const rootElement = document.getElementById('root');
 ReactDOM.render(
     <App />,
   rootElement);

@@ -32,7 +32,7 @@ export class AppleAuthManager extends Component<{}, { isAuthorized: boolean, tou
     }
 
     render() {
-        if(this.state.isAuthorized || this.state.tourMode) {
+        if (this.state.isAuthorized || this.state.tourMode) {
             return null;
         }
 
