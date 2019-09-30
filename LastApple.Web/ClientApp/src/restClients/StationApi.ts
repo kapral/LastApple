@@ -20,7 +20,7 @@ class StationApi {
     }
 
     async postStation(stationType: string, stationName: string): Promise<IStation> {
-        const apiResponse = await fetch(`${environment.baseUrl}api/station/${stationType}/${stationName}`, { method: 'POST' });
+        const apiResponse = await fetch(`${environment.baseUrl}api/station/${stationType}/${stationName}`, { method: 'POST', headers: { 'X-SessionId': localStorage.getItem('SessionId') } });
 
         return await apiResponse.json();
     }
