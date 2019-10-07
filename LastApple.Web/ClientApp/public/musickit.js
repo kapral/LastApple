@@ -8318,7 +8318,11 @@
               , r = e.initData
               , i = e.target
               , n = document.createElement("a");
-            n.href = $e(r.buffer);
+
+            var sanitize = input => input.substring(input.split('').findIndex(x => x.charCodeAt(0) > 31 && x.charCodeAt(0) < 127));
+            var url = $e(r.buffer);
+            n.href = sanitize(url);
+
             var o = i.contentId = n.hostname;
             if (!i.webkitKeys) {
                 var a = new window.WebKitMediaKeys(this.keySystem);
