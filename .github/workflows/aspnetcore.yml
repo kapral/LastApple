@@ -23,7 +23,4 @@ jobs:
       run: cd LastApple.Web/ClientApp && npm run build
       
     - name: Deploy to Azure
-      uses: azure/webapps-deploy@v1
-      with: 
-        app-name: last-apple
-        publish-profile: ${{ secrets.lastApplePublishProfile }}
+      run: dotnet publish LastApple.Web/LastApple.Web.csproj /p:PublishProfile=${{ secrets.lastApplePublishProfile }} 
