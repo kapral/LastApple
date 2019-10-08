@@ -17,7 +17,7 @@ jobs:
       run: dotnet build --configuration Release
       
     - name: Install npm packages
-      run: cd LastApple.Web && npm install
+      run: cd LastApple.Web/ClientApp && npm install
       
     - name: Webpack build
-      run: cd LastApple.Web && npm run build
+      run: cd LastApple.Web/ClientApp && npm run build
