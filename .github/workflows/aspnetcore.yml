@@ -22,5 +22,12 @@ jobs:
     - name: Webpack build
       run: cd LastApple.Web/ClientApp && npm run build
       
+    - name: Create Deploy Package
+      run: dotnet publish LastApple.Web/LastApple.Web.csproj -c=Release
+      
     - name: Deploy to Azure
-      run: dotnet publish LastApple.Web/LastApple.Web.csproj /p:PublishProfile=LastApple.Web/Properties/last-apple.PublishSettings /p:Password=${{ secrets.LAST_APPLE_AZURE_PASSWORD }}
+      uses: azure/webapps-deploy@v1
+      with: 
+        app-name: last-apple
+        package: LastApple.Web/bin/Release/netcoreapp2.1/publish
+        publish-profile: ${{ secrets.lastApplePublishProfile }}
