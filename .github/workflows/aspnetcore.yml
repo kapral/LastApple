@@ -21,3 +21,9 @@ jobs:
       
     - name: Webpack build
       run: cd LastApple.Web/ClientApp && npm run build
+      
+    - name: Deploy to Azure
+      uses: azure/webapps-deploy@v1
+      with: 
+        app-name: last-apple
+        publish-profile: ${{ secrets.lastApplePublishProfile }}
