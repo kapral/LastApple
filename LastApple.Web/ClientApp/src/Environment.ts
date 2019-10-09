@@ -1,6 +1,6 @@
 class Environment {
     isMobile = !!window.cordova;
-    baseUrl =  this.isMobile ? 'https://last-apple-dev.azurewebsites.net/' : '/';
+    baseUrl =  this.isMobile ? 'https://last-apple.azurewebsites.net/' : '/';
     mobileAppSchema = 'lastapple://';
 }
 
