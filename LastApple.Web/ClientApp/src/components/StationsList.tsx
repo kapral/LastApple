@@ -61,7 +61,7 @@ export class StationsList extends Component<BaseProps, {selectedStation: Functio
     }
 
     handleOptionsChanged(isValid) {
-        if(this.state.isValid !== isValid) {
+        if (this.state.isValid !== isValid) {
             this.setState({ isValid });
         }
     }
