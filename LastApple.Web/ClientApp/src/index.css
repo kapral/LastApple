@@ -102,3 +102,10 @@ h1, h2, h3, h4, h5, h6 {
 .dropdown-menu .dropdown-item:hover {
     background: #EEE;
 }
+
+button {
+    border: none;
+    padding: 10px;
+    background: #100404;
+    color: #c8c8c8;
+}

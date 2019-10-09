@@ -2,6 +2,7 @@
     "name": "LastApple",
     "version": "0.1.0",
     "private": true,
+    "homepage": "./",
     "dependencies": {
         "@aspnet/signalr": "^1.1.4",
         "@fortawesome/fontawesome-free": "^5.8.2",
@@ -14,9 +15,15 @@
         "@types/react-dom": "^16.0.11",
         "@types/react-router-dom": "^4.3.1",
         "bootstrap": "^4.3.1",
+        "cordova-browser": "^6.0.0",
+        "cordova-ios": "^5.0.1",
+        "cordova-plugin-background-mode": "git+https://github.com/centogram/cordova-plugin-background-mode.git",
+        "cordova-plugin-customurlscheme": "^4.4.0",
+        "cordova-plugin-device": "^2.0.2",
         "mobx": "^5.9.4",
         "mobx-react": "^5.4.4",
         "mobx-react-router": "^4.0.7",
+        "nl.kingsquare.cordova.background-audio": "^1.0.1",
         "react": "^16.8.6",
         "react-bootstrap": "^1.0.0-beta.8",
         "react-bootstrap-typeahead": "^4.0.0-alpha.10",
@@ -29,15 +36,34 @@
         "typescript": "^3.4.5"
     },
     "scripts": {
-        "start": "rimraf ./build && react-scripts start",
-        "build": "react-scripts build",
+        "start": "rimraf ./www && rimraf ./build && react-scripts start",
+        "build": "rimraf ./www && react-scripts build",
+        "build:cordova": "rimraf ./www && react-scripts build && node prepareCordovaHtml.js && move build www",
+        "build:cordova:mac": "rimraf ./www && react-scripts build && node prepareCordovaHtml.js && mv build www",
         "test": "react-scripts test --env=jsdom",
-        "eject": "react-scripts eject"
+        "eject": "rimraf ./www && react-scripts eject"
     },
     "browserslist": [
         ">0.2%",
         "not dead",
         "not ie <= 11",
         "not op_mini all"
-    ]
+    ],
+    "devDependencies": {
+        "cordova-plugin-whitelist": "^1.3.3"
+    },
+    "cordova": {
+        "plugins": {
+            "cordova-plugin-whitelist": {},
+            "nl.kingsquare.cordova.background-audio": {},
+            "cordova-plugin-background-mode": {},
+            "cordova-plugin-customurlscheme": {
+                "URL_SCHEME": "lastapple"
+            }
+        },
+        "platforms": [
+            "browser",
+            "ios"
+        ]
+    }
 }

@@ -3,17 +3,31 @@ import '@fortawesome/fontawesome-free/js/all.js'
 import './index.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import registerServiceWorker from './registerServiceWorker';
-import environment from './components/Environment';
+
+window.handleOpenURL = href => {
+  const url = new URL(href);
+  const sessionId = url.searchParams.get('sessionId');
+
+  if (sessionId) {
+      localStorage.setItem('SessionId', sessionId);
+
+      window.location.reload();
+    }
+};
+
+const cordova = window.cordova;
+document.addEventListener('deviceready', function () {
+    cordova.plugins.backgroundMode.enable();
+
+    cordova.plugins.backgroundMode.onactivate = () => {};
+    cordova.plugins.backgroundMode.ondeactivate = () => {};
+}, false);
 
 const rootElement = document.getElementById('root');
-
 ReactDOM.render(
-  <BrowserRouter basename={environment.baseUrl}>
-    <App />
-  </BrowserRouter>,
+    <App />,
   rootElement);
 
 registerServiceWorker();
