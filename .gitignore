@@ -3,5 +3,9 @@
 **/node_modules/**
 **/obj/**
 **/ClientApp/build/**
+**/ClientApp/www/**
+**/ClientApp/platforms/**
+**/ClientApp/plugins/**
 **/appsettings.Development.json
 *.user
+*.DS_Store

@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import { Search } from "../Search";
 import { IStationParams } from "../IStationParams";
+import stationApi from "../../restClients/StationApi";
+import lastfmApi from "../../restClients/LastfmApi";
 
 export class SimilarArtists extends Component<IStationParams, { artist: string }> {
     constructor(props) {
@@ -13,16 +15,14 @@ export class SimilarArtists extends Component<IStationParams, { artist: string }
 
     async componentDidUpdate() {
         if (this.props.triggerCreate) {
-            const apiResponse = await fetch(`api/station/similarartists/${this.state.artist}`, { method: 'POST' });
+            const station = await stationApi.postStation('similarartists', this.state.artist);
 
-            this.props.onStationCreated((await apiResponse.json()).id);
+            this.props.onStationCreated(station.id);
         }
     }
 
     async search(term: string) {
-        const apiResponse = await fetch(`api/lastfm/artist/search?term=${term}`);
-
-        const results = await apiResponse.json();
+        const results = await lastfmApi.searchArtist(term);
 
         return results.map(x => x.name);
     }

@@ -1,4 +1,5 @@
 using System;
+using System.Reflection.Metadata;
 using System.Threading.Tasks;
 using LastfmApi;
 using Microsoft.AspNetCore.Http;
@@ -9,13 +10,16 @@ namespace LastApple.Web.Controllers
     [Route("api/lastfm/auth")]
     public class LastfmAuthController : Controller
     {
-        private readonly ILastfmApi _lastfmApi;
-        private readonly ILastfmSessionProvider _sessionProvider;
+        private readonly ILastfmApi         _lastfmApi;
+        private readonly ISessionProvider   _sessionProvider;
+        private readonly ISessionRepository _sessionRepository;
 
-        public LastfmAuthController(ILastfmApi lastfmApi, ILastfmSessionProvider sessionProvider)
+        public LastfmAuthController(ILastfmApi lastfmApi, ISessionProvider sessionProvider,
+            ISessionRepository sessionRepository)
         {
-            _lastfmApi = lastfmApi ?? throw new ArgumentNullException(nameof(lastfmApi));
-            _sessionProvider = sessionProvider ?? throw new ArgumentNullException(nameof(sessionProvider));
+            _lastfmApi         = lastfmApi ?? throw new ArgumentNullException(nameof(lastfmApi));
+            _sessionProvider   = sessionProvider ?? throw new ArgumentNullException(nameof(sessionProvider));
+            _sessionRepository = sessionRepository;
         }
 
         [Route("")]
@@ -34,20 +38,19 @@ namespace LastApple.Web.Controllers
         {
             var sessionKey = await _lastfmApi.CompleteAuthentication(token);
 
-            var sessionId = Guid.NewGuid();
+            var session = _sessionProvider.Session ?? new Session { Id = Guid.NewGuid() };
 
-            _sessionProvider.AddKey(sessionId, sessionKey);
+            session.LastfmSessionKey = sessionKey;
 
-            Response.Cookies.Append("SessionId", sessionId.ToString(), new CookieOptions { Secure = true, HttpOnly = true });
+            _sessionRepository.SaveSession(session);
 
-            return NoContent();
+            return Json(session.Id);
         }
 
         [Route("user")]
-        [ServiceFilter(typeof(LastfmAuthFilter))]
         public async Task<IActionResult> GetAuthenticatedUser()
         {
-            if(!_lastfmApi.IsAuthenticated)
+            if (!_lastfmApi.IsAuthenticated)
                 return Json(null);
 
             return Json(await _lastfmApi.GetUserInfo());

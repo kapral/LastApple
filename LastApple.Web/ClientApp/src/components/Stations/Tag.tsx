@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { IStationParams } from "../IStationParams";
+import stationApi from "../../restClients/StationApi";
 
 export class Tag extends Component<IStationParams, { tagName: string }> {
     constructor(props) {
@@ -10,9 +11,9 @@ export class Tag extends Component<IStationParams, { tagName: string }> {
 
     async componentDidUpdate() {
         if (this.props.triggerCreate) {
-            const apiResponse = await fetch(`api/station/tags/${this.state.tagName}`, { method: 'POST' });
+            const station = await stationApi.postStation('tags', this.state.tagName);
 
-            this.props.onStationCreated((await apiResponse.json()).id);
+            this.props.onStationCreated(station.id);
         }
     }
 

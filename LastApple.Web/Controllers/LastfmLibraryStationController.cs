@@ -29,7 +29,6 @@ namespace LastApple.Web.Controllers
 
         [HttpPost]
         [Route("my")]
-        [ServiceFilter(typeof(LastfmAuthFilter))]
         public async Task<IActionResult> Create()
         {
             var user = await _lastfmApi.GetUserInfo();

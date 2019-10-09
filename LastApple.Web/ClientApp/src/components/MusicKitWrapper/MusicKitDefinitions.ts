@@ -80,6 +80,8 @@ interface IMusicKitPlayer {
 }
 
 export interface IMusicKit {
+    storefrontId: string;
+    musicUserToken: string;
     player: IMusicKitPlayer;
     playbackState: PlaybackState;
     authorize(): Promise<void>;
