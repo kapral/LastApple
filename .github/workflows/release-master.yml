@@ -1,0 +1,28 @@
+name: Release Master
+
+on:
+  push:
+    branches: 
+      - master
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 2.2.108
+         
+    - name: Create Deploy Package
+      run: dotnet publish LastApple.Web/LastApple.Web.csproj -c=Release
+      
+    - name: Deploy to Azure
+      uses: azure/webapps-deploy@v1
+      with: 
+        app-name: last-apple
+        package: LastApple.Web/bin/Release/netcoreapp2.1/publish
+        publish-profile: ${{ secrets.lastApplePublishProfile }}

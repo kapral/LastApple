@@ -1,6 +1,10 @@
-name: ASP.NET Core CI
+name: Build Branch
 
-on: [push]
+on:
+  push:
+    branches:
+      - '!master'
+    
 
 jobs:
   build:
@@ -21,13 +25,3 @@ jobs:
       
     - name: Webpack build
       run: cd LastApple.Web/ClientApp && npm run build
-      
-    - name: Create Deploy Package
-      run: dotnet publish LastApple.Web/LastApple.Web.csproj -c=Release
-      
-    - name: Deploy to Azure
-      uses: azure/webapps-deploy@v1
-      with: 
-        app-name: last-apple
-        package: LastApple.Web/bin/Release/netcoreapp2.1/publish
-        publish-profile: ${{ secrets.lastApplePublishProfile }}
