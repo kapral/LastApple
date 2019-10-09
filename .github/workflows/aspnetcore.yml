@@ -1,6 +1,9 @@
 name: ASP.NET Core CI
 
-on: [push]
+on:
+  push:
+    branches: 
+      - master
 
 jobs:
   build:
@@ -13,15 +16,7 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 2.2.108
-    - name: Build with dotnet
-      run: dotnet build --configuration Release
-      
-    - name: Install npm packages
-      run: cd LastApple.Web/ClientApp && npm install
-      
-    - name: Webpack build
-      run: cd LastApple.Web/ClientApp && npm run build
-      
+         
     - name: Create Deploy Package
       run: dotnet publish LastApple.Web/LastApple.Web.csproj -c=Release
       
