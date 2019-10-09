@@ -11,7 +11,7 @@ import { BaseProps } from "../BaseProps";
 import { observer } from "mobx-react";
 
 @observer
-export class StationsList extends Component<BaseProps, {selectedStation: Function, isValid: boolean, triggerStationCreate: boolean, createdStationId: string}> {
+export class StationsList extends Component<BaseProps, { selectedStation: Function, isValid: boolean, triggerStationCreate: boolean, createdStationId: string }> {
     constructor(props) {
         super(props);
 
