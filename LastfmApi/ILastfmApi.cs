@@ -4,8 +4,9 @@ using System.Threading.Tasks;
 using LastfmApi.Models;
 
 namespace LastfmApi {
-    public interface ILastfmApi {
-        bool IsAuthenticated { get; }
+    public interface ILastfmApi
+    {
+        Task<bool> IsAuthenticated();
 
         Task<IEnumerable<Artist>> GetSimilarArtists(string name);
 

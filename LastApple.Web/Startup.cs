@@ -1,19 +1,16 @@
-using System;
 using AppleMusicApi;
-using LastApple.Model;
+using LastApple.Persistence;
 using LastApple.PlaylistGeneration;
+using LastApple.Web.Extensions;
 using LastfmApi;
 using LastfmPlayer.Core.PlaylistGeneration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
-using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
 namespace LastApple.Web
 {
@@ -29,7 +26,7 @@ namespace LastApple.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddRazorPages();
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
@@ -70,38 +67,31 @@ namespace LastApple.Web
 
             services.AddSingleton<ISessionRepository, SessionRepository>();
             services.AddScoped<ILastfmApi, LastfmApi.LastfmApi>();
-            services.AddScoped<ISessionKey>(x =>
-            {
-                var sessionProvider = x.GetService<ISessionProvider>();
-
-                return new SessionKey(sessionProvider.Session?.LastfmSessionKey);
-            });
 
             services.AddHttpContextAccessor();
 
-            services.AddScoped<ISessionProvider>(context =>
-            {
-                var contextAccessor   = context.GetService<IHttpContextAccessor>();
-                var sessionRepository = context.GetService<ISessionRepository>();
-
-                var sessionId = contextAccessor.HttpContext.Request.Headers["X-SessionId"];
-
-                if (!Guid.TryParse(sessionId, out var id))
-                    return new SessionProvider(null);
-
-                return new SessionProvider(sessionRepository.GetSession(id));
-            });
+            services.AddScoped<ISessionProvider, SessionProvider>();
+            services.AddScoped<ISessionKeyProvider, LastfmSessionKeyProvider>();
 
             services.AddSingleton<IStationRepository, StationRepository>();
             services.AddSingleton<IStationEventMediator, SignalrStationEventMediator>();
             services.AddSingleton<IBackgroundProcessManager, BackgroundProcessManager>();
             services.AddSingleton(container => (IHostedService)container.GetService<IBackgroundProcessManager>());
             services.AddSingleton<ILastfmCache, LastfmCache>();
+
+            services.Configure<MongoConnectionDetails>(Configuration.GetSection("MongoDb"));
+
+            services.AddPersistence();
+            // needs to go after AddPersistence to register a decorator for already registered repository
+            services.Decorate<ISessionRepository, CachingSessionRepository>();
+
             services.AddSignalR();
+
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -117,16 +107,11 @@ namespace LastApple.Web
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
 
-            app.UseMvc(routes =>
+            app.UseRouting();
+            app.UseEndpoints(endpoints =>
             {
-                routes.MapRoute(
-                    name: "default",
-                    template: "{controller}/{action=Index}/{id?}");
-            });
-
-            app.UseSignalR(routes =>
-            {
-                routes.MapHub<StationHub>("/hubs");
+                endpoints.MapHub<StationHub>("/hubs");
+                endpoints.MapControllerRoute("default", "{controller}/{action=Index}/{id?}");
             });
 
             app.UseSpa(spa =>

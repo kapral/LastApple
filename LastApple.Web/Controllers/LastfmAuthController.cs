@@ -1,8 +1,6 @@
 using System;
-using System.Reflection.Metadata;
 using System.Threading.Tasks;
 using LastfmApi;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LastApple.Web.Controllers
@@ -38,11 +36,11 @@ namespace LastApple.Web.Controllers
         {
             var sessionKey = await _lastfmApi.CompleteAuthentication(token);
 
-            var session = _sessionProvider.Session ?? new Session { Id = Guid.NewGuid() };
+            var session = await _sessionProvider.GetSession() ?? new Session { Id = Guid.NewGuid() };
 
             session.LastfmSessionKey = sessionKey;
 
-            _sessionRepository.SaveSession(session);
+            await _sessionRepository.SaveSession(session);
 
             return Json(session.Id);
         }
@@ -50,7 +48,7 @@ namespace LastApple.Web.Controllers
         [Route("user")]
         public async Task<IActionResult> GetAuthenticatedUser()
         {
-            if (!_lastfmApi.IsAuthenticated)
+            if (!await _lastfmApi.IsAuthenticated())
                 return Json(null);
 
             return Json(await _lastfmApi.GetUserInfo());

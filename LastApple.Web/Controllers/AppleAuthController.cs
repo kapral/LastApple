@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using LastApple.Web.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,21 +30,21 @@ namespace LastApple.Web.Controllers
 
         [HttpGet]
         [Route("sessiondata")]
-        public IActionResult GetSessionData()
+        public async Task<IActionResult> GetSessionData()
         {
-            return Json(_sessionProvider.Session);
+            return Json(await _sessionProvider.GetSession());
         }
 
         [HttpPost]
         [Route("sessiondata")]
-        public IActionResult PostSessionData([FromBody] AppleMusicSessionData sessionData)
+        public async Task<IActionResult> PostSessionData([FromBody] AppleMusicSessionData sessionData)
         {
-            var session = _sessionProvider.Session ?? new Session { Id = Guid.NewGuid() };
+            var session = await _sessionProvider.GetSession() ?? new Session { Id = Guid.NewGuid() };
 
             session.MusicUserToken    = sessionData.MusicUserToken;
             session.MusicStorefrontId = sessionData.MusicStorefrontId;
 
-            _sessionRepository.SaveSession(session);
+            await _sessionRepository.SaveSession(session);
 
             return Json(session);
         }
