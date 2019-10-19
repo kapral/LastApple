@@ -13,17 +13,21 @@ namespace LastfmApi
 {
     public class LastfmApi : ILastfmApi
     {
-        private readonly ISessionKey _sessionKey;
+        private readonly ISessionKeyProvider _sessionKey;
 
         private readonly HttpClient _httpClient = new HttpClient
             { BaseAddress = new Uri("https://ws.audioscrobbler.com/2.0/") };
 
-        public LastfmApi(ISessionKey sessionKey)
+        public LastfmApi(ISessionKeyProvider sessionKey)
         {
             _sessionKey = sessionKey ?? throw new ArgumentNullException(nameof(sessionKey));
         }
 
-        public bool IsAuthenticated => !string.IsNullOrWhiteSpace(_sessionKey.Value);
+        public async Task<bool> IsAuthenticated()
+        {
+            var sessionKey = await _sessionKey.GetSessionKey();
+            return !string.IsNullOrWhiteSpace(sessionKey);
+        }
 
         public async Task<IEnumerable<Artist>> GetSimilarArtists(string name)
         {
@@ -130,7 +134,7 @@ namespace LastfmApi
 
         public async Task<User> GetUserInfo(string user = null)
         {
-            var query = LastfmQuery.AuthorizableMethod("user.getInfo", _sessionKey.Value);
+            var query = LastfmQuery.AuthorizableMethod("user.getInfo", await _sessionKey.GetSessionKey());
 
             if (user != null)
                 query.AddParam("user", user);
@@ -146,7 +150,7 @@ namespace LastfmApi
         public async Task NowPlaying(string artist, string track, TimeSpan duration)
         {
             const string method = "track.updateNowPlaying";
-            var query = LastfmQuery.AuthorizableMethod(method, _sessionKey.Value)
+            var query = LastfmQuery.AuthorizableMethod(method, await _sessionKey.GetSessionKey())
                 .AddParam("artist", artist)
                 .AddParam("track", track)
                 .AddParam("duration", duration.TotalSeconds.ToString(CultureInfo.InvariantCulture));
@@ -159,7 +163,7 @@ namespace LastfmApi
             const string method = "track.scrobble";
             var timestamp =
                 Math.Floor(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1, 0, 0, 0)).TotalSeconds);
-            var query = LastfmQuery.AuthorizableMethod(method, _sessionKey.Value)
+            var query = LastfmQuery.AuthorizableMethod(method, await _sessionKey.GetSessionKey())
                 .AddParam("artist", artist)
                 .AddParam("track", track)
                 .AddParam("timestamp", timestamp.ToString(CultureInfo.InvariantCulture));
