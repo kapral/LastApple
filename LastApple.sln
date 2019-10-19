@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LastfmApi", "LastfmApi\Last
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LastApple", "LastApple\LastApple.csproj", "{6DDAA0CB-3954-479F-AEC9-5A4B9896F2DB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LastApple.Persistence", "LastApple.Persistence\LastApple.Persistence.csproj", "{7E9D61D1-BB41-459C-8C06-FF176CBD645C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{6DDAA0CB-3954-479F-AEC9-5A4B9896F2DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6DDAA0CB-3954-479F-AEC9-5A4B9896F2DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6DDAA0CB-3954-479F-AEC9-5A4B9896F2DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E9D61D1-BB41-459C-8C06-FF176CBD645C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E9D61D1-BB41-459C-8C06-FF176CBD645C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E9D61D1-BB41-459C-8C06-FF176CBD645C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E9D61D1-BB41-459C-8C06-FF176CBD645C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
