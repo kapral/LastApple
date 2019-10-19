@@ -1,9 +1,9 @@
-using LastfmApi;
+using System.Threading.Tasks;
 
 namespace LastApple
 {
     public interface ISessionProvider
     {
-        Session Session { get; }
+        Task<Session> GetSession();
     }
 }

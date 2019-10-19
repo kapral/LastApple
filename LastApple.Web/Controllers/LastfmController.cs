@@ -30,7 +30,7 @@ namespace LastApple.Web.Controllers
         [Route("scrobble")]
         public async Task<IActionResult> Scrobble(string artist, string song)
         {
-            var validationResponse = Validate(artist, song);
+            var validationResponse = await Validate(artist, song);
 
             if (validationResponse != null)
                 return validationResponse;
@@ -44,7 +44,7 @@ namespace LastApple.Web.Controllers
         [Route("nowplaying")]
         public async Task<IActionResult> NowPlaying(string artist, string song)
         {
-            var validationResponse = Validate(artist, song);
+            var validationResponse = await Validate(artist, song);
 
             if (validationResponse != null)
                 return validationResponse;
@@ -54,7 +54,7 @@ namespace LastApple.Web.Controllers
             return NoContent();
         }
 
-        private IActionResult Validate(string artist, string song)
+        private async Task<IActionResult> Validate(string artist, string song)
         {
             if (string.IsNullOrWhiteSpace(artist))
                 return BadRequest($"{nameof(artist)} is empty.");
@@ -62,7 +62,7 @@ namespace LastApple.Web.Controllers
             if (string.IsNullOrWhiteSpace(song))
                 return BadRequest($"{nameof(song)} is empty.");
 
-            if (!_lastfmApi.IsAuthenticated)
+            if (!await _lastfmApi.IsAuthenticated())
                 return Unauthorized();
 
             return null;

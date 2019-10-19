@@ -1,11 +1,12 @@
 using System;
+using System.Threading.Tasks;
 
 namespace LastApple
 {
     public interface ISessionRepository
     {
-        Session GetSession(Guid sessionId);
+        Task<Session> GetSession(Guid sessionId);
 
-        void SaveSession(Session session);
+        Task SaveSession(Session session);
     }
 }
