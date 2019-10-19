@@ -97,6 +97,11 @@ namespace LastApple.Web
             services.AddSingleton<IBackgroundProcessManager, BackgroundProcessManager>();
             services.AddSingleton(container => (IHostedService)container.GetService<IBackgroundProcessManager>());
             services.AddSingleton<ILastfmCache, LastfmCache>();
+            services.Configure<MongoConnectionDetails>(Configuration.GetSection("MongoDb"));
+
+            services.AddPersistence();
+            // needs to go after AddPersistence to register a decorator for already registered repository
+            services.Decorate<ISessionRepository, CachingSessionRepository>();
             services.AddSignalR();
         }
 
