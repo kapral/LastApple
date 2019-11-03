@@ -5,7 +5,7 @@ namespace LastApple.PlaylistGeneration
 {
     public class ArtistsStationDefinition : IStationDefinition
     {
-        public IEnumerable<string> Artists { get; set; }
+        public ICollection<string> Artists { get; } = new List<string>();
 
         public StationType StationType => StationType.Artists;
     }

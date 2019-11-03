@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -54,9 +55,7 @@ namespace LastfmApi
             var response = await _httpClient.GetAsync(query);
 
             if (response.StatusCode != HttpStatusCode.OK)
-            {
-                return new Track[0];
-            }
+                return null;
 
             var json = await response.Content.ReadAsStringAsync();
 
@@ -64,7 +63,7 @@ namespace LastfmApi
                 JsonConvert.DeserializeObject<TopTracksResponse>(json, new TopTracksJsonConverter());
 
             return topTracksResponse.Error == 0
-                ? topTracksResponse.TopTracks.Tracks
+                ? topTracksResponse.TopTracks.Tracks ?? Enumerable.Empty<Track>()
                 : null;
         }
 

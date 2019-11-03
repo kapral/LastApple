@@ -5,7 +5,7 @@ using LastfmApi.Models;
 
 namespace LastApple.PlaylistGeneration
 {
-    public interface ILastfmCache
+    public interface IStationDataCache
     {
         Task<IEnumerable<Track>> GetArtistTracks(
             Artist artist,
