@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using LastApple.Model;
-using LastfmPlayer.Core.PlaylistGeneration;
 
 namespace LastApple.PlaylistGeneration {
     public class StationGenerator<TStation> : IStationGenerator<TStation> where TStation : IStationDefinition {
