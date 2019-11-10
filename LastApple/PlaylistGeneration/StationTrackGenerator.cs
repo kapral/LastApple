@@ -9,43 +9,38 @@ namespace LastApple.PlaylistGeneration
 {
     public class StationTrackGenerator<TStation> : IStationTrackGenerator<TStation> where TStation : IStationDefinition
     {
-        private readonly ILastfmApi               lastfmApi;
-        private readonly IRandomizer              randomizer;
-        private readonly IStationSource<TStation> source;
-        private readonly IStationDataCache        cache;
+        private readonly ILastfmApi lastfmApi;
+        private readonly IRandomizer randomizer;
+        private readonly ITrackRepository trackRepository;
+        private readonly IStationSource<TStation> stationSource;
 
         public StationTrackGenerator(IRandomizer randomizer,
             ILastfmApi lastfmApi,
-            IStationDataCache cache,
-            IStationSource<TStation> source)
+            ITrackRepository trackRepository,
+            IStationSource<TStation> stationSource)
         {
-            this.randomizer = randomizer ?? throw new ArgumentNullException(nameof(randomizer));
-            this.lastfmApi  = lastfmApi ?? throw new ArgumentNullException(nameof(lastfmApi));
-            this.cache      = cache ?? throw new ArgumentNullException(nameof(this.cache));
-            this.source     = source ?? throw new ArgumentNullException(nameof(source));
+            this.randomizer      = randomizer ?? throw new ArgumentNullException(nameof(randomizer));
+            this.lastfmApi       = lastfmApi ?? throw new ArgumentNullException(nameof(lastfmApi));
+            this.trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
+            this.stationSource   = stationSource ?? throw new ArgumentNullException(nameof(stationSource));
         }
 
         public async Task<TrackInfo> GetNext(TStation station)
         {
-            var artists      = (await cache.GetArtists(station, () => source.GetStationArtists(station))).ToArray();
-            var randomArtist = artists.ElementAtOrDefault(randomizer.NextDecreasing(artists.Length));
+            if (station == null) throw new ArgumentNullException(nameof(station));
 
-            if (randomArtist == null)
-                return null;
+            var artists      = (await stationSource.GetStationArtists(station)).ToArray();
+            var randomArtist = artists.ElementAt(randomizer.NextDecreasing(artists.Length));
 
-            var tracks = await cache.GetArtistTracks(randomArtist, () => lastfmApi.GetTopTracks(randomArtist.Name));
+            var tracks = await trackRepository.GetArtistTracks(randomArtist);
 
             return await GetRandomTrack(randomArtist.Name, tracks.ToArray());
         }
 
         private async Task<TrackInfo> GetRandomTrack(string artist, IReadOnlyCollection<Track> tracks)
         {
-            var track = tracks.ElementAtOrDefault(randomizer.NextStandard(tracks.Count));
-
-            if (track == null)
-                return null;
-
-            var info = await lastfmApi.GetTrackInfo(artist, track.Name);
+            var track = tracks.ElementAt(randomizer.NextStandard(tracks.Count));
+            var info  = await lastfmApi.GetTrackInfo(artist, track.Name);
 
             return info ?? new TrackInfo(track.Name, null, track.Artist);
         }
