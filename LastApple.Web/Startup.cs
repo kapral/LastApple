@@ -73,6 +73,7 @@ namespace LastApple.Web
             services.AddScoped<ISessionProvider, SessionProvider>();
             services.AddScoped<ISessionKeyProvider, LastfmSessionKeyProvider>();
 
+            services.AddSingleton<IStationRepository, StationRepository>();
             services.AddSingleton<IStationEventMediator, SignalrStationEventMediator>();
             services.AddSingleton<IBackgroundProcessManager, BackgroundProcessManager>();
             services.AddSingleton(container => (IHostedService)container.GetService<IBackgroundProcessManager>());
