@@ -1,7 +1,6 @@
 using System;
 using LastApple.Model;
 using LastApple.PlaylistGeneration;
-using LastfmPlayer.Core.PlaylistGeneration;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LastApple.Web.Controllers

@@ -6,16 +6,16 @@ namespace LastApple
 {
     public class StationRepository : IStationRepository
     {
-        private readonly IDictionary<Guid, StationBase> _stations = new Dictionary<Guid, StationBase>();
+        private readonly IDictionary<Guid, StationBase> stations = new Dictionary<Guid, StationBase>();
 
         public StationBase Get(Guid id)
         {
-            return _stations.TryGetValue(id, out var station) ? station : null;
+            return stations.TryGetValue(id, out var station) ? station : null;
         }
 
         public void Create(StationBase station)
         {
-            _stations[station.Id] = station;
+            stations[station.Id] = station;
         }
     }
 }

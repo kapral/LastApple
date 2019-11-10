@@ -2,7 +2,6 @@ using System;
 using System.Threading.Tasks;
 using LastApple.Model;
 using LastApple.PlaylistGeneration;
-using LastfmPlayer.Core.PlaylistGeneration;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LastApple.Web.Controllers

@@ -8,16 +8,17 @@ namespace LastApple.Web.Controllers
     [Route("api/lastfm/auth")]
     public class LastfmAuthController : Controller
     {
-        private readonly ILastfmApi         _lastfmApi;
-        private readonly ISessionProvider   _sessionProvider;
-        private readonly ISessionRepository _sessionRepository;
+        private readonly ILastfmApi         lastfmApi;
+        private readonly ISessionProvider   sessionProvider;
+        private readonly ISessionRepository sessionRepository;
 
-        public LastfmAuthController(ILastfmApi lastfmApi, ISessionProvider sessionProvider,
+        public LastfmAuthController(ILastfmApi lastfmApi,
+            ISessionProvider sessionProvider,
             ISessionRepository sessionRepository)
         {
-            _lastfmApi         = lastfmApi ?? throw new ArgumentNullException(nameof(lastfmApi));
-            _sessionProvider   = sessionProvider ?? throw new ArgumentNullException(nameof(sessionProvider));
-            _sessionRepository = sessionRepository;
+            this.lastfmApi         = lastfmApi ?? throw new ArgumentNullException(nameof(lastfmApi));
+            this.sessionProvider   = sessionProvider ?? throw new ArgumentNullException(nameof(sessionProvider));
+            this.sessionRepository = sessionRepository ?? throw new ArgumentNullException(nameof(sessionRepository));
         }
 
         [Route("")]
@@ -26,7 +27,7 @@ namespace LastApple.Web.Controllers
             if (!Uri.TryCreate(redirectUrl, UriKind.Absolute, out var uri))
                 return BadRequest();
 
-            var authUrl = await _lastfmApi.StartWebAuthentication(uri);
+            var authUrl = await lastfmApi.StartWebAuthentication(uri);
 
             return Json(authUrl.ToString());
         }
@@ -34,13 +35,12 @@ namespace LastApple.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> CompleteAuth(string token)
         {
-            var sessionKey = await _lastfmApi.CompleteAuthentication(token);
-
-            var session = await _sessionProvider.GetSession() ?? new Session { Id = Guid.NewGuid() };
+            var sessionKey = await lastfmApi.CompleteAuthentication(token);
+            var session    = await sessionProvider.GetSession() ?? new Session { Id = Guid.NewGuid() };
 
             session.LastfmSessionKey = sessionKey;
 
-            await _sessionRepository.SaveSession(session);
+            await sessionRepository.SaveSession(session);
 
             return Json(session.Id);
         }
@@ -48,10 +48,12 @@ namespace LastApple.Web.Controllers
         [Route("user")]
         public async Task<IActionResult> GetAuthenticatedUser()
         {
-            if (!await _lastfmApi.IsAuthenticated())
+            var session = await sessionProvider.GetSession();
+
+            if (string.IsNullOrWhiteSpace(session?.LastfmSessionKey))
                 return Json(null);
 
-            return Json(await _lastfmApi.GetUserInfo());
+            return Json(await lastfmApi.GetUserInfo(session.LastfmSessionKey));
         }
     }
 }

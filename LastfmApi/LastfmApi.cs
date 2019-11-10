@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -13,21 +14,8 @@ namespace LastfmApi
 {
     public class LastfmApi : ILastfmApi
     {
-        private readonly ISessionKeyProvider _sessionKey;
-
         private readonly HttpClient _httpClient = new HttpClient
             { BaseAddress = new Uri("https://ws.audioscrobbler.com/2.0/") };
-
-        public LastfmApi(ISessionKeyProvider sessionKey)
-        {
-            _sessionKey = sessionKey ?? throw new ArgumentNullException(nameof(sessionKey));
-        }
-
-        public async Task<bool> IsAuthenticated()
-        {
-            var sessionKey = await _sessionKey.GetSessionKey();
-            return !string.IsNullOrWhiteSpace(sessionKey);
-        }
 
         public async Task<IEnumerable<Artist>> GetSimilarArtists(string name)
         {
@@ -54,9 +42,7 @@ namespace LastfmApi
             var response = await _httpClient.GetAsync(query);
 
             if (response.StatusCode != HttpStatusCode.OK)
-            {
-                return new Track[0];
-            }
+                return null;
 
             var json = await response.Content.ReadAsStringAsync();
 
@@ -64,7 +50,7 @@ namespace LastfmApi
                 JsonConvert.DeserializeObject<TopTracksResponse>(json, new TopTracksJsonConverter());
 
             return topTracksResponse.Error == 0
-                ? topTracksResponse.TopTracks.Tracks
+                ? topTracksResponse.TopTracks.Tracks ?? Enumerable.Empty<Track>()
                 : null;
         }
 
@@ -132,9 +118,9 @@ namespace LastfmApi
             return topArtistsResponse.TopArtists.Artists;
         }
 
-        public async Task<User> GetUserInfo(string user = null)
+        public async Task<User> GetUserInfo(string sessionKey, string user = null)
         {
-            var query = LastfmQuery.AuthorizableMethod("user.getInfo", await _sessionKey.GetSessionKey());
+            var query = LastfmQuery.AuthorizableMethod("user.getInfo", sessionKey);
 
             if (user != null)
                 query.AddParam("user", user);
@@ -147,10 +133,10 @@ namespace LastfmApi
             return userInfoResponse.User;
         }
 
-        public async Task NowPlaying(string artist, string track, TimeSpan duration)
+        public async Task NowPlaying(string artist, string track, TimeSpan duration, string sessionKey)
         {
             const string method = "track.updateNowPlaying";
-            var query = LastfmQuery.AuthorizableMethod(method, await _sessionKey.GetSessionKey())
+            var query = LastfmQuery.AuthorizableMethod(method, sessionKey)
                 .AddParam("artist", artist)
                 .AddParam("track", track)
                 .AddParam("duration", duration.TotalSeconds.ToString(CultureInfo.InvariantCulture));
@@ -158,12 +144,12 @@ namespace LastfmApi
             await _httpClient.PostAsync(string.Empty, query.AsFormUrlEncodedContent());
         }
 
-        public async Task Scrobble(string artist, string track)
+        public async Task Scrobble(string artist, string track, string sessionKey)
         {
             const string method = "track.scrobble";
             var timestamp =
                 Math.Floor(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1, 0, 0, 0)).TotalSeconds);
-            var query = LastfmQuery.AuthorizableMethod(method, await _sessionKey.GetSessionKey())
+            var query = LastfmQuery.AuthorizableMethod(method, sessionKey)
                 .AddParam("artist", artist)
                 .AddParam("track", track)
                 .AddParam("timestamp", timestamp.ToString(CultureInfo.InvariantCulture));

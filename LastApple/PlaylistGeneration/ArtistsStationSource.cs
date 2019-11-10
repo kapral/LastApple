@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using LastfmApi.Models;
@@ -9,6 +10,8 @@ namespace LastApple.PlaylistGeneration
     {
         public Task<IEnumerable<Artist>> GetStationArtists(ArtistsStationDefinition definition)
         {
+            if (definition == null) throw new ArgumentNullException(nameof(definition));
+
             return Task.FromResult(definition.Artists.Select(x => new Artist(x)));
         }
     }

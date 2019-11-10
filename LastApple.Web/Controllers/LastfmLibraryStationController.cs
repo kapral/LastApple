@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using LastApple.Model;
 using LastApple.PlaylistGeneration;
 using LastfmApi;
-using LastfmPlayer.Core.PlaylistGeneration;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LastApple.Web.Controllers
@@ -11,27 +10,35 @@ namespace LastApple.Web.Controllers
     [Route("api/station/lastfmlibrary")]
     public class LastfmLibraryStationController : Controller
     {
-        private readonly IStationRepository                                _stationRepository;
-        private readonly IStationGenerator<LastfmLibraryStationDefinition> _stationGenerator;
-        private readonly IBackgroundProcessManager                         _backgroundProcessManager;
-        private readonly ILastfmApi                                        _lastfmApi;
+        private readonly IStationRepository stationRepository;
+        private readonly IStationGenerator<LastfmLibraryStationDefinition> stationGenerator;
+        private readonly IBackgroundProcessManager processManager;
+        private readonly ILastfmApi lastfmApi;
+        private readonly ISessionProvider sessionProvider;
 
         public LastfmLibraryStationController(IStationRepository stationRepository,
             IStationGenerator<LastfmLibraryStationDefinition> stationGenerator,
-            IBackgroundProcessManager backgroundProcessManager, ILastfmApi lastfmApi)
+            IBackgroundProcessManager processManager,
+            ILastfmApi lastfmApi,
+            ISessionProvider sessionProvider)
         {
-            _stationRepository = stationRepository ?? throw new ArgumentNullException(nameof(stationRepository));
-            _stationGenerator  = stationGenerator ?? throw new ArgumentNullException(nameof(stationGenerator));
-            _lastfmApi         = lastfmApi ?? throw new ArgumentNullException(nameof(lastfmApi));
-            _backgroundProcessManager = backgroundProcessManager ??
-                                        throw new ArgumentNullException(nameof(backgroundProcessManager));
+            this.stationRepository = stationRepository ?? throw new ArgumentNullException(nameof(stationRepository));
+            this.stationGenerator  = stationGenerator ?? throw new ArgumentNullException(nameof(stationGenerator));
+            this.lastfmApi         = lastfmApi ?? throw new ArgumentNullException(nameof(lastfmApi));
+            this.sessionProvider   = sessionProvider ?? throw new ArgumentNullException(nameof(sessionProvider));
+            this.processManager    = processManager ?? throw new ArgumentNullException(nameof(processManager));
         }
 
         [HttpPost]
         [Route("my")]
         public async Task<IActionResult> Create()
         {
-            var user = await _lastfmApi.GetUserInfo();
+            var sessionKey = (await sessionProvider.GetSession()).LastfmSessionKey;
+
+            if (string.IsNullOrWhiteSpace(sessionKey))
+                return Unauthorized();
+
+            var user = await lastfmApi.GetUserInfo(sessionKey);
 
             var station = new Station<LastfmLibraryStationDefinition>
             {
@@ -39,9 +46,9 @@ namespace LastApple.Web.Controllers
                 Definition   = new LastfmLibraryStationDefinition { User = user.Name }, Id = Guid.NewGuid()
             };
 
-            _stationRepository.Create(station);
+            stationRepository.Create(station);
 
-            _backgroundProcessManager.AddProcess(() => _stationGenerator.Generate(station));
+            processManager.AddProcess(() => stationGenerator.Generate(station));
 
             return Json(station);
         }
@@ -50,9 +57,9 @@ namespace LastApple.Web.Controllers
         [Route("{stationId}/topup/{count}")]
         public ActionResult TopUp(Guid stationId, int count)
         {
-            var station = _stationRepository.Get(stationId) as Station<LastfmLibraryStationDefinition>;
+            var station = stationRepository.Get(stationId) as Station<LastfmLibraryStationDefinition>;
 
-            _backgroundProcessManager.AddProcess(() => _stationGenerator.TopUp(station, count));
+            processManager.AddProcess(() => stationGenerator.TopUp(station, count));
 
             return NoContent();
         }

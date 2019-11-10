@@ -3,7 +3,6 @@ using LastApple.Persistence;
 using LastApple.PlaylistGeneration;
 using LastApple.Web.Extensions;
 using LastfmApi;
-using LastfmPlayer.Core.PlaylistGeneration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
@@ -60,24 +59,28 @@ namespace LastApple.Web
                 return new ApiAuthentication { DeveloperToken = tokenProvider.GetToken() };
             });
 
-            services.AddScoped<IStationSource<ArtistsStationDefinition>, ArtistsStationSource>();
-            services.AddScoped<IStationSource<SimilarArtistsStationDefinition>, SimilarArtistsStationSource>();
-            services.AddScoped<IStationSource<TagsStationDefinition>, TagsStationSource>();
-            services.AddScoped<IStationSource<LastfmLibraryStationDefinition>, LastfmLibraryStationSource>();
+            services.AddSingleton<IStationSource<ArtistsStationDefinition>, ArtistsStationSource>();
+            services.AddSingleton<IStationSource<SimilarArtistsStationDefinition>, SimilarArtistsStationSource>();
+            services.AddSingleton<IStationSource<TagsStationDefinition>, TagsStationSource>();
+            services.AddSingleton<IStationSource<LastfmLibraryStationDefinition>, LastfmLibraryStationSource>();
+
+            services.Decorate<IStationSource<ArtistsStationDefinition>, CachingStationSource<ArtistsStationDefinition>>();
+            services.Decorate<IStationSource<SimilarArtistsStationDefinition>, CachingStationSource<SimilarArtistsStationDefinition>>();
+            services.Decorate<IStationSource<TagsStationDefinition>, CachingStationSource<TagsStationDefinition>>();
+            services.Decorate<IStationSource<LastfmLibraryStationDefinition>, CachingStationSource<LastfmLibraryStationDefinition>>();
 
             services.AddSingleton<ISessionRepository, SessionRepository>();
-            services.AddScoped<ILastfmApi, LastfmApi.LastfmApi>();
+            services.AddSingleton<ILastfmApi, LastfmApi.LastfmApi>();
 
             services.AddHttpContextAccessor();
 
             services.AddScoped<ISessionProvider, SessionProvider>();
-            services.AddScoped<ISessionKeyProvider, LastfmSessionKeyProvider>();
 
             services.AddSingleton<IStationRepository, StationRepository>();
             services.AddSingleton<IStationEventMediator, SignalrStationEventMediator>();
             services.AddSingleton<IBackgroundProcessManager, BackgroundProcessManager>();
             services.AddSingleton(container => (IHostedService)container.GetService<IBackgroundProcessManager>());
-            services.AddSingleton<ILastfmCache, LastfmCache>();
+            services.AddSingleton<ITrackRepository, TrackRepository>();
 
             services.Configure<MongoConnectionDetails>(Configuration.GetSection("MongoDb"));
 
