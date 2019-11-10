@@ -8,11 +8,13 @@ namespace LastApple.Web.Controllers
     [Route("api/lastfm")]
     public class LastfmController : Controller
     {
-        private readonly ILastfmApi _lastfmApi;
+        private readonly ILastfmApi lastfmApi;
+        private readonly ISessionProvider sessionProvider;
 
-        public LastfmController(ILastfmApi lastfmApi)
+        public LastfmController(ILastfmApi lastfmApi, ISessionProvider sessionProvider)
         {
-            _lastfmApi = lastfmApi ?? throw new ArgumentNullException(nameof(lastfmApi));
+            this.lastfmApi       = lastfmApi ?? throw new ArgumentNullException(nameof(lastfmApi));
+            this.sessionProvider = sessionProvider ?? throw new ArgumentNullException(nameof(sessionProvider));
         }
 
         [HttpGet]
@@ -21,7 +23,7 @@ namespace LastApple.Web.Controllers
         {
             if (string.IsNullOrWhiteSpace(term)) throw new ArgumentException(nameof(term));
 
-            var results = await _lastfmApi.SearchArtists(term);
+            var results = await lastfmApi.SearchArtists(term);
 
             return Json(results);
         }
@@ -35,7 +37,12 @@ namespace LastApple.Web.Controllers
             if (validationResponse != null)
                 return validationResponse;
 
-            await _lastfmApi.Scrobble(artist, song);
+            var sessionKey = await GetSessionKey();
+
+            if (string.IsNullOrWhiteSpace(sessionKey))
+                return Unauthorized();
+
+            await lastfmApi.Scrobble(artist, song, sessionKey);
 
             return NoContent();
         }
@@ -49,7 +56,12 @@ namespace LastApple.Web.Controllers
             if (validationResponse != null)
                 return validationResponse;
 
-            await _lastfmApi.NowPlaying(artist, song, TimeSpan.FromMinutes(3));
+            var sessionKey = await GetSessionKey();
+
+            if (string.IsNullOrWhiteSpace(sessionKey))
+                return Unauthorized();
+
+            await lastfmApi.NowPlaying(artist, song, TimeSpan.FromMinutes(3), sessionKey);
 
             return NoContent();
         }
@@ -62,10 +74,12 @@ namespace LastApple.Web.Controllers
             if (string.IsNullOrWhiteSpace(song))
                 return BadRequest($"{nameof(song)} is empty.");
 
-            if (!await _lastfmApi.IsAuthenticated())
-                return Unauthorized();
-
             return null;
+        }
+
+        private async Task<string> GetSessionKey()
+        {
+            return (await sessionProvider.GetSession())?.LastfmSessionKey;
         }
     }
 }
