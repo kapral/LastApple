@@ -6,15 +6,13 @@ using LastfmApi.Models;
 namespace LastfmApi {
     public interface ILastfmApi
     {
-        Task<bool> IsAuthenticated();
-
         Task<IEnumerable<Artist>> GetSimilarArtists(string name);
 
         Task<IEnumerable<Track>> GetTopTracks(string artist);
 
-        Task NowPlaying(string artist, string track, TimeSpan duration);
+        Task NowPlaying(string artist, string track, TimeSpan duration, string sessionKey);
 
-        Task Scrobble(string artist, string track);
+        Task Scrobble(string artist, string track, string sessionKey);
 
         Task<Uri> StartWebAuthentication(Uri redirectUrl);
 
@@ -26,7 +24,7 @@ namespace LastfmApi {
 
         Task<IEnumerable<Artist>> GetUserArtists(string user, int page = 1, int limit = 50, string period = "overall");
 
-        Task<User> GetUserInfo(string user = null);
+        Task<User> GetUserInfo(string sessionKey, string user = null);
 
         Task<IEnumerable<Artist>> SearchArtists(string name);
     }
