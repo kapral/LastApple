@@ -32,7 +32,9 @@ namespace LastApple.Web
                 options.AddPolicy(AllowNetlifyCorsPolicy,
                     builder =>
                     {
-                        builder.WithOrigins("https://lastapple.netlify.com");
+                        builder.WithOrigins("https://lastapple.netlify.com")
+                            .AllowAnyHeader()
+                            .AllowAnyMethod();
                     });
             });
             services.AddRazorPages();
