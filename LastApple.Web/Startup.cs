@@ -33,6 +33,7 @@ namespace LastApple.Web
                     builder =>
                     {
                         builder.WithOrigins("https://lastapple.netlify.com", "https://lastapple.net")
+                            .AllowCredentials()
                             .AllowAnyHeader()
                             .AllowAnyMethod();
                     });
