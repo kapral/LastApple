@@ -7,11 +7,13 @@ namespace LastApple.PlaylistGeneration
 {
     public class TrackIdProvider : ITrackIdProvider
     {
-        private readonly ICatalogApi _catalogApi;
+        private readonly ICatalogApi catalogApi;
+        private readonly IStorefrontProvider storefrontProvider;
 
-        public TrackIdProvider(ICatalogApi catalogApi)
+        public TrackIdProvider(ICatalogApi catalogApi, IStorefrontProvider storefrontProvider)
         {
-            _catalogApi = catalogApi ?? throw new ArgumentNullException(nameof(catalogApi));
+            this.catalogApi         = catalogApi ?? throw new ArgumentNullException(nameof(catalogApi));
+            this.storefrontProvider = storefrontProvider ?? throw new ArgumentNullException(nameof(storefrontProvider));
         }
 
         public async Task<string> FindTrackId(string artist, string track)
@@ -23,9 +25,10 @@ namespace LastApple.PlaylistGeneration
                 Limit = 1
             };
 
-            var result = await _catalogApi.Search(searchParams);
+            var storefront = await storefrontProvider.GetStorefront();
+            var result = await catalogApi.Search(searchParams, storefront);
 
-            return result.Songs?.Data?.Select(x => x.Id).FirstOrDefault();
+            return result.Songs?.Data.Select(x => x.Id).FirstOrDefault();
         }
     }
 }
