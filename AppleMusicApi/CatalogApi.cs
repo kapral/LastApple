@@ -10,19 +10,19 @@ namespace AppleMusicApi
 {
     public class CatalogApi : ICatalogApi
     {
-        private readonly HttpClient _httpClient;
+        private readonly HttpClient httpClient;
 
         public CatalogApi(ApiAuthentication authentication)
         {
             if (authentication == null) throw new ArgumentNullException(nameof(authentication));
 
-            _httpClient = new HttpClient { BaseAddress = new Uri("https://api.music.apple.com/v1/") };
+            httpClient = new HttpClient { BaseAddress = new Uri("https://api.music.apple.com/v1/") };
 
-            _httpClient.DefaultRequestHeaders.Authorization =
+            httpClient.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", authentication.DeveloperToken);
         }
 
-        public async Task<SearchResult> Search(SearchParams searchParams)
+        public async Task<SearchResult> Search(SearchParams searchParams, string storefront)
         {
             var parameters = new Dictionary<string, string>
             {
@@ -32,7 +32,7 @@ namespace AppleMusicApi
                 { "types", SerializeTypes(searchParams.Types) }
             };
 
-            var httpResponse = await _httpClient.GetAsync(QueryHelpers.AddQueryString("catalog/ru/search", parameters));
+            var httpResponse = await httpClient.GetAsync(QueryHelpers.AddQueryString($"catalog/{storefront}/search", parameters));
 
             if(!httpResponse.IsSuccessStatusCode)
                 throw new Exception("todo");
@@ -42,9 +42,9 @@ namespace AppleMusicApi
             return apiResponse.Results;
         }
 
-        public async Task<Resource<ArtistAttributes>> GetArtist(string id)
+        public async Task<Resource<ArtistAttributes>> GetArtist(string id, string storefront)
         {
-            var httpResponse = await _httpClient.GetAsync($"catalog/ru/artists/{id}");
+            var httpResponse = await httpClient.GetAsync($"catalog/{storefront}/artists/{id}");
 
             if(!httpResponse.IsSuccessStatusCode)
                 throw new Exception("todo");
@@ -54,9 +54,9 @@ namespace AppleMusicApi
             return apiResponse.Data.FirstOrDefault();
         }
 
-        public async Task<IEnumerable<Resource<AlbumAttributes>>> GetAlbums(IEnumerable<string> ids)
+        public async Task<IEnumerable<Resource<AlbumAttributes>>> GetAlbums(IEnumerable<string> ids, string storefront)
         {
-            var httpResponse = await _httpClient.GetAsync($"catalog/ru/albums?ids={string.Join(',', ids)}");
+            var httpResponse = await httpClient.GetAsync($"catalog/{storefront}/albums?ids={string.Join(',', ids)}");
 
             if(!httpResponse.IsSuccessStatusCode)
                 throw new Exception("todo");
