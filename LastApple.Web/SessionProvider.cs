@@ -6,20 +6,22 @@ namespace LastApple.Web
 {
     public class SessionProvider : ISessionProvider
     {
-        private readonly IHttpContextAccessor httpContextAccessor;
         private readonly ISessionRepository sessionRepository;
 
         public SessionProvider(ISessionRepository sessionRepository, IHttpContextAccessor httpContextAccessor)
         {
-            this.sessionRepository   = sessionRepository;
-            this.httpContextAccessor = httpContextAccessor;
+            this.sessionRepository = sessionRepository ?? throw new ArgumentNullException(nameof(sessionRepository));
+            
+            if (httpContextAccessor == null) throw new ArgumentNullException(nameof(httpContextAccessor));
+
+            SessionId = httpContextAccessor.HttpContext.Request.Headers["X-SessionId"];
         }
+
+        private string SessionId { get; }
 
         public async Task<Session> GetSession()
         {
-            var sessionId = httpContextAccessor.HttpContext.Request.Headers["X-SessionId"];
-
-            if (!Guid.TryParse(sessionId, out var id))
+            if (!Guid.TryParse(SessionId, out var id))
                 return null;
 
             return await sessionRepository.GetSession(id);
