@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 
 namespace LastApple.Web
@@ -61,7 +60,8 @@ namespace LastApple.Web
             services.AddScoped<IStationTrackGenerator<SimilarArtistsStationDefinition>, StationTrackGenerator<SimilarArtistsStationDefinition>>();
             services.AddScoped<IStationTrackGenerator<TagsStationDefinition>, StationTrackGenerator<TagsStationDefinition>>();
             services.AddScoped<IStationTrackGenerator<LastfmLibraryStationDefinition>, StationTrackGenerator<LastfmLibraryStationDefinition>>();
-            services.AddTransient<ITrackIdProvider, TrackIdProvider>();
+            services.AddScoped<IStorefrontProvider, StorefrontProvider>();
+            services.AddScoped<ITrackIdProvider, TrackIdProvider>();
             services.AddTransient<IRandomizer, Randomizer>();
             services.AddTransient<ICatalogApi, CatalogApi>();
 
