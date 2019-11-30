@@ -28,11 +28,11 @@ export class SimilarArtists extends Component<IStationParams, { artist: string }
     }
 
     render(): React.ReactNode {
-        return <div className={'station-parameters'} style={{ padding: '10px' }}>
+        return <div className='station-parameters' style={{ padding: '10px' }}>
             <Search<string> search={term => this.search(term)}
                                        onChanged={artist => this.handleChanged(artist)}
                                        placeholder={'Search for an artist'}/>
-        </div>
+        </div>;
     }
 
     handleChanged(artist: string) {

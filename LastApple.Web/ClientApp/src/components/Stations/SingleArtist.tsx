@@ -32,7 +32,7 @@ export class SingleArtist extends Component<IStationParams, { currentArtistId: s
     }
 
     render(): React.ReactNode {
-        return <div style={{ padding: '10px' }}>
+        return <div className='station-parameters' style={{ padding: '10px' }}>
             <Search<IMediaItemOptions> search={term => this.search(term)}
                                        onChanged={artist => this.handleChanged(artist)}
                                        placeholder={'Search for an artist'}
