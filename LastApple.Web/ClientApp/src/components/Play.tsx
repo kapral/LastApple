@@ -1,25 +1,41 @@
 import React, {Component} from "react";
-import { PlayerControl } from "./Player/PlayerControl";
+import { StationPlayer } from "./Player/StationPlayer";
 import { inject } from "mobx-react";
 import { BaseRouterProps } from "../BaseRouterProps";
 
+interface PlayProps extends BaseRouterProps {
+    showPlayer: boolean;
+    stationId: string;
+}
+
 @inject('appState')
-export class Play extends Component<BaseRouterProps>{
-    private readonly stationId: string;
-
-    constructor(props){
-        super(props);
-
-        const stationId = this.props.match.params['station'];
-
-        if(this.props.appState.latestStationId !== stationId) {
-            this.props.appState.latestStationId = stationId;
-        }
-
-        this.stationId = stationId;
+export class Play extends Component<PlayProps> {
+    private get stationId(): string {
+        return this.props.stationId || this.props.appState.latestStationId;
+    }
+    
+    componentDidMount(): void {
+        this.updateLatestStationId();
     }
 
+    componentDidUpdate(): void {
+        this.updateLatestStationId();
+    }
+    
+    updateLatestStationId() {
+        if (this.props.appState.latestStationId !== this.stationId) {
+            this.props.appState.latestStationId = this.stationId;
+        }
+    }
+    
     render() {
-        return <PlayerControl stationId={this.stationId} appState={this.props.appState} ></PlayerControl>;
+        const stationId = this.stationId;
+
+        if (!stationId)
+            return null;
+
+        return <div style={{ display: this.props.showPlayer ? 'block' : 'none' }}>
+            <StationPlayer stationId={stationId} appState={this.props.appState}></StationPlayer>
+        </div>;
     }
 }

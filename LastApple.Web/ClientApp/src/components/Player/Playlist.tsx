@@ -1,178 +1,108 @@
 import * as React from "react";
-import { Component } from "react";
-import { IMediaItem, IMusicKit } from "../MusicKitWrapper/MusicKitDefinitions";
-import { Dropdown } from "react-bootstrap";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFolderPlus, faPause, faPlay, faPlusSquare, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
-import { faEllipsisH } from "@fortawesome/free-solid-svg-icons/faEllipsisH";
-import { CustomToggle } from "./CustomToggle";
+import { PureComponent } from "react";
+import { IMediaItemOptions } from "../MusicKitWrapper/MusicKitDefinitions";
+import musicKit from '../../musicKit';
+import { PlaylistTrack } from "./PlaylistTrack";
+import { PlaylistTrackGroup } from "./PlaylistTrackGroup";
 
-export interface IPagingParams {
+interface PlaylistProps {
+    currentTrack: IMediaItemOptions;
+    isPlaying: boolean;
+    tracks: IMediaItemOptions[];
     offset: number;
     limit: number;
-}
-
-interface PlaylistParams {
-    musicKit: IMusicKit,
-    currentTrack: IMediaItem,
-    pagingParams: IPagingParams,
-    showAlbumInfo: boolean,
+    showAlbumInfo: boolean;
     onRemove(position: number, count: number);
-    onTrackSwitch(track: IMediaItem): Promise<void>;
+    onTrackSwitch(position: number): Promise<void>;
 }
 
-export class Playlist extends Component<PlaylistParams, { items: Array<IMediaItem>, currentTrack: IMediaItem }> {
-    constructor(props){
-        super(props);
-
-        this.state = { items: props.musicKit.player.queue.items, currentTrack: props.currentTrack };
-    }
-
+export class Playlist extends PureComponent<PlaylistProps> {
     render() {
-        const firstTrackIndex = this.props.pagingParams.offset;
-        const lastTrackIndex = firstTrackIndex + this.props.pagingParams.limit;
-        const visibleItems = this.state.items.slice(firstTrackIndex, lastTrackIndex);
+        if (!this.props.tracks.length)
+            return null;
+
+        const visibleTracks = this.getVisibleTracks();
+
+        if (!this.props.showAlbumInfo)
+            return <div className="playlist">
+                {visibleTracks.map((track, index) => <PlaylistTrack
+                    key={index}
+                    track={track}
+                    isCurrent={this.props.currentTrack === track}
+                    isPlaying={this.props.currentTrack === track && this.props.isPlaying}
+                    index={index}
+                    groupOffset={0}
+                    onTrackSwitch={this.props.onTrackSwitch}
+                    addToLibrary={this.addToLibrary}
+                    addAlbumToLibrary={this.addAlbumToLibrary}
+                    onRemove={this.removeItems}
+                />)}
+            </div>;
+
+        const grouped = this.groupByAlbum(visibleTracks);
 
         return <div className="playlist">
-            {this.props.showAlbumInfo ? this.renderGrouped(visibleItems) : this.renderTracks(visibleItems, 0)}
-        </div>
+            {grouped.all.map(group =>
+                <PlaylistTrackGroup
+                    key={group.index}
+                    tracks={group.tracks}
+                    currentTrack={this.props.currentTrack}
+                    isPlaying={this.props.isPlaying && group.tracks.some(t => t === this.props.currentTrack)}
+                    index={group.index}
+                    addAlbumToLibrary={this.addAlbumToLibrary}
+                    onRemove={this.removeItems}
+                >
+                    { group.tracks.map((item, index) =>
+                        <PlaylistTrack
+                            key={index}
+                            track={item}
+                            isPlaying={item === this.props.currentTrack && this.props.isPlaying}
+                            isCurrent={item === this.props.currentTrack}
+                            index={index}
+                            groupOffset={group.index}
+                            onTrackSwitch={this.props.onTrackSwitch}
+                            addToLibrary={this.addToLibrary}
+                            addAlbumToLibrary={this.addAlbumToLibrary}
+                            onRemove={this.props.onRemove}
+                        />) }
+                </PlaylistTrackGroup>)}
+        </div>;
     }
-
-    renderGrouped(items) {
-        const grouped = items.reduce((groups, next, index) => {
-            if (groups.current === next.albumInfo) {
-                groups.all[groups.all.length - 1].items.push(next);
+    
+    getVisibleTracks() {
+        const firstTrackIndex = this.props.offset;
+        const lastTrackIndex = firstTrackIndex + this.props.limit;
+        
+        return this.props.tracks.slice(firstTrackIndex, lastTrackIndex);
+    }
+    
+    groupByAlbum(tracks: IMediaItemOptions[]) {
+        return tracks.reduce((groups, next, index) => {
+            if (groups.current === next.attributes.albumName) {
+                groups.all[groups.all.length - 1].tracks.push(next);
             } else {
-                groups.current = next.albumInfo;
-                groups.all.push({ items: [next], index });
+                groups.current = next.attributes.albumName;
+                groups.all.push({ tracks: [next], index });
             }
             return groups;
         }, { all: [], current: '' });
-
-        return grouped.all.map((group, index) =>
-            <div
-                key={index}
-                style={{
-                    marginBottom: '20px'
-                }}>
-                <div style={{
-                    background: '#00000099',
-                    marginBottom: '5px',
-                    padding: '.4rem'
-                }}>
-                    <img style={{
-                        height: '60px',
-                        width: '60px',
-                        verticalAlign: 'top'
-                    }} alt={'album logo'} src={group.items[0].artworkURL.replace('{w}x{h}', '60x60')}/>
-                    <div className={'album-header'} style={{
-                        display: 'inline-block',
-                        width: 'calc(100% - 60px)',
-                        padding: '7px 0 0 10px'
-                    }}>
-                        <Dropdown alignRight={true} style={{
-                            float: 'right',
-                            margin: '5px 0',
-                            fontSize: '22px'
-                        }}>
-                            <Dropdown.Toggle as={CustomToggle} id={`item-dropdown-group-${index}`}>
-                                <FontAwesomeIcon style={{ verticalAlign: 'bottom', margin: '.6rem .5rem' }} icon={faEllipsisH} />
-                            </Dropdown.Toggle>
-                            <Dropdown.Menu>
-                                <Dropdown.Item onSelect={() => this.addAlbumToLibrary(group.items[0])} disabled={!this.props.musicKit.isAuthorized}>
-                                    <span style={{
-                                        display: 'inline-block',
-                                        width: '16px',
-                                        fontSize: '16px',
-                                        marginRight: '10px'
-                                    }}>
-                                        <FontAwesomeIcon icon={faFolderPlus}/>
-                                    </span>
-                                    <span>Add to your AppleMusic Library</span>
-                                </Dropdown.Item>
-                                <Dropdown.Item onSelect={() => this.removeItems(group.index, group.items.length)}>
-                                    <span style={{
-                                        display: 'inline-block',
-                                        width: '16px',
-                                        fontSize: '16px',
-                                        marginRight: '10px'
-                                    }}>
-                                        <FontAwesomeIcon icon={faTrashAlt}/>
-                                    </span>
-                                    <span>Delete from this station</span>
-                                </Dropdown.Item>
-                            </Dropdown.Menu>
-                        </Dropdown>
-                        <h5 style={{ margin: '0' }}>{group.items[0].albumName}</h5>
-                        <h6 style={{ margin: '.5rem 0 0 0', color: '#BBB' }}>{group.items[0].artistName}</h6>
-                    </div>
-                </div>
-                {this.renderTracks(group.items, group.index)}
-            </div>);
     }
 
-    removeItems(position, count) {
+    removeItems = (position: number, count: number) => {
         for (let i = 0; i < count; i++) {
-            this.props.musicKit.player.queue.remove(position);
+            musicKit.instance.player.queue.remove(position);
         }
 
-        this.setState({ items: this.props.musicKit.player.queue.items });
-
         this.props.onRemove(position, count);
-    }
+    };
 
-    async addAlbumToLibrary(item: IMediaItem) {
+    async addAlbumToLibrary(item: IMediaItemOptions) {
         const albumId = item.relationships.albums.data[0].id;
 
-        await this.props.musicKit.api.addToLibrary({ albums: [albumId] });
+        await musicKit.instance.api.addToLibrary({ albums: [albumId] });
     }
 
-    async addToLibrary(item: IMediaItem) {
-        await this.props.musicKit.api.addToLibrary({ songs: [item.id] });
-    }
-
-    renderTracks(tracks, groupOffset) {
-        return tracks.map((item, index) =>
-            <div key={index} className={`playlist-item clearfix ${item === this.props.currentTrack ? 'current' : ''}`} style={{
-                margin: '0 5px'
-            }}>
-                <div style={{
-                    float: 'left',
-                    padding: '0.5rem 0.7rem',
-                    cursor: 'pointer'
-                }} className={`play-button`}
-                      onClick={() => this.props.onTrackSwitch(item)}>
-                    <FontAwesomeIcon icon={item === this.props.currentTrack && this.props.musicKit.player.isPlaying ? faPause : faPlay}></FontAwesomeIcon>
-                </div>
-                <Dropdown alignRight={true} style={{ float: 'right', fontSize: '18px' }}>
-                    <Dropdown.Toggle as={CustomToggle} id={`item-dropdown-${groupOffset + index}`}>
-                        <FontAwesomeIcon style={{ verticalAlign: 'bottom', margin: '.6rem' }} icon={faEllipsisH}></FontAwesomeIcon>
-                    </Dropdown.Toggle>
-                    <Dropdown.Menu>
-                        <Dropdown.Item onSelect={() => this.addToLibrary(item)} disabled={!this.props.musicKit.isAuthorized}>
-                            <span style={{ display: 'inline-block', width: '16px', fontSize: '16px', marginRight: '10px' }}>
-                                <FontAwesomeIcon icon={faPlusSquare}/>
-                            </span>
-                            <span>Add song to your AppleMusic Library</span>
-                        </Dropdown.Item>
-                        <Dropdown.Item onSelect={() => this.addAlbumToLibrary(item)} disabled={!this.props.musicKit.isAuthorized}>
-                            <span style={{ display: 'inline-block', width: '16px', fontSize: '16px', marginRight: '10px' }}>
-                                <FontAwesomeIcon icon={faFolderPlus}/>
-                            </span>
-                            <span>Add album to your AppleMusic Library</span>
-                        </Dropdown.Item>
-                        <Dropdown.Item onSelect={() => this.removeItems(groupOffset + index, 1)}>
-                            <span style={{ display: 'inline-block', width: '16px', fontSize: '16px', marginRight: '10px' }}>
-                                <FontAwesomeIcon icon={faTrashAlt}/>
-                            </span>
-                            <span>Delete from this station</span>
-                        </Dropdown.Item>
-                    </Dropdown.Menu>
-                </Dropdown>
-                <div style={{
-                    lineHeight: '1.1',
-                    padding: '0.7rem 0 0.7rem 0.7rem'
-                }}>{`${item.artistName} - ${item.title}`}</div>
-            </div>);
+    async addToLibrary(item: IMediaItemOptions) {
+        await musicKit.instance.api.addToLibrary({ songs: [item.id] });
     }
 }
