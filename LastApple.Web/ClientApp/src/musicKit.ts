@@ -2,7 +2,7 @@ import { IMusicKit } from "./components/MusicKitWrapper/MusicKitDefinitions";
 import appleMusicApi from "./restClients/AppleMusicApi";
 
 class MusicKit {
-    private instance: IMusicKit;
+    instance: IMusicKit;
     private musicKit = (window as any).MusicKit;
 
     async getInstance() {

@@ -48,7 +48,7 @@ interface IQueue {
     items: Array<IMediaItem>;
 
     item(index: number): IMediaItem;
-    append(object: IMediaItem | Array<IMediaItem>): void;
+    append(object: IMediaItemOptions | Array<IMediaItemOptions>): void;
     prepend(object: IMediaItem): void;
     remove(position: number): void;
 
@@ -76,7 +76,7 @@ interface IMusicKitPlayer {
     prepareToPlay(descriptor: IMediaItem|string): Promise<void>;
 
     addEventListener(name: string, callback: (e: IEvent) => Promise<void>|void): void;
-    removeEventListener(name: string, callback: (e: IEvent) => Promise<void>): void;
+    removeEventListener(name: string, callback: (e: IEvent) => Promise<void>|void): void;
 }
 
 export interface IMusicKit {
@@ -99,12 +99,17 @@ export interface IMusicKit {
 
 export interface IMediaItemAttributes {
     name?: string;
+    artwork: { url: string }
+    title: string;
+    artistName: string;
+    albumName: string;
 }
 
 export interface IMediaItemOptions {
     id: string;
     type: string;
     attributes: IMediaItemAttributes;
+    relationships: IRelationships;
 }
 
 export interface ISearchResult {
@@ -126,8 +131,8 @@ export interface IQueryParameters {
 export interface IMusicKitApi {
     search(term: string, parameters?: IQueryParameters): Promise<ISearchResponse>;
     searchHints(term: string, parameters?: IQueryParameters): Promise<ISearchHints>;
-    song(trackId: string): Promise<IMediaItem>;
-    songs(trackIds: string[]): Promise<IMediaItem>;
+    song(trackId: string): Promise<IMediaItemOptions>;
+    songs(trackIds: string[]): Promise<IMediaItemOptions>;
 
     addToLibrary(params: { songs?: string[], albums?: string[] }): Promise<void>;
 }

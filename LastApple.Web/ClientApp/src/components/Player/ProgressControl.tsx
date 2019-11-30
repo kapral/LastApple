@@ -1,22 +1,13 @@
 import * as React from 'react';
+import musicKit from '../../musicKit';
 
 const progressStyles: React.CSSProperties = {
     width: '100%',
     height: '10px',
     borderRadius: '2px',
     position: 'relative',
-    cursor: 'pointer'
-};
-
-const bufferingStyles: React.CSSProperties = {
-    height: '10px',
-    background: '#40404054',
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    zIndex: 10,
-    borderRadius: '2px'
+    cursor: 'pointer',
+    background: '#40404054'
 };
 
 const playingStyles: React.CSSProperties = {
@@ -30,44 +21,73 @@ const playingStyles: React.CSSProperties = {
     borderRadius: '2px'
 };
 
-interface IProgressParams {
-    bufferingPercent: number;
-    playingPercent: number;
-    duration: number;
-    onPositionChange: (position: number) => void;
-}
-
-export class ProgressControl extends React.Component<IProgressParams, { rewindPosition: number }> {
+export class ProgressControl extends React.Component<{}, { rewindPosition: number, currentPlaybackPercent: number, currentPlaybackTime: number; }> {
+    private readonly timeChangeHandler: (x) => void;
     constructor(props) {
 
         super(props);
 
-        this.state = { rewindPosition: 0 };
+        this.state = { rewindPosition: 0, currentPlaybackPercent: 0, currentPlaybackTime: 0 };
+        
+        this.timeChangeHandler = x => this.handlePlaybackTimeChanged(x);
+    }
+    
+    componentDidMount(): void {
+        musicKit.instance.player.addEventListener('playbackTimeDidChange', this.timeChangeHandler);
+    }
+    
+    componentWillUnmount(): void {
+        musicKit.instance.player.removeEventListener('playbackTimeDidChange', this.timeChangeHandler);
     }
 
     public render() {
-        const rewindPercent = this.state.rewindPosition / this.props.duration * 100;
+        const rewindPercent = this.state.rewindPosition / musicKit.instance.player.currentPlaybackDuration * 100;
 
-        return <div onMouseMove={e => this.handleMove(e)} onMouseUp={() => this.handleClick()} onMouseLeave={() => this.handleMouseLeave()} style={{ padding: '5px 0', cursor: 'pointer' }}>
-            <div className="audio-progress" style={progressStyles}>
-
-                   <div className="buffering-progress" style={{
-                       width: `${this.props.bufferingPercent}%`,
-                       ...bufferingStyles
-                   }}></div>
-                   <div className="playing-progress" style={{
-                       width: `${this.props.playingPercent}%`,
-                       display: rewindPercent !== 0 ? 'none' : 'block',
-                       ...playingStyles
-                   }}></div>
-                   <div className="playing-progress" style={{ width: `${rewindPercent}%`, ...playingStyles }}></div>
-               </div>
+        return <div>
+            <span style={{ display: 'inline-block', verticalAlign: 'top', marginTop: '2px' }}>{musicKit.formatMediaTime(this.state.currentPlaybackTime)}</span>
+            <div style={{
+                display: 'inline-block',
+                width: 'calc(100% - 100px)',
+                margin: '0 15px'
+            }}>
+                <div onMouseMove={e => this.handleMove(e)} onMouseUp={() => this.handleClick()} onMouseLeave={() => this.handleMouseLeave()} style={{ padding: '5px 0', cursor: 'pointer' }}>
+                    <div className="audio-progress" style={progressStyles}>
+                        <div className="playing-progress" style={{
+                               width: `${this.state.currentPlaybackPercent}%`,
+                               display: rewindPercent !== 0 ? 'none' : 'block',
+                               ...playingStyles
+                           }}></div>
+                        <div className="playing-progress" style={{ width: `${rewindPercent}%`, ...playingStyles }}></div>
+                    </div>
+                </div>
+            </div>
+            <span style={{ display: 'inline-block', verticalAlign: 'top', marginTop: '2px' }}>{musicKit.formatMediaTime(musicKit.instance.player.currentPlaybackDuration)}</span>
         </div>;
+    }
+
+    handlePlaybackTimeChanged(event) {
+        const currentPlaybackTime = event.currentPlaybackTime;
+        const currentPlaybackDuration = event.currentPlaybackDuration;
+
+        if(event.currentPlaybackDuration === 0 || !Number.isFinite(event.currentPlaybackDuration)) {
+            this.setState({ currentPlaybackTime: event.currentPlaybackTime, currentPlaybackPercent: 0 });
+        }
+
+        if(currentPlaybackTime === this.state.currentPlaybackTime) {
+            const diff = 1 / currentPlaybackDuration / 4 * 100;
+
+            this.setState({ currentPlaybackPercent: this.state.currentPlaybackPercent + diff });
+
+            return;
+        }
+
+        const currentPlaybackPercent = currentPlaybackTime / currentPlaybackDuration * 100;
+        this.setState({ currentPlaybackTime, currentPlaybackPercent });
     }
 
     private handleMove(e: React.MouseEvent<HTMLDivElement>) {
         const rect = e.currentTarget.getClientRects()[0];
-        const rewindPosition = e.nativeEvent.offsetX * this.props.duration / rect.width;
+        const rewindPosition = e.nativeEvent.offsetX * musicKit.instance.player.currentPlaybackDuration / rect.width;
 
         if(Math.abs(this.state.rewindPosition - rewindPosition) < 1) {
             return;
@@ -76,8 +96,13 @@ export class ProgressControl extends React.Component<IProgressParams, { rewindPo
         this.setState({ rewindPosition });
     }
 
-    private handleClick() {
-        this.props.onPositionChange(this.state.rewindPosition);
+    private async handleClick() {
+        await this.handleSeek(this.state.rewindPosition);
+    }
+
+    async handleSeek(time) {
+        this.setState({ currentPlaybackPercent: (time / musicKit.instance.player.currentPlaybackDuration) * 100 });
+        await musicKit.instance.player.seekToTime(time);
     }
 
     private handleMouseLeave() {

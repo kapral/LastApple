@@ -27,12 +27,13 @@ h1, h2, h3, h4, h5, h6 {
     border-radius: 0;
 }
 
-.search-control .rbt-input-main::placeholder {
-    color: #AAA;
+.station-parameters input {
+    border: none;
+    height: 34px;
 }
 
 .station-parameters input::placeholder {
-    color: #AAA;
+    color: #888;
 }
 
 
