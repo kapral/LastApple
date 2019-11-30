@@ -262,8 +262,12 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
     }
 
     render() {
-        if (!this.station)
-            return null;
+        if (!this.station || !this.state.tracks.length)
+            return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '200px' }}>
+                <div className="spinner-border" role="status">
+                    <span className="sr-only">Loading...</span>
+                </div>
+            </div>;
 
         return <div>
             <PlayerControls 
