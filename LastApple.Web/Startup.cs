@@ -21,17 +21,17 @@ namespace LastApple.Web
 
         public IConfiguration Configuration { get; }
 
-        public const string AllowNetlifyCorsPolicy = "AllowNetlifyCorsPolicy";
+        public const string AllowCorsPolicy = "AllowCorsPolicy";
         
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors(options =>
             {
-                options.AddPolicy(AllowNetlifyCorsPolicy,
+                options.AddPolicy(AllowCorsPolicy,
                     builder =>
                     {
-                        builder.WithOrigins("https://lastapple.netlify.com", "https://lastapple.net")
+                        builder.SetIsOriginAllowed(_ => true)
                             .AllowCredentials()
                             .AllowAnyHeader()
                             .AllowAnyMethod();
@@ -119,7 +119,7 @@ namespace LastApple.Web
                 app.UseHsts();
             }
 
-            app.UseCors(AllowNetlifyCorsPolicy);
+            app.UseCors(AllowCorsPolicy);
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
