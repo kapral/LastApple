@@ -13,7 +13,8 @@ export class Header extends Component<HeaderProps> {
     render() {
         return <div className={'header clearfix'} style={{
             background: '#000',
-            padding: `10px 10px ${this.props.showNav ? 0 : 10}px`
+            padding: `10px 10px ${this.props.showNav ? 0 : 10}px`,
+            paddingTop: 'env(safe-area-inset-top)'
         }}>
             <div>
                 <h2 style={{
