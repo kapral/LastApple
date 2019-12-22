@@ -25,5 +25,4 @@
         <allow-intent href="itms-apps:*" />
     </platform>
     <preference name="DisallowOverscroll" value="true"/>
-	<preference name="CordovaDefaultWebViewEngine" value="CDVWKWebViewEngine" />
 </widget>

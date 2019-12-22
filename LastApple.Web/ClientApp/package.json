@@ -20,7 +20,6 @@
         "cordova-plugin-background-mode": "git+https://github.com/centogram/cordova-plugin-background-mode.git",
         "cordova-plugin-customurlscheme": "^4.4.0",
         "cordova-plugin-device": "^2.0.2",
-        "cordova-plugin-wkwebview-engine": "1.2.1",
         "mobx": "^5.9.4",
         "mobx-react": "^5.4.4",
         "mobx-react-router": "^4.0.7",
@@ -60,8 +59,7 @@
             "cordova-plugin-background-mode": {},
             "cordova-plugin-customurlscheme": {
                 "URL_SCHEME": "lastapple"
-            },
-            "cordova-plugin-wkwebview-engine": {}
+            }
         },
         "platforms": [
             "browser",
