@@ -31,6 +31,13 @@ class AppleMusicApi {
 
         return await response.json();
     }
+
+    async deleteSessionData(): Promise<void> {
+        await fetch(`${environment.baseUrl}api/apple/auth/sessiondata`, {
+            method: 'DELETE',
+            headers: { 'X-SessionId': localStorage.getItem('SessionId') }
+        });
+    }
 }
 
 export default new AppleMusicApi();

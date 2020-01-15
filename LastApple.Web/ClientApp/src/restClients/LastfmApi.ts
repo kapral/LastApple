@@ -18,6 +18,10 @@ class LastfmApi {
         return await fetch(`${environment.baseUrl}api/lastfm/auth?token=${token}`, { method: 'POST', headers: { 'X-SessionId': localStorage.getItem('SessionId') } });
     }
 
+    async logout() {
+        return await fetch(`${environment.baseUrl}api/lastfm/auth`, { method: 'DELETE', headers: { 'X-SessionId': localStorage.getItem('SessionId') } });
+    }
+
     async getUser() {
         const userResponse = await fetch(`${environment.baseUrl}api/lastfm/auth/user`, { headers: { 'X-SessionId': localStorage.getItem('SessionId') } });
         return await userResponse.json();

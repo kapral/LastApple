@@ -33,6 +33,14 @@ class AppleAuthService {
 
         localStorage.setItem('SessionId', sessionData.id);
     }
+    
+    async logout() {
+        const kit = await musicKit.getInstance();
+        
+        await kit.unauthorize();
+        
+        await musicApi.deleteSessionData();
+    }
 }
 
 export default new AppleAuthService();

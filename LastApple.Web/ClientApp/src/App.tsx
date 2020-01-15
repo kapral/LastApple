@@ -1,22 +1,26 @@
 import React, { Component } from 'react';
-import { Route, Router, matchPath } from 'react-router';
+import { matchPath, Route, Router } from 'react-router';
 import { Layout } from './components/Layout';
 import { Home } from './components/Home';
 import { Play } from './components/Play';
-import { AppleAuthManager } from "./components/AppleAuthManager";
 import { Header } from "./components/Header";
 import { Provider } from "mobx-react";
 import { AppState } from "./AppState";
-import { RouterStore, syncHistoryWithStore } from "mobx-react-router";
 import * as MobxReactRouter from "mobx-react-router";
+import { RouterStore, syncHistoryWithStore } from "mobx-react-router";
 import createHashHistory from "history/createHashHistory";
-import { MobileAuth } from "./components/MobileAuth";
+import { Settings } from "./components/Settings";
 import { BaseRouterProps } from "./BaseRouterProps";
+import { UnauthenticatedWarning } from "./components/UnauthenticatedWarning";
+import { AppleAuthManager } from "./components/AppleAuthManager";
+
 
 export default class App extends Component<{}, { showPlayer: boolean }> {
-    displayName = App.name
+    displayName = App.name;
     private readonly stores: { routing: MobxReactRouter.RouterStore; appState: AppState };
     private readonly history: MobxReactRouter.SynchronizedHistory;
+    
+    mobileSettingsRoute = '/settings/app';
 
     constructor(props) {
         super(props);
@@ -39,13 +43,11 @@ export default class App extends Component<{}, { showPlayer: boolean }> {
                 <Router history={this.history}>
                     <Layout>
                         <Route render={(props: BaseRouterProps) =>
-                            <Header {...props} showNav={!props.location.pathname.includes('/mobileauth')}/>
+                            <Header {...props} showNav={!props.location.pathname.includes(this.mobileSettingsRoute)}/>
                         }/>
-                        <Route render={({ location }) => {
-                            return location.pathname.includes('/mobileauth')
-                                ? null
-                                : <AppleAuthManager/>
-                        }}/>
+                        <Route render={(props: BaseRouterProps) =>
+                            <AppleAuthManager showWarning={!props.location.pathname.includes('/settings')} />
+                        }/>
                         <Route exact path='/' component={Home}/>
                         <Route render={(props: BaseRouterProps) => {
                             const match = matchPath(props.history.location.pathname, {
@@ -59,12 +61,13 @@ export default class App extends Component<{}, { showPlayer: boolean }> {
                                          stationId={stationId}
                                          showPlayer={props.location.pathname.includes('/station/')}
                             />;
-                        }
-                        }/>
-                        <Route exact path='/mobileauth' component={MobileAuth}/>
+                        }}/>
+                        <Route exact path='/settings' render={(props: BaseRouterProps) => <Settings {...props} appConnect={false} />} />
+                        <Route exact path={this.mobileSettingsRoute} render={(props: BaseRouterProps) => <Settings {...props} appConnect={true} />} />
                     </Layout>
                 </Router>
             </Provider>
         );
     }
 }
+

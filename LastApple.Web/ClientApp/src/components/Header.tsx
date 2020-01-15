@@ -7,6 +7,9 @@ import { BaseRouterProps } from "../BaseRouterProps";
 
 type HeaderProps = BaseRouterProps & { showNav: boolean };
 
+const navLinkStyle = { color: '#DDD', padding: '10px', textDecoration: 'none', display: 'inline-block' };
+const activeNavLinkStyle = { background: '#222' };
+
 @inject('appState')
 @observer
 export class Header extends Component<HeaderProps> {
@@ -24,10 +27,11 @@ export class Header extends Component<HeaderProps> {
                 }}>last apple</h2>
                 { this.props.showNav && <div>
                     <div className={'lastfm-auth-container'} style={{ float: 'right', marginTop: '10px', maxWidth: 'calc(100% - 190px)' }}>
-                        <LastfmAuthManager appState={this.props.appState} />
+                        <LastfmAuthManager {...this.props} />
                     </div>
-                    <NavLink activeStyle={{ background: '#222' }} style={{ color: '#DDD', padding: '10px', textDecoration: 'none', display: 'inline-block' }} exact to={'/'}>New station</NavLink>
-                    {this.props.appState.latestStationId && <NavLink activeStyle={{ background: '#0E0E0E' }} style={{ color: '#DDD', padding: '10px', textDecoration: 'none', display: 'inline-block' }}  to={`/station/${this.props.appState.latestStationId}`}>Now playing</NavLink> }
+                    <NavLink activeStyle={activeNavLinkStyle} style={navLinkStyle} exact to={'/'}>New station</NavLink>
+                    {this.props.appState.latestStationId && <NavLink activeStyle={{ background: '#0E0E0E' }} style={navLinkStyle}  to={`/station/${this.props.appState.latestStationId}`}>Now playing</NavLink> }
+                    <NavLink style={navLinkStyle} activeStyle={activeNavLinkStyle} to='/settings'>Settings</NavLink>
                 </div>}
             </div>
         </div>;
