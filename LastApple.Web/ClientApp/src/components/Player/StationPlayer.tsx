@@ -16,6 +16,7 @@ import lastfmApi from "../../restClients/LastfmApi";
 import stationApi, { IStation } from "../../restClients/StationApi"
 import environment from "../../Environment";
 import { PlayerControls } from "./PlayerControls";
+import { Spinner } from "react-bootstrap";
 
 
 interface IPlayerProps extends BaseProps {
@@ -264,9 +265,7 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
     render() {
         if (!this.station || !this.state.tracks.length)
             return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '200px' }}>
-                <div className="spinner-border" role="status">
-                    <span className="sr-only">Loading...</span>
-                </div>
+                <Spinner animation="border" />
             </div>;
 
         return <div>

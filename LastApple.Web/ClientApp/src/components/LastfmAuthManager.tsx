@@ -3,6 +3,8 @@ import React from "react";
 import { BaseProps } from "../BaseProps";
 import lastfmAuthService from '../LastfmAuthService';
 import environment from "../Environment";
+import { Spinner } from 'react-bootstrap';
+import { observer } from "mobx-react";
 
 interface Image {
     size: string;
@@ -15,6 +17,7 @@ interface LastfmUser {
     image: Array<Image>
 }
 
+@observer
 export class LastfmAuthManager extends Component<BaseProps, { pending: boolean, user: LastfmUser }> {
     constructor(props) {
         super(props);
@@ -23,6 +26,10 @@ export class LastfmAuthManager extends Component<BaseProps, { pending: boolean, 
     }
 
     async componentDidMount() {
+        await this.refreshAuth();
+    }
+    
+    async refreshAuth() {
         await lastfmAuthService.tryGetAuthFromParams();
 
         const user = await lastfmAuthService.getAuthenticatedUser();
@@ -39,12 +46,20 @@ export class LastfmAuthManager extends Component<BaseProps, { pending: boolean, 
 
         await lastfmAuthService.authenticate();
     }
+    
+    async componentDidUpdate(prevProps: Readonly<BaseProps>, prevState: Readonly<{ pending: boolean; user: LastfmUser }>, snapshot?: any): Promise<void> {
+        console.log('updated');
+        if (this.props.appState.lastfmAuthenticated != prevProps.appState.lastfmAuthenticated)
+            await this.refreshAuth();
+    }
 
     render(): React.ReactNode {
         if(this.state.pending)
-            return null;
-
-        if (this.state.user)
+            return <div style={{ marginRight: '10px' }}>
+                <Spinner animation="border" size={'sm'} />
+            </div>;
+        
+        if (this.props.appState.lastfmAuthenticated && this.state.user)
             return <div>
                 <a style={{
                     color: '#DDD',

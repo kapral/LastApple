@@ -104,9 +104,27 @@ h1, h2, h3, h4, h5, h6 {
     background: #EEE;
 }
 
-button {
+.btn {
+    border-radius: 0;
+}
+
+.btn-black {
     border: none;
-    padding: 10px;
-    background: #100404;
+    background: #000;
     color: #c8c8c8;
+}
+
+.btn-black:hover {
+    color: #FFF;
+}
+
+.alert {
+    margin: 0;
+    border-radius: 0;
+    border: none;
+}
+
+.alert-warning {
+    color: #352900;
+    background-color: #ffc123;
 }

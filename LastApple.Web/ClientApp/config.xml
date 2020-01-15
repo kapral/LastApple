@@ -16,6 +16,7 @@
     <allow-intent href="sms:*" />
     <allow-intent href="mailto:*" />
     <allow-intent href="geo:*" />
+    <splash src="Default@2x~universal~anyany.png" />
     <platform name="android">
         <allow-intent href="market:*" />
     </platform>
@@ -23,4 +24,5 @@
         <allow-intent href="itms:*" />
         <allow-intent href="itms-apps:*" />
     </platform>
+    <preference name="DisallowOverscroll" value="true"/>
 </widget>

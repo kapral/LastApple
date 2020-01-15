@@ -44,6 +44,19 @@ namespace LastApple.Web.Controllers
 
             return Json(session.Id);
         }
+        
+        [HttpDelete]
+        [Route("")]
+        public async Task<IActionResult> Logout()
+        {
+            var session    = await sessionProvider.GetSession() ?? new Session { Id = Guid.NewGuid() };
+
+            session.LastfmSessionKey = null;
+
+            await sessionRepository.SaveSession(session);
+
+            return NoContent();
+        }
 
         [Route("user")]
         public async Task<IActionResult> GetAuthenticatedUser()

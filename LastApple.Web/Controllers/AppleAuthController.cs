@@ -48,5 +48,19 @@ namespace LastApple.Web.Controllers
 
             return Json(session);
         }
+        
+        [HttpDelete]
+        [Route("sessiondata")]
+        public async Task<IActionResult> DeleteSessionData()
+        {
+            var session = await _sessionProvider.GetSession();
+
+            session.MusicUserToken    = null;
+            session.MusicStorefrontId = null;
+
+            await _sessionRepository.SaveSession(session);
+
+            return NoContent();
+        }
     }
 }
