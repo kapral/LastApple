@@ -20,11 +20,11 @@ export class MyLibrary extends Component<IStationParams> {
     }
 
     render(): React.ReactNode {
-        if(this.props.appState.lastfmAuthenticated) {
-            return null;
-        }
-
-        return <div style={{ margin: '10px', textAlign: 'center', color: '#ea6464' }}>You must be logged in to last.fm to be able to listen to this station.</div>;
+        const showWarning = !this.props.appState.lastfmAuthenticated && !this.props.appState.checkingLastfmAuth;
+        return <div style={{ display: 'flex', flex: 1 }}>
+            <div style={{ margin: '10px 10px 10px 0', color: '#ffc123', display: showWarning ? 'block' : 'none' }}>Log in to last.fm to listen to your library.</div>
+            <div style={{ flex: 1, height: '54px' }}></div>
+        </div>;
     }
 
     static Definition = {

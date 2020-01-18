@@ -18,9 +18,9 @@ export class Tag extends Component<IStationParams, { tagName: string }> {
     }
 
     render(): React.ReactNode {
-        return <div className={'station-parameters'} style={{ padding: '10px' }}>
-            <input style={{ color: '#555', width: '100%', padding: '6px 12px', borderWidth: '1px' }}
-                   placeholder={'Type a tag'}
+        return <div className={'station-parameters'}>
+            <input style={{ width: '100%', padding: '6px 12px', borderWidth: '1px' }}
+                   placeholder={'Rock...'}
                    type={'text'}
                    onChange={e => this.handleChanged(e.currentTarget.value)}/>
         </div>

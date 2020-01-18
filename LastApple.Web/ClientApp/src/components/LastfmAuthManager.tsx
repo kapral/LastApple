@@ -30,6 +30,8 @@ export class LastfmAuthManager extends Component<BaseProps, { pending: boolean, 
     }
     
     async refreshAuth() {
+        this.props.appState.checkingLastfmAuth = true;
+        
         await lastfmAuthService.tryGetAuthFromParams();
 
         const user = await lastfmAuthService.getAuthenticatedUser();
@@ -37,6 +39,7 @@ export class LastfmAuthManager extends Component<BaseProps, { pending: boolean, 
         this.setState({ pending: false, user });
 
         this.props.appState.lastfmAuthenticated = !!user;
+        this.props.appState.checkingLastfmAuth = false;
     }
 
     async authenticate() {
