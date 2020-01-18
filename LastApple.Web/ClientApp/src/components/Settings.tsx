@@ -43,6 +43,11 @@ export class Settings extends Component<SettingsProps, { loading: boolean, apple
             this.setState({ appleAuth: false });
             return;
         }
+
+        if (environment.isMobile) {
+            window.location.href = `${environment.baseUrl}#/settings/app`;
+            return;
+        }
         
         await appleAuthService.authenticate();
 
@@ -59,6 +64,11 @@ export class Settings extends Component<SettingsProps, { loading: boolean, apple
             this.props.appState.lastfmAuthenticated = false;
             return;
         }
+
+        if (environment.isMobile) {
+            window.location.href = `${environment.baseUrl}#/settings/app`;
+        }
+        
         await lastfmAuthService.authenticate();
 
         const lastfmAuth = !!await lastfmAuthService.getAuthenticatedUser();

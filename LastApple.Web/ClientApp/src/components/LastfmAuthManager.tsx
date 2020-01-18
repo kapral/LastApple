@@ -44,7 +44,7 @@ export class LastfmAuthManager extends Component<BaseProps, { pending: boolean, 
 
     async authenticate() {
         if (environment.isMobile) {
-            window.location.href = `${environment.baseUrl}#/mobileauth`;
+            window.location.href = `${environment.baseUrl}#/settings/app`;
         }
 
         await lastfmAuthService.authenticate();
