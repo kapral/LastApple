@@ -17,7 +17,7 @@ export class Header extends Component<HeaderProps> {
         return <div className={'header clearfix'} style={{
             background: '#000',
             padding: `10px 10px ${this.props.showNav ? 0 : 10}px`,
-            paddingTop: 'env(safe-area-inset-top)'
+            paddingTop: 'calc(env(safe-area-inset-top) + 10px)'
         }}>
             <div>
                 <h2 style={{
