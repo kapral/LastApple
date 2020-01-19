@@ -27,7 +27,7 @@ export class Header extends Component<HeaderProps> {
         const headerStyles: React.CSSProperties = {
             background: '#000',
             padding: `10px 10px ${this.props.showNav ? 0 : 10}px`,
-            paddingTop: 'calc(env(safe-area-inset-top) + 10px)'
+            paddingTop: 'max(env(safe-area-inset-top), 10px)'
         };
 
         return <div className={'header clearfix'} style={headerStyles}>

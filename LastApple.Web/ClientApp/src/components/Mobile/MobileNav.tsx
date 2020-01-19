@@ -21,7 +21,7 @@ const linkStyle: React.CSSProperties = {
     color: '#DDD',
     fontSize: '10px',
     padding: '10px',
-    paddingBottom: 'calc(env(safe-area-inset-bottom) + 10px)',
+    paddingBottom: 'max(env(safe-area-inset-bottom), 10px)',
     textDecoration: 'none'
 };
 
