@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCog, faPlay, faSearch } from '@fortawesome/free-solid-svg-icons';
 import { inject, observer } from 'mobx-react';
+import { BaseRouterProps } from '../../BaseRouterProps';
 
 const navStyle: React.CSSProperties = {
     position: 'fixed',
@@ -29,16 +30,21 @@ const activeLinkStyle: React.CSSProperties = {
     color: '#8e0000'
 };
 
+const disabledLinkStyle: React.CSSProperties = {
+    pointerEvents: 'none',
+    color: '#333'
+};
+
 const labelStyle: React.CSSProperties = {
   marginTop: '5px'  
 };
 
-export const MobileNav = inject('appState')(observer(props => <nav style={navStyle}>
+export const MobileNav = inject('appState')(observer((props: BaseRouterProps) => <nav style={navStyle}>
     <NavLink style={linkStyle} activeStyle={activeLinkStyle} exact to={'/'}>
         <FontAwesomeIcon size='2x' icon={faSearch}/>
         <span style={labelStyle}>New Station</span>
     </NavLink>
-    <NavLink style={{...linkStyle, ...{pointerEvents: props.appState.latestStationId ? 'all' : 'none'}}} 
+    <NavLink style={{...linkStyle, ...(!props.appState.latestStationId ? disabledLinkStyle : { })}}
              activeStyle={activeLinkStyle} 
              to={`/station/${props.appState.latestStationId}`}>
         <FontAwesomeIcon size='2x' icon={faPlay}/>
