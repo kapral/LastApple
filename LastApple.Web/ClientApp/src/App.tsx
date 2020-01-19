@@ -11,8 +11,9 @@ import { RouterStore, syncHistoryWithStore } from "mobx-react-router";
 import createHashHistory from "history/createHashHistory";
 import { Settings } from "./components/Settings";
 import { BaseRouterProps } from "./BaseRouterProps";
-import { UnauthenticatedWarning } from "./components/UnauthenticatedWarning";
 import { AppleAuthManager } from "./components/AppleAuthManager";
+import env from './Environment';
+import { MobileNav } from './components/Mobile/MobileNav';
 
 
 export default class App extends Component<{}, { showPlayer: boolean }> {
@@ -43,7 +44,11 @@ export default class App extends Component<{}, { showPlayer: boolean }> {
                 <Router history={this.history}>
                     <Layout>
                         <Route render={(props: BaseRouterProps) =>
-                            <Header {...props} showNav={!props.location.pathname.includes(this.mobileSettingsRoute)}/>
+                            <Header 
+                                {...props} 
+                                showNav={!props.location.pathname.includes(this.mobileSettingsRoute) && !env.isMobile}
+                                showLastfm={!props.location.pathname.includes(this.mobileSettingsRoute)}
+                            />
                         }/>
                         <Route render={(props: BaseRouterProps) =>
                             <AppleAuthManager showWarning={!props.location.pathname.includes('/settings')} />
@@ -64,6 +69,8 @@ export default class App extends Component<{}, { showPlayer: boolean }> {
                         }}/>
                         <Route exact path='/settings' render={(props: BaseRouterProps) => <Settings {...props} appConnect={false} />} />
                         <Route exact path={this.mobileSettingsRoute} render={(props: BaseRouterProps) => <Settings {...props} appConnect={true} />} />
+                        <Route render={(props: BaseRouterProps) => <>{env.isMobile && <MobileNav {...props} />}</>} />
+                        
                     </Layout>
                 </Router>
             </Provider>
