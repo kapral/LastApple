@@ -51,8 +51,7 @@ export class LastfmAuthManager extends Component<BaseProps, { pending: boolean, 
     }
     
     async componentDidUpdate(prevProps: Readonly<BaseProps>, prevState: Readonly<{ pending: boolean; user: LastfmUser }>, snapshot?: any): Promise<void> {
-        console.log('updated');
-        if (this.props.appState.lastfmAuthenticated != prevProps.appState.lastfmAuthenticated)
+        if (this.props.appState.lastfmAuthenticated !== prevProps.appState.lastfmAuthenticated)
             await this.refreshAuth();
     }
 

@@ -84,7 +84,7 @@ export class Settings extends Component<SettingsProps, { loading: boolean, apple
         
         return <div style={{ display: 'flex', flexDirection: 'column' }}>
             <div style={rowStyles}>
-                <img style={logoStyles} src={appleMusicLogo} />
+                <img style={logoStyles} src={appleMusicLogo} alt='Apple Music Logo' />
                 <div style={{ flex: 1 }}>Apple Music account</div>
                 <ReactSwitch
                     checked={this.state.appleAuth}
@@ -98,7 +98,7 @@ export class Settings extends Component<SettingsProps, { loading: boolean, apple
                 />
             </div>
             <div style={rowStyles}>
-                <img style={logoStyles} src={lastfmLogo} />
+                <img style={logoStyles} src={lastfmLogo} alt='Last.fm logo' />
                 <div style={{ flex: 1 }}>Last.fm account</div>
                 <ReactSwitch
                     checked={this.state.lastfmAuth}

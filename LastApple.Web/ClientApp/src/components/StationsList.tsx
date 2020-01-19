@@ -4,7 +4,6 @@ import { SingleArtist } from "./Stations/SingleArtist";
 import { SimilarArtists } from "./Stations/SimilarArtists";
 import { Redirect } from "react-router";
 import { StationDescriptor } from "./StationDescriptor";
-import Container from "react-bootstrap/Container";
 import { MyLibrary } from "./Stations/MyLibrary";
 import { BaseProps } from "../BaseProps";
 import { observer } from "mobx-react";
