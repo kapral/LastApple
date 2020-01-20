@@ -157,3 +157,41 @@ h1, h2, h3, h4, h5, h6 {
 .rbt-input-hint {
     color: #FFFFFF77 !important;
 }
+
+.header h2 {
+    font-size: 36px;
+}
+
+.header .logo {
+    height: 40px;
+    width: 40px;
+}
+
+.header .lastfm-profile {
+    font-size: 12px;
+}
+
+.header .lastfm-profile img {
+    height: 35px;
+    width: 35px;
+}
+
+@media (max-width: 480px) {
+    .header h2 {
+        font-size: 30px;
+    }
+
+    .header .logo {
+        height: 34px;
+        width: 34px;
+    }
+
+    .header .lastfm-profile {
+        font-size: 10px;
+    }
+
+    .header .lastfm-profile img {
+        height: 25px;
+        width: 25px;
+    }
+}

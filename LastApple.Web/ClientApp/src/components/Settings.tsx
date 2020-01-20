@@ -67,6 +67,7 @@ export class Settings extends Component<SettingsProps, { loading: boolean, apple
 
         if (environment.isMobile) {
             window.location.href = `${environment.baseUrl}#/settings/app`;
+            return;
         }
         
         await lastfmAuthService.authenticate();
