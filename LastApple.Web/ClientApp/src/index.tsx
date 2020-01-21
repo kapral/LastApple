@@ -5,6 +5,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
 import registerServiceWorker from './registerServiceWorker';
+import env from './Environment';
 
 window.handleOpenURL = href => {
   const url = new URL(href);
@@ -26,6 +27,10 @@ document.addEventListener('deviceready', function () {
 }, false);
 
 const rootElement = document.getElementById('root');
+
+if (env.isMobile)
+    rootElement.classList.add('mobile');
+
 ReactDOM.render(
     <App />,
   rootElement);
