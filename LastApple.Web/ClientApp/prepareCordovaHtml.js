@@ -24,7 +24,8 @@ const whitelistedDefaultResources = [
     'https://*.music.apple.com',
     'https://*.itunes.apple.com',
     'https://*.mzstatic.com',
-    'blob:'
+    'blob:',
+    'https://*.fastly.net'
 ];
 
 const whitelistedEvalResources = [
