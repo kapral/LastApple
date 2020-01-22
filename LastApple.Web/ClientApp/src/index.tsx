@@ -6,6 +6,7 @@ import ReactDOM from 'react-dom';
 import App from './App';
 import registerServiceWorker from './registerServiceWorker';
 import env from './Environment';
+import { playbackEventMediator } from './PlaybackEventMediator';
 
 window.handleOpenURL = href => {
   const url = new URL(href);
@@ -20,7 +21,8 @@ window.handleOpenURL = href => {
 
 const cordova = window.cordova;
 document.addEventListener('deviceready', function () {
-    cordova.plugins.backgroundMode.enable();
+    playbackEventMediator.subscribePlayStart(() => cordova.plugins.backgroundMode.enable());
+    playbackEventMediator.subscribePlayEnd(() => cordova.plugins.backgroundMode.disable());
 
     cordova.plugins.backgroundMode.onactivate = () => {};
     cordova.plugins.backgroundMode.ondeactivate = () => {};
