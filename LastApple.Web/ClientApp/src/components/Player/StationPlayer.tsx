@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from 'react';
 import musicKit from '../../musicKit';
 import {
     IEvent,
@@ -6,17 +6,17 @@ import {
     IMusicKit,
     IStateChangeEvent,
     PlaybackState
-} from "../MusicKitWrapper/MusicKitDefinitions";
-import * as signalR from "@aspnet/signalr";
-import { HubConnection } from "@aspnet/signalr";
-import { Playlist } from "./Playlist";
-import { BaseProps } from "../../BaseProps";
-import { observer } from "mobx-react";
-import lastfmApi from "../../restClients/LastfmApi";
-import stationApi, { IStation } from "../../restClients/StationApi"
-import environment from "../../Environment";
-import { PlayerControls } from "./PlayerControls";
-import { Spinner } from "react-bootstrap";
+} from '../MusicKitWrapper/MusicKitDefinitions';
+import * as signalR from '@aspnet/signalr';
+import { HubConnection } from '@aspnet/signalr';
+import { Playlist } from './Playlist';
+import { BaseProps } from '../../BaseProps';
+import { observer } from 'mobx-react';
+import lastfmApi from '../../restClients/LastfmApi';
+import stationApi, { IStation } from '../../restClients/StationApi'
+import environment from '../../Environment';
+import { PlayerControls } from './PlayerControls';
+import { Spinner } from 'react-bootstrap';
 import { playbackEventMediator } from '../../PlaybackEventMediator';
 
 
@@ -136,7 +136,7 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
 
     async subscribeToStationEvents() {
         this.hubConnection = new signalR.HubConnectionBuilder()
-            .withUrl(`${environment.baseUrl}hubs`)
+            .withUrl(`${environment.apiUrl}hubs`)
             .build();
 
         await this.hubConnection.start();

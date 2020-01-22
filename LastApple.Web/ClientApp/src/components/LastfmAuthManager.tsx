@@ -48,7 +48,7 @@ export class LastfmAuthManager extends Component<BaseProps, { pending: boolean, 
             return;
             
         if (environment.isMobile) {
-            window.location.href = `${environment.baseUrl}#/settings/app`;
+            window.location.href = `${environment.websiteUrl}#/settings/app`;
             return;
         }
 
