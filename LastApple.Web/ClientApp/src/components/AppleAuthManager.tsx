@@ -16,11 +16,9 @@ export class AppleAuthManager extends Component<{ showWarning: boolean }, { isLo
     async componentDidMount() {
         this.setState({ isLoading: true });
         
-        if (!await appleAuthService.isAuthenticated()) {
-            await appleAuthService.tryGetExistingAuthentication();
-        }
+        const authenticated = await appleAuthService.isAuthenticated();
 
-        this.setState({ isLoading: false, isAuthenticated: await appleAuthService.isAuthenticated() });
+        this.setState({ isLoading: false, isAuthenticated: authenticated });
     }
 
     render() {

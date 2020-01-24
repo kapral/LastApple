@@ -2,13 +2,28 @@ import musicApi from "./restClients/AppleMusicApi";
 import musicKit from './musicKit';
 
 class AppleAuthService {
+    existingAuthCheckPromise: Promise<boolean>;
+    
     async isAuthenticated() {
         const kit = await musicKit.getInstance();
 
+        if (kit.isAuthorized)
+            return true;
+        
+        if (this.existingAuthCheckPromise) 
+            return await this.existingAuthCheckPromise;
+        
+        let resolve = null;
+        this.existingAuthCheckPromise = new Promise<boolean>(r => resolve = r);
+        
+        await this.tryGetExistingAuthentication();
+
+        resolve(kit.isAuthorized);
+        
         return kit.isAuthorized;
     }
 
-    async tryGetExistingAuthentication() {
+    private async tryGetExistingAuthentication() {
         const kit = await musicKit.getInstance();
 
         let sessionData = await musicApi.getSessionData();
