@@ -8,6 +8,8 @@ import { BaseRouterProps } from '../../BaseRouterProps';
 const navStyle: React.CSSProperties = {
     position: 'fixed',
     bottom: 0,
+    left: 0,
+    right: 0,
     width: '100%',
     display: 'flex',
     background: '#000'

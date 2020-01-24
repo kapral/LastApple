@@ -8,19 +8,19 @@ export interface ISessionData {
 
 class AppleMusicApi {
     async getDeveloperToken(): Promise<string> {
-        const tokenResponse = await fetch(`${environment.baseUrl}api/apple/auth/developertoken`);
+        const tokenResponse = await fetch(`${environment.apiUrl}api/apple/auth/developertoken`);
 
         return await tokenResponse.json();
     }
 
     async getSessionData(): Promise<ISessionData> {
-        const response = await fetch(`${environment.baseUrl}api/apple/auth/sessiondata`, { headers: { 'X-SessionId': localStorage.getItem('SessionId') } });
+        const response = await fetch(`${environment.apiUrl}api/apple/auth/sessiondata`, { headers: { 'X-SessionId': localStorage.getItem('SessionId') } });
 
         return await response.json();
     }
 
     async postSessionData(data: ISessionData): Promise<ISessionData> {
-        const response = await fetch(`${environment.baseUrl}api/apple/auth/sessiondata`, {
+        const response = await fetch(`${environment.apiUrl}api/apple/auth/sessiondata`, {
             body: JSON.stringify(data),
             method: 'POST',
             headers: {
@@ -33,7 +33,7 @@ class AppleMusicApi {
     }
 
     async deleteSessionData(): Promise<void> {
-        await fetch(`${environment.baseUrl}api/apple/auth/sessiondata`, {
+        await fetch(`${environment.apiUrl}api/apple/auth/sessiondata`, {
             method: 'DELETE',
             headers: { 'X-SessionId': localStorage.getItem('SessionId') }
         });

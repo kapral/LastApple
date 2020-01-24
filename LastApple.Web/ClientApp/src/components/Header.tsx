@@ -32,13 +32,16 @@ export class Header extends Component<HeaderProps> {
 
         return <div className='header' style={headerStyles}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
-                <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', marginLeft: '36px' }}>
+                <div style={{ flex: 1 }}></div>
+                <div className='title-container' style={{ flex: 5, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                     <img className='logo' src={logo} alt='logo' style={{ margin: '0 10px 3px 0' }} />
                     <h2 style={titleStyles}>last apple</h2>
                 </div>
-                {this.props.showLastfm &&
-                    <LastfmAuthManager {...this.props} />
-                }
+                <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
+                    {this.props.showLastfm &&
+                        <LastfmAuthManager {...this.props} />
+                    }
+                </div>
             </div>
             
             {this.props.showNav &&

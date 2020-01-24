@@ -45,7 +45,7 @@ export class Settings extends Component<SettingsProps, { loading: boolean, apple
         }
 
         if (environment.isMobile) {
-            window.location.href = `${environment.baseUrl}#/settings/app`;
+            window.location.href = `${environment.websiteUrl}#/settings/app`;
             return;
         }
         
@@ -66,7 +66,7 @@ export class Settings extends Component<SettingsProps, { loading: boolean, apple
         }
 
         if (environment.isMobile) {
-            window.location.href = `${environment.baseUrl}#/settings/app`;
+            window.location.href = `${environment.websiteUrl}#/settings/app`;
             return;
         }
         

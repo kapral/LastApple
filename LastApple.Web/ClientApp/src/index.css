@@ -158,6 +158,10 @@ h1, h2, h3, h4, h5, h6 {
     color: #FFFFFF77 !important;
 }
 
+.header .title-container {
+    margin: 5px 0 5px;
+}
+
 .header h2 {
     font-size: 36px;
 }
@@ -176,7 +180,23 @@ h1, h2, h3, h4, h5, h6 {
     width: 35px;
 }
 
+#root.mobile {
+    padding-top: calc(max(env(safe-area-inset-top), 10px) + 63px);
+}
+
+#root.mobile .header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+
 @media (max-width: 480px) {
+    .header .title-container {
+        margin: 2px 0 1px;
+    }
+    
     .header h2 {
         font-size: 30px;
     }
@@ -193,5 +213,9 @@ h1, h2, h3, h4, h5, h6 {
     .header .lastfm-profile img {
         height: 25px;
         width: 25px;
+    }
+
+    #root.mobile {
+        padding-top: calc(max(env(safe-area-inset-top), 10px) + 50px);
     }
 }

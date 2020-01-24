@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from 'react';
 import musicKit from '../../musicKit';
 import {
     IEvent,
@@ -6,17 +6,18 @@ import {
     IMusicKit,
     IStateChangeEvent,
     PlaybackState
-} from "../MusicKitWrapper/MusicKitDefinitions";
-import * as signalR from "@aspnet/signalr";
-import { HubConnection } from "@aspnet/signalr";
-import { Playlist } from "./Playlist";
-import { BaseProps } from "../../BaseProps";
-import { observer } from "mobx-react";
-import lastfmApi from "../../restClients/LastfmApi";
-import stationApi, { IStation } from "../../restClients/StationApi"
-import environment from "../../Environment";
-import { PlayerControls } from "./PlayerControls";
-import { Spinner } from "react-bootstrap";
+} from '../MusicKitWrapper/MusicKitDefinitions';
+import * as signalR from '@aspnet/signalr';
+import { HubConnection } from '@aspnet/signalr';
+import { Playlist } from './Playlist';
+import { BaseProps } from '../../BaseProps';
+import { observer } from 'mobx-react';
+import lastfmApi from '../../restClients/LastfmApi';
+import stationApi, { IStation } from '../../restClients/StationApi'
+import environment from '../../Environment';
+import { PlayerControls } from './PlayerControls';
+import { Spinner } from 'react-bootstrap';
+import { playbackEventMediator } from '../../PlaybackEventMediator';
 
 
 interface IPlayerProps extends BaseProps {
@@ -100,11 +101,16 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
 
         this.setState({ suppressEvents: false });
         if (this.musicKit.player.queue.items.length) {
-            await this.musicKit.player.play();
+            await this.play();
         }
 
         await this.addTracks(this.pendingEvents);
         this.pendingEvents = [];
+    }
+    
+    async play() {
+        await this.musicKit.player.play();
+        playbackEventMediator.notifyPlayStart();
     }
 
     async appendTracksToQueue(tracks: IMediaItemOptions | IMediaItemOptions[]) {
@@ -130,7 +136,7 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
 
     async subscribeToStationEvents() {
         this.hubConnection = new signalR.HubConnectionBuilder()
-            .withUrl(`${environment.baseUrl}hubs`)
+            .withUrl(`${environment.apiUrl}hubs`)
             .build();
 
         await this.hubConnection.start();
@@ -165,7 +171,7 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
                 this.appendTracksToQueue(song);
 
                 if (this.musicKit.player.queue.items.length === 1) {
-                    await this.musicKit.player.play();
+                    await this.play();
                 }
 
                 return;
@@ -183,6 +189,9 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
         if (!event) {
             return;
         }
+        
+        if (event.state === PlaybackState.Completed)
+            playbackEventMediator.notifyPlayEnd();
 
         if (this.state.suppressEvents)
             return;
@@ -245,12 +254,16 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
     }
 
     switchPrev = async() => {
-        await this.musicKit.player.stop();
+        if (this.musicKit.player.isPlaying)
+            await this.musicKit.player.pause();
+        
         await this.musicKit.player.skipToPreviousItem();
     };
 
     switchNext = async() => {
-        await this.musicKit.player.stop();
+        if (this.musicKit.player.isPlaying)
+            await this.musicKit.player.pause();
+        
         await this.musicKit.player.skipToNextItem();
     };
 
@@ -299,11 +312,13 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
     handlePlayPause = async () => {
         if (this.musicKit.player.isPlaying) {
             await this.musicKit.player.pause();
+            playbackEventMediator.notifyPlayEnd();
+            
             return;
         }
 
         await this.musicKit.player.prepareToPlay(this.musicKit.player.queue.items[this.getCurrentQueuePosition()]);
-        await this.musicKit.player.play();
+        await this.play();
     };
 
     handleTrackSwitched = async index => {
@@ -316,7 +331,9 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
             return;
         }
 
-        await this.musicKit.stop();
+        if (this.musicKit.player.isPlaying)
+            await this.musicKit.player.pause();
+        
         await this.musicKit.player.changeToMediaAtIndex(offset);
 
         this.setState({ currentTrack: track });
