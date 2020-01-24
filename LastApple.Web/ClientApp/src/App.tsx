@@ -14,7 +14,7 @@ import { BaseRouterProps } from "./BaseRouterProps";
 import { AppleAuthManager } from "./components/AppleAuthManager";
 import env from './Environment';
 import { MobileNav } from './components/Mobile/MobileNav';
-
+import { Footer } from './components/Footer';
 
 export default class App extends Component<{}, { showPlayer: boolean }> {
     displayName = App.name;
@@ -70,7 +70,7 @@ export default class App extends Component<{}, { showPlayer: boolean }> {
                         <Route exact path='/settings' render={(props: BaseRouterProps) => <Settings {...props} appConnect={false} />} />
                         <Route exact path={this.mobileSettingsRoute} render={(props: BaseRouterProps) => <Settings {...props} appConnect={true} />} />
                         <Route render={(props: BaseRouterProps) => <>{env.isMobile && <MobileNav {...props} />}</>} />
-                        
+                        {!env.isMobile && <Footer/>}
                     </Layout>
                 </Router>
             </Provider>
