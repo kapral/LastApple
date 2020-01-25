@@ -15,6 +15,7 @@ import { AppleAuthManager } from "./components/AppleAuthManager";
 import env from './Environment';
 import { MobileNav } from './components/Mobile/MobileNav';
 import { Footer } from './components/Footer';
+import { PrivacyPolicy } from './components/PrivacyPolicy';
 
 export default class App extends Component<{}, { showPlayer: boolean }> {
     displayName = App.name;
@@ -22,6 +23,11 @@ export default class App extends Component<{}, { showPlayer: boolean }> {
     private readonly history: MobxReactRouter.SynchronizedHistory;
     
     mobileSettingsRoute = '/settings/app';
+    privacyRoute = '/privacy';
+    
+    noNavRoutes = [this.mobileSettingsRoute, this.privacyRoute];
+    
+    shouldShowNav = (route: string) => !this.noNavRoutes.some(r => route.includes(r));
 
     constructor(props) {
         super(props);
@@ -46,8 +52,8 @@ export default class App extends Component<{}, { showPlayer: boolean }> {
                         <Route render={(props: BaseRouterProps) =>
                             <Header 
                                 {...props} 
-                                showNav={!props.location.pathname.includes(this.mobileSettingsRoute) && !env.isMobile}
-                                showLastfm={!props.location.pathname.includes(this.mobileSettingsRoute)}
+                                showNav={this.shouldShowNav(props.location.pathname) && !env.isMobile}
+                                showLastfm={this.shouldShowNav(props.location.pathname)}
                             />
                         }/>
                         <Route render={(props: BaseRouterProps) =>
@@ -70,6 +76,7 @@ export default class App extends Component<{}, { showPlayer: boolean }> {
                         <Route exact path='/settings' render={(props: BaseRouterProps) => <Settings {...props} appConnect={false} />} />
                         <Route exact path={this.mobileSettingsRoute} render={(props: BaseRouterProps) => <Settings {...props} appConnect={true} />} />
                         <Route render={(props: BaseRouterProps) => <>{env.isMobile && <MobileNav {...props} />}</>} />
+                        <Route exact path={this.privacyRoute} component={PrivacyPolicy} />
                         {!env.isMobile && <Footer/>}
                     </Layout>
                 </Router>
