@@ -18,7 +18,7 @@ import environment from '../../Environment';
 import { PlayerControls } from './PlayerControls';
 import { Spinner } from 'react-bootstrap';
 import { playbackEventMediator } from '../../PlaybackEventMediator';
-
+import { instance as mediaSessionManager } from '../../MediaSessionManager'
 
 interface IPlayerProps extends BaseProps {
     stationId: string;
@@ -83,7 +83,14 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
 
             this.playbackStateSubscription = async (x: IEvent) => await this.handleStateChange(x as IStateChangeEvent);
             this.musicKit.player.addEventListener('playbackStateDidChange', this.playbackStateSubscription);
-            this.musicKit.player.addEventListener('mediaItemDidChange', event => { document.title = `${event.item.title} - ${event.item.artistName}`; });
+            this.musicKit.player.addEventListener('mediaItemDidChange', event => { 
+                document.title = `${event.item.title} - ${event.item.artistName}`;
+                
+                mediaSessionManager.updateSessionMetadata(event.item.artworkURL);
+            });
+
+            mediaSessionManager.setNextHandler(() => this.switchNext());
+            mediaSessionManager.setPrevHandler(() => this.switchPrev());
         }
 
         this.station = await stationApi.getStation(this.props.stationId);
@@ -305,9 +312,9 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
         </div>;
     }
 
-    static get400x400ImageUrl(sourceUrl: string) {
-        return sourceUrl && sourceUrl.replace('{w}x{h}', '400x400')
-            .replace('2000x2000', '400x400');
+    static getImageUrl(sourceUrl: string, size: number = 400) {
+        return sourceUrl && sourceUrl.replace('{w}x{h}', `${size}x${size}`)
+            .replace('2000x2000', `${size}x${size}`);
     }
 
     handlePlayPause = async () => {
