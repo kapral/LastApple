@@ -154,7 +154,9 @@ export interface IMusicKitStatic {
     configure(configuration: IConfiguration): IMusicKit;
 }
 
-export interface IEvent {}
+export interface IEvent {
+    item?: IMediaItem;
+}
 
 export interface IStateChangeEvent extends IEvent {
     oldState: PlaybackState;

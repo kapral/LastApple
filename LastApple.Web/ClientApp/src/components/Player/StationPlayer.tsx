@@ -83,6 +83,7 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
 
             this.playbackStateSubscription = async (x: IEvent) => await this.handleStateChange(x as IStateChangeEvent);
             this.musicKit.player.addEventListener('playbackStateDidChange', this.playbackStateSubscription);
+            this.musicKit.player.addEventListener('mediaItemDidChange', event => { document.title = `${event.item.title} - ${event.item.artistName}`; });
         }
 
         this.station = await stationApi.getStation(this.props.stationId);
