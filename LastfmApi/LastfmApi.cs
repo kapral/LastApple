@@ -159,7 +159,7 @@ namespace LastfmApi
 
         public Task<Uri> StartWebAuthentication(Uri redirectUrl)
         {
-            return Task.FromResult(new Uri($"http://www.last.fm/api/auth?api_key={LastfmQuery.ApiKey}&cb={redirectUrl}"));
+            return Task.FromResult(new Uri($"http://www.last.fm/api/auth?api_key={LastfmQuery.ApiKey}&cb={Uri.EscapeDataString(redirectUrl.ToString())}"));
         }
 
         public async Task<string> CompleteAuthentication(string accessToken)
