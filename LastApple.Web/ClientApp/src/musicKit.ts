@@ -1,5 +1,6 @@
 import { IMusicKit } from "./components/MusicKitWrapper/MusicKitDefinitions";
 import appleMusicApi from "./restClients/AppleMusicApi";
+import environment from './Environment';
 
 class MusicKit {
     instance: IMusicKit;
@@ -17,8 +18,9 @@ class MusicKit {
 
         const musicKit = this.musicKit.configure({
             app: {
-                name: 'Last Apple',
-                build: '0.0.1'
+                name: 'Lastream',
+                build: '1.0.0',
+                icon: `${environment.websiteUrl}/logo.png}`
             },
             developerToken: token
         });
