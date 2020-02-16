@@ -35,7 +35,7 @@ export class Header extends Component<HeaderProps> {
                 <div style={{ flex: 1 }}></div>
                 <div className='title-container' style={{ flex: 5, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                     <img className='logo' src={logo} alt='logo' style={{ margin: '0 10px 3px 0' }} />
-                    <h2 style={titleStyles}>last apple</h2>
+                    <h2 style={titleStyles}>lastream</h2>
                 </div>
                 <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
                     {this.props.showLastfm &&
