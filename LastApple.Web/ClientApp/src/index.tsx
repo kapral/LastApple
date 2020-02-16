@@ -9,13 +9,16 @@ import env from './Environment';
 import { playbackEventMediator } from './PlaybackEventMediator';
 
 window.handleOpenURL = href => {
-  const url = new URL(href);
-  const sessionId = url.searchParams.get('sessionId');
+    const url = new URL(href);
+    const sessionId = url.searchParams.get('sessionId');
 
-  if (sessionId) {
-      localStorage.setItem('SessionId', sessionId);
+    if (sessionId) {
+        setTimeout(() => {
+            window.SafariViewController.hide();
+            localStorage.setItem('SessionId', sessionId);
 
-      window.location.reload();
+            window.location.reload();
+        }, 0);
     }
 };
 

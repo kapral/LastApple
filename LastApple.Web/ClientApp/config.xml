@@ -1,10 +1,10 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="last.apple" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>Last Apple</name>
+<widget id="Lastream" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>Lastream</name>
     <description>
         A music player combining power of last.fm and Apple Music
     </description>
-    <author email="devgorbenko@gmail.com" href="http://cordova.io">
+    <author email="devgorbenko@gmail.com" href="https://lastream.net">
         Vitaliy Gorbenko
     </author>
     <content src="index.html" />
