@@ -48,7 +48,7 @@ export class LastfmAuthManager extends Component<BaseProps, { pending: boolean, 
             return;
             
         if (environment.isMobile) {
-            window.location.href = `${environment.websiteUrl}#/settings/app`;
+            window.SafariViewController.show({ url: `${environment.websiteUrl}#/settings/app` });
             return;
         }
 
