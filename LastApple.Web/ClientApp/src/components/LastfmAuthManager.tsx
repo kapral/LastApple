@@ -79,8 +79,8 @@ export class LastfmAuthManager extends Component<BaseProps, { pending: boolean, 
                title={'Open lastfm profile'}
                target="_blank" rel="noopener noreferrer"
                onClick={() => this.authenticate()}>
-                <img alt={''} style={{ borderRadius: '20px' }} src={this.state.user && this.state.user.image[0].url || lastfmLogo} />
-                <span>{this.state.user && this.state.user.name || 'Log in'}</span>
+                <img alt={''} style={{ borderRadius: '20px' }} src={(this.state.user && this.state.user.image[0].url) || lastfmLogo} />
+                <span>{(this.state.user && this.state.user.name) || 'Log in'}</span>
             </a>
         </div>;
     }
