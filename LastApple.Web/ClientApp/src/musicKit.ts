@@ -20,7 +20,7 @@ class MusicKit {
             app: {
                 name: 'Lastream',
                 build: '1.0.0',
-                icon: `${environment.websiteUrl}/logo.png}`
+                icon: `${environment.websiteUrl}/logo.png`
             },
             developerToken: token
         });
