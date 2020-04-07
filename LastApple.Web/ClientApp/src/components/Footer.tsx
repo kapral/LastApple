@@ -4,7 +4,7 @@ import React from 'react';
 
 export const Footer = () => <div style={{ display: 'flex', justifyContent: 'center', background: '#0e0e0e', padding: '10px 20px' }}>
     <a href={'https://apps.apple.com/app/lastream/id1483386771'}>
-        <img src={appStoreBadge} />
+        <img src={appStoreBadge} alt={'App Store Badge'} />
     </a>
     <div style={{ display: 'flex', alignItems: 'center', width: '120px', padding: '2px 5px', marginLeft: '25px', border: '1px solid #A6A6A6', borderRadius: '5px', background: '#000' }}>
         <a style={{ color: '#FFF', display: 'flex', alignItems: 'center', width: '100%', textDecoration: 'none' }}
