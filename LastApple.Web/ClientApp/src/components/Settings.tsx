@@ -78,7 +78,7 @@ export class Settings extends Component<SettingsProps, { loading: boolean, apple
 
         const lastfmAuth = !!await lastfmAuthService.getAuthenticatedUser();
 
-        this.setState({ lastfmAuth })
+        this.setState({ lastfmAuth });
     }
     
     render() {
