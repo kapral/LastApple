@@ -46,7 +46,7 @@ export class Settings extends Component<SettingsProps, { loading: boolean, apple
 
         if (environment.isMobile) {
             window.SafariViewController.show({
-                url: `${environment.websiteUrl}#/settings/app`
+                url: `${environment.websiteUrl}settings/app`
             });
             return;
         }
@@ -69,7 +69,7 @@ export class Settings extends Component<SettingsProps, { loading: boolean, apple
 
         if (environment.isMobile) {
             window.SafariViewController.show({
-                url: `${environment.websiteUrl}#/settings/app`
+                url: `${environment.websiteUrl}settings/app`
             });
             return;
         }
