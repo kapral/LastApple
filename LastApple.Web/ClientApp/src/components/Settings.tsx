@@ -8,17 +8,14 @@ import { Spinner } from 'react-bootstrap';
 import ReactSwitch from "react-switch";
 import { inject, observer } from "mobx-react";
 import { BaseRouterProps } from "../BaseRouterProps";
+import { MobileUtil } from '../Mobile/MobileUtil';
 
 const rowStyles: React.CSSProperties = { flex: 1, display: 'flex', padding: '20px', alignItems: 'center', borderBottom: '1px solid #333' };
 const logoStyles: React.CSSProperties = { height: '30px', marginRight: '15px' };
 
-interface SettingsProps extends BaseRouterProps {
-    appConnect: boolean;
-}
-
 @inject('appState')
 @observer
-export class Settings extends Component<SettingsProps, { loading: boolean, appleAuth: boolean, lastfmAuth: boolean }> {
+export class Settings extends Component<BaseRouterProps, { loading: boolean, appleAuth: boolean, lastfmAuth: boolean }> {
     constructor(props) {
         super(props);
 
@@ -45,9 +42,7 @@ export class Settings extends Component<SettingsProps, { loading: boolean, apple
         }
 
         if (environment.isMobile) {
-            window.SafariViewController.show({
-                url: `${environment.websiteUrl}settings/app`
-            });
+            this.openWebAppInViewController();
             return;
         }
         
@@ -68,9 +63,7 @@ export class Settings extends Component<SettingsProps, { loading: boolean, apple
         }
 
         if (environment.isMobile) {
-            window.SafariViewController.show({
-                url: `${environment.websiteUrl}settings/app`
-            });
+            this.openWebAppInViewController();
             return;
         }
         
@@ -88,12 +81,13 @@ export class Settings extends Component<SettingsProps, { loading: boolean, apple
             </div>;
         
         return <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <div style={{ background: '#0E0E0E', padding: '10px 25px'  }}>Connected accounts</div>
             <div style={rowStyles}>
                 <img style={logoStyles} src={appleMusicLogo} alt='Apple Music Logo' />
-                <div style={{ flex: 1 }}>Apple Music account</div>
+                <div style={{ flex: 1 }}>Apple Music</div>
                 <ReactSwitch
                     checked={this.state.appleAuth}
-                    onChange={x => this.authenticateApple()}
+                    onChange={() => this.authenticateApple()}
                     uncheckedIcon={false}
                     checkedIcon={false}
                     height={22}
@@ -104,10 +98,10 @@ export class Settings extends Component<SettingsProps, { loading: boolean, apple
             </div>
             <div style={rowStyles}>
                 <img style={logoStyles} src={lastfmLogo} alt='Last.fm logo' />
-                <div style={{ flex: 1 }}>Last.fm account</div>
+                <div style={{ flex: 1 }}>Last.fm</div>
                 <ReactSwitch
                     checked={this.state.lastfmAuth}
-                    onChange={x => this.authenticateLastfm()}
+                    onChange={() => this.authenticateLastfm()}
                     uncheckedIcon={false}
                     checkedIcon={false}
                     height={22}
@@ -116,8 +110,16 @@ export class Settings extends Component<SettingsProps, { loading: boolean, apple
                     onColor={'#8e0000'}
                 />
             </div>
-            { this.props.appConnect &&
-                <a className={'btn btn-black'} style={{ alignSelf: 'center', margin: '20px 0' }} href={`${environment.mobileAppSchema}?sessionId=${localStorage.getItem('SessionId')}`}>Back to LastApple app</a>}
         </div>;
+    }
+    
+    openWebAppInViewController() {
+        window.SafariViewController.show({
+                url: `${environment.websiteUrl}settings/app`
+            },
+            result => {
+                if (result.event === 'closed')
+                    window.location.href = MobileUtil.formatAppUrl();
+            });
     }
 }

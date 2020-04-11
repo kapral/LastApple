@@ -51,7 +51,7 @@ export class Header extends Component<HeaderProps> {
                         <NavLink activeStyle={{ background: '#0E0E0E' }} style={navLinkStyle}
                                  to={`/station/${this.props.appState.latestStationId}`}>Now playing</NavLink>
                     }
-                    <NavLink style={navLinkStyle} activeStyle={activeNavLinkStyle} to='/settings'>Settings</NavLink>
+                    <NavLink style={navLinkStyle} activeStyle={{ background: '#0E0E0E' }} to='/settings'>Settings</NavLink>
                 </div>
             }
         </div>;
