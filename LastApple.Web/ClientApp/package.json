@@ -52,6 +52,7 @@
         "not op_mini all"
     ],
     "devDependencies": {
+        "cordova-icon": "^1.0.0",
         "cordova-plugin-whitelist": "^1.3.3"
     },
     "cordova": {
