@@ -21,6 +21,7 @@
         <allow-intent href="market:*" />
     </platform>
     <platform name="ios">
+        <hook type="after_prepare" src="after_prepare_ios_hook.sh"/>
         <allow-intent href="itms:*" />
         <allow-intent href="itms-apps:*" />
     </platform>

@@ -17,6 +17,12 @@
         <!-- Don't publish the SPA source files, but do show them in the project files list -->
         <Content Remove="$(SpaRoot)**" />
         <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
+        <None Remove="ClientApp\platforms\**" />
+        <Content Remove="ClientApp\platforms\**" />
+        <None Remove="ClientApp\plugins\**" />
+        <Content Remove="ClientApp\plugins\**" />
+        <None Remove="ClientApp\build\**" />
+        <Content Remove="ClientApp\build\**" />
     </ItemGroup>
 
     <ItemGroup>
@@ -24,6 +30,23 @@
       <ProjectReference Include="..\LastApple.Persistence\LastApple.Persistence.csproj" />
       <ProjectReference Include="..\LastApple\LastApple.csproj" />
       <ProjectReference Include="..\LastfmApi\LastfmApi.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="ClientApp\platforms\**" />
+      <Compile Remove="ClientApp\plugins\**" />
+      <Compile Remove="ClientApp\build\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Remove="ClientApp\platforms\**" />
+      <EmbeddedResource Remove="ClientApp\plugins\**" />
+      <EmbeddedResource Remove="ClientApp\build\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="ClientApp\build\asset-manifest.json" />
+      <_ContentIncludedByDefault Remove="ClientApp\build\manifest.json" />
     </ItemGroup>
 
     <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">

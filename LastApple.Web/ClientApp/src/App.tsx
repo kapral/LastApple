@@ -9,6 +9,7 @@ import { AppState } from "./AppState";
 import * as MobxReactRouter from "mobx-react-router";
 import { RouterStore, syncHistoryWithStore } from "mobx-react-router";
 import createHashHistory from "history/createHashHistory";
+import createBrowserHistory from "history/createBrowserHistory";
 import { Settings } from "./components/Settings";
 import { BaseRouterProps } from "./BaseRouterProps";
 import { AppleAuthManager } from "./components/AppleAuthManager";
@@ -34,7 +35,7 @@ export default class App extends Component<{}, { showPlayer: boolean }> {
         
         this.state = { showPlayer: false };
 
-        const browserHistory = createHashHistory();
+        const browserHistory = env.isMobile ? createHashHistory() : createBrowserHistory();
         const routingStore = new RouterStore();
         this.history = syncHistoryWithStore(browserHistory, routingStore);
 
@@ -73,8 +74,8 @@ export default class App extends Component<{}, { showPlayer: boolean }> {
                                          showPlayer={props.location.pathname.includes('/station/')}
                             />;
                         }}/>
-                        <Route exact path='/settings' render={(props: BaseRouterProps) => <Settings {...props} appConnect={false} />} />
-                        <Route exact path={this.mobileSettingsRoute} render={(props: BaseRouterProps) => <Settings {...props} appConnect={true} />} />
+                        <Route exact path='/settings' render={(props: BaseRouterProps) => <Settings {...props} />} />
+                        <Route exact path={this.mobileSettingsRoute} render={(props: BaseRouterProps) => <Settings {...props} />} />
                         <Route render={(props: BaseRouterProps) => <>{env.isMobile && <MobileNav {...props} />}</>} />
                         <Route exact path={this.privacyRoute} component={PrivacyPolicy} />
                         {!env.isMobile && <Footer/>}
