@@ -2,7 +2,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import appStoreBadge from '../images/app-store-badge.svg';
 import React from 'react';
 
-export const Footer = () => <div style={{ display: 'flex', justifyContent: 'center', background: '#0e0e0e', padding: '10px 20px' }}>
+export const Footer = () => <div style={{ display: 'flex', justifyContent: 'center', padding: '10px 20px', borderTop: '1px solid #404040' }}>
     <a href={'https://apps.apple.com/app/lastream/id1483386771'}>
         <img src={appStoreBadge} alt={'App Store Badge'} />
     </a>

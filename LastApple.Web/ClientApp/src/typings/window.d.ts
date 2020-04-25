@@ -5,6 +5,6 @@ interface Window {
 }
 
 interface ISafariViewController {
-    show(options?: any): void;
+    show(options?: any, callback?: (result: any) => void): void;
     hide(): void;
 }
