@@ -13,9 +13,13 @@ import { MobileUtil } from '../Mobile/MobileUtil';
 const rowStyles: React.CSSProperties = { flex: 1, display: 'flex', padding: '20px', alignItems: 'center', borderBottom: '1px solid #333' };
 const logoStyles: React.CSSProperties = { height: '30px', marginRight: '15px' };
 
+interface SettingsProps extends BaseRouterProps {
+    appConnect: boolean;
+}
+
 @inject('appState')
 @observer
-export class Settings extends Component<BaseRouterProps, { loading: boolean, appleAuth: boolean, lastfmAuth: boolean }> {
+export class Settings extends Component<SettingsProps, { loading: boolean, appleAuth: boolean, lastfmAuth: boolean }> {
     constructor(props) {
         super(props);
 
@@ -29,6 +33,9 @@ export class Settings extends Component<BaseRouterProps, { loading: boolean, app
         const appleAuth = await appleAuthService.isAuthenticated();
         const lastfmUser = await lastfmAuthService.getAuthenticatedUser();
         const lastfmAuth = !!lastfmUser;
+
+        if (this.props.appConnect && appleAuth && lastfmAuth)
+            window.location.assign(MobileUtil.formatAppUrl());
 
         this.setState({ loading: false, appleAuth, lastfmAuth });
     }
@@ -123,6 +130,7 @@ export class Settings extends Component<BaseRouterProps, { loading: boolean, app
                         url: `${environment.websiteUrl}settings/capturesessionid`,
                         hidden: true
                     });
+                    this.setState({ loading: true });
             });
     }
 }
