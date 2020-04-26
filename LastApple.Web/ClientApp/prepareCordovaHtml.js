@@ -34,9 +34,14 @@ const whitelistedEvalResources = [
     'https://js-cdn.music.apple.com'
 ];
 
+const whitelistedFontResources = [
+    'https://fonts.googleapis.com',
+    'https://fonts.gstatic.com'
+];
+
 // will add the <meta> tags needed for cordova app
 const afterAddingMeta = insertContent(data, "<link",
-    `<meta http-equiv="Content-Security-Policy" content="default-src 'self' ${whitelistedDefaultResources.join(' ')}; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval' ${whitelistedEvalResources.join('')};"/>`+
+    `<meta http-equiv="Content-Security-Policy" content="default-src 'self' ${whitelistedDefaultResources.join(' ')}; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' ${whitelistedFontResources.join(' ')}; script-src 'self' 'unsafe-inline' 'unsafe-eval' ${whitelistedEvalResources.join('')};"/>`+
     `<meta name="format-detection" content="telephone=no">`+
     `<meta name="msapplication-tap-highlight" content="no">`);
 
