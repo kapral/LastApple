@@ -8,7 +8,6 @@ import { Spinner } from 'react-bootstrap';
 import ReactSwitch from "react-switch";
 import { inject, observer } from "mobx-react";
 import { BaseRouterProps } from "../BaseRouterProps";
-import { MobileUtil } from '../Mobile/MobileUtil';
 
 const rowStyles: React.CSSProperties = { flex: 1, display: 'flex', padding: '20px', alignItems: 'center', borderBottom: '1px solid #333' };
 const logoStyles: React.CSSProperties = { height: '30px', marginRight: '15px' };
@@ -36,7 +35,7 @@ export class Settings extends Component<BaseRouterProps, { loading: boolean, app
     async authenticateApple() {
         if (this.state.appleAuth) {
             await appleAuthService.logout();
-            
+
             this.setState({ appleAuth: false });
             return;
         }
@@ -45,7 +44,7 @@ export class Settings extends Component<BaseRouterProps, { loading: boolean, app
             this.openWebAppInViewController();
             return;
         }
-        
+
         await appleAuthService.authenticate();
 
         const appleAuth = await appleAuthService.isAuthenticated();
@@ -56,7 +55,7 @@ export class Settings extends Component<BaseRouterProps, { loading: boolean, app
     async authenticateLastfm() {
         if (this.state.lastfmAuth) {
             await lastfmAuthService.logout();
-            
+
             this.setState({ lastfmAuth: false });
             this.props.appState.lastfmAuthenticated = false;
             return;
@@ -66,20 +65,20 @@ export class Settings extends Component<BaseRouterProps, { loading: boolean, app
             this.openWebAppInViewController();
             return;
         }
-        
+
         await lastfmAuthService.authenticate();
 
         const lastfmAuth = !!await lastfmAuthService.getAuthenticatedUser();
 
         this.setState({ lastfmAuth });
     }
-    
+
     render() {
         if (this.state.loading)
             return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '200px' }}>
                 <Spinner animation="border" />
             </div>;
-        
+
         return <div style={{ display: 'flex', flexDirection: 'column' }}>
             <div style={{ background: '#0E0E0E', padding: '10px 25px'  }}>Connected accounts</div>
             <div style={rowStyles}>
@@ -112,14 +111,17 @@ export class Settings extends Component<BaseRouterProps, { loading: boolean, app
             </div>
         </div>;
     }
-    
+
     openWebAppInViewController() {
         window.SafariViewController.show({
                 url: `${environment.websiteUrl}settings/app`
             },
             result => {
                 if (result.event === 'closed')
-                    window.location.href = MobileUtil.formatAppUrl();
+                    window.SafariViewController.show({
+                        url: `${environment.websiteUrl}settings/capturesessionid`,
+                        hidden: true
+                    });
             });
     }
 }

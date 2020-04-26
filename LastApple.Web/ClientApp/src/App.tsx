@@ -17,22 +17,24 @@ import env from './Environment';
 import { MobileNav } from './components/Mobile/MobileNav';
 import { Footer } from './components/Footer';
 import { PrivacyPolicy } from './components/PrivacyPolicy';
+import { CaptureSessionId } from './components/Mobile/CaptureSessionId';
 
 export default class App extends Component<{}, { showPlayer: boolean }> {
     displayName = App.name;
     private readonly stores: { routing: MobxReactRouter.RouterStore; appState: AppState };
     private readonly history: MobxReactRouter.SynchronizedHistory;
-    
+
     mobileSettingsRoute = '/settings/app';
+    sessionCaptureRoute = '/settings/capturesessionid';
     privacyRoute = '/privacy';
-    
-    noNavRoutes = [this.mobileSettingsRoute, this.privacyRoute];
-    
+
+    noNavRoutes = [this.mobileSettingsRoute, this.privacyRoute, this.sessionCaptureRoute];
+
     shouldShowNav = (route: string) => !this.noNavRoutes.some(r => route.includes(r));
 
     constructor(props) {
         super(props);
-        
+
         this.state = { showPlayer: false };
 
         const browserHistory = env.isMobile ? createHashHistory() : createBrowserHistory();
@@ -51,8 +53,8 @@ export default class App extends Component<{}, { showPlayer: boolean }> {
                 <Router history={this.history}>
                     <Layout>
                         <Route render={(props: BaseRouterProps) =>
-                            <Header 
-                                {...props} 
+                            <Header
+                                {...props}
                                 showNav={this.shouldShowNav(props.location.pathname) && !env.isMobile}
                                 showLastfm={this.shouldShowNav(props.location.pathname)}
                             />
@@ -69,7 +71,7 @@ export default class App extends Component<{}, { showPlayer: boolean }> {
                             });
                             const stationId = match && match.params['station'];
 
-                            return <Play {...props} 
+                            return <Play {...props}
                                          stationId={stationId}
                                          showPlayer={props.location.pathname.includes('/station/')}
                             />;
@@ -77,6 +79,7 @@ export default class App extends Component<{}, { showPlayer: boolean }> {
                         <Route exact path='/settings' render={(props: BaseRouterProps) => <Settings {...props} />} />
                         <Route exact path={this.mobileSettingsRoute} render={(props: BaseRouterProps) => <Settings {...props} />} />
                         <Route render={(props: BaseRouterProps) => <>{env.isMobile && <MobileNav {...props} />}</>} />
+                        <Route exact path={this.sessionCaptureRoute} component={CaptureSessionId} />
                         <Route exact path={this.privacyRoute} component={PrivacyPolicy} />
                         {!env.isMobile && <Footer/>}
                     </Layout>
