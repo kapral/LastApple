@@ -1,2 +1,2 @@
 #!/bin/bash
-cordova-icon --icon www/img/logo.png
+cordova-icon --icon src/images/logo.png

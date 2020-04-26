@@ -42,6 +42,7 @@
         "build": "rimraf ./www && react-scripts build",
         "build:cordova": "rimraf ./www && react-scripts build && node prepareCordovaHtml.js && move build www",
         "build:cordova:mac": "rimraf ./www && react-scripts build && node prepareCordovaHtml.js && mv build www",
+        "build:ios": "npm run build:cordova:mac && cordova prepare ios",
         "test": "react-scripts test --env=jsdom",
         "eject": "rimraf ./www && react-scripts eject"
     },

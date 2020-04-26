@@ -76,8 +76,8 @@ export default class App extends Component<{}, { showPlayer: boolean }> {
                                          showPlayer={props.location.pathname.includes('/station/')}
                             />;
                         }}/>
-                        <Route exact path='/settings' render={(props: BaseRouterProps) => <Settings {...props} />} />
-                        <Route exact path={this.mobileSettingsRoute} render={(props: BaseRouterProps) => <Settings {...props} />} />
+                        <Route exact path='/settings' render={(props: BaseRouterProps) => <Settings {...props} appConnect={false} />} />
+                        <Route exact path={this.mobileSettingsRoute} render={(props: BaseRouterProps) => <Settings {...props} appConnect={true} />} />
                         <Route render={(props: BaseRouterProps) => <>{env.isMobile && <MobileNav {...props} />}</>} />
                         <Route exact path={this.sessionCaptureRoute} component={CaptureSessionId} />
                         <Route exact path={this.privacyRoute} component={PrivacyPolicy} />
