@@ -8,7 +8,6 @@ import { Spinner } from 'react-bootstrap';
 import ReactSwitch from "react-switch";
 import { inject, observer } from "mobx-react";
 import { BaseRouterProps } from "../BaseRouterProps";
-import { MobileUtil } from '../Mobile/MobileUtil';
 
 const rowStyles: React.CSSProperties = { flex: 1, display: 'flex', padding: '20px', alignItems: 'center', borderBottom: '1px solid #333' };
 const logoStyles: React.CSSProperties = { height: '30px', marginRight: '15px' };
