@@ -14,6 +14,8 @@ function insertContent(fullContent, beforeWhat, newContent) {
     return fullContentCopy.join('');
 }
 
+data = data.replace('<script src="/musickit.js"></script>', '<script src="musickit.js"></script>');
+
 const whitelistedDefaultResources = [
     'gap:',
     'data:',
