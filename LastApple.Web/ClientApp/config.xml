@@ -17,6 +17,7 @@
     <allow-intent href="mailto:*" />
     <allow-intent href="geo:*" />
     <allow-navigation href="lastapple://*" />
+    <icon platform="android" src="icon.png" />
     <splash src="Default@2x~universal~anyany.png" />
     <platform name="android">
         <allow-intent href="market:*" />
