@@ -1,12 +1,12 @@
 import { Component } from "react";
 import * as React from "react";
-import { LastfmAuthManager } from "./LastfmAuthManager";
+import LastfmAuthManager from "./LastfmAuthManager";
 import { NavLink } from "react-router-dom";
 import { inject, observer } from "mobx-react";
 import { BaseRouterProps } from "../BaseRouterProps";
 import logo from '../images/logo.png';
 
-type HeaderProps = BaseRouterProps & { 
+type HeaderProps = BaseRouterProps & {
     showNav: boolean;
     showLastfm: boolean;
 };
@@ -43,7 +43,7 @@ export class Header extends Component<HeaderProps> {
                     }
                 </div>
             </div>
-            
+
             {this.props.showNav &&
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                     <NavLink activeStyle={activeNavLinkStyle} style={navLinkStyle} exact to={'/'}>New station</NavLink>

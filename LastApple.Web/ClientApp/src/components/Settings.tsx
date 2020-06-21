@@ -38,6 +38,12 @@ export class Settings extends Component<SettingsProps, { loading: boolean, apple
             window.location.assign(MobileUtil.formatAppUrl());
 
         this.setState({ loading: false, appleAuth, lastfmAuth });
+
+        if (this.props.match.params['source'] === 'apple' && !appleAuth)
+            await this.authenticateApple();
+
+        if (this.props.match.params['source'] === 'lastfm' && !lastfmAuth)
+            await this.authenticateLastfm();
     }
 
     async authenticateApple() {
@@ -49,7 +55,7 @@ export class Settings extends Component<SettingsProps, { loading: boolean, apple
         }
 
         if (environment.isMobile) {
-            this.openWebAppInViewController();
+            this.openWebAppInViewController('apple');
             return;
         }
 
@@ -70,7 +76,7 @@ export class Settings extends Component<SettingsProps, { loading: boolean, apple
         }
 
         if (environment.isMobile) {
-            this.openWebAppInViewController();
+            this.openWebAppInViewController('lastfm');
             return;
         }
 
@@ -120,9 +126,9 @@ export class Settings extends Component<SettingsProps, { loading: boolean, apple
         </div>;
     }
 
-    openWebAppInViewController() {
+    openWebAppInViewController(source: string) {
         window.SafariViewController.show({
-                url: `${environment.websiteUrl}settings/app`
+                url: `${environment.websiteUrl}settings/app/${source}`
             },
             result => {
                 if (result.event === 'closed')
