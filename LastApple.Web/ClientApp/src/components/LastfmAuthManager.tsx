@@ -1,11 +1,11 @@
 import {Component} from "react";
 import React from "react";
-import { BaseProps } from "../BaseProps";
 import lastfmAuthService from '../LastfmAuthService';
-import environment from "../Environment";
 import { Spinner } from 'react-bootstrap';
 import { observer } from "mobx-react";
 import lastfmLogo from '../images/lastfm-logo.png'
+import { BaseRouterProps } from '../BaseRouterProps';
+import { withRouter } from 'react-router-dom'
 
 interface Image {
     size: string;
@@ -19,7 +19,7 @@ interface LastfmUser {
 }
 
 @observer
-export class LastfmAuthManager extends Component<BaseProps, { pending: boolean, user: LastfmUser }> {
+class LastfmAuthManager extends Component<BaseRouterProps, { pending: boolean, user: LastfmUser }> {
     constructor(props) {
         super(props);
 
@@ -29,10 +29,10 @@ export class LastfmAuthManager extends Component<BaseProps, { pending: boolean, 
     async componentDidMount() {
         await this.refreshAuth();
     }
-    
+
     async refreshAuth() {
         this.props.appState.checkingLastfmAuth = true;
-        
+
         await lastfmAuthService.tryGetAuthFromParams();
 
         const user = await lastfmAuthService.getAuthenticatedUser();
@@ -46,16 +46,11 @@ export class LastfmAuthManager extends Component<BaseProps, { pending: boolean, 
     async authenticate() {
         if (this.state.user)
             return;
-            
-        if (environment.isMobile) {
-            window.SafariViewController.show({ url: `${environment.websiteUrl}settings/app` });
-            return;
-        }
 
-        await lastfmAuthService.authenticate();
+        this.props.history.push('/settings');
     }
-    
-    async componentDidUpdate(prevProps: Readonly<BaseProps>, prevState: Readonly<{ pending: boolean; user: LastfmUser }>, snapshot?: any): Promise<void> {
+
+    async componentDidUpdate(prevProps: Readonly<BaseRouterProps>, prevState: Readonly<{ pending: boolean; user: LastfmUser }>, snapshot?: any): Promise<void> {
         if (this.props.appState.lastfmAuthenticated !== prevProps.appState.lastfmAuthenticated)
             await this.refreshAuth();
     }
@@ -65,7 +60,7 @@ export class LastfmAuthManager extends Component<BaseProps, { pending: boolean, 
             return <div style={{ marginRight: '15px' }}>
                 <Spinner animation="border" style={{ width: '20px', height: '20px' }} />
             </div>;
-        
+
         return <div>
             <a style={{
                 color: '#DDD',
@@ -73,7 +68,7 @@ export class LastfmAuthManager extends Component<BaseProps, { pending: boolean, 
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center'
-            }} 
+            }}
                className='lastfm-profile'
                href={this.state.user && this.state.user.url}
                title={'Open lastfm profile'}
@@ -85,3 +80,5 @@ export class LastfmAuthManager extends Component<BaseProps, { pending: boolean, 
         </div>;
     }
 }
+
+export default withRouter(LastfmAuthManager);

@@ -24,7 +24,7 @@ export default class App extends Component<{}, { showPlayer: boolean }> {
     private readonly stores: { routing: MobxReactRouter.RouterStore; appState: AppState };
     private readonly history: MobxReactRouter.SynchronizedHistory;
 
-    mobileSettingsRoute = '/settings/app';
+    mobileSettingsRoute = '/settings/app/:source';
     sessionCaptureRoute = '/settings/capturesessionid';
     privacyRoute = '/privacy';
 
