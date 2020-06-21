@@ -1,7 +1,6 @@
 import {Component} from "react";
 import React from "react";
 import lastfmAuthService from '../LastfmAuthService';
-import { Redirect } from "react-router";
 import { Spinner } from 'react-bootstrap';
 import { observer } from "mobx-react";
 import lastfmLogo from '../images/lastfm-logo.png'
