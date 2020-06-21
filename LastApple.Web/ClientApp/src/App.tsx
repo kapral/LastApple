@@ -24,7 +24,7 @@ export default class App extends Component<{}, { showPlayer: boolean }> {
     private readonly stores: { routing: MobxReactRouter.RouterStore; appState: AppState };
     private readonly history: MobxReactRouter.SynchronizedHistory;
 
-    mobileSettingsRoute = '/settings/app/:source';
+    mobileSettingsRoute = '/settings/app';
     sessionCaptureRoute = '/settings/capturesessionid';
     privacyRoute = '/privacy';
 
@@ -77,7 +77,7 @@ export default class App extends Component<{}, { showPlayer: boolean }> {
                             />;
                         }}/>
                         <Route exact path='/settings' render={(props: BaseRouterProps) => <Settings {...props} appConnect={false} />} />
-                        <Route exact path={this.mobileSettingsRoute} render={(props: BaseRouterProps) => <Settings {...props} appConnect={true} />} />
+                        <Route exact path={`${this.mobileSettingsRoute}/:source`} render={(props: BaseRouterProps) => <Settings {...props} appConnect={true} />} />
                         <Route render={(props: BaseRouterProps) => <>{env.isMobile && <MobileNav {...props} />}</>} />
                         <Route exact path={this.sessionCaptureRoute} component={CaptureSessionId} />
                         <Route exact path={this.privacyRoute} component={PrivacyPolicy} />
