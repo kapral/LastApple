@@ -34,10 +34,8 @@ export class Settings extends Component<SettingsProps, { loading: boolean, apple
         const lastfmUser = await lastfmAuthService.getAuthenticatedUser();
         const lastfmAuth = !!lastfmUser;
 
-        if (this.props.appConnect && appleAuth && lastfmAuth)
-            window.location.assign(MobileUtil.formatAppUrl());
-
         this.setState({ loading: false, appleAuth, lastfmAuth });
+        this.handleAutoRedirectToApp();
 
         if (this.props.match.params['source'] === 'apple' && !appleAuth)
             await this.authenticateApple();
@@ -64,6 +62,12 @@ export class Settings extends Component<SettingsProps, { loading: boolean, apple
         const appleAuth = await appleAuthService.isAuthenticated();
 
         this.setState({ appleAuth });
+        this.handleAutoRedirectToApp();
+    }
+
+    handleAutoRedirectToApp() {
+        if (this.props.appConnect && this.state.appleAuth && this.state.lastfmAuth)
+            window.location.assign(MobileUtil.formatAppUrl());
     }
 
     async authenticateLastfm() {
