@@ -17,7 +17,7 @@
         "@types/react-router-dom": "^4.3.1",
         "bootstrap": "^4.3.1",
         "cordova-browser": "^6.0.0",
-        "cordova-ios": "^5.0.1",
+        "cordova-ios": "^6.1.1",
         "cordova-plugin-background-mode": "git+https://github.com/centogram/cordova-plugin-background-mode.git",
         "cordova-plugin-customurlscheme": "^4.4.0",
         "cordova-plugin-device": "^2.0.2",
