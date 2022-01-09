@@ -3,8 +3,10 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using LastfmApi;
-using LastfmApi.Models;
+using IF.Lastfm.Core.Api;
+using IF.Lastfm.Core.Api.Helpers;
+using IF.Lastfm.Core.Objects;
+using LastApple.Model;
 
 namespace LastApple.PlaylistGeneration
 {
@@ -16,14 +18,14 @@ namespace LastApple.PlaylistGeneration
         private readonly IDictionary<string, CacheItems<Track>> tracksByArtist
             = new Dictionary<string, CacheItems<Track>>();
 
-        private readonly ILastfmApi lastfmApi;
+        private readonly IArtistApi artistApi;
 
-        public TrackRepository(ILastfmApi lastfmApi)
+        public TrackRepository(IArtistApi artistApi)
         {
-            this.lastfmApi = lastfmApi ?? throw new ArgumentNullException(nameof(lastfmApi));
+            this.artistApi = artistApi ?? throw new ArgumentNullException(nameof(artistApi));
         }
 
-        public Task<IEnumerable<Track>> GetArtistTracks(
+        public Task<IReadOnlyCollection<Track>> GetArtistTracks(
             Artist artist)
         {
             if (artist == null) throw new ArgumentNullException(nameof(artist));
@@ -32,17 +34,18 @@ namespace LastApple.PlaylistGeneration
             {
                 tracksByArtist.TryGetValue(artist.Name, out var cachedTracks);
 
-                cachedTracks??=new CacheItems<Track>();
-                tracksByArtist[artist.Name] = cachedTracks;
+                cachedTracks                ??= new CacheItems<Track>();
+                tracksByArtist[artist.Name] =   cachedTracks;
 
+                // TODO: convert to switch expression
                 if (cachedTracks.Task?.Status < TaskStatus.RanToCompletion)
                     return cachedTracks.Task;
 
                 if (cachedTracks.Items != null)
                     return Task.FromResult(cachedTracks.Items);
 
-                if(cachedTracks.Attempts >= Constants.MaxRetryAttempts)
-                    return Task.FromResult(Enumerable.Empty<Track>());
+                if (cachedTracks.Attempts >= Constants.MaxRetryAttempts)
+                    return Task.FromResult<IReadOnlyCollection<Track>>(Array.Empty<Track>());
 
                 return LoadTracks(artist, cachedTracks);
             }
@@ -53,21 +56,21 @@ namespace LastApple.PlaylistGeneration
             return !tracksByArtist.TryGetValue(artist.Name, out var tracks) || !tracks.HasNoData;
         }
 
-        private Task<IEnumerable<Track>> LoadTracks(Artist artist, CacheItems<Track> cachedTracks)
+        private Task<IReadOnlyCollection<Track>> LoadTracks(Artist artist, CacheItems<Track> cachedTracks)
         {
-            cachedTracks.Task = lastfmApi.GetTopTracks(artist.Name).ContinueWith(x => SetContent(x, cachedTracks));
+            cachedTracks.Task = artistApi.GetTopTracksAsync(artist.Name).ContinueWith(x => SetContent(x, cachedTracks));
 
             cachedTracks.Attempts++;
 
             return cachedTracks.Task;
         }
 
-        private static IEnumerable<Track> SetContent(Task<IEnumerable<Track>> previousTask, CacheItems<Track> cacheItems)
+        private static IReadOnlyCollection<Track> SetContent(Task<PageResponse<LastTrack>> previousTask, CacheItems<Track> cacheItems)
         {
             if (previousTask.IsCompletedSuccessfully)
-                cacheItems.Items = previousTask.Result;
+                cacheItems.Items = previousTask.Result.Content.Select(x => new Track { ArtistName = x.ArtistName, Name = x.Name }).ToArray();
 
-            return previousTask.Result ?? Enumerable.Empty<Track>();
+            return cacheItems.Items ?? Array.Empty<Track>();
         }
     }
 }

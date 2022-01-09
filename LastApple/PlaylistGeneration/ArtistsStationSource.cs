@@ -2,17 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using LastfmApi.Models;
+using LastApple.Model;
 
 namespace LastApple.PlaylistGeneration
 {
     public class ArtistsStationSource : IStationSource<ArtistsStationDefinition>
     {
-        public Task<IEnumerable<Artist>> GetStationArtists(ArtistsStationDefinition definition)
+        public Task<IReadOnlyCollection<Artist>> GetStationArtists(ArtistsStationDefinition definition)
         {
             if (definition == null) throw new ArgumentNullException(nameof(definition));
 
-            return Task.FromResult(definition.Artists.Select(x => new Artist(x)));
+            return Task.FromResult<IReadOnlyCollection<Artist>>(definition.Artists.Select(x => new Artist{ Name = x }).ToArray());
         }
     }
 }
