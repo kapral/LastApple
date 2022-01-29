@@ -1,10 +1,11 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
+using IF.Lastfm.Core.Api;
+using IF.Lastfm.Core.Api.Enums;
+using IF.Lastfm.Core.Api.Helpers;
+using IF.Lastfm.Core.Objects;
+using LastApple.Model;
 using LastApple.PlaylistGeneration;
-using LastfmApi;
-using LastfmApi.Models;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -12,16 +13,16 @@ namespace LastApple.Tests.StationGeneration
 {
     public class TestTrackRepository
     {
-        private ILastfmApi lastfmApi;
+        private IArtistApi artistApi;
 
         private ITrackRepository repository;
 
         [SetUp]
         public void Init()
         {
-            lastfmApi = Substitute.For<ILastfmApi>();
+            artistApi = Substitute.For<IArtistApi>();
 
-            repository = new TrackRepository(lastfmApi);
+            repository = new TrackRepository(artistApi);
         }
 
         [Test]
@@ -39,29 +40,27 @@ namespace LastApple.Tests.StationGeneration
         [Test]
         public async Task GetArtistTracks_Returns_Successful_Task_Result_And_Caches_It()
         {
-            const string artist = "Serdyuchka";
-            var tracks = new[]
-            {
-                new Track("Gop", new Artist(artist), 300)
-            };
+            var artist     = new Artist { Name = "Serdyuchka" };
+            var tracks     = new[] { new Track { Name     = "Gop", ArtistName = artist.Name } };
+            var lastTracks = new[] { new LastTrack { Name = "Gop", ArtistName = artist.Name } };
 
-            lastfmApi.GetTopTracks(artist).Returns(tracks.AsEnumerable());
+            artistApi.GetTopTracksAsync(artist.Name).Returns(PageResponse<LastTrack>.CreateSuccessResponse(lastTracks));
 
-            var result1 = await repository.GetArtistTracks(tracks[0].Artist);
-            var result2 = await repository.GetArtistTracks(tracks[0].Artist);
+            var result1 = await repository.GetArtistTracks(artist);
+            var result2 = await repository.GetArtistTracks(artist);
 
             Assert.That(result1, Is.EqualTo(tracks));
             Assert.That(result2, Is.SameAs(result1));
 
-            await lastfmApi.Received(1).GetTopTracks(artist);
+            await artistApi.Received(1).GetTopTracksAsync(artist.Name);
         }
 
         [Test]
         public async Task GetArtistTracks_Returns_Empty_Task_Result_And_Caches_It()
         {
-            var artist = new Artist("Ictus");
-            lastfmApi.GetTopTracks(artist.Name)
-                .Returns(Task.FromResult(Enumerable.Empty<Track>()));
+            var artist = new Artist { Name = "Ictus" };
+            artistApi.GetTopTracksAsync(artist.Name)
+                .Returns(PageResponse<LastTrack>.CreateSuccessResponse());
 
             var result1 = await repository.GetArtistTracks(artist);
             var result2 = await repository.GetArtistTracks(artist);
@@ -69,17 +68,17 @@ namespace LastApple.Tests.StationGeneration
             Assert.That(result1, Is.Empty);
             Assert.That(result2, Is.Empty);
 
-            await lastfmApi.Received(1).GetTopTracks(artist.Name);
+            await artistApi.Received(1).GetTopTracksAsync(artist.Name);
         }
 
         [Test]
         public void GetArtistTracks_Returns_Same_Task_While_Its_Running()
         {
-            var artist           = new Artist("Ictus");
-            var completionSource = new TaskCompletionSource<IEnumerable<Track>>();
+            var artist           = new Artist { Name = "Ictus" };
+            var completionSource = new TaskCompletionSource<PageResponse<LastTrack>>();
             var task             = completionSource.Task;
 
-            lastfmApi.GetTopTracks(artist.Name).Returns(task);
+            artistApi.GetTopTracksAsync(artist.Name).Returns(task);
 
             var task1 = repository.GetArtistTracks(artist);
             var task2 = repository.GetArtistTracks(artist);
@@ -87,84 +86,86 @@ namespace LastApple.Tests.StationGeneration
             Assert.That(task1, Is.SameAs(task2));
             Assert.That(task1.Status, Is.EqualTo(TaskStatus.WaitingForActivation));
 
-            lastfmApi.Received(1).GetTopTracks(artist.Name);
+            artistApi.Received(1).GetTopTracksAsync(artist.Name);
         }
 
         [Test]
         public async Task GetArtistTracks_Retries_If_Task_Fails()
         {
-            var artist = new Artist("Ictus");
-            var tracks = new[] { new Track("Imperivm", artist, 300) };
+            var artist = new Artist { Name = "Ictus" };
+            var tracks = new[] { new Track { Name = "Imperivm", ArtistName = artist.Name } };
+            var lastTracks = new[] { new LastTrack { Name = "Imperivm", ArtistName = artist.Name } };
 
-            SetupGetArtistTracksFailures(artist, 1);
-            lastfmApi.GetTopTracks(artist.Name).Returns(tracks.AsEnumerable());
+            await SetupGetArtistTracksFailures(artist, 1);
+            artistApi.GetTopTracksAsync(artist.Name).Returns(PageResponse<LastTrack>.CreateSuccessResponse(lastTracks));
 
             var result = await repository.GetArtistTracks(artist);
 
             Assert.That(result, Is.EqualTo(tracks));
 
-            await lastfmApi.Received(2).GetTopTracks(artist.Name);
+            await artistApi.Received(2).GetTopTracksAsync(artist.Name);
         }
 
         [Test]
-        public async Task GetArtistTracks_Retries_If_Task_Returns_Null()
+        public async Task GetArtistTracks_Retries_If_Task_Returns_Unsuccessful()
         {
-            var artist = new Artist("Ictus");
-            var tracks = new[] { new Track("Imperivm", artist, 300) };
+            var artist = new Artist { Name = "Ictus" };
+            var lastTracks = new[] { new LastTrack { Name = "Imperivm", ArtistName = artist.Name} };
+            var tracks = new[] { new Track { Name = "Imperivm", ArtistName = artist.Name} };
 
-            await SetupGetArtistTracksNullResults(artist, 1);
-            lastfmApi.GetTopTracks(artist.Name)
-                .Returns(Task.FromResult(tracks.AsEnumerable()));
+            await SetupGetArtistTracksUnsuccessfulResults(artist, 1);
+            artistApi.GetTopTracksAsync(artist.Name)
+                .Returns(PageResponse<LastTrack>.CreateSuccessResponse(lastTracks));
 
             var result = await repository.GetArtistTracks(artist);
 
             Assert.That(result, Is.EqualTo(tracks));
 
-            await lastfmApi.Received(2).GetTopTracks(artist.Name);
+            await artistApi.Received(2).GetTopTracksAsync(artist.Name);
         }
 
         [Test]
         public async Task GetArtistTracks_Caches_Empty_After_3_Failures()
         {
-            var artist = new Artist("Ictus");
+            var artist = new Artist { Name = "Ictus" };
 
-            SetupGetArtistTracksFailures(artist, 3);
+            await SetupGetArtistTracksFailures(artist, 3);
 
             var result = await repository.GetArtistTracks(artist);
 
             Assert.That(result, Is.Empty);
 
-            await lastfmApi.Received(3).GetTopTracks(artist.Name);
+            await artistApi.Received(3).GetTopTracksAsync(artist.Name);
         }
 
         [Test]
-        public async Task GetArtistTracks_Caches_Empty_After_3_Nulls()
+        public async Task GetArtistTracks_Caches_Empty_After_3_Unsuccessful_Responses()
         {
-            var artist = new Artist("Ictus");
+            var artist = new Artist { Name = "Ictus" };
 
-            await SetupGetArtistTracksNullResults(artist, 3);
+            await SetupGetArtistTracksUnsuccessfulResults(artist, 3);
 
             var result = await repository.GetArtistTracks(artist);
 
             Assert.That(result, Is.Empty);
 
-            await lastfmApi.Received(3).GetTopTracks(artist.Name);
+            await artistApi.Received(3).GetTopTracksAsync(artist.Name);
         }
 
         [Test]
         public void ArtistHasTracks_Returns_True_For_Artists_Not_Requested_Yet()
         {
-            var artist = new Artist("Serdyuchka");
+            var artist = new Artist { Name = "Serdyuchka" };
 
             Assert.That(repository.ArtistHasTracks(artist));
         }
 
         [Test]
-        public void ArtistHasTracks_Returns_True_For_Artists_Which_Has_Retries_Left()
+        public async Task ArtistHasTracks_Returns_True_For_Artists_Which_Has_Retries_Left()
         {
-            var artist = new Artist("Serdyuchka");
+            var artist = new Artist { Name = "Serdyuchka" };
 
-            SetupGetArtistTracksFailures(artist, 2);
+            await SetupGetArtistTracksFailures(artist, 2);
 
             Assert.That(repository.ArtistHasTracks(artist));
         }
@@ -172,9 +173,9 @@ namespace LastApple.Tests.StationGeneration
         [Test]
         public async Task ArtistHasTracks_Returns_False_For_Artists_With_Cached_Empty_Tracks()
         {
-            var artist = new Artist("Serdyuchka");
+            var artist = new Artist { Name = "Serdyuchka" };
 
-            lastfmApi.GetTopTracks(artist.Name).Returns(Enumerable.Empty<Track>());
+            artistApi.GetTopTracksAsync(artist.Name).Returns(PageResponse<LastTrack>.CreateSuccessResponse());
 
             await repository.GetArtistTracks(artist);
             var result = repository.ArtistHasTracks(artist);
@@ -183,42 +184,42 @@ namespace LastApple.Tests.StationGeneration
         }
 
         [Test]
-        public void ArtistHasTracks_Returns_False_For_Artists_With_3_Failures()
+        public async Task ArtistHasTracks_Returns_False_For_Artists_With_3_Failures()
         {
-            var artist = new Artist("Serdyuchka");
+            var artist = new Artist { Name = "Serdyuchka" };
 
-            SetupGetArtistTracksFailures(artist, 3);
+            await SetupGetArtistTracksFailures(artist, 3);
 
             Assert.That(repository.ArtistHasTracks(artist), Is.False);
         }
 
         [Test]
-        public async Task ArtistHasTracks_Returns_False_For_Artists_With_3_Nulls()
+        public async Task ArtistHasTracks_Returns_False_For_Artists_With_3_Unsuccessful()
         {
-            var artist = new Artist("Serdyuchka");
+            var artist = new Artist { Name = "Serdyuchka" };
 
-            await SetupGetArtistTracksNullResults(artist, 3);
+            await SetupGetArtistTracksUnsuccessfulResults(artist, 3);
 
             Assert.That(repository.ArtistHasTracks(artist), Is.False);
         }
 
-        private void SetupGetArtistTracksFailures(Artist artist, int times)
+        private async Task SetupGetArtistTracksFailures(Artist artist, int times)
         {
             for (var i = 0; i < times; i++)
             {
-                lastfmApi.GetTopTracks(artist.Name)
-                    .Returns(Task.FromException<IEnumerable<Track>>(new Exception()));
+                artistApi.GetTopTracksAsync(artist.Name)
+                         .Returns(Task.FromException<PageResponse<LastTrack>>(new Exception()));
 
-                Assert.That(() => repository.GetArtistTracks(artist), Throws.Exception);
+                Assert.That(await repository.GetArtistTracks(artist), Is.Empty);
             }
         }
 
-        private async Task SetupGetArtistTracksNullResults(Artist artist, int times)
+        private async Task SetupGetArtistTracksUnsuccessfulResults(Artist artist, int times)
         {
             for (var i = 0; i < times; i++)
             {
-                lastfmApi.GetTopTracks(artist.Name)
-                    .Returns(Task.FromResult<IEnumerable<Track>>(null));
+                artistApi.GetTopTracksAsync(artist.Name)
+                         .Returns(PageResponse<LastTrack>.CreateErrorResponse(LastResponseStatus.Failure));
 
                 Assert.That(await repository.GetArtistTracks(artist), Is.Empty);
             }

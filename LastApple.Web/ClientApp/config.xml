@@ -28,4 +28,5 @@
         <allow-intent href="itms-apps:*" />
     </platform>
     <preference name="DisallowOverscroll" value="true"/>
+    <preference name="WKWebViewOnly" value="true" />
 </widget>

@@ -1,14 +1,19 @@
+using System.Net.Http;
 using AppleMusicApi;
+using IF.Lastfm.Core.Api;
+using IF.Lastfm.Core.Objects;
+using IF.Lastfm.Core.Scrobblers;
 using LastApple.Persistence;
 using LastApple.PlaylistGeneration;
 using LastApple.Web.Extensions;
-using LastfmApi;
+using LastApple.Web.Lastfm;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
 namespace LastApple.Web
 {
@@ -22,7 +27,7 @@ namespace LastApple.Web
         public IConfiguration Configuration { get; }
 
         public const string AllowCorsPolicy = "AllowCorsPolicy";
-        
+
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
@@ -38,7 +43,7 @@ namespace LastApple.Web
                     });
             });
             services.AddRazorPages();
-            
+
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
             {
@@ -48,6 +53,7 @@ namespace LastApple.Web
             services.AddOptions();
 
             services.Configure<AppCredentials>(Configuration.GetSection("AppleAppCredentials"));
+            services.Configure<LastfmApiParams>(Configuration.GetSection("Lastfm"));
 
             services.AddTransient<IDeveloperTokenGenerator, DeveloperTokenGenerator>();
             services.AddSingleton<IDeveloperTokenProvider, DeveloperTokenProvider>();
@@ -72,10 +78,32 @@ namespace LastApple.Web
                 return new ApiAuthentication { DeveloperToken = tokenProvider.GetToken() };
             });
 
-            services.AddSingleton<IStationSource<ArtistsStationDefinition>, ArtistsStationSource>();
-            services.AddSingleton<IStationSource<SimilarArtistsStationDefinition>, SimilarArtistsStationSource>();
-            services.AddSingleton<IStationSource<TagsStationDefinition>, TagsStationSource>();
-            services.AddSingleton<IStationSource<LastfmLibraryStationDefinition>, LastfmLibraryStationSource>();
+            services.AddScoped(c =>
+            {
+                var apiParams = c.GetService<IOptions<LastfmApiParams>>();
+
+                return new LastfmClient(apiParams.Value.ApiKey, apiParams.Value.Secret, new HttpClient());
+            });
+
+            services.AddScoped(c =>
+            {
+                var lastAuth = c.GetService<LastfmClient>().Auth;
+
+                lastAuth.LoadSession(new LastUserSession());
+
+                return lastAuth;
+            });
+
+            services.AddScoped<IUserApi>(c => c.GetService<LastfmClient>().User);
+            services.AddScoped<IScrobbler>(c => c.GetService<LastfmClient>().Scrobbler);
+            services.AddScoped<ITrackApi>(c => c.GetService<LastfmClient>().Track);
+            services.AddScoped<IArtistApi>(c => c.GetService<LastfmClient>().Artist);
+            services.AddScoped<ITagApi>(c => c.GetService<LastfmClient>().Tag);
+
+            services.AddScoped<IStationSource<ArtistsStationDefinition>, ArtistsStationSource>();
+            services.AddScoped<IStationSource<SimilarArtistsStationDefinition>, SimilarArtistsStationSource>();
+            services.AddScoped<IStationSource<TagsStationDefinition>, TagsStationSource>();
+            services.AddScoped<IStationSource<LastfmLibraryStationDefinition>, LastfmLibraryStationSource>();
 
             services.Decorate<IStationSource<ArtistsStationDefinition>, CachingStationSource<ArtistsStationDefinition>>();
             services.Decorate<IStationSource<SimilarArtistsStationDefinition>, CachingStationSource<SimilarArtistsStationDefinition>>();
@@ -83,7 +111,6 @@ namespace LastApple.Web
             services.Decorate<IStationSource<LastfmLibraryStationDefinition>, CachingStationSource<LastfmLibraryStationDefinition>>();
 
             services.AddSingleton<ISessionRepository, SessionRepository>();
-            services.AddSingleton<ILastfmApi, LastfmApi.LastfmApi>();
 
             services.AddHttpContextAccessor();
 
@@ -93,7 +120,7 @@ namespace LastApple.Web
             services.AddSingleton<IStationEventMediator, SignalrStationEventMediator>();
             services.AddSingleton<IBackgroundProcessManager, BackgroundProcessManager>();
             services.AddSingleton(container => (IHostedService)container.GetService<IBackgroundProcessManager>());
-            services.AddSingleton<ITrackRepository, TrackRepository>();
+            services.AddScoped<ITrackRepository, TrackRepository>();
 
             services.Configure<MongoConnectionDetails>(Configuration.GetSection("MongoDb"));
 
@@ -102,8 +129,6 @@ namespace LastApple.Web
             services.Decorate<ISessionRepository, CachingSessionRepository>();
 
             services.AddSignalR();
-
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

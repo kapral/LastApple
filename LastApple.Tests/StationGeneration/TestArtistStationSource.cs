@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
+using LastApple.Model;
 using LastApple.PlaylistGeneration;
-using LastfmApi.Models;
 using NUnit.Framework;
 
 namespace LastApple.Tests.StationGeneration
@@ -31,7 +31,7 @@ namespace LastApple.Tests.StationGeneration
 
             var artists = await source.GetStationArtists(definition);
 
-            var expectedArtists = new[] { new Artist("Reka"), new Artist("Ictus") };
+            var expectedArtists = new[] { new Artist { Name = "Reka" }, new Artist { Name = "Ictus" } };
 
             Assert.That(artists, Is.EqualTo(expectedArtists));
         }

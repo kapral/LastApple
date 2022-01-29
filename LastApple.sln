@@ -4,13 +4,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LastApple.Web", "LastApple.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppleMusicApi", "AppleMusicApi\AppleMusicApi.csproj", "{DCA3E40D-AB3F-4720-A555-71D8B671E20C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LastfmApi", "LastfmApi\LastfmApi.csproj", "{711011DC-FAF6-4985-9A39-F2EA506B571F}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LastApple", "LastApple\LastApple.csproj", "{6DDAA0CB-3954-479F-AEC9-5A4B9896F2DB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LastApple.Persistence", "LastApple.Persistence\LastApple.Persistence.csproj", "{7E9D61D1-BB41-459C-8C06-FF176CBD645C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LastApple.Tests", "LastApple.Tests\LastApple.Tests.csproj", "{FFE6EC28-B3B1-4AC4-91EA-F2BE1C771142}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{F6AAEE7D-C6E0-4A98-AAF6-ACAFC9DB7D5F}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\build-branch.yml = .github\workflows\build-branch.yml
+		.github\workflows\build-pullrequests.yml = .github\workflows\build-pullrequests.yml
+		.github\workflows\release-master.yml = .github\workflows\release-master.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,10 +31,6 @@ Global
 		{DCA3E40D-AB3F-4720-A555-71D8B671E20C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DCA3E40D-AB3F-4720-A555-71D8B671E20C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DCA3E40D-AB3F-4720-A555-71D8B671E20C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{711011DC-FAF6-4985-9A39-F2EA506B571F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{711011DC-FAF6-4985-9A39-F2EA506B571F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{711011DC-FAF6-4985-9A39-F2EA506B571F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{711011DC-FAF6-4985-9A39-F2EA506B571F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6DDAA0CB-3954-479F-AEC9-5A4B9896F2DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6DDAA0CB-3954-479F-AEC9-5A4B9896F2DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6DDAA0CB-3954-479F-AEC9-5A4B9896F2DB}.Release|Any CPU.ActiveCfg = Release|Any CPU

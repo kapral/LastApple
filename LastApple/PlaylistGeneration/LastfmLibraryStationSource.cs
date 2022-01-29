@@ -1,25 +1,37 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using LastfmApi;
-using LastfmApi.Models;
+using IF.Lastfm.Core.Api;
+using IF.Lastfm.Core.Api.Enums;
+using IF.Lastfm.Core.Api.Helpers;
+using LastApple.Model;
 
 namespace LastApple.PlaylistGeneration
 {
     public class LastfmLibraryStationSource : IStationSource<LastfmLibraryStationDefinition>
     {
-        private readonly ILastfmApi lastfmApi;
+        private readonly IUserApi userApi;
 
-        public LastfmLibraryStationSource(ILastfmApi lastfmApi)
+        public LastfmLibraryStationSource(IUserApi userApi)
         {
-            this.lastfmApi = lastfmApi ?? throw new ArgumentNullException(nameof(lastfmApi));
+            this.userApi = userApi ?? throw new ArgumentNullException(nameof(userApi));
         }
 
-        public Task<IEnumerable<Artist>> GetStationArtists(LastfmLibraryStationDefinition definition)
+        public async Task<IReadOnlyCollection<Artist>> GetStationArtists(LastfmLibraryStationDefinition definition)
         {
             if (definition == null) throw new ArgumentNullException(nameof(definition));
 
-            return lastfmApi.GetUserArtists(definition.User, limit: 100, period: definition.Period);
+            var response = await userApi.GetTopArtists(definition.User, pagenumber: 1, count: 100, span: GetSpan(definition.Period));
+
+            return response.Success
+                       ? response.Content.Select(x => new Artist { Name = x.Name }).ToArray()
+                       : null;
         }
+
+        private static LastStatsTimeSpan GetSpan(string period)
+            => Enum.GetValues(typeof(LastStatsTimeSpan))
+                   .Cast<LastStatsTimeSpan>()
+                   .FirstOrDefault(x => x.GetApiName() == period);
     }
 }

@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using LastfmApi.Models;
+using LastApple.Model;
 
 namespace LastApple.PlaylistGeneration
 {
     public interface IStationSource<in TDefinition> where TDefinition : IStationDefinition
     {
-        Task<IEnumerable<Artist>> GetStationArtists(TDefinition definition);
+        Task<IReadOnlyCollection<Artist>> GetStationArtists(TDefinition definition);
     }
 }

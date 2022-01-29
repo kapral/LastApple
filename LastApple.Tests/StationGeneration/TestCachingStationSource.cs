@@ -1,7 +1,7 @@
 using System.Linq;
 using System.Threading.Tasks;
+using LastApple.Model;
 using LastApple.PlaylistGeneration;
-using LastfmApi.Models;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -39,10 +39,10 @@ namespace LastApple.Tests.StationGeneration
         [Test]
         public async Task Get_Artists_Loads_And_Caches_Station_Artists()
         {
-            var artists = new[] { new Artist("Serdyuchka"), new Artist("Ictus") };
+            var artists = new[] { new Artist { Name = "Serdyuchka" }, new Artist { Name = "Ictus" } };
             var station = new SimilarArtistsStationDefinition("Kirkorow");
 
-            concreteSource.GetStationArtists(station).Returns(artists.AsEnumerable());
+            concreteSource.GetStationArtists(station).Returns(artists);
             trackRepository.ArtistHasTracks(artists[0]).Returns(true);
             trackRepository.ArtistHasTracks(artists[1]).Returns(true);
 
@@ -58,10 +58,10 @@ namespace LastApple.Tests.StationGeneration
         [Test]
         public async Task Get_Artists_Filters_Out_Ones_With_Null_Cached_Tracks_After_Retries()
         {
-            var artists = new[] { new Artist("Serdyuchka"), new Artist("Ictus") };
+            var artists = new[] { new Artist { Name = "Serdyuchka" }, new Artist { Name = "Ictus" } };
             var station = new SimilarArtistsStationDefinition("Kirkorow");
 
-            concreteSource.GetStationArtists(station).Returns(artists.AsEnumerable());
+            concreteSource.GetStationArtists(station).Returns(artists);
             trackRepository.ArtistHasTracks(artists[0]).Returns(false);
             trackRepository.ArtistHasTracks(artists[1]).Returns(true);
 

@@ -7,15 +7,10 @@ import lastfmLogo from '../images/lastfm-logo.png'
 import { BaseRouterProps } from '../BaseRouterProps';
 import { withRouter } from 'react-router-dom'
 
-interface Image {
-    size: string;
-    url: string;
-}
-
 interface LastfmUser {
     name: string;
     url: string;
-    image: Array<Image>
+    avatar: Array<string>
 }
 
 @observer
@@ -70,11 +65,11 @@ class LastfmAuthManager extends Component<BaseRouterProps, { pending: boolean, u
                 alignItems: 'center'
             }}
                className='lastfm-profile'
-               href={this.state.user && this.state.user.url}
+               href={this.state.user && `https://www.last.fm/user/${this.state.user.name}`}
                title={'Open lastfm profile'}
                target="_blank" rel="noopener noreferrer"
                onClick={() => this.authenticate()}>
-                <img alt={''} style={{ borderRadius: '20px' }} src={(this.state.user && this.state.user.image[0].url) || lastfmLogo} />
+                <img alt={''} style={{ borderRadius: '20px' }} src={(this.state.user && this.state.user.avatar[0]) || lastfmLogo} />
                 <span>{(this.state.user && this.state.user.name) || 'Log in'}</span>
             </a>
         </div>;

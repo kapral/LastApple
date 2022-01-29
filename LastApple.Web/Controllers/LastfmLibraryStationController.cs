@@ -1,8 +1,8 @@
 using System;
 using System.Threading.Tasks;
+using IF.Lastfm.Core.Api;
 using LastApple.Model;
 using LastApple.PlaylistGeneration;
-using LastfmApi;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LastApple.Web.Controllers
@@ -13,18 +13,18 @@ namespace LastApple.Web.Controllers
         private readonly IStationRepository stationRepository;
         private readonly IStationGenerator<LastfmLibraryStationDefinition> stationGenerator;
         private readonly IBackgroundProcessManager processManager;
-        private readonly ILastfmApi lastfmApi;
+        private readonly IUserApi userApi;
         private readonly ISessionProvider sessionProvider;
 
         public LastfmLibraryStationController(IStationRepository stationRepository,
             IStationGenerator<LastfmLibraryStationDefinition> stationGenerator,
             IBackgroundProcessManager processManager,
-            ILastfmApi lastfmApi,
+            IUserApi userApi,
             ISessionProvider sessionProvider)
         {
             this.stationRepository = stationRepository ?? throw new ArgumentNullException(nameof(stationRepository));
             this.stationGenerator  = stationGenerator ?? throw new ArgumentNullException(nameof(stationGenerator));
-            this.lastfmApi         = lastfmApi ?? throw new ArgumentNullException(nameof(lastfmApi));
+            this.userApi           = userApi ?? throw new ArgumentNullException(nameof(userApi));
             this.sessionProvider   = sessionProvider ?? throw new ArgumentNullException(nameof(sessionProvider));
             this.processManager    = processManager ?? throw new ArgumentNullException(nameof(processManager));
         }
@@ -33,17 +33,18 @@ namespace LastApple.Web.Controllers
         [Route("my")]
         public async Task<IActionResult> Create()
         {
-            var sessionKey = (await sessionProvider.GetSession()).LastfmSessionKey;
+            var session = await sessionProvider.GetSession();
 
-            if (string.IsNullOrWhiteSpace(sessionKey))
+            if (session == null)
                 return Unauthorized();
 
-            var user = await lastfmApi.GetUserInfo(sessionKey);
+            var user = await userApi.GetInfoAsync(session.LastfmUsername);
 
             var station = new Station<LastfmLibraryStationDefinition>
             {
                 IsContinuous = true,
-                Definition   = new LastfmLibraryStationDefinition { User = user.Name }, Id = Guid.NewGuid()
+                Definition   = new LastfmLibraryStationDefinition { User = user.Content.Name },
+                Id           = Guid.NewGuid()
             };
 
             stationRepository.Create(station);

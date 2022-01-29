@@ -5,19 +5,19 @@ using LastApple.Model;
 
 namespace LastApple.PlaylistGeneration {
     public class StationGenerator<TStation> : IStationGenerator<TStation> where TStation : IStationDefinition {
-        private readonly IStationTrackGenerator<TStation> _trackGenerator;
-        private readonly ITrackIdProvider _trackIdProvider;
-        private readonly IStationEventMediator _stationEventMediator;
+        private readonly IStationTrackGenerator<TStation> trackGenerator;
+        private readonly ITrackIdProvider trackIdProvider;
+        private readonly IStationEventMediator stationEventMediator;
 
         private const int AttemptsLimit = 50;
 
-        public StationGenerator(IStationTrackGenerator<TStation> stationTrackGenerator,
-            ITrackIdProvider trackIdProvider,
-            IStationEventMediator stationEventMediator)
+        public StationGenerator(IStationTrackGenerator<TStation> trackGenerator,
+                                ITrackIdProvider trackIdProvider,
+                                IStationEventMediator stationEventMediator)
         {
-            _trackGenerator  = stationTrackGenerator ?? throw new ArgumentNullException(nameof(stationTrackGenerator));
-            _trackIdProvider = trackIdProvider ?? throw new ArgumentNullException(nameof(trackIdProvider));
-            _stationEventMediator = stationEventMediator ?? throw new ArgumentNullException(nameof(stationEventMediator));
+            this.trackGenerator       = trackGenerator ?? throw new ArgumentNullException(nameof(trackGenerator));
+            this.trackIdProvider      = trackIdProvider ?? throw new ArgumentNullException(nameof(trackIdProvider));
+            this.stationEventMediator = stationEventMediator ?? throw new ArgumentNullException(nameof(stationEventMediator));
         }
 
         public async Task Generate(Station<TStation> station) {
@@ -40,11 +40,11 @@ namespace LastApple.PlaylistGeneration {
                 if(attempts > AttemptsLimit)
                     return;
 
-                var nextTrack = await _trackGenerator.GetNext(station.Definition);
+                var nextTrack = await trackGenerator.GetNext(station.Definition);
                 if (nextTrack == null)
                     continue;
 
-                var trackId = await _trackIdProvider.FindTrackId(nextTrack.Artist.Name, nextTrack.Name);
+                var trackId = await trackIdProvider.FindTrackId(nextTrack.ArtistName, nextTrack.Name);
                 if (trackId == null)
                     continue;
 
@@ -52,7 +52,7 @@ namespace LastApple.PlaylistGeneration {
                     continue;
 
                 station.SongIds.Add(trackId);
-                _stationEventMediator.NotifyTrackAdded(station.Id, trackId, station.SongIds.Count - 1);
+                stationEventMediator.NotifyTrackAdded(station.Id, trackId, station.SongIds.Count - 1);
                 attempts = 0;
             }
         }

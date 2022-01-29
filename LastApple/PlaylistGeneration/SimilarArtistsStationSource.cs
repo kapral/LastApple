@@ -2,27 +2,29 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using LastfmApi;
-using LastfmApi.Models;
+using IF.Lastfm.Core.Api;
+using LastApple.Model;
 
 namespace LastApple.PlaylistGeneration
 {
     public class SimilarArtistsStationSource : IStationSource<SimilarArtistsStationDefinition>
     {
-        private readonly ILastfmApi lastfmApi;
+        private readonly IArtistApi artistApi;
 
-        public SimilarArtistsStationSource(ILastfmApi lastfmApi)
+        public SimilarArtistsStationSource(IArtistApi artistApi)
         {
-            this.lastfmApi = lastfmApi ?? throw new ArgumentNullException(nameof(lastfmApi));
+            this.artistApi = artistApi ?? throw new ArgumentNullException(nameof(artistApi));
         }
 
-        public async Task<IEnumerable<Artist>> GetStationArtists(SimilarArtistsStationDefinition definition)
+        public async Task<IReadOnlyCollection<Artist>> GetStationArtists(SimilarArtistsStationDefinition definition)
         {
             if (definition == null) throw new ArgumentNullException(nameof(definition));
 
-            var similarArtists = await lastfmApi.GetSimilarArtists(definition.SourceArtist);
-            return new[] { new Artist(definition.SourceArtist) }.Concat(similarArtists ?? new Artist[0])
-                .ToArray();
+            var similarArtists = await artistApi.GetSimilarAsync(definition.SourceArtist);
+
+            return similarArtists.Success
+                       ? new[] { new Artist { Name = definition.SourceArtist } }.Concat(similarArtists.Select(x => new Artist { Name = x.Name })).ToArray()
+                       : Array.Empty<Artist>();
         }
     }
 }

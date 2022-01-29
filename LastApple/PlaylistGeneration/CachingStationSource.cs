@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using LastfmApi.Models;
+using LastApple.Model;
 
 namespace LastApple.PlaylistGeneration
 {
@@ -20,7 +20,7 @@ namespace LastApple.PlaylistGeneration
             this.trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
         }
 
-        public async Task<IEnumerable<Artist>> GetStationArtists(TDefinition definition)
+        public async Task<IReadOnlyCollection<Artist>> GetStationArtists(TDefinition definition)
         {
             if (definition == null) throw new ArgumentNullException(nameof(definition));
 
@@ -31,12 +31,12 @@ namespace LastApple.PlaylistGeneration
             artists[definition] =  cachedArtists;
 
             if (cachedArtists.Attempts >= Constants.MaxRetryAttempts)
-                return Enumerable.Empty<Artist>();
+                return Array.Empty<Artist>();
 
             return await LoadArtists(definition, cachedArtists);
         }
 
-        private async Task<IEnumerable<Artist>> LoadArtists(TDefinition definition, CacheItems<Artist> cachedArtists)
+        private async Task<IReadOnlyCollection<Artist>> LoadArtists(TDefinition definition, CacheItems<Artist> cachedArtists)
         {
             cachedArtists.Attempts++;
 
@@ -45,7 +45,7 @@ namespace LastApple.PlaylistGeneration
             return FilterArtists(cachedArtists.Items ?? Enumerable.Empty<Artist>());
         }
 
-        private IEnumerable<Artist> FilterArtists(IEnumerable<Artist> source)
-            => source.Where(trackRepository.ArtistHasTracks);
+        private IReadOnlyCollection<Artist> FilterArtists(IEnumerable<Artist> source)
+            => source.Where(trackRepository.ArtistHasTracks).ToArray();
     }
 }
