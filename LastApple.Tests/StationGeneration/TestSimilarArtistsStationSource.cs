@@ -1,8 +1,9 @@
-using System.Linq;
 using System.Threading.Tasks;
+using IF.Lastfm.Core.Api;
+using IF.Lastfm.Core.Api.Helpers;
+using IF.Lastfm.Core.Objects;
+using LastApple.Model;
 using LastApple.PlaylistGeneration;
-using LastfmApi;
-using LastfmApi.Models;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -10,16 +11,16 @@ namespace LastApple.Tests.StationGeneration
 {
     public class TestSimilarArtistsStationSource
     {
-        private ILastfmApi lastfmApi;
+        private IArtistApi artistApi;
 
         private IStationSource<SimilarArtistsStationDefinition> source;
 
         [SetUp]
         public void Init()
         {
-            lastfmApi = Substitute.For<ILastfmApi>();
+            artistApi = Substitute.For<IArtistApi>();
 
-            source = new SimilarArtistsStationSource(lastfmApi);
+            source = new SimilarArtistsStationSource(artistApi);
         }
 
         [Test]
@@ -38,13 +39,13 @@ namespace LastApple.Tests.StationGeneration
         public async Task GetStationArtists_Returns_Source_Artist_And_Similar_From_Api()
         {
             var definition = new SimilarArtistsStationDefinition("Death In June");
-            var similar    = new[] { new Artist("Rome"), new Artist("Sol Invictus"), };
+            var similar    = new[] { new LastArtist { Name = "Rome" }, new LastArtist { Name = "Sol Invictus" } };
 
-            lastfmApi.GetSimilarArtists(definition.SourceArtist).Returns(Task.FromResult(similar.AsEnumerable()));
+            artistApi.GetSimilarAsync(definition.SourceArtist).Returns(PageResponse<LastArtist>.CreateSuccessResponse(similar));
 
             var result = await source.GetStationArtists(definition);
 
-            Assert.That(result, Is.EqualTo(new[] { new Artist(definition.SourceArtist), similar[0], similar[1] }));
+            Assert.That(result, Is.EqualTo(new[] { new Artist { Name = definition.SourceArtist }, new Artist { Name = similar[0].Name }, new Artist { Name = similar[1].Name } }));
         }
     }
 }

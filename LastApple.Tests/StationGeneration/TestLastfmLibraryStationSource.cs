@@ -1,8 +1,11 @@
 using System.Linq;
 using System.Threading.Tasks;
+using IF.Lastfm.Core.Api;
+using IF.Lastfm.Core.Api.Enums;
+using IF.Lastfm.Core.Api.Helpers;
+using IF.Lastfm.Core.Objects;
+using LastApple.Model;
 using LastApple.PlaylistGeneration;
-using LastfmApi;
-using LastfmApi.Models;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -10,16 +13,16 @@ namespace LastApple.Tests.StationGeneration
 {
     public class TestLastfmLibraryStationSource
     {
-        private ILastfmApi lastfmApi;
+        private IUserApi userApi;
 
         private IStationSource<LastfmLibraryStationDefinition> source;
 
         [SetUp]
         public void Init()
         {
-            lastfmApi = Substitute.For<ILastfmApi>();
+            userApi = Substitute.For<IUserApi>();
 
-            source = new LastfmLibraryStationSource(lastfmApi);
+            source = new LastfmLibraryStationSource(userApi);
         }
 
         [Test]
@@ -40,16 +43,16 @@ namespace LastApple.Tests.StationGeneration
             var definition = new LastfmLibraryStationDefinition
             {
                 User = "Listener",
-                Period = "year"
+                Period = "12month"
             };
-            var artists = new[] { new Artist("") };
+            var artists = new[] { new LastArtist { Name = "Asaf Avidan" } };
 
-            lastfmApi.GetUserArtists(definition.User, limit: 100, period: definition.Period)
-                .Returns(Task.FromResult(artists.AsEnumerable()));
+            userApi.GetTopArtists(definition.User, pagenumber: 1, count: 100, span: LastStatsTimeSpan.Year)
+                .Returns(PageResponse<LastArtist>.CreateSuccessResponse(artists));
 
             var result = await source.GetStationArtists(definition);
 
-            Assert.That(result, Is.EqualTo(artists));
+            Assert.That(result, Is.EqualTo(new[] { new Artist { Name = "Asaf Avidan" } }));
         }
     }
 }

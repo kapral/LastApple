@@ -1,9 +1,9 @@
 namespace LastApple.Model
 {
-    public class Track
+    public record Track
     {
-        public string Name { get; set; }
+        public string Name { get; init; }
 
-        public string ArtistName { get; set; }
+        public string ArtistName { get; init; }
     }
 }

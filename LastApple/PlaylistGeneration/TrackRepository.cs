@@ -30,7 +30,7 @@ namespace LastApple.PlaylistGeneration
         {
             if (artist == null) throw new ArgumentNullException(nameof(artist));
 
-            lock (artistLocks.GetOrAdd(artist.Name, new object()))
+            lock (artistLocks.GetOrAdd(artist.Name, () => new object()))
             {
                 tracksByArtist.TryGetValue(artist.Name, out var cachedTracks);
 
@@ -67,10 +67,16 @@ namespace LastApple.PlaylistGeneration
 
         private static IReadOnlyCollection<Track> SetContent(Task<PageResponse<LastTrack>> previousTask, CacheItems<Track> cacheItems)
         {
-            if (previousTask.IsCompletedSuccessfully)
-                cacheItems.Items = previousTask.Result.Content.Select(x => new Track { ArtistName = x.ArtistName, Name = x.Name }).ToArray();
+            if (!previousTask.IsCompletedSuccessfully || !previousTask.Result.Success)
+                return Array.Empty<Track>();
 
-            return cacheItems.Items ?? Array.Empty<Track>();
+            cacheItems.Items = ExtractResult(previousTask);
+
+            return cacheItems.Items;
+
         }
+
+        private static IReadOnlyCollection<Track> ExtractResult(Task<PageResponse<LastTrack>> task)
+            => task.Result.Content.Select(x => new Track { ArtistName = x.ArtistName, Name = x.Name }).ToArray();
     }
 }
