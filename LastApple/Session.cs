@@ -8,6 +8,8 @@ namespace LastApple
 
         public string LastfmSessionKey { get; set; }
 
+        public string LastfmUsername { get; set; }
+
         public string MusicUserToken { get; set; }
 
         public string MusicStorefrontId { get; set; }

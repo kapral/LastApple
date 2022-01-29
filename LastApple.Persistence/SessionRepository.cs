@@ -25,14 +25,15 @@ namespace LastApple.Persistence
                 .FirstOrDefaultAsync();
 
             return domainSession != null
-                ? new Session
-                {
-                    Id                = domainSession.Id,
-                    LastfmSessionKey  = domainSession.LastfmSessionKey,
-                    MusicUserToken    = domainSession.MusicUserToken,
-                    MusicStorefrontId = domainSession.MusicStorefrontId
-                }
-                : null;
+                       ? new Session
+                       {
+                           Id                = domainSession.Id,
+                           LastfmSessionKey  = domainSession.LastfmSessionKey,
+                           LastfmUsername    = domainSession.LastfmUsername,
+                           MusicUserToken    = domainSession.MusicUserToken,
+                           MusicStorefrontId = domainSession.MusicStorefrontId
+                       }
+                       : null;
         }
 
         public async Task SaveSession(Session session)
@@ -45,6 +46,7 @@ namespace LastApple.Persistence
             {
                 Id                = session.Id,
                 LastfmSessionKey  = session.LastfmSessionKey,
+                LastfmUsername    = session.LastfmUsername,
                 MusicUserToken    = session.MusicUserToken,
                 MusicStorefrontId = session.MusicStorefrontId
             };

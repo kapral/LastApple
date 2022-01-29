@@ -11,7 +11,7 @@ namespace LastApple.Web
         public SessionProvider(ISessionRepository sessionRepository, IHttpContextAccessor httpContextAccessor)
         {
             this.sessionRepository = sessionRepository ?? throw new ArgumentNullException(nameof(sessionRepository));
-            
+
             if (httpContextAccessor == null) throw new ArgumentNullException(nameof(httpContextAccessor));
 
             SessionId = httpContextAccessor.HttpContext.Request.Headers["X-SessionId"];

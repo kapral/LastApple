@@ -15,7 +15,10 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 3.1.100
+        dotnet-version: 6.x
+
+    - name: Add GH packages
+      run: dotnet nuget add source --username kapral --password ${{ secrets.GH_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/kapral/index.json"
          
     - name: Create Deploy Package
       run: dotnet publish LastApple.Web/LastApple.Web.csproj -c=Release
@@ -24,5 +27,5 @@ jobs:
       uses: azure/webapps-deploy@v1
       with: 
         app-name: last-apple
-        package: LastApple.Web/bin/Release/netcoreapp3.1/publish
+        package: LastApple.Web/bin/Release/net6.0/publish
         publish-profile: ${{ secrets.lastApplePublishProfile }}

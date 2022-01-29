@@ -8,9 +8,9 @@ namespace LastApple.PlaylistGeneration
     {
         public int Attempts { get; set; }
 
-        public IEnumerable<TItem> Items { get; set; }
+        public IReadOnlyCollection<TItem> Items { get; set; }
 
-        public Task<IEnumerable<TItem>> Task { get; set; }
+        public Task<IReadOnlyCollection<TItem>> Task { get; set; }
 
         public bool HasNoData => Attempts >= Constants.MaxRetryAttempts && Items == null || Items?.Any() == false;
     }

@@ -1,21 +1,12 @@
 import * as React from "react";
 
-export class CustomToggle extends React.Component<{ onClick(e: any): any }, any> {
-    constructor(props, context) {
-        super(props, context);
-
-        this.handleClick = this.handleClick.bind(this);
-    }
-
-    handleClick(e) {
+export const CustomToggle = React.forwardRef((props, ref) => (
+    // @ts-ignore
+    <div ref={ref} onClick={(e) => {
         e.preventDefault();
-
-        this.props.onClick(e);
-    }
-
-    render() {
-        return <div onClick={this.handleClick} style={{ cursor: 'pointer' }}>
-            {this.props.children}
-        </div>;
-    }
-}
+        // @ts-ignore
+        props.onClick(e);
+    }} style={{ cursor: 'pointer' }}>
+        {props.children}
+    </div>
+));
