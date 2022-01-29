@@ -10,6 +10,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LastApple.Persistence", "La
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LastApple.Tests", "LastApple.Tests\LastApple.Tests.csproj", "{FFE6EC28-B3B1-4AC4-91EA-F2BE1C771142}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{F6AAEE7D-C6E0-4A98-AAF6-ACAFC9DB7D5F}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\build-branch.yml = .github\workflows\build-branch.yml
+		.github\workflows\build-pullrequests.yml = .github\workflows\build-pullrequests.yml
+		.github\workflows\release-master.yml = .github\workflows\release-master.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
