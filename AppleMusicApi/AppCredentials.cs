@@ -1,10 +1,10 @@
 ﻿namespace AppleMusicApi;
 
-public class AppCredentials
+public record AppCredentials
 {
-    public string PrivateKey { get; set; }
+    public string PrivateKey { get; init; }
 
-    public string KeyId { get; set; }
+    public string KeyId { get; init; }
 
-    public string TeamId { get; set; }
+    public string TeamId { get; init; }
 }

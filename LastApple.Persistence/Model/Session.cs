@@ -3,16 +3,16 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace LastApple.Persistence.Model;
 
-public class Session
+public record Session
 {
     [BsonId]
-    public Guid Id { get; set; }
+    public Guid Id { get; init; }
 
-    public string LastfmSessionKey { get; set; }
+    public string LastfmSessionKey { get; init; }
 
-    public string LastfmUsername { get; set; }
+    public string LastfmUsername { get; init; }
 
-    public string MusicUserToken { get; set; }
+    public string MusicUserToken { get; init; }
 
-    public string MusicStorefrontId { get; set; }
+    public string MusicStorefrontId { get; init; }
 }

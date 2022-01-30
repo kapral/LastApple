@@ -1,8 +1,8 @@
 namespace AppleMusicApi;
 
-public class Relationships
+public record Relationships
 {
-    public ResourceMatches<SongAttributes> Tracks { get; set; }
+    public ResourceMatches<SongAttributes> Tracks { get; init; }
 
-    public ResourceMatches<AlbumAttributes> Albums { get; set; }
+    public ResourceMatches<AlbumAttributes> Albums { get; init; }
 }

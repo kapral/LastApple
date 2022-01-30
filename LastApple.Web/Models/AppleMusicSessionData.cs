@@ -1,8 +1,8 @@
 namespace LastApple.Web.Models;
 
-public class AppleMusicSessionData
+public record AppleMusicSessionData
 {
-    public string MusicUserToken { get; set; }
+    public string MusicUserToken { get; init; }
 
-    public string MusicStorefrontId { get; set; }
+    public string MusicStorefrontId { get; init; }
 }

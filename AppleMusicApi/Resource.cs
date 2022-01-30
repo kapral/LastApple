@@ -1,14 +1,14 @@
 namespace AppleMusicApi;
 
-public class Resource<TAttributes> where TAttributes : class, IAttributes
+public record Resource<TAttributes> where TAttributes : class, IAttributes
 {
-    public string Id { get; set; }
+    public string Id { get; init; }
 
-    public ResourceType Type { get; set; }
+    public ResourceType Type { get; init; }
 
-    public string Href { get; set; }
+    public string Href { get; init; }
 
-    public TAttributes Attributes { get; set; }
-        
-    public Relationships Relationships { get; set; }
+    public TAttributes Attributes { get; init; }
+
+    public Relationships Relationships { get; init; }
 }

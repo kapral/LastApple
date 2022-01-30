@@ -3,13 +3,13 @@ using System.Collections.Generic;
 
 namespace LastApple.Model;
 
-public abstract class StationBase
+public abstract record StationBase
 {
-    public Guid Id { get; set; }
+    public Guid Id { get; init; }
 
-    public int Size { get; } = 20;
+    public int Size { get; init; } = 20;
 
-    public bool IsContinuous { get; set; }
+    public bool IsContinuous { get; init; }
 
     public IList<string> SongIds { get; } = new List<string>();
 }
