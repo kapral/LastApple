@@ -10,7 +10,7 @@ namespace LastApple.Web;
 
 public class BackgroundProcessManager : BackgroundService, IBackgroundProcessManager
 {
-    private readonly object syncContext = new object();
+    private readonly object syncContext = new();
     private readonly IList<Func<Task>> pendingProcesses = new List<Func<Task>>();
     private readonly ILogger<BackgroundProcessManager> logger;
 

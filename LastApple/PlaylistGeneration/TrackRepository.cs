@@ -12,8 +12,7 @@ namespace LastApple.PlaylistGeneration;
 
 public class TrackRepository : ITrackRepository
 {
-    private readonly ConcurrentDictionary<string, object> artistLocks
-        = new ConcurrentDictionary<string, object>();
+    private readonly ConcurrentDictionary<string, object> artistLocks = new();
 
     private readonly IDictionary<string, CacheItems<Track>> tracksByArtist
         = new Dictionary<string, CacheItems<Track>>();

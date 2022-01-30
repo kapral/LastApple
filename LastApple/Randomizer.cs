@@ -3,7 +3,7 @@
 namespace LastApple;
 
 public class Randomizer : IRandomizer {
-    private readonly Random random = new Random();
+    private readonly Random random = new();
 
     public int NextStandard(int lessThen) {
         return random.Next(lessThen);
