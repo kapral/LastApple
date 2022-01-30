@@ -1,13 +1,12 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace LastApple.Model
+namespace LastApple.Model;
+
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum StationType
 {
-    [JsonConverter(typeof(JsonStringEnumConverter))]
-    public enum StationType
-    {
-        Artists,
-        Tags,
-        SimilarArtists,
-        LastfmLibrary
-    }
+    Artists,
+    Tags,
+    SimilarArtists,
+    LastfmLibrary
 }

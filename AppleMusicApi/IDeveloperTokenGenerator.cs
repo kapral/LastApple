@@ -1,9 +1,8 @@
 using System;
 
-namespace AppleMusicApi
+namespace AppleMusicApi;
+
+public interface IDeveloperTokenGenerator
 {
-    public interface IDeveloperTokenGenerator
-    {
-        string GenerateDeveloperToken(AppCredentials tokenParams, TimeSpan duration);
-    }
+    string GenerateDeveloperToken(AppCredentials tokenParams, TimeSpan duration);
 }

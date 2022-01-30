@@ -1,7 +1,6 @@
-namespace LastApple.Model
+namespace LastApple.Model;
+
+public record Artist
 {
-    public record Artist
-    {
-        public string Name { get; init; }
-    }
+    public string Name { get; init; }
 }

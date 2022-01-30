@@ -1,12 +1,11 @@
 using System;
 using LastApple.Model;
 
-namespace LastApple
-{
-    public interface IStationRepository
-    {
-        StationBase Get(Guid id);
+namespace LastApple;
 
-        void Create(StationBase station);
-    }
+public interface IStationRepository
+{
+    StationBase Get(Guid id);
+
+    void Create(StationBase station);
 }

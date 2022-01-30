@@ -1,7 +1,6 @@
-namespace AppleMusicApi
+namespace AppleMusicApi;
+
+public class SearchResponse
 {
-    public class SearchResponse
-    {
-        public SearchResult Results { get; set; }
-    }
+    public SearchResult Results { get; set; }
 }

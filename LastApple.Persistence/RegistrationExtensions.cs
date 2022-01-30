@@ -2,20 +2,19 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 
-namespace LastApple.Persistence
+namespace LastApple.Persistence;
+
+public static class RegistrationExtensions
 {
-    public static class RegistrationExtensions
+    public static void AddPersistence(this IServiceCollection services)
     {
-        public static void AddPersistence(this IServiceCollection services)
+        services.AddSingleton<IMongoClient>(sp =>
         {
-            services.AddSingleton<IMongoClient>(sp =>
-            {
-                var connectionDetails = sp.GetService<IOptions<MongoConnectionDetails>>();
+            var connectionDetails = sp.GetService<IOptions<MongoConnectionDetails>>();
 
-                return new MongoClient(connectionDetails.Value.ConnectionString);
-            });
+            return new MongoClient(connectionDetails.Value.ConnectionString);
+        });
 
-            services.AddSingleton<ISessionRepository, SessionRepository>();
-        }
+        services.AddSingleton<ISessionRepository, SessionRepository>();
     }
 }

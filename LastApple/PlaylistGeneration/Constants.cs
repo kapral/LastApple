@@ -1,7 +1,6 @@
-namespace LastApple.PlaylistGeneration
+namespace LastApple.PlaylistGeneration;
+
+public class Constants
 {
-    public class Constants
-    {
-        public const int MaxRetryAttempts = 3;
-    }
+    public const int MaxRetryAttempts = 3;
 }

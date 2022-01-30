@@ -1,9 +1,8 @@
 using System.Threading.Tasks;
 
-namespace LastApple
+namespace LastApple;
+
+public interface IStorefrontProvider
 {
-    public interface IStorefrontProvider
-    {
-        Task<string> GetStorefront();
-    }
+    Task<string> GetStorefront();
 }

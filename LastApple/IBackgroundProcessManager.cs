@@ -1,10 +1,9 @@
 using System;
 using System.Threading.Tasks;
 
-namespace LastApple
+namespace LastApple;
+
+public interface IBackgroundProcessManager
 {
-    public interface IBackgroundProcessManager
-    {
-        void AddProcess(Func<Task> process);
-    }
+    void AddProcess(Func<Task> process);
 }

@@ -7,45 +7,44 @@ using LastApple.PlaylistGeneration;
 using NSubstitute;
 using NUnit.Framework;
 
-namespace LastApple.Tests.StationGeneration
+namespace LastApple.Tests.StationGeneration;
+
+public class TestSimilarArtistsStationSource
 {
-    public class TestSimilarArtistsStationSource
+    private IArtistApi artistApi;
+
+    private IStationSource<SimilarArtistsStationDefinition> source;
+
+    [SetUp]
+    public void Init()
     {
-        private IArtistApi artistApi;
+        artistApi = Substitute.For<IArtistApi>();
 
-        private IStationSource<SimilarArtistsStationDefinition> source;
+        source = new SimilarArtistsStationSource(artistApi);
+    }
 
-        [SetUp]
-        public void Init()
-        {
-            artistApi = Substitute.For<IArtistApi>();
+    [Test]
+    public void Constructor_Throws_On_Null_Arguments()
+    {
+        Assert.That(() => new SimilarArtistsStationSource(null), Throws.ArgumentNullException);
+    }
 
-            source = new SimilarArtistsStationSource(artistApi);
-        }
+    [Test]
+    public void GetStationArtists_Throws_On_Null_Parameters()
+    {
+        Assert.That(() => source.GetStationArtists(null), Throws.ArgumentNullException);
+    }
 
-        [Test]
-        public void Constructor_Throws_On_Null_Arguments()
-        {
-            Assert.That(() => new SimilarArtistsStationSource(null), Throws.ArgumentNullException);
-        }
+    [Test]
+    public async Task GetStationArtists_Returns_Source_Artist_And_Similar_From_Api()
+    {
+        var definition = new SimilarArtistsStationDefinition("Death In June");
+        var similar    = new[] { new LastArtist { Name = "Rome" }, new LastArtist { Name = "Sol Invictus" } };
 
-        [Test]
-        public void GetStationArtists_Throws_On_Null_Parameters()
-        {
-            Assert.That(() => source.GetStationArtists(null), Throws.ArgumentNullException);
-        }
+        artistApi.GetSimilarAsync(definition.SourceArtist).Returns(PageResponse<LastArtist>.CreateSuccessResponse(similar));
 
-        [Test]
-        public async Task GetStationArtists_Returns_Source_Artist_And_Similar_From_Api()
-        {
-            var definition = new SimilarArtistsStationDefinition("Death In June");
-            var similar    = new[] { new LastArtist { Name = "Rome" }, new LastArtist { Name = "Sol Invictus" } };
+        var result = await source.GetStationArtists(definition);
 
-            artistApi.GetSimilarAsync(definition.SourceArtist).Returns(PageResponse<LastArtist>.CreateSuccessResponse(similar));
-
-            var result = await source.GetStationArtists(definition);
-
-            Assert.That(result, Is.EqualTo(new[] { new Artist { Name = definition.SourceArtist }, new Artist { Name = similar[0].Name }, new Artist { Name = similar[1].Name } }));
-        }
+        Assert.That(result, Is.EqualTo(new[] { new Artist { Name = definition.SourceArtist }, new Artist { Name = similar[0].Name }, new Artist { Name = similar[1].Name } }));
     }
 }

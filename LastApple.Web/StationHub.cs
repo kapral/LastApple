@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.SignalR;
 
-namespace LastApple.Web
+namespace LastApple.Web;
+
+public class StationHub : Hub
 {
-    public class StationHub : Hub
-    {
-    }
 }

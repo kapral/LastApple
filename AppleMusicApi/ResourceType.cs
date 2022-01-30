@@ -1,15 +1,14 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace AppleMusicApi
+namespace AppleMusicApi;
+
+[Flags]
+public enum ResourceType
 {
-    [Flags]
-    public enum ResourceType
-    {
-        Artists,
-        Albums,
-        Songs,
-        [EnumMember(Value = "music-videos")]
-        MusicVideos
-    }
+    Artists,
+    Albums,
+    Songs,
+    [EnumMember(Value = "music-videos")]
+    MusicVideos
 }

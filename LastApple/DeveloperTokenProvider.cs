@@ -2,32 +2,31 @@ using System;
 using AppleMusicApi;
 using Microsoft.Extensions.Options;
 
-namespace LastApple
+namespace LastApple;
+
+public class DeveloperTokenProvider : IDeveloperTokenProvider
 {
-    public class DeveloperTokenProvider : IDeveloperTokenProvider
+    private readonly IDeveloperTokenGenerator tokenGenerator;
+    private readonly AppCredentials credentials;
+    private (DateTimeOffset ExpiresAt, string Value) currentToken;
+
+    private readonly TimeSpan tokenLifetime = TimeSpan.FromHours(24);
+
+    public DeveloperTokenProvider(IDeveloperTokenGenerator tokenGenerator, IOptions<AppCredentials> credentials)
     {
-        private readonly IDeveloperTokenGenerator tokenGenerator;
-        private readonly AppCredentials credentials;
-        private (DateTimeOffset ExpiresAt, string Value) currentToken;
+        this.tokenGenerator = tokenGenerator ?? throw new ArgumentNullException(nameof(tokenGenerator));
+        this.credentials    = credentials?.Value ?? throw new ArgumentNullException(nameof(credentials));
+    }
 
-        private readonly TimeSpan tokenLifetime = TimeSpan.FromHours(24);
-
-        public DeveloperTokenProvider(IDeveloperTokenGenerator tokenGenerator, IOptions<AppCredentials> credentials)
+    public string GetToken()
+    {
+        if (currentToken.ExpiresAt < DateTimeOffset.UtcNow.Add(tokenLifetime / 2))
         {
-            this.tokenGenerator = tokenGenerator ?? throw new ArgumentNullException(nameof(tokenGenerator));
-            this.credentials = credentials?.Value ?? throw new ArgumentNullException(nameof(credentials));
+            var nextExpiresAt = DateTimeOffset.UtcNow.Add(tokenLifetime);
+
+            currentToken = (nextExpiresAt, tokenGenerator.GenerateDeveloperToken(credentials, tokenLifetime));
         }
 
-        public string GetToken()
-        {
-            if (currentToken.ExpiresAt < DateTimeOffset.UtcNow.Add(tokenLifetime / 2))
-            {
-                var nextExpiresAt = DateTimeOffset.UtcNow.Add(tokenLifetime);
-
-                currentToken = (nextExpiresAt, tokenGenerator.GenerateDeveloperToken(credentials, tokenLifetime));
-            }
-
-            return currentToken.Value;
-        }
+        return currentToken.Value;
     }
 }

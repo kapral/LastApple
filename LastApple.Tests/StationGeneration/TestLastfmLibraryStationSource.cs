@@ -9,50 +9,49 @@ using LastApple.PlaylistGeneration;
 using NSubstitute;
 using NUnit.Framework;
 
-namespace LastApple.Tests.StationGeneration
+namespace LastApple.Tests.StationGeneration;
+
+public class TestLastfmLibraryStationSource
 {
-    public class TestLastfmLibraryStationSource
+    private IUserApi userApi;
+
+    private IStationSource<LastfmLibraryStationDefinition> source;
+
+    [SetUp]
+    public void Init()
     {
-        private IUserApi userApi;
+        userApi = Substitute.For<IUserApi>();
 
-        private IStationSource<LastfmLibraryStationDefinition> source;
+        source = new LastfmLibraryStationSource(userApi);
+    }
 
-        [SetUp]
-        public void Init()
+    [Test]
+    public void Constructor_Throws_On_Null_Parameters()
+    {
+        Assert.That(() => new LastfmLibraryStationSource(null), Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public void GetStationArtists_Throws_On_Null_Arguments()
+    {
+        Assert.That(() => source.GetStationArtists(null), Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public async Task GetStationArtists_Returns_Users_Top_Artists_From_Api()
+    {
+        var definition = new LastfmLibraryStationDefinition
         {
-            userApi = Substitute.For<IUserApi>();
+            User   = "Listener",
+            Period = "12month"
+        };
+        var artists = new[] { new LastArtist { Name = "Asaf Avidan" } };
 
-            source = new LastfmLibraryStationSource(userApi);
-        }
+        userApi.GetTopArtists(definition.User, pagenumber: 1, count: 100, span: LastStatsTimeSpan.Year)
+               .Returns(PageResponse<LastArtist>.CreateSuccessResponse(artists));
 
-        [Test]
-        public void Constructor_Throws_On_Null_Parameters()
-        {
-            Assert.That(() => new LastfmLibraryStationSource(null), Throws.ArgumentNullException);
-        }
+        var result = await source.GetStationArtists(definition);
 
-        [Test]
-        public void GetStationArtists_Throws_On_Null_Arguments()
-        {
-            Assert.That(() => source.GetStationArtists(null), Throws.ArgumentNullException);
-        }
-
-        [Test]
-        public async Task GetStationArtists_Returns_Users_Top_Artists_From_Api()
-        {
-            var definition = new LastfmLibraryStationDefinition
-            {
-                User = "Listener",
-                Period = "12month"
-            };
-            var artists = new[] { new LastArtist { Name = "Asaf Avidan" } };
-
-            userApi.GetTopArtists(definition.User, pagenumber: 1, count: 100, span: LastStatsTimeSpan.Year)
-                .Returns(PageResponse<LastArtist>.CreateSuccessResponse(artists));
-
-            var result = await source.GetStationArtists(definition);
-
-            Assert.That(result, Is.EqualTo(new[] { new Artist { Name = "Asaf Avidan" } }));
-        }
+        Assert.That(result, Is.EqualTo(new[] { new Artist { Name = "Asaf Avidan" } }));
     }
 }

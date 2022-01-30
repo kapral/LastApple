@@ -1,13 +1,12 @@
-namespace AppleMusicApi
+namespace AppleMusicApi;
+
+public class SearchParams
 {
-    public class SearchParams
-    {
-        public string Term { get; set; }
+    public string Term { get; set; }
 
-        public ResourceType Types { get; set; }
+    public ResourceType Types { get; set; }
 
-        public int Limit { get; set; } = 100;
+    public int Limit { get; set; } = 100;
 
-        public int Offset { get; set; } = 0;
-    }
+    public int Offset { get; set; } = 0;
 }

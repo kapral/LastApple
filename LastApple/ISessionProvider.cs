@@ -1,9 +1,8 @@
 using System.Threading.Tasks;
 
-namespace LastApple
+namespace LastApple;
+
+public interface ISessionProvider
 {
-    public interface ISessionProvider
-    {
-        Task<Session> GetSession();
-    }
+    Task<Session> GetSession();
 }

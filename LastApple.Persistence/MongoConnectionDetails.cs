@@ -1,7 +1,6 @@
-namespace LastApple.Persistence
+namespace LastApple.Persistence;
+
+public class MongoConnectionDetails
 {
-    public class MongoConnectionDetails
-    {
-        public string ConnectionString { get; set; }
-    }
+    public string ConnectionString { get; set; }
 }

@@ -1,9 +1,8 @@
 using System;
 
-namespace LastApple
+namespace LastApple;
+
+public interface IStationEventMediator
 {
-    public interface IStationEventMediator
-    {
-        void NotifyTrackAdded(Guid stationId, string trackId, int position);
-    }
+    void NotifyTrackAdded(Guid stationId, string trackId, int position);
 }

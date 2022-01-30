@@ -5,26 +5,25 @@ using System.Threading.Tasks;
 using IF.Lastfm.Core.Api;
 using LastApple.Model;
 
-namespace LastApple.PlaylistGeneration
+namespace LastApple.PlaylistGeneration;
+
+public class SimilarArtistsStationSource : IStationSource<SimilarArtistsStationDefinition>
 {
-    public class SimilarArtistsStationSource : IStationSource<SimilarArtistsStationDefinition>
+    private readonly IArtistApi artistApi;
+
+    public SimilarArtistsStationSource(IArtistApi artistApi)
     {
-        private readonly IArtistApi artistApi;
+        this.artistApi = artistApi ?? throw new ArgumentNullException(nameof(artistApi));
+    }
 
-        public SimilarArtistsStationSource(IArtistApi artistApi)
-        {
-            this.artistApi = artistApi ?? throw new ArgumentNullException(nameof(artistApi));
-        }
+    public async Task<IReadOnlyCollection<Artist>> GetStationArtists(SimilarArtistsStationDefinition definition)
+    {
+        if (definition == null) throw new ArgumentNullException(nameof(definition));
 
-        public async Task<IReadOnlyCollection<Artist>> GetStationArtists(SimilarArtistsStationDefinition definition)
-        {
-            if (definition == null) throw new ArgumentNullException(nameof(definition));
+        var similarArtists = await artistApi.GetSimilarAsync(definition.SourceArtist);
 
-            var similarArtists = await artistApi.GetSimilarAsync(definition.SourceArtist);
-
-            return similarArtists.Success
-                       ? new[] { new Artist { Name = definition.SourceArtist } }.Concat(similarArtists.Select(x => new Artist { Name = x.Name })).ToArray()
-                       : Array.Empty<Artist>();
-        }
+        return similarArtists.Success
+                   ? new[] { new Artist { Name = definition.SourceArtist } }.Concat(similarArtists.Select(x => new Artist { Name = x.Name })).ToArray()
+                   : Array.Empty<Artist>();
     }
 }

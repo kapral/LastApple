@@ -1,9 +1,8 @@
-namespace LastApple.Web.Models
-{
-    public class LastfmCredentials
-    {
-        public string Username { get; set; }
+namespace LastApple.Web.Models;
 
-        public string Password { get; set; }
-    }
+public class LastfmCredentials
+{
+    public string Username { get; set; }
+
+    public string Password { get; set; }
 }

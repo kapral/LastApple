@@ -4,55 +4,54 @@ using LastApple.Model;
 using LastApple.PlaylistGeneration;
 using Microsoft.AspNetCore.Mvc;
 
-namespace LastApple.Web.Controllers
+namespace LastApple.Web.Controllers;
+
+[Route("api/station/tags")]
+public class TagsStationController : Controller
 {
-    [Route("api/station/tags")]
-    public class TagsStationController : Controller
+    private readonly IStationRepository                       _stationRepository;
+    private readonly IStationGenerator<TagsStationDefinition> _stationGenerator;
+    private readonly IBackgroundProcessManager                _backgroundProcessManager;
+
+    public TagsStationController(IStationRepository stationRepository,
+                                 IStationGenerator<TagsStationDefinition> stationGenerator,
+                                 IBackgroundProcessManager backgroundProcessManager)
     {
-        private readonly IStationRepository                       _stationRepository;
-        private readonly IStationGenerator<TagsStationDefinition> _stationGenerator;
-        private readonly IBackgroundProcessManager                _backgroundProcessManager;
+        _stationRepository = stationRepository ?? throw new ArgumentNullException(nameof(stationRepository));
+        _stationGenerator  = stationGenerator ?? throw new ArgumentNullException(nameof(stationGenerator));
+        _backgroundProcessManager = backgroundProcessManager ??
+                                    throw new ArgumentNullException(nameof(backgroundProcessManager));
+    }
 
-        public TagsStationController(IStationRepository stationRepository,
-            IStationGenerator<TagsStationDefinition> stationGenerator,
-            IBackgroundProcessManager backgroundProcessManager)
+    [HttpPost]
+    [Route("{tag}")]
+
+    public IActionResult Create(string tag)
+    {
+        if (string.IsNullOrWhiteSpace(tag))
+            throw new ArgumentException("Value cannot be null or whitespace.", nameof(tag));
+
+        var station = new Station<TagsStationDefinition>
         {
-            _stationRepository = stationRepository ?? throw new ArgumentNullException(nameof(stationRepository));
-            _stationGenerator  = stationGenerator ?? throw new ArgumentNullException(nameof(stationGenerator));
-            _backgroundProcessManager = backgroundProcessManager ??
-                                        throw new ArgumentNullException(nameof(backgroundProcessManager));
-        }
+            IsContinuous = true,
+            Definition   = new TagsStationDefinition(new[] { tag }), Id = Guid.NewGuid()
+        };
 
-        [HttpPost]
-        [Route("{tag}")]
+        _stationRepository.Create(station);
 
-        public IActionResult Create(string tag)
-        {
-            if (string.IsNullOrWhiteSpace(tag))
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(tag));
+        _backgroundProcessManager.AddProcess(() => _stationGenerator.Generate(station));
 
-            var station = new Station<TagsStationDefinition>
-            {
-                IsContinuous = true,
-                Definition   = new TagsStationDefinition(new[] { tag }), Id = Guid.NewGuid()
-            };
+        return Json(station);
+    }
 
-            _stationRepository.Create(station);
+    [HttpPost]
+    [Route("{stationId}/topup/{count}")]
+    public ActionResult TopUp(Guid stationId, int count)
+    {
+        var station = _stationRepository.Get(stationId) as Station<TagsStationDefinition>;
 
-            _backgroundProcessManager.AddProcess(() => _stationGenerator.Generate(station));
+        _backgroundProcessManager.AddProcess(() => _stationGenerator.TopUp(station, count));
 
-            return Json(station);
-        }
-
-        [HttpPost]
-        [Route("{stationId}/topup/{count}")]
-        public ActionResult TopUp(Guid stationId, int count)
-        {
-            var station = _stationRepository.Get(stationId) as Station<TagsStationDefinition>;
-
-            _backgroundProcessManager.AddProcess(() => _stationGenerator.TopUp(station, count));
-
-            return NoContent();
-        }
+        return NoContent();
     }
 }

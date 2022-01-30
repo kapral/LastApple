@@ -1,9 +1,8 @@
 using System.Threading.Tasks;
 
-namespace LastApple.PlaylistGeneration
+namespace LastApple.PlaylistGeneration;
+
+public interface ITrackIdProvider
 {
-    public interface ITrackIdProvider
-    {
-        Task<string> FindTrackId(string artist, string track);
-    }
+    Task<string> FindTrackId(string artist, string track);
 }

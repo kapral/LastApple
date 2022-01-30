@@ -1,9 +1,8 @@
 ﻿using LastApple.Model;
 
-namespace LastApple.PlaylistGeneration
+namespace LastApple.PlaylistGeneration;
+
+public interface IStationDefinition
 {
-    public interface IStationDefinition
-    {
-        StationType StationType { get; }
-    }
+    StationType StationType { get; }
 }

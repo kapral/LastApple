@@ -1,7 +1,6 @@
-namespace AppleMusicApi
+namespace AppleMusicApi;
+
+public class ApiAuthentication
 {
-    public class ApiAuthentication
-    {
-        public string DeveloperToken { get; set; }
-    }
+    public string DeveloperToken { get; set; }
 }

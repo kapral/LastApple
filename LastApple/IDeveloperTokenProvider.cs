@@ -1,7 +1,6 @@
-namespace LastApple
+namespace LastApple;
+
+public interface IDeveloperTokenProvider
 {
-    public interface IDeveloperTokenProvider
-    {
-        string GetToken();
-    }
+    string GetToken();
 }

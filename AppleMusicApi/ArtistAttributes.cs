@@ -1,6 +1,5 @@
-namespace AppleMusicApi
+namespace AppleMusicApi;
+
+public class ArtistAttributes : IAttributes
 {
-    public class ArtistAttributes : IAttributes
-    {
-    }
 }

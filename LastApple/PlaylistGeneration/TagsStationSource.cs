@@ -5,46 +5,45 @@ using System.Threading.Tasks;
 using IF.Lastfm.Core.Api;
 using LastApple.Model;
 
-namespace LastApple.PlaylistGeneration
+namespace LastApple.PlaylistGeneration;
+
+public class TagsStationSource : IStationSource<TagsStationDefinition>
 {
-    public class TagsStationSource : IStationSource<TagsStationDefinition>
+    private readonly ITagApi tagApi;
+    private const int LastFmPageSize        = 200;
+    private const int MaxPageNumber         = 10;
+    private const int MinIntersectionLength = 5;
+
+    public TagsStationSource(ITagApi tagApi)
     {
-        private readonly ITagApi tagApi;
-        private const int LastFmPageSize        = 200;
-        private const int MaxPageNumber         = 10;
-        private const int MinIntersectionLength = 5;
+        this.tagApi = tagApi ?? throw new ArgumentNullException(nameof(tagApi));
+    }
 
-        public TagsStationSource(ITagApi tagApi)
+    public async Task<IReadOnlyCollection<Artist>> GetStationArtists(TagsStationDefinition definition)
+    {
+        var artistsByTag = definition.Tags.ToDictionary(x => x, x => new List<Artist>());
+
+        var intersection = Array.Empty<Artist>();
+
+        for (var page = 1; page <= MaxPageNumber; page++)
         {
-            this.tagApi = tagApi ?? throw new ArgumentNullException(nameof(tagApi));
-        }
+            intersection = null;
 
-        public async Task<IReadOnlyCollection<Artist>> GetStationArtists(TagsStationDefinition definition)
-        {
-            var artistsByTag = definition.Tags.ToDictionary(x => x, x => new List<Artist>());
-
-            var intersection = Array.Empty<Artist>();
-
-            for (var page = 1; page <= MaxPageNumber; page++)
+            foreach (var (tag, artists) in artistsByTag)
             {
-                intersection = null;
+                var pageArtists = (await tagApi.GetTopArtistsAsync(tag, page, LastFmPageSize)).ToArray();
 
-                foreach (var (tag, artists) in artistsByTag)
-                {
-                    var pageArtists = (await tagApi.GetTopArtistsAsync(tag, page, LastFmPageSize)).ToArray();
+                if (page == 1 && !pageArtists.Any())
+                    return Array.Empty<Artist>();
 
-                    if (page == 1 && !pageArtists.Any())
-                        return Array.Empty<Artist>();
-
-                    artists.AddRange(pageArtists.Select(x => new Artist { Name = x.Name }));
-                    intersection = intersection?.Intersect(artists).ToArray() ?? artists.ToArray();
-                }
-
-                if (intersection != null && intersection.Length >= MinIntersectionLength)
-                    return intersection;
+                artists.AddRange(pageArtists.Select(x => new Artist { Name = x.Name }));
+                intersection = intersection?.Intersect(artists).ToArray() ?? artists.ToArray();
             }
 
-            return intersection;
+            if (intersection != null && intersection.Length >= MinIntersectionLength)
+                return intersection;
         }
+
+        return intersection;
     }
 }
