@@ -8,18 +8,18 @@ namespace LastApple.Web.Controllers;
 [Route("api/station/similarartists")]
 public class SimilarArtistsStationController : Controller
 {
-    private readonly IStationRepository                                 _stationRepository;
-    private readonly IStationGenerator<SimilarArtistsStationDefinition> _stationGenerator;
-    private readonly IBackgroundProcessManager                          _backgroundProcessManager;
+    private readonly IStationRepository                                 stationRepository;
+    private readonly IStationGenerator<SimilarArtistsStationDefinition> stationGenerator;
+    private readonly IBackgroundProcessManager                          backgroundProcessManager;
 
     public SimilarArtistsStationController(IStationRepository stationRepository,
                                            IStationGenerator<SimilarArtistsStationDefinition> stationGenerator,
                                            IBackgroundProcessManager backgroundProcessManager)
     {
-        _stationRepository = stationRepository ?? throw new ArgumentNullException(nameof(stationRepository));
-        _stationGenerator  = stationGenerator ?? throw new ArgumentNullException(nameof(stationGenerator));
-        _backgroundProcessManager = backgroundProcessManager ??
-                                    throw new ArgumentNullException(nameof(backgroundProcessManager));
+        this.stationRepository = stationRepository ?? throw new ArgumentNullException(nameof(stationRepository));
+        this.stationGenerator  = stationGenerator ?? throw new ArgumentNullException(nameof(stationGenerator));
+        this.backgroundProcessManager = backgroundProcessManager ??
+                                        throw new ArgumentNullException(nameof(backgroundProcessManager));
     }
 
     [HttpPost]
@@ -33,9 +33,9 @@ public class SimilarArtistsStationController : Controller
         var station = new Station<SimilarArtistsStationDefinition>
             { Definition = new SimilarArtistsStationDefinition(artist), Id = Guid.NewGuid(), IsContinuous = true };
 
-        _stationRepository.Create(station);
+        stationRepository.Create(station);
 
-        _backgroundProcessManager.AddProcess(() => _stationGenerator.Generate(station));
+        backgroundProcessManager.AddProcess(() => stationGenerator.Generate(station));
 
         return Json(station);
     }
@@ -44,9 +44,9 @@ public class SimilarArtistsStationController : Controller
     [Route("{stationId}/topup/{count}")]
     public ActionResult TopUp(Guid stationId, int count)
     {
-        var station = _stationRepository.Get(stationId) as Station<SimilarArtistsStationDefinition>;
+        var station = stationRepository.Get(stationId) as Station<SimilarArtistsStationDefinition>;
 
-        _backgroundProcessManager.AddProcess(() => _stationGenerator.TopUp(station, count));
+        backgroundProcessManager.AddProcess(() => stationGenerator.TopUp(station, count));
 
         return NoContent();
     }

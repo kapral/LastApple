@@ -7,24 +7,24 @@ namespace LastApple.Web.Controllers;
 [Route("api/station")]
 public class StationController: Controller
 {
-    private readonly IStationRepository _stationRepository;
+    private readonly IStationRepository stationRepository;
 
     public StationController(IStationRepository stationRepository)
     {
-        _stationRepository = stationRepository ?? throw new ArgumentNullException(nameof(stationRepository));
+        this.stationRepository = stationRepository ?? throw new ArgumentNullException(nameof(stationRepository));
     }
 
     [Route("{stationId}")]
     public ActionResult Get(Guid stationId)
     {
-        return Json(_stationRepository.Get(stationId));
+        return Json(stationRepository.Get(stationId));
     }
 
     [HttpDelete]
     [Route("{stationId}/songs")]
     public ActionResult DeleteSongs(Guid stationId, int position, int count)
     {
-        var station = _stationRepository.Get(stationId);
+        var station = stationRepository.Get(stationId);
 
         if (station == null || station.SongIds.Count < position + count)
             return NotFound();

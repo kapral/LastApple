@@ -9,18 +9,18 @@ namespace LastApple.Web.Controllers;
 [Route("api/station/tags")]
 public class TagsStationController : Controller
 {
-    private readonly IStationRepository                       _stationRepository;
-    private readonly IStationGenerator<TagsStationDefinition> _stationGenerator;
-    private readonly IBackgroundProcessManager                _backgroundProcessManager;
+    private readonly IStationRepository                       stationRepository;
+    private readonly IStationGenerator<TagsStationDefinition> stationGenerator;
+    private readonly IBackgroundProcessManager                backgroundProcessManager;
 
     public TagsStationController(IStationRepository stationRepository,
                                  IStationGenerator<TagsStationDefinition> stationGenerator,
                                  IBackgroundProcessManager backgroundProcessManager)
     {
-        _stationRepository = stationRepository ?? throw new ArgumentNullException(nameof(stationRepository));
-        _stationGenerator  = stationGenerator ?? throw new ArgumentNullException(nameof(stationGenerator));
-        _backgroundProcessManager = backgroundProcessManager ??
-                                    throw new ArgumentNullException(nameof(backgroundProcessManager));
+        this.stationRepository = stationRepository ?? throw new ArgumentNullException(nameof(stationRepository));
+        this.stationGenerator  = stationGenerator ?? throw new ArgumentNullException(nameof(stationGenerator));
+        this.backgroundProcessManager = backgroundProcessManager ??
+                                        throw new ArgumentNullException(nameof(backgroundProcessManager));
     }
 
     [HttpPost]
@@ -37,9 +37,9 @@ public class TagsStationController : Controller
             Definition   = new TagsStationDefinition(new[] { tag }), Id = Guid.NewGuid()
         };
 
-        _stationRepository.Create(station);
+        stationRepository.Create(station);
 
-        _backgroundProcessManager.AddProcess(() => _stationGenerator.Generate(station));
+        backgroundProcessManager.AddProcess(() => stationGenerator.Generate(station));
 
         return Json(station);
     }
@@ -48,9 +48,9 @@ public class TagsStationController : Controller
     [Route("{stationId}/topup/{count}")]
     public ActionResult TopUp(Guid stationId, int count)
     {
-        var station = _stationRepository.Get(stationId) as Station<TagsStationDefinition>;
+        var station = stationRepository.Get(stationId) as Station<TagsStationDefinition>;
 
-        _backgroundProcessManager.AddProcess(() => _stationGenerator.TopUp(station, count));
+        backgroundProcessManager.AddProcess(() => stationGenerator.TopUp(station, count));
 
         return NoContent();
     }

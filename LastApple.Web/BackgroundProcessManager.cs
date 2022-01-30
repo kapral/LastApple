@@ -10,13 +10,13 @@ namespace LastApple.Web;
 
 public class BackgroundProcessManager : BackgroundService, IBackgroundProcessManager
 {
-    private readonly object _syncContext = new object();
-    private readonly IList<Func<Task>> _pendingProcesses = new List<Func<Task>>();
-    private readonly ILogger<BackgroundProcessManager> _logger;
+    private readonly object syncContext = new object();
+    private readonly IList<Func<Task>> pendingProcesses = new List<Func<Task>>();
+    private readonly ILogger<BackgroundProcessManager> logger;
 
     public BackgroundProcessManager(ILogger<BackgroundProcessManager> logger)
     {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -25,10 +25,10 @@ public class BackgroundProcessManager : BackgroundService, IBackgroundProcessMan
         {
             IEnumerable<Func<Task>> toRun;
 
-            lock (_syncContext)
+            lock (syncContext)
             {
-                toRun = _pendingProcesses.ToList();
-                _pendingProcesses.Clear();
+                toRun = pendingProcesses.ToList();
+                pendingProcesses.Clear();
             }
 
             foreach (var factory in toRun)
@@ -36,7 +36,7 @@ public class BackgroundProcessManager : BackgroundService, IBackgroundProcessMan
                                                                    _) =>
                 {
                     if (t.Exception != null)
-                        _logger.LogError(t.Exception, "Background process failed");
+                        logger.LogError(t.Exception, "Background process failed");
                 }, null, stoppingToken);
 
             await Task.Delay(TimeSpan.FromMilliseconds(500), stoppingToken);
@@ -45,9 +45,9 @@ public class BackgroundProcessManager : BackgroundService, IBackgroundProcessMan
 
     public void AddProcess(Func<Task> process)
     {
-        lock (_syncContext)
+        lock (syncContext)
         {
-            _pendingProcesses.Add(process);
+            pendingProcesses.Add(process);
         }
     }
 }
