@@ -18,7 +18,7 @@ public class TestTrackIdProvider
     {
         catalogApi         = Substitute.For<ICatalogApi>();
         storefrontProvider = Substitute.For<IStorefrontProvider>();
-            
+
         trackIdProvider = new TrackIdProvider(catalogApi, storefrontProvider);
     }
 
@@ -37,24 +37,19 @@ public class TestTrackIdProvider
         const string artist = "Shortparis";
         const string track  = "Amsterdam";
 
-        var song = new Resource<SongAttributes> { Id = "song-123" };
+        var relationships = new Relationships(new ResourceMatches<SongAttributes>(), new ResourceMatches<AlbumAttributes>());
+        var song          = new Resource<SongAttributes>(Id: "song-123", ResourceType.Songs, "", new SongAttributes(), relationships);
 
-        catalogApi.Search(Arg.Is<SearchParams>(x =>
-                                                   x.Term.Equals($"{artist} - {track}") && x.Types == ResourceType.Songs && x.Limit == 1),
-                          "ua")
-                  .Returns(new SearchResult
-                  {
-                      Songs = new ResourceMatches<SongAttributes>
-                      {
-                          Data = { song }
-                      }
-                  });
+        catalogApi.Search(Arg.Is<SearchParams>(x => x.Term.Equals($"{artist} - {track}") && x.Types == ResourceType.Songs && x.Limit == 1), "ua")
+                  .Returns(new SearchResult(new ResourceMatches<ArtistAttributes>(),
+                                            new ResourceMatches<AlbumAttributes>(),
+                                            new ResourceMatches<SongAttributes> { Data = { song }}));
 
         var id = await trackIdProvider.FindTrackId(artist, track);
 
         Assert.That(id, Is.EqualTo(song.Id));
     }
-        
+
     [Test]
     public async Task FindTrackId_Returns_Null_If_Not_Found()
     {
@@ -63,16 +58,16 @@ public class TestTrackIdProvider
         const string artist = "Shortparis";
         const string track  = "Amsterdam";
 
-        catalogApi.Search(Arg.Is<SearchParams>(x =>
-                                                   x.Term.Equals($"{artist} - {track}") && x.Types == ResourceType.Songs && x.Limit == 1),
-                          "ua")
-                  .Returns(new SearchResult { Songs = new ResourceMatches<SongAttributes>() });
+        catalogApi.Search(Arg.Is<SearchParams>(x => x.Term.Equals($"{artist} - {track}") && x.Types == ResourceType.Songs && x.Limit == 1), "ua")
+                  .Returns(new SearchResult(new ResourceMatches<ArtistAttributes>(),
+                                            new ResourceMatches<AlbumAttributes>(),
+                                            new ResourceMatches<SongAttributes>()));
 
         var id = await trackIdProvider.FindTrackId(artist, track);
 
         Assert.That(id, Is.Null);
     }
-        
+
     [Test]
     public async Task FindTrackId_Returns_Null_If_Songs_Property_Is_Null()
     {
@@ -81,10 +76,10 @@ public class TestTrackIdProvider
         const string artist = "Shortparis";
         const string track  = "Amsterdam";
 
-        catalogApi.Search(Arg.Is<SearchParams>(x =>
-                                                   x.Term.Equals($"{artist} - {track}") && x.Types == ResourceType.Songs && x.Limit == 1),
-                          "ua")
-                  .Returns(new SearchResult { Songs = null });
+        catalogApi.Search(Arg.Is<SearchParams>(x => x.Term.Equals($"{artist} - {track}") && x.Types == ResourceType.Songs && x.Limit == 1), "ua")
+                  .Returns(new SearchResult(Artists: new ResourceMatches<ArtistAttributes>(),
+                                            Albums: new ResourceMatches<AlbumAttributes>(),
+                                            Songs: null));
 
         var id = await trackIdProvider.FindTrackId(artist, track);
 

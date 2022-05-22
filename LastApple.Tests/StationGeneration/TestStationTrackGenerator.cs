@@ -50,20 +50,20 @@ public class TestStationTrackGenerator
         var station = new SimilarArtistsStationDefinition("Death In June");
         var artists = new[]
         {
-            new Artist { Name = "Death In June" },
-            new Artist { Name = "Rome" },
-            new Artist { Name = "Darkwood" }
+            new Artist(Name: "Death In June"),
+            new Artist(Name: "Rome"),
+            new Artist(Name: "Darkwood")
         };
         var deathInJuneTracks = new[]
         {
-            new Track { Name = "Little Black Angel", ArtistName = artists[0].Name },
-            new Track { Name = "All Pigs Must Die", ArtistName  = artists[0].Name },
-            new Track { Name = "Fall Apart", ArtistName         = artists[0].Name }
+            new Track(Name: "Little Black Angel", ArtistName: artists[0].Name),
+            new Track(Name: "All Pigs Must Die", ArtistName: artists[0].Name),
+            new Track(Name: "Fall Apart", ArtistName: artists[0].Name)
         };
         var darkwoodTracks = new[]
         {
-            new Track { Name = "Caucasian Tales", ArtistName = artists[2].Name },
-            new Track { Name = "Wintermärchen", ArtistName   = artists[2].Name }
+            new Track(Name: "Caucasian Tales", ArtistName: artists[2].Name),
+            new Track(Name: "Wintermärchen", ArtistName: artists[2].Name)
         };
 
         stationSource.GetStationArtists(station).Returns(artists);

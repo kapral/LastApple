@@ -45,6 +45,6 @@ public class TestSimilarArtistsStationSource
 
         var result = await source.GetStationArtists(definition);
 
-        Assert.That(result, Is.EqualTo(new[] { new Artist { Name = definition.SourceArtist }, new Artist { Name = similar[0].Name }, new Artist { Name = similar[1].Name } }));
+        Assert.That(result, Is.EqualTo(new[] { new Artist(Name: definition.SourceArtist), new Artist(Name: similar[0].Name), new Artist(Name: similar[1].Name) }));
     }
 }

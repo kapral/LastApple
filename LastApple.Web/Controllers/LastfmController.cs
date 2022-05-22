@@ -83,7 +83,7 @@ public class LastfmController : Controller
         return NoContent();
     }
 
-    private IActionResult Validate(string artist, string song)
+    private IActionResult? Validate(string artist, string song)
     {
         if (string.IsNullOrWhiteSpace(artist))
             return BadRequest($"{nameof(artist)} is empty.");
@@ -94,7 +94,7 @@ public class LastfmController : Controller
         return null;
     }
 
-    private async Task<string> GetSessionKey()
+    private async Task<string?> GetSessionKey()
     {
         return (await sessionProvider.GetSession())?.LastfmSessionKey;
     }

@@ -40,18 +40,14 @@ public class TestLastfmLibraryStationSource
     [Test]
     public async Task GetStationArtists_Returns_Users_Top_Artists_From_Api()
     {
-        var definition = new LastfmLibraryStationDefinition
-        {
-            User   = "Listener",
-            Period = "12month"
-        };
-        var artists = new[] { new LastArtist { Name = "Asaf Avidan" } };
+        var definition = new LastfmLibraryStationDefinition(User: "Listener", Period: "12month");
+        var artists    = new[] { new LastArtist { Name = "Asaf Avidan" } };
 
         userApi.GetTopArtists(definition.User, pagenumber: 1, count: 100, span: LastStatsTimeSpan.Year)
                .Returns(PageResponse<LastArtist>.CreateSuccessResponse(artists));
 
         var result = await source.GetStationArtists(definition);
 
-        Assert.That(result, Is.EqualTo(new[] { new Artist { Name = "Asaf Avidan" } }));
+        Assert.That(result, Is.EqualTo(new[] { new Artist(Name: "Asaf Avidan") }));
     }
 }

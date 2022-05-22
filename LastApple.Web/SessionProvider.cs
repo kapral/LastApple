@@ -14,12 +14,14 @@ public class SessionProvider : ISessionProvider
 
         if (httpContextAccessor == null) throw new ArgumentNullException(nameof(httpContextAccessor));
 
+        if (httpContextAccessor.HttpContext == null) throw new InvalidOperationException("HttpContext is not available.");
+
         SessionId = httpContextAccessor.HttpContext.Request.Headers["X-SessionId"];
     }
 
     private string SessionId { get; }
 
-    public async Task<Session> GetSession()
+    public async Task<Session?> GetSession()
     {
         if (!Guid.TryParse(SessionId, out var id))
             return null;

@@ -39,7 +39,7 @@ public class TestCachingStationSource
     [Test]
     public async Task Get_Artists_Loads_And_Caches_Station_Artists()
     {
-        var artists = new[] { new Artist { Name = "Serdyuchka" }, new Artist { Name = "Ictus" } };
+        var artists = new[] { new Artist(Name: "Serdyuchka"), new Artist(Name: "Ictus") };
         var station = new SimilarArtistsStationDefinition("Kirkorow");
 
         concreteSource.GetStationArtists(station).Returns(artists);
@@ -58,7 +58,7 @@ public class TestCachingStationSource
     [Test]
     public async Task Get_Artists_Filters_Out_Ones_With_Null_Cached_Tracks_After_Retries()
     {
-        var artists = new[] { new Artist { Name = "Serdyuchka" }, new Artist { Name = "Ictus" } };
+        var artists = new[] { new Artist(Name: "Serdyuchka"), new Artist(Name: "Ictus") };
         var station = new SimilarArtistsStationDefinition("Kirkorow");
 
         concreteSource.GetStationArtists(station).Returns(artists);

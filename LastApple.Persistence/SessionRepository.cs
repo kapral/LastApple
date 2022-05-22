@@ -15,7 +15,7 @@ public class SessionRepository : ISessionRepository
         this.mongoClient = mongoClient ?? throw new ArgumentNullException(nameof(mongoClient));
     }
 
-    public async Task<Session> GetSession(Guid id)
+    public async Task<Session?> GetSession(Guid id)
     {
         var db = mongoClient.GetDatabase("lastapple");
 
@@ -25,14 +25,12 @@ public class SessionRepository : ISessionRepository
                                     .FirstOrDefaultAsync();
 
         return domainSession != null
-                   ? new Session
-                   {
-                       Id                = domainSession.Id,
-                       LastfmSessionKey  = domainSession.LastfmSessionKey,
-                       LastfmUsername    = domainSession.LastfmUsername,
-                       MusicUserToken    = domainSession.MusicUserToken,
-                       MusicStorefrontId = domainSession.MusicStorefrontId
-                   }
+                   ? new Session(
+                       Id: domainSession.Id,
+                       LastfmSessionKey: domainSession.LastfmSessionKey,
+                       LastfmUsername: domainSession.LastfmUsername,
+                       MusicUserToken: domainSession.MusicUserToken,
+                       MusicStorefrontId: domainSession.MusicStorefrontId)
                    : null;
     }
 
@@ -42,18 +40,17 @@ public class SessionRepository : ISessionRepository
 
         var db = mongoClient.GetDatabase("lastapple");
 
-        var domainSession = new Model.Session
-        {
-            Id                = session.Id,
-            LastfmSessionKey  = session.LastfmSessionKey,
-            LastfmUsername    = session.LastfmUsername,
-            MusicUserToken    = session.MusicUserToken,
-            MusicStorefrontId = session.MusicStorefrontId
-        };
+        var domainSession = new Model.Session(
+            id: session.Id,
+            lastfmSessionKey: session.LastfmSessionKey,
+            lastfmUsername: session.LastfmUsername,
+            musicUserToken: session.MusicUserToken,
+            musicStorefrontId: session.MusicStorefrontId
+        );
 
         var filter = new BsonDocument("_id", domainSession.Id);
 
         await db.GetCollection<Model.Session>("sessions")
-                .ReplaceOneAsync(filter, domainSession, new UpdateOptions { IsUpsert = true });
+                .ReplaceOneAsync(filter, domainSession, new ReplaceOptions { IsUpsert = true });
     }
 }

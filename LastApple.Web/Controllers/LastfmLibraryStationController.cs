@@ -40,10 +40,10 @@ public class LastfmLibraryStationController : Controller
 
         var user = await userApi.GetInfoAsync(session.LastfmUsername);
 
-        var station = new Station<LastfmLibraryStationDefinition>
+        var definition = new LastfmLibraryStationDefinition(User: user.Content.Name);
+        var station = new Station<LastfmLibraryStationDefinition>(definition)
         {
             IsContinuous = true,
-            Definition   = new LastfmLibraryStationDefinition { User = user.Content.Name },
             Id           = Guid.NewGuid()
         };
 
@@ -59,6 +59,9 @@ public class LastfmLibraryStationController : Controller
     public ActionResult TopUp(Guid stationId, int count)
     {
         var station = stationRepository.Get(stationId) as Station<LastfmLibraryStationDefinition>;
+
+        if (station == null)
+            return NotFound();
 
         processManager.AddProcess(() => stationGenerator.TopUp(station, count));
 

@@ -32,6 +32,6 @@ public static class ServiceCollectionExtensions
         if (descriptor.ImplementationFactory != null)
             return descriptor.ImplementationFactory(services);
 
-        return ActivatorUtilities.GetServiceOrCreateInstance(services, descriptor.ImplementationType);
+        return ActivatorUtilities.GetServiceOrCreateInstance(services, descriptor.ImplementationType!);
     }
 }

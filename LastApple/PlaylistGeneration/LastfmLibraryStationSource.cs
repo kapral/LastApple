@@ -25,8 +25,8 @@ public class LastfmLibraryStationSource : IStationSource<LastfmLibraryStationDef
         var response = await userApi.GetTopArtists(definition.User, pagenumber: 1, count: 100, span: GetSpan(definition.Period));
 
         return response.Success
-                   ? response.Content.Select(x => new Artist { Name = x.Name }).ToArray()
-                   : null;
+                   ? response.Content.Select(x => new Artist(Name: x.Name)).ToArray()
+                   : Array.Empty<Artist>();
     }
 
     private static LastStatsTimeSpan GetSpan(string period)

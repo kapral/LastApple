@@ -30,8 +30,13 @@ public class SimilarArtistsStationController : Controller
         if (string.IsNullOrWhiteSpace(artist))
             throw new ArgumentException("Value cannot be null or whitespace.", nameof(artist));
 
-        var station = new Station<SimilarArtistsStationDefinition>
-            { Definition = new SimilarArtistsStationDefinition(artist), Id = Guid.NewGuid(), IsContinuous = true };
+        var definition = new SimilarArtistsStationDefinition(artist);
+
+        var station = new Station<SimilarArtistsStationDefinition>(definition)
+        {
+            Id           = Guid.NewGuid(),
+            IsContinuous = true
+        };
 
         stationRepository.Create(station);
 
@@ -45,6 +50,9 @@ public class SimilarArtistsStationController : Controller
     public ActionResult TopUp(Guid stationId, int count)
     {
         var station = stationRepository.Get(stationId) as Station<SimilarArtistsStationDefinition>;
+
+        if (station == null)
+            return NotFound();
 
         backgroundProcessManager.AddProcess(() => stationGenerator.TopUp(station, count));
 

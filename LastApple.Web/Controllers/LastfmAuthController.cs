@@ -46,10 +46,19 @@ public class LastfmAuthController : Controller
     {
         await authApi.GetSessionTokenAsync(token);
 
-        var session = await sessionProvider.GetSession() ?? new Session { Id = Guid.NewGuid() };
+        var session = await sessionProvider.GetSession();
 
-        session.LastfmSessionKey = authApi.UserSession.Token;
-        session.LastfmUsername   = authApi.UserSession.Username;
+        session = session == null
+                      ? new Session(Id: Guid.NewGuid(),
+                                    LastfmSessionKey: authApi.UserSession.Token,
+                                    LastfmUsername: authApi.UserSession.Username,
+                                    MusicUserToken: null,
+                                    MusicStorefrontId: null)
+                      : session with
+                      {
+                          LastfmSessionKey = authApi.UserSession.Token,
+                          LastfmUsername = authApi.UserSession.Username
+                      };
 
         await sessionRepository.SaveSession(session);
 
@@ -60,9 +69,15 @@ public class LastfmAuthController : Controller
     [Route("")]
     public async Task<IActionResult> Logout()
     {
-        var session = await sessionProvider.GetSession() ?? new Session { Id = Guid.NewGuid() };
+        var session = await sessionProvider.GetSession();
 
-        session.LastfmSessionKey = null;
+        if (session == null)
+            return BadRequest();
+
+        session = session with
+        {
+            LastfmSessionKey = null
+        };
 
         await sessionRepository.SaveSession(session);
 

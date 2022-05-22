@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
@@ -26,8 +27,13 @@ public class TestStorefrontProvider
     [Test]
     public async Task GetStorefront_Returns_Storefront_From_Session()
     {
-        sessionProvider.GetSession().Returns(new Session { MusicStorefrontId = "ua" });
-            
+        sessionProvider.GetSession()
+                       .Returns(new Session(Id: Guid.NewGuid(),
+                                            MusicStorefrontId: "ua",
+                                            LastfmSessionKey: null,
+                                            LastfmUsername: null,
+                                            MusicUserToken: null));
+
         Assert.That(await storefrontProvider.GetStorefront(), Is.EqualTo("ua"));
     }
 
@@ -38,11 +44,16 @@ public class TestStorefrontProvider
 
         Assert.That(await storefrontProvider.GetStorefront(), Is.EqualTo("us"));
     }
-        
+
     [Test]
     public async Task GetStorefront_Returns_Default_Storefront_If_No_Storefront_On_Session()
     {
-        sessionProvider.GetSession().Returns(new Session { MusicStorefrontId = null });
+        sessionProvider.GetSession()
+                       .Returns(new Session(Id: Guid.NewGuid(),
+                                            MusicStorefrontId: null,
+                                            LastfmSessionKey: null,
+                                            LastfmUsername: null,
+                                            MusicUserToken: null));
 
         Assert.That(await storefrontProvider.GetStorefront(), Is.EqualTo("us"));
     }

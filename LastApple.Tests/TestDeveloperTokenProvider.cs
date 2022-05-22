@@ -19,7 +19,7 @@ public class TestDeveloperTokenProvider
         tokenGenerator = Substitute.For<IDeveloperTokenGenerator>();
         credentials    = Substitute.For<IOptions<AppCredentials>>();
 
-        credentials.Value.Returns(new AppCredentials());
+        credentials.Value.Returns(new AppCredentials(PrivateKey: "pk", KeyId: "kid", TeamId: "tid"));
 
         tokenProvider = new DeveloperTokenProvider(tokenGenerator, credentials);
     }

@@ -10,7 +10,7 @@ public static class RegistrationExtensions
     {
         services.AddSingleton<IMongoClient>(sp =>
         {
-            var connectionDetails = sp.GetService<IOptions<MongoConnectionDetails>>();
+            var connectionDetails = sp.GetRequiredService<IOptions<MongoConnectionDetails>>();
 
             return new MongoClient(connectionDetails.Value.ConnectionString);
         });

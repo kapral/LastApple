@@ -31,10 +31,11 @@ public class TagsStationController : Controller
         if (string.IsNullOrWhiteSpace(tag))
             throw new ArgumentException("Value cannot be null or whitespace.", nameof(tag));
 
-        var station = new Station<TagsStationDefinition>
+        var definition = new TagsStationDefinition(new[] { tag });
+        var station = new Station<TagsStationDefinition>(definition)
         {
             IsContinuous = true,
-            Definition   = new TagsStationDefinition(new[] { tag }), Id = Guid.NewGuid()
+            Id = Guid.NewGuid()
         };
 
         stationRepository.Create(station);
@@ -49,6 +50,9 @@ public class TagsStationController : Controller
     public ActionResult TopUp(Guid stationId, int count)
     {
         var station = stationRepository.Get(stationId) as Station<TagsStationDefinition>;
+
+        if (station == null)
+            return NotFound();
 
         backgroundProcessManager.AddProcess(() => stationGenerator.TopUp(station, count));
 

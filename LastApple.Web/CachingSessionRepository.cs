@@ -7,21 +7,21 @@ namespace LastApple.Web;
 public class CachingSessionRepository : ISessionRepository
 {
     private readonly ISessionRepository concreteRepository;
-    private readonly ConcurrentDictionary<Guid, Task<Session>> sessionCache;
+    private readonly ConcurrentDictionary<Guid, Task<Session?>> sessionCache;
 
     public CachingSessionRepository(ISessionRepository concreteRepository)
     {
         this.concreteRepository = concreteRepository ?? throw new ArgumentNullException(nameof(concreteRepository));
-        sessionCache            = new ConcurrentDictionary<Guid, Task<Session>>();
+        sessionCache            = new ConcurrentDictionary<Guid, Task<Session?>>();
     }
 
-    public Task<Session> GetSession(Guid sessionId)
+    public Task<Session?> GetSession(Guid sessionId)
     {
         if (sessionCache.TryGetValue(sessionId, out var sessionTask) && !sessionTask.IsCanceled && !sessionTask.IsFaulted)
             return sessionTask;
 
         sessionTask = concreteRepository.GetSession(sessionId);
-        return sessionCache.AddOrUpdate(sessionId, sessionTask, (id, add) => sessionTask);
+        return sessionCache.AddOrUpdate(sessionId, sessionTask, (_, _) => sessionTask);
     }
 
     public async Task SaveSession(Session session)

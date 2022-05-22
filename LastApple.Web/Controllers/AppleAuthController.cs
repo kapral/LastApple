@@ -39,24 +39,39 @@ public class AppleAuthController : Controller
     [Route("sessiondata")]
     public async Task<IActionResult> PostSessionData([FromBody] AppleMusicSessionData sessionData)
     {
-        var session = await sessionProvider.GetSession() ?? new Session { Id = Guid.NewGuid() };
+        var session = await sessionProvider.GetSession();
 
-        session.MusicUserToken    = sessionData.MusicUserToken;
-        session.MusicStorefrontId = sessionData.MusicStorefrontId;
+        session = session == null
+                      ? new Session(Id: Guid.NewGuid(),
+                                    LastfmSessionKey: null,
+                                    LastfmUsername: null,
+                                    MusicUserToken: sessionData.MusicUserToken,
+                                    MusicStorefrontId: sessionData.MusicStorefrontId)
+                      : session with
+                      {
+                          MusicUserToken = sessionData.MusicUserToken,
+                          MusicStorefrontId = sessionData.MusicStorefrontId
+                      };
 
         await sessionRepository.SaveSession(session);
 
         return Json(session);
     }
-        
+
     [HttpDelete]
     [Route("sessiondata")]
     public async Task<IActionResult> DeleteSessionData()
     {
         var session = await sessionProvider.GetSession();
 
-        session.MusicUserToken    = null;
-        session.MusicStorefrontId = null;
+        if (session == null)
+            return BadRequest();
+
+        session = session with
+        {
+            MusicUserToken = null,
+            MusicStorefrontId = null
+        };
 
         await sessionRepository.SaveSession(session);
 

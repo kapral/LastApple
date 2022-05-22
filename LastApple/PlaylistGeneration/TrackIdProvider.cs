@@ -16,14 +16,11 @@ public class TrackIdProvider : ITrackIdProvider
         this.storefrontProvider = storefrontProvider ?? throw new ArgumentNullException(nameof(storefrontProvider));
     }
 
-    public async Task<string> FindTrackId(string artist, string track)
+    public async Task<string?> FindTrackId(string artist, string track)
     {
-        var searchParams = new SearchParams
-        {
-            Term  = $"{artist} - {track}",
-            Types = ResourceType.Songs,
-            Limit = 1
-        };
+        var searchParams = new SearchParams(Term: $"{artist} - {track}",
+                                            Types: ResourceType.Songs,
+                                            Limit: 1);
 
         var storefront = await storefrontProvider.GetStorefront();
         var result     = await catalogApi.Search(searchParams, storefront);

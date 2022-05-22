@@ -23,7 +23,7 @@ public class SimilarArtistsStationSource : IStationSource<SimilarArtistsStationD
         var similarArtists = await artistApi.GetSimilarAsync(definition.SourceArtist);
 
         return similarArtists.Success
-                   ? new[] { new Artist { Name = definition.SourceArtist } }.Concat(similarArtists.Select(x => new Artist { Name = x.Name })).ToArray()
+                   ? new[] { new Artist(Name: definition.SourceArtist) }.Concat(similarArtists.Select(x => new Artist(Name: x.Name))).ToArray()
                    : Array.Empty<Artist>();
     }
 }

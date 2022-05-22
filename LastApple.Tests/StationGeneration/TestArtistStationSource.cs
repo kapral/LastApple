@@ -31,7 +31,7 @@ public class TestArtistStationSource
 
         var artists = await source.GetStationArtists(definition);
 
-        var expectedArtists = new[] { new Artist { Name = "Reka" }, new Artist { Name = "Ictus" } };
+        var expectedArtists = new[] { new Artist(Name: "Reka"), new Artist(Name: "Ictus") };
 
         Assert.That(artists, Is.EqualTo(expectedArtists));
     }

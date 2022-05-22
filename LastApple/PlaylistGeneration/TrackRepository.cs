@@ -72,9 +72,8 @@ public class TrackRepository : ITrackRepository
         cacheItems.Items = ExtractResult(previousTask);
 
         return cacheItems.Items;
-
     }
 
     private static IReadOnlyCollection<Track> ExtractResult(Task<PageResponse<LastTrack>> task)
-        => task.Result.Content.Select(x => new Track { ArtistName = x.ArtistName, Name = x.Name }).ToArray();
+        => task.Result.Content.Select(x => new Track(ArtistName: x.ArtistName, Name: x.Name)).ToArray();
 }

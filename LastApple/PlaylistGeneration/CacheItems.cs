@@ -8,9 +8,9 @@ public class CacheItems<TItem>
 {
     public int Attempts { get; set; }
 
-    public IReadOnlyCollection<TItem> Items { get; set; }
+    public IReadOnlyCollection<TItem>? Items { get; set; }
 
-    public Task<IReadOnlyCollection<TItem>> Task { get; set; }
+    public Task<IReadOnlyCollection<TItem>>? Task { get; set; }
 
     public bool HasNoData => Attempts >= Constants.MaxRetryAttempts && Items == null || Items?.Any() == false;
 }

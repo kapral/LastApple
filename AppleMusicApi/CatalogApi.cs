@@ -42,7 +42,7 @@ public class CatalogApi : ICatalogApi
         return apiResponse.Results;
     }
 
-    public async Task<Resource<ArtistAttributes>> GetArtist(string id, string storefront)
+    public async Task<Resource<ArtistAttributes>?> GetArtist(string id, string storefront)
     {
         var httpResponse = await httpClient.GetAsync($"catalog/{storefront}/artists/{id}");
 

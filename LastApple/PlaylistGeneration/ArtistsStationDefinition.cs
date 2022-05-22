@@ -3,7 +3,7 @@ using LastApple.Model;
 
 namespace LastApple.PlaylistGeneration;
 
-public class ArtistsStationDefinition : IStationDefinition
+public record ArtistsStationDefinition : IStationDefinition
 {
     public ICollection<string> Artists { get; } = new List<string>();
 

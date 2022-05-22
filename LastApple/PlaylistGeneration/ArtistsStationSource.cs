@@ -12,6 +12,6 @@ public class ArtistsStationSource : IStationSource<ArtistsStationDefinition>
     {
         if (definition == null) throw new ArgumentNullException(nameof(definition));
 
-        return Task.FromResult<IReadOnlyCollection<Artist>>(definition.Artists.Select(x => new Artist{ Name = x }).ToArray());
+        return Task.FromResult<IReadOnlyCollection<Artist>>(definition.Artists.Select(x => new Artist(Name: x)).ToArray());
     }
 }

@@ -21,9 +21,9 @@ public class TagsStationSource : IStationSource<TagsStationDefinition>
 
     public async Task<IReadOnlyCollection<Artist>> GetStationArtists(TagsStationDefinition definition)
     {
-        var artistsByTag = definition.Tags.ToDictionary(x => x, x => new List<Artist>());
+        var artistsByTag = definition.Tags.ToDictionary(x => x, _ => new List<Artist>());
 
-        var intersection = Array.Empty<Artist>();
+        Artist[]? intersection = null;
 
         for (var page = 1; page <= MaxPageNumber; page++)
         {
@@ -36,14 +36,14 @@ public class TagsStationSource : IStationSource<TagsStationDefinition>
                 if (page == 1 && !pageArtists.Any())
                     return Array.Empty<Artist>();
 
-                artists.AddRange(pageArtists.Select(x => new Artist { Name = x.Name }));
+                artists.AddRange(pageArtists.Select(x => new Artist(Name: x.Name)));
                 intersection = intersection?.Intersect(artists).ToArray() ?? artists.ToArray();
             }
 
-            if (intersection != null && intersection.Length >= MinIntersectionLength)
+            if (intersection is { Length: >= MinIntersectionLength })
                 return intersection;
         }
 
-        return intersection;
+        return intersection ?? Array.Empty<Artist>();
     }
 }

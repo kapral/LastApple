@@ -73,32 +73,32 @@ public class Startup
 
         services.AddTransient(container =>
         {
-            var tokenProvider = container.GetService<IDeveloperTokenProvider>();
+            var tokenProvider = container.GetRequiredService<IDeveloperTokenProvider>();
 
-            return new ApiAuthentication { DeveloperToken = tokenProvider.GetToken() };
+            return new ApiAuthentication(DeveloperToken: tokenProvider.GetToken());
         });
 
         services.AddScoped(c =>
         {
-            var apiParams = c.GetService<IOptions<LastfmApiParams>>();
+            var apiParams = c.GetRequiredService<IOptions<LastfmApiParams>>();
 
             return new LastfmClient(apiParams.Value.ApiKey, apiParams.Value.Secret, new HttpClient());
         });
 
         services.AddScoped(c =>
         {
-            var lastAuth = c.GetService<LastfmClient>().Auth;
+            var lastAuth = c.GetRequiredService<LastfmClient>().Auth;
 
             lastAuth.LoadSession(new LastUserSession());
 
             return lastAuth;
         });
 
-        services.AddScoped<IUserApi>(c => c.GetService<LastfmClient>().User);
-        services.AddScoped<IScrobbler>(c => c.GetService<LastfmClient>().Scrobbler);
-        services.AddScoped<ITrackApi>(c => c.GetService<LastfmClient>().Track);
-        services.AddScoped<IArtistApi>(c => c.GetService<LastfmClient>().Artist);
-        services.AddScoped<ITagApi>(c => c.GetService<LastfmClient>().Tag);
+        services.AddScoped<IUserApi>(c => c.GetRequiredService<LastfmClient>().User);
+        services.AddScoped<IScrobbler>(c => c.GetRequiredService<LastfmClient>().Scrobbler);
+        services.AddScoped<ITrackApi>(c => c.GetRequiredService<LastfmClient>().Track);
+        services.AddScoped<IArtistApi>(c => c.GetRequiredService<LastfmClient>().Artist);
+        services.AddScoped<ITagApi>(c => c.GetRequiredService<LastfmClient>().Tag);
 
         services.AddScoped<IStationSource<ArtistsStationDefinition>, ArtistsStationSource>();
         services.AddScoped<IStationSource<SimilarArtistsStationDefinition>, SimilarArtistsStationSource>();
@@ -119,7 +119,7 @@ public class Startup
         services.AddSingleton<IStationRepository, StationRepository>();
         services.AddSingleton<IStationEventMediator, SignalrStationEventMediator>();
         services.AddSingleton<IBackgroundProcessManager, BackgroundProcessManager>();
-        services.AddSingleton(container => (IHostedService)container.GetService<IBackgroundProcessManager>());
+        services.AddSingleton(container => (IHostedService)container.GetRequiredService<IBackgroundProcessManager>());
         services.AddScoped<ITrackRepository, TrackRepository>();
 
         services.Configure<MongoConnectionDetails>(Configuration.GetSection("MongoDb"));

@@ -16,7 +16,7 @@ public class ArtistStationController : Controller
     private readonly ICatalogApi         catalogApi;
     private readonly IStorefrontProvider storefrontProvider;
 
-    public ArtistStationController(IStationRepository stationRepository, 
+    public ArtistStationController(IStationRepository stationRepository,
                                    ICatalogApi catalogApi,
                                    IStorefrontProvider storefrontProvider)
     {
@@ -29,7 +29,8 @@ public class ArtistStationController : Controller
     [Route("{artistId}")]
     public async Task<ActionResult> Create(string artistId)
     {
-        var station = new Station<ArtistsStationDefinition>
+        var definition = new ArtistsStationDefinition { Artists = { artistId } };
+        var station = new Station<ArtistsStationDefinition>(definition)
         {
             Id = Guid.NewGuid()
         };
@@ -47,7 +48,7 @@ public class ArtistStationController : Controller
     private async Task<IEnumerable<string>> GetSongs(string artistId)
     {
         var storefront = await storefrontProvider.GetStorefront();
-        var artist     = await catalogApi.GetArtist(artistId, storefront);
+        var artist     = await catalogApi.GetArtist(artistId, storefront) ?? throw new InvalidOperationException($"Artist {artistId} was not found.");
         var albumIds   = artist.Relationships.Albums.Data.Select(x => x.Id);
         var albums     = await catalogApi.GetAlbums(albumIds, storefront);
 

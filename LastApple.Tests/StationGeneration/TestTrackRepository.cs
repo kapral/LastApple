@@ -40,8 +40,8 @@ public class TestTrackRepository
     [Test]
     public async Task GetArtistTracks_Returns_Successful_Task_Result_And_Caches_It()
     {
-        var artist     = new Artist { Name = "Serdyuchka" };
-        var tracks     = new[] { new Track { Name     = "Gop", ArtistName = artist.Name } };
+        var artist     = new Artist(Name: "Serdyuchka");
+        var tracks     = new[] { new Track(Name: "Gop", ArtistName: artist.Name) };
         var lastTracks = new[] { new LastTrack { Name = "Gop", ArtistName = artist.Name } };
 
         artistApi.GetTopTracksAsync(artist.Name).Returns(PageResponse<LastTrack>.CreateSuccessResponse(lastTracks));
@@ -58,7 +58,7 @@ public class TestTrackRepository
     [Test]
     public async Task GetArtistTracks_Returns_Empty_Task_Result_And_Caches_It()
     {
-        var artist = new Artist { Name = "Ictus" };
+        var artist = new Artist(Name: "Ictus");
         artistApi.GetTopTracksAsync(artist.Name)
                  .Returns(PageResponse<LastTrack>.CreateSuccessResponse());
 
@@ -74,7 +74,7 @@ public class TestTrackRepository
     [Test]
     public void GetArtistTracks_Returns_Same_Task_While_Its_Running()
     {
-        var artist           = new Artist { Name = "Ictus" };
+        var artist           = new Artist(Name: "Ictus");
         var completionSource = new TaskCompletionSource<PageResponse<LastTrack>>();
         var task             = completionSource.Task;
 
@@ -92,8 +92,8 @@ public class TestTrackRepository
     [Test]
     public async Task GetArtistTracks_Retries_If_Task_Fails()
     {
-        var artist     = new Artist { Name = "Ictus" };
-        var tracks     = new[] { new Track { Name     = "Imperivm", ArtistName = artist.Name } };
+        var artist     = new Artist(Name: "Ictus");
+        var tracks     = new[] { new Track(Name: "Imperivm", ArtistName: artist.Name) };
         var lastTracks = new[] { new LastTrack { Name = "Imperivm", ArtistName = artist.Name } };
 
         await SetupGetArtistTracksFailures(artist, 1);
@@ -109,9 +109,9 @@ public class TestTrackRepository
     [Test]
     public async Task GetArtistTracks_Retries_If_Task_Returns_Unsuccessful()
     {
-        var artist     = new Artist { Name = "Ictus" };
+        var artist     = new Artist(Name: "Ictus");
         var lastTracks = new[] { new LastTrack { Name = "Imperivm", ArtistName = artist.Name} };
-        var tracks     = new[] { new Track { Name     = "Imperivm", ArtistName = artist.Name} };
+        var tracks     = new[] { new Track(Name: "Imperivm", ArtistName: artist.Name) };
 
         await SetupGetArtistTracksUnsuccessfulResults(artist, 1);
         artistApi.GetTopTracksAsync(artist.Name)
@@ -127,7 +127,7 @@ public class TestTrackRepository
     [Test]
     public async Task GetArtistTracks_Caches_Empty_After_3_Failures()
     {
-        var artist = new Artist { Name = "Ictus" };
+        var artist = new Artist(Name: "Ictus");
 
         await SetupGetArtistTracksFailures(artist, 3);
 
@@ -141,7 +141,7 @@ public class TestTrackRepository
     [Test]
     public async Task GetArtistTracks_Caches_Empty_After_3_Unsuccessful_Responses()
     {
-        var artist = new Artist { Name = "Ictus" };
+        var artist = new Artist(Name: "Ictus");
 
         await SetupGetArtistTracksUnsuccessfulResults(artist, 3);
 
@@ -155,7 +155,7 @@ public class TestTrackRepository
     [Test]
     public void ArtistHasTracks_Returns_True_For_Artists_Not_Requested_Yet()
     {
-        var artist = new Artist { Name = "Serdyuchka" };
+        var artist = new Artist(Name: "Serdyuchka");
 
         Assert.That(repository.ArtistHasTracks(artist));
     }
@@ -163,7 +163,7 @@ public class TestTrackRepository
     [Test]
     public async Task ArtistHasTracks_Returns_True_For_Artists_Which_Has_Retries_Left()
     {
-        var artist = new Artist { Name = "Serdyuchka" };
+        var artist = new Artist(Name: "Serdyuchka");
 
         await SetupGetArtistTracksFailures(artist, 2);
 
@@ -173,7 +173,7 @@ public class TestTrackRepository
     [Test]
     public async Task ArtistHasTracks_Returns_False_For_Artists_With_Cached_Empty_Tracks()
     {
-        var artist = new Artist { Name = "Serdyuchka" };
+        var artist = new Artist(Name: "Serdyuchka");
 
         artistApi.GetTopTracksAsync(artist.Name).Returns(PageResponse<LastTrack>.CreateSuccessResponse());
 
@@ -186,7 +186,7 @@ public class TestTrackRepository
     [Test]
     public async Task ArtistHasTracks_Returns_False_For_Artists_With_3_Failures()
     {
-        var artist = new Artist { Name = "Serdyuchka" };
+        var artist = new Artist(Name: "Serdyuchka");
 
         await SetupGetArtistTracksFailures(artist, 3);
 
@@ -196,7 +196,7 @@ public class TestTrackRepository
     [Test]
     public async Task ArtistHasTracks_Returns_False_For_Artists_With_3_Unsuccessful()
     {
-        var artist = new Artist { Name = "Serdyuchka" };
+        var artist = new Artist(Name: "Serdyuchka");
 
         await SetupGetArtistTracksUnsuccessfulResults(artist, 3);
 

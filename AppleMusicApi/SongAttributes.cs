@@ -1,6 +1,3 @@
 namespace AppleMusicApi;
 
-public record SongAttributes : IAttributes
-{
-
-}
+public record SongAttributes : IAttributes;

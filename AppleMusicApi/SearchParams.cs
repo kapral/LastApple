@@ -1,12 +1,3 @@
 namespace AppleMusicApi;
 
-public record SearchParams
-{
-    public string Term { get; init; }
-
-    public ResourceType Types { get; init; }
-
-    public int Limit { get; init; } = 100;
-
-    public int Offset { get; init; } = 0;
-}
+public record SearchParams(string Term, ResourceType Types, int Limit = 100, int Offset = 0);
