@@ -8,6 +8,7 @@ using LastApple.Model;
 using LastApple.PlaylistGeneration;
 using NSubstitute;
 using NUnit.Framework;
+#pragma warning disable CS0612
 
 namespace LastApple.Tests.StationGeneration;
 

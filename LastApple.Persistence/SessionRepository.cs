@@ -48,7 +48,7 @@ public class SessionRepository : ISessionRepository
             musicStorefrontId: session.MusicStorefrontId
         );
 
-        var filter = new BsonDocument("_id", domainSession.Id);
+        var filter = new BsonDocument("_id", new BsonBinaryData(domainSession.Id, GuidRepresentation.Standard));
 
         await db.GetCollection<Model.Session>("sessions")
                 .ReplaceOneAsync(filter, domainSession, new ReplaceOptions { IsUpsert = true });

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
 using Jose;
+using Jose.keys;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.OpenSsl;
-using Security.Cryptography;
 
 namespace AppleMusicApi;
 

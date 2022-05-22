@@ -41,7 +41,9 @@ public class TestSimilarArtistsStationSource
         var definition = new SimilarArtistsStationDefinition("Death In June");
         var similar    = new[] { new LastArtist { Name = "Rome" }, new LastArtist { Name = "Sol Invictus" } };
 
+#pragma warning disable CS0612
         artistApi.GetSimilarAsync(definition.SourceArtist).Returns(PageResponse<LastArtist>.CreateSuccessResponse(similar));
+#pragma warning restore CS0612
 
         var result = await source.GetStationArtists(definition);
 

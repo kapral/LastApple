@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using IF.Lastfm.Core.Api;
@@ -25,6 +26,7 @@ public class TestLastfmLibraryStationSource
         source = new LastfmLibraryStationSource(userApi);
     }
 
+#pragma warning disable CS0612
     [Test]
     public void Constructor_Throws_On_Null_Parameters()
     {
@@ -50,4 +52,5 @@ public class TestLastfmLibraryStationSource
 
         Assert.That(result, Is.EqualTo(new[] { new Artist(Name: "Asaf Avidan") }));
     }
+#pragma warning restore CS0612
 }

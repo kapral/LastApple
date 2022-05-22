@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.WebUtilities;
 
@@ -37,7 +38,7 @@ public class CatalogApi : ICatalogApi
         if(!httpResponse.IsSuccessStatusCode)
             throw new Exception("todo");
 
-        var apiResponse = await httpResponse.Content.ReadAsAsync<SearchResponse>();
+        var apiResponse = await ReadAs<SearchResponse>(httpResponse.Content);
 
         return apiResponse.Results;
     }
@@ -49,7 +50,7 @@ public class CatalogApi : ICatalogApi
         if(!httpResponse.IsSuccessStatusCode)
             throw new Exception("todo");
 
-        var apiResponse = await httpResponse.Content.ReadAsAsync<ResourceMatches<ArtistAttributes>>();
+        var apiResponse = await ReadAs<ResourceMatches<ArtistAttributes>>(httpResponse.Content);
 
         return apiResponse.Data.FirstOrDefault();
     }
@@ -61,7 +62,7 @@ public class CatalogApi : ICatalogApi
         if(!httpResponse.IsSuccessStatusCode)
             throw new Exception("todo");
 
-        var apiResponse = await httpResponse.Content.ReadAsAsync<ResourceMatches<AlbumAttributes>>();
+        var apiResponse = await ReadAs<ResourceMatches<AlbumAttributes>>(httpResponse.Content);
 
         return apiResponse.Data;
     }
@@ -75,4 +76,11 @@ public class CatalogApi : ICatalogApi
 
         return string.Join(",", values);
     }
+
+    private static async Task<T> ReadAs<T>(HttpContent content) {
+        var result = await JsonSerializer.DeserializeAsync<T>(await content.ReadAsStreamAsync());
+
+        return result ?? throw new InvalidOperationException("Response content is null.");
+    }
+
 }

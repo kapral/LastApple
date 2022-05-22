@@ -7,10 +7,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="BouncyCastle.Crypto.dll" Version="1.8.1" />
-      <PackageReference Include="jose-jwt" Version="2.4.0" />
+      <PackageReference Include="BouncyCastle.NetCore" Version="1.9.0" />
+      <PackageReference Include="jose-jwt" Version="4.0.0" />
       <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="1.0.0" />
-      <PackageReference Include="System.Net.Http.Formatting.Extension" Version="5.2.3" />
     </ItemGroup>
 
 </Project>
