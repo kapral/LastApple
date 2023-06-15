@@ -1,9 +1,9 @@
 import React, { Component } from "react";
 import { Search } from "../Search";
 import musicKit from "../../musicKit";
-import { IMediaItemOptions } from "../MusicKitWrapper/MusicKitDefinitions";
 import { IStationParams } from "../IStationParams";
 import stationApi from "../../restClients/StationApi";
+import MediaItemOptions = MusicKit.MediaItemOptions;
 
 export class SingleArtist extends Component<IStationParams, { currentArtistId: string }> {
     constructor(props) {
@@ -33,14 +33,14 @@ export class SingleArtist extends Component<IStationParams, { currentArtistId: s
 
     render(): React.ReactNode {
         return <div className='station-parameters'>
-            <Search<IMediaItemOptions> search={term => this.search(term)}
+            <Search<MediaItemOptions> search={term => this.search(term)}
                                        onChanged={artist => this.handleChanged(artist)}
                                        placeholder={'Radiohead...'}
                                        labelAccessor={x => (x as any).attributes.name}/>
         </div>
     }
 
-    handleChanged(artist: IMediaItemOptions) {
+    handleChanged(artist: MediaItemOptions) {
         this.setState({ currentArtistId: artist && artist.id });
         this.props.onOptionsChanged(!!artist);
     }

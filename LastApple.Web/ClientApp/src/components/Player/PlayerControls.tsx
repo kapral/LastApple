@@ -4,8 +4,8 @@ import { faStepBackward } from "@fortawesome/free-solid-svg-icons/faStepBackward
 import { faPause, faPlay, faStepForward } from "@fortawesome/free-solid-svg-icons";
 import * as React from "react";
 import { StationPlayer } from "./StationPlayer";
-import { IMediaItemOptions } from "../MusicKitWrapper/MusicKitDefinitions";
 import { PlayerHeader, PlayerHeaderProps } from "./PlayerHeader";
+import MediaItemOptions = MusicKit.MediaItemOptions;
 
 const containerStyles: React.CSSProperties = {
     whiteSpace: 'nowrap',
@@ -49,7 +49,7 @@ const buttonStyles: React.CSSProperties = {
     cursor: 'pointer'
 };
 
-type PlayerControlsProps = { currentTrack: IMediaItemOptions, isPlaying: boolean, switchPrev(): void, switchNext(): void, onPlayPause(): void } & PlayerHeaderProps;
+type PlayerControlsProps = { currentTrack: MediaItemOptions, isPlaying: boolean, switchPrev(): void, switchNext(): void, onPlayPause(): void } & PlayerHeaderProps;
 
 export const PlayerControls = (props: PlayerControlsProps) =>
     <div className="player-controls" style={containerStyles}>

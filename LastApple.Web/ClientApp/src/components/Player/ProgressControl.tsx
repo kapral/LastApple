@@ -28,16 +28,16 @@ export class ProgressControl extends React.Component<{}, { rewindPosition: numbe
         super(props);
 
         this.state = { rewindPosition: 0, currentPlaybackPercent: 0, currentPlaybackTime: 0 };
-        
+
         this.timeChangeHandler = x => this.handlePlaybackTimeChanged(x);
     }
-    
+
     componentDidMount(): void {
-        musicKit.instance.player.addEventListener('playbackTimeDidChange', this.timeChangeHandler);
+        musicKit.instance.addEventListener('playbackTimeDidChange', this.timeChangeHandler);
     }
-    
+
     componentWillUnmount(): void {
-        musicKit.instance.player.removeEventListener('playbackTimeDidChange', this.timeChangeHandler);
+        musicKit.instance.removeEventListener('playbackTimeDidChange', this.timeChangeHandler);
     }
 
     public render() {

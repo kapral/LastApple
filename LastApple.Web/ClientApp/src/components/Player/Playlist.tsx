@@ -1,14 +1,14 @@
 import * as React from "react";
 import { PureComponent } from "react";
-import { IMediaItemOptions } from "../MusicKitWrapper/MusicKitDefinitions";
 import musicKit from '../../musicKit';
 import { PlaylistTrack } from "./PlaylistTrack";
 import { PlaylistTrackGroup } from "./PlaylistTrackGroup";
+import MediaItemOptions = MusicKit.MediaItemOptions;
 
 interface PlaylistProps {
-    currentTrack: IMediaItemOptions;
+    currentTrack: MediaItemOptions;
     isPlaying: boolean;
-    tracks: IMediaItemOptions[];
+    tracks: MediaItemOptions[];
     offset: number;
     limit: number;
     showAlbumInfo: boolean;
@@ -76,7 +76,7 @@ export class Playlist extends PureComponent<PlaylistProps> {
         return this.props.tracks.slice(firstTrackIndex, lastTrackIndex);
     }
     
-    groupByAlbum(tracks: IMediaItemOptions[]) {
+    groupByAlbum(tracks: MediaItemOptions[]) {
         return tracks.reduce((groups, next, index) => {
             if (groups.current === next.attributes.albumName) {
                 groups.all[groups.all.length - 1].tracks.push(next);
@@ -90,19 +90,21 @@ export class Playlist extends PureComponent<PlaylistProps> {
 
     removeItems = (position: number, count: number) => {
         for (let i = 0; i < count; i++) {
+            // @ts-ignore
             musicKit.instance.player.queue.remove(position);
         }
 
         this.props.onRemove(position, count);
     };
 
-    async addAlbumToLibrary(item: IMediaItemOptions) {
+    async addAlbumToLibrary(item: MediaItemOptions) {
+        // @ts-ignore
         const albumId = item.relationships.albums.data[0].id;
 
         await musicKit.instance.api.addToLibrary({ albums: [albumId] });
     }
 
-    async addToLibrary(item: IMediaItemOptions) {
+    async addToLibrary(item: MediaItemOptions) {
         await musicKit.instance.api.addToLibrary({ songs: [item.id] });
     }
 }

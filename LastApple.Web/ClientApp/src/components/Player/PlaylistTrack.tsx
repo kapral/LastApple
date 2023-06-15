@@ -5,18 +5,18 @@ import { Dropdown } from "react-bootstrap";
 import { CustomToggle } from "./CustomToggle";
 import { faEllipsisH } from "@fortawesome/free-solid-svg-icons/faEllipsisH";
 import musicKit from "../../musicKit";
-import { IMediaItemOptions } from "../MusicKitWrapper/MusicKitDefinitions";
+import MediaItemOptions = MusicKit.MediaItemOptions;
 
 type PlaylistTrackProps = {
-    track: IMediaItemOptions,
+    track: MediaItemOptions,
     isCurrent: boolean,
     isPlaying: boolean,
     groupOffset: number,
     index: number,
     onRemove(position: number, count: number),
     onTrackSwitch(position: number): Promise<void>,
-    addAlbumToLibrary(item: IMediaItemOptions): void,
-    addToLibrary(item: IMediaItemOptions): void
+    addAlbumToLibrary(item: MediaItemOptions): void,
+    addToLibrary(item: MediaItemOptions): void
 }
 
 export const PlaylistTrack = React.memo((props: PlaylistTrackProps) => 
