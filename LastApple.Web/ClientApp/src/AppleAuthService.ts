@@ -3,23 +3,23 @@ import musicKit from './musicKit';
 
 class AppleAuthService {
     existingAuthCheckPromise: Promise<boolean>;
-    
+
     async isAuthenticated() {
         const kit = await musicKit.getInstance();
 
         if (kit.isAuthorized)
             return true;
-        
-        if (this.existingAuthCheckPromise) 
+
+        if (this.existingAuthCheckPromise)
             return await this.existingAuthCheckPromise;
-        
+
         let resolve = null;
         this.existingAuthCheckPromise = new Promise<boolean>(r => resolve = r);
-        
+
         await this.tryGetExistingAuthentication();
 
         resolve(kit.isAuthorized);
-        
+
         return kit.isAuthorized;
     }
 
@@ -29,7 +29,9 @@ class AppleAuthService {
         let sessionData = await musicApi.getSessionData();
 
         if (sessionData && sessionData.musicUserToken) {
+            // @ts-ignore
             kit.musicUserToken = sessionData.musicUserToken;
+            // @ts-ignore
             kit.storefrontId = sessionData.musicStorefrontId;
 
             localStorage.setItem(`${sessionData.musicUserToken}.s`, sessionData.musicStorefrontId);
@@ -48,12 +50,12 @@ class AppleAuthService {
 
         localStorage.setItem('SessionId', sessionData.id);
     }
-    
+
     async logout() {
         const kit = await musicKit.getInstance();
-        
+
         await kit.unauthorize();
-        
+
         await musicApi.deleteSessionData();
     }
 }

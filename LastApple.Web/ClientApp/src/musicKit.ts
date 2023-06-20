@@ -1,11 +1,9 @@
 import appleMusicApi from "./restClients/AppleMusicApi";
 import environment from './Environment';
-import 'musickit-js';
-import MusicKitInstance = MusicKit.MusicKitInstance;
 
 class MusicKitObj {
-    instance: MusicKitInstance;
-    instancePromise: Promise<MusicKitInstance>;
+    instance: MusicKit.MusicKitInstance;
+    instancePromise: Promise<MusicKit.MusicKitInstance>;
     private musicKit = (window as any).MusicKit;
 
     async getInstance() {
@@ -13,7 +11,7 @@ class MusicKitObj {
             return await this.instancePromise;
 
         let resolve = null;
-        this.instancePromise = new Promise<MusicKitInstance>(r => resolve = r);
+        this.instancePromise = new Promise<MusicKit.MusicKitInstance>(r => resolve = r);
 
         const token = await appleMusicApi.getDeveloperToken();
 

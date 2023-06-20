@@ -5,21 +5,20 @@ import { Dropdown } from "react-bootstrap";
 import { CustomToggle } from "./CustomToggle";
 import { faEllipsisH } from "@fortawesome/free-solid-svg-icons/faEllipsisH";
 import musicKit from "../../musicKit";
-import MediaItemOptions = MusicKit.MediaItemOptions;
 
 type PlaylistTrackProps = {
-    track: MediaItemOptions,
+    track: MusicKit.MediaItemOptions,
     isCurrent: boolean,
     isPlaying: boolean,
     groupOffset: number,
     index: number,
     onRemove(position: number, count: number),
     onTrackSwitch(position: number): Promise<void>,
-    addAlbumToLibrary(item: MediaItemOptions): void,
-    addToLibrary(item: MediaItemOptions): void
+    addAlbumToLibrary(item: MusicKit.MediaItemOptions): void,
+    addToLibrary(item: MusicKit.MediaItemOptions): void
 }
 
-export const PlaylistTrack = React.memo((props: PlaylistTrackProps) => 
+export const PlaylistTrack = React.memo((props: PlaylistTrackProps) =>
     <div className={`playlist-item clearfix ${props.isCurrent ? 'current' : ''}`} style={{
         margin: '0 5px'
     }}>

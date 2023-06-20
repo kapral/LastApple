@@ -3,12 +3,11 @@ import { PureComponent } from "react";
 import musicKit from '../../musicKit';
 import { PlaylistTrack } from "./PlaylistTrack";
 import { PlaylistTrackGroup } from "./PlaylistTrackGroup";
-import MediaItemOptions = MusicKit.MediaItemOptions;
 
 interface PlaylistProps {
-    currentTrack: MediaItemOptions;
+    currentTrack: MusicKit.MediaItemOptions;
     isPlaying: boolean;
-    tracks: MediaItemOptions[];
+    tracks: MusicKit.MediaItemOptions[];
     offset: number;
     limit: number;
     showAlbumInfo: boolean;
@@ -68,15 +67,15 @@ export class Playlist extends PureComponent<PlaylistProps> {
                 </PlaylistTrackGroup>)}
         </div>;
     }
-    
+
     getVisibleTracks() {
         const firstTrackIndex = this.props.offset;
         const lastTrackIndex = firstTrackIndex + this.props.limit;
-        
+
         return this.props.tracks.slice(firstTrackIndex, lastTrackIndex);
     }
-    
-    groupByAlbum(tracks: MediaItemOptions[]) {
+
+    groupByAlbum(tracks: MusicKit.MediaItemOptions[]) {
         return tracks.reduce((groups, next, index) => {
             if (groups.current === next.attributes.albumName) {
                 groups.all[groups.all.length - 1].tracks.push(next);
@@ -97,14 +96,14 @@ export class Playlist extends PureComponent<PlaylistProps> {
         this.props.onRemove(position, count);
     };
 
-    async addAlbumToLibrary(item: MediaItemOptions) {
+    async addAlbumToLibrary(item: MusicKit.MediaItemOptions) {
         // @ts-ignore
         const albumId = item.relationships.albums.data[0].id;
 
         await musicKit.instance.api.addToLibrary({ albums: [albumId] });
     }
 
-    async addToLibrary(item: MediaItemOptions) {
+    async addToLibrary(item: MusicKit.MediaItemOptions) {
         await musicKit.instance.api.addToLibrary({ songs: [item.id] });
     }
 }

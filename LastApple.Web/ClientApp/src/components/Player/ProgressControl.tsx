@@ -22,7 +22,7 @@ const playingStyles: React.CSSProperties = {
 };
 
 export class ProgressControl extends React.Component<{}, { rewindPosition: number, currentPlaybackPercent: number, currentPlaybackTime: number; }> {
-    private readonly timeChangeHandler: (x) => void;
+    private readonly timeChangeHandler: <T extends keyof MusicKit.Events>(x: MusicKit.Events[T]) => void;
     constructor(props) {
 
         super(props);

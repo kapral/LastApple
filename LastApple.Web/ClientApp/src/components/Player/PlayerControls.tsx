@@ -5,7 +5,6 @@ import { faPause, faPlay, faStepForward } from "@fortawesome/free-solid-svg-icon
 import * as React from "react";
 import { StationPlayer } from "./StationPlayer";
 import { PlayerHeader, PlayerHeaderProps } from "./PlayerHeader";
-import MediaItemOptions = MusicKit.MediaItemOptions;
 
 const containerStyles: React.CSSProperties = {
     whiteSpace: 'nowrap',
@@ -49,7 +48,7 @@ const buttonStyles: React.CSSProperties = {
     cursor: 'pointer'
 };
 
-type PlayerControlsProps = { currentTrack: MediaItemOptions, isPlaying: boolean, switchPrev(): void, switchNext(): void, onPlayPause(): void } & PlayerHeaderProps;
+type PlayerControlsProps = { currentTrack: MusicKit.MediaItemOptions, isPlaying: boolean, switchPrev(): void, switchNext(): void, onPlayPause(): void } & PlayerHeaderProps;
 
 export const PlayerControls = (props: PlayerControlsProps) =>
     <div className="player-controls" style={containerStyles}>
@@ -60,8 +59,8 @@ export const PlayerControls = (props: PlayerControlsProps) =>
                 onScrobblingSwitch={props.onScrobblingSwitch}
                 lastfmAuthenticated={props.lastfmAuthenticated}
             />}
-            <div className={'album-art'} style={{ 
-                backgroundImage: `url(${StationPlayer.getImageUrl(props.currentTrack && props.currentTrack.attributes.artwork.url)})`, 
+            <div className={'album-art'} style={{
+                backgroundImage: `url(${StationPlayer.getImageUrl(props.currentTrack && props.currentTrack.attributes.artwork.url)})`,
                 ...albumArtStyles
             }}>
                 <div style={controlsContainerStyles}>

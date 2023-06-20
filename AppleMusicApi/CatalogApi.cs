@@ -77,8 +77,12 @@ public class CatalogApi : ICatalogApi
         return string.Join(",", values);
     }
 
-    private static async Task<T> ReadAs<T>(HttpContent content) {
-        var result = await JsonSerializer.DeserializeAsync<T>(await content.ReadAsStreamAsync());
+    private static async Task<T> ReadAs<T>(HttpContent content)
+    {
+        var options = new JsonSerializerOptions {
+            PropertyNameCaseInsensitive = true
+        };
+        var result   = await JsonSerializer.DeserializeAsync<T>(await content.ReadAsStreamAsync(), options);
 
         return result ?? throw new InvalidOperationException("Response content is null.");
     }
