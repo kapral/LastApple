@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using AppleMusicApi;
 using LastApple.PlaylistGeneration;
@@ -37,13 +38,13 @@ public class TestTrackIdProvider
         const string artist = "Shortparis";
         const string track  = "Amsterdam";
 
-        var relationships = new Relationships(new ResourceMatches<SongAttributes>(), new ResourceMatches<AlbumAttributes>());
+        var relationships = new Relationships(new ResourceMatches<SongAttributes>(new List<Resource<SongAttributes>>()), new ResourceMatches<AlbumAttributes>(new List<Resource<AlbumAttributes>>()));
         var song          = new Resource<SongAttributes>(Id: "song-123", ResourceType.Songs, "", new SongAttributes(), relationships);
 
         catalogApi.Search(Arg.Is<SearchParams>(x => x.Term.Equals($"{artist} - {track}") && x.Types == ResourceType.Songs && x.Limit == 1), "ua")
-                  .Returns(new SearchResult(new ResourceMatches<ArtistAttributes>(),
-                                            new ResourceMatches<AlbumAttributes>(),
-                                            new ResourceMatches<SongAttributes> { Data = { song }}));
+                  .Returns(new SearchResult(new ResourceMatches<ArtistAttributes>(new List<Resource<ArtistAttributes>>()),
+                                            new ResourceMatches<AlbumAttributes>(new List<Resource<AlbumAttributes>>()),
+                                            new ResourceMatches<SongAttributes>(new List<Resource<SongAttributes>> { song })));
 
         var id = await trackIdProvider.FindTrackId(artist, track);
 
@@ -59,9 +60,9 @@ public class TestTrackIdProvider
         const string track  = "Amsterdam";
 
         catalogApi.Search(Arg.Is<SearchParams>(x => x.Term.Equals($"{artist} - {track}") && x.Types == ResourceType.Songs && x.Limit == 1), "ua")
-                  .Returns(new SearchResult(new ResourceMatches<ArtistAttributes>(),
-                                            new ResourceMatches<AlbumAttributes>(),
-                                            new ResourceMatches<SongAttributes>()));
+                  .Returns(new SearchResult(new ResourceMatches<ArtistAttributes>(new List<Resource<ArtistAttributes>>()),
+                                            new ResourceMatches<AlbumAttributes>(new List<Resource<AlbumAttributes>>()),
+                                            new ResourceMatches<SongAttributes>(new List<Resource<SongAttributes>>())));
 
         var id = await trackIdProvider.FindTrackId(artist, track);
 
@@ -77,8 +78,8 @@ public class TestTrackIdProvider
         const string track  = "Amsterdam";
 
         catalogApi.Search(Arg.Is<SearchParams>(x => x.Term.Equals($"{artist} - {track}") && x.Types == ResourceType.Songs && x.Limit == 1), "ua")
-                  .Returns(new SearchResult(Artists: new ResourceMatches<ArtistAttributes>(),
-                                            Albums: new ResourceMatches<AlbumAttributes>(),
+                  .Returns(new SearchResult(Artists: new ResourceMatches<ArtistAttributes>(new List<Resource<ArtistAttributes>>()),
+                                            Albums: new ResourceMatches<AlbumAttributes>(new List<Resource<AlbumAttributes>>()),
                                             Songs: null));
 
         var id = await trackIdProvider.FindTrackId(artist, track);

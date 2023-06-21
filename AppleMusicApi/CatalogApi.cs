@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.WebUtilities;
 
@@ -80,7 +81,8 @@ public class CatalogApi : ICatalogApi
     private static async Task<T> ReadAs<T>(HttpContent content)
     {
         var options = new JsonSerializerOptions {
-            PropertyNameCaseInsensitive = true
+            PropertyNameCaseInsensitive = true,
+            Converters                  = { new JsonStringEnumConverter() }
         };
         var result   = await JsonSerializer.DeserializeAsync<T>(await content.ReadAsStreamAsync(), options);
 
