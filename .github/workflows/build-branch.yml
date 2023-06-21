@@ -4,13 +4,13 @@ on:
   push:
     branches-ignore:
       - 'master'
-    
+
 
 jobs:
   build:
 
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v1
     - name: Setup .NET Core
@@ -19,16 +19,18 @@ jobs:
         dotnet-version: 6.x
 
     - name: Add GH packages
-      run: dotnet nuget add source --username kapral --password ${{ secrets.GH_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/kapral/index.json"
+      run: |
+        dotnet nuget remove source --name github
+        dotnet nuget add source --username kapral --password ${{ secrets.GH_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/kapral/index.json"
 
     - name: Build with dotnet
       run: dotnet build --configuration Release
-      
+
     - name: Run unit tests
       run: dotnet test
-      
+
     - name: Install npm packages
       run: cd LastApple.Web/ClientApp && npm install
-      
+
     - name: Webpack build
       run: cd LastApple.Web/ClientApp && npm run build
