@@ -21,13 +21,15 @@ export class SingleArtist extends Component<IStationParams, { currentArtistId: s
 
     async search(term: string) {
         const kit = await musicKit.getInstance();
-        const result = await kit.api.search(term);
+        const parameters = { term: term, types: ['artists'], l: 'en-us' };
 
-        if (!result.artists) {
+        const response = await kit.api.music(`/v1/catalog/${kit.storefrontId}/search`, parameters);
+
+        if (!response.data.results.artists) {
             return [];
         }
 
-        return result.artists.data.map(x => x);
+        return response.data.results.artists.data.map(x => x);
     }
 
     render(): React.ReactNode {

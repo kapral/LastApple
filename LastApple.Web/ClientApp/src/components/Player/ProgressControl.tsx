@@ -41,7 +41,7 @@ export class ProgressControl extends React.Component<{}, { rewindPosition: numbe
     }
 
     public render() {
-        const rewindPercent = this.state.rewindPosition / musicKit.instance.player.currentPlaybackDuration * 100;
+        const rewindPercent = this.state.rewindPosition / musicKit.instance.currentPlaybackDuration * 100;
 
         return <div>
             <span style={{ display: 'inline-block', verticalAlign: 'top', marginTop: '2px' }}>{musicKit.formatMediaTime(this.state.currentPlaybackTime)}</span>
@@ -61,7 +61,7 @@ export class ProgressControl extends React.Component<{}, { rewindPosition: numbe
                     </div>
                 </div>
             </div>
-            <span style={{ display: 'inline-block', verticalAlign: 'top', marginTop: '2px' }}>{musicKit.formatMediaTime(musicKit.instance.player.currentPlaybackDuration)}</span>
+            <span style={{ display: 'inline-block', verticalAlign: 'top', marginTop: '2px' }}>{musicKit.formatMediaTime(musicKit.instance.currentPlaybackDuration)}</span>
         </div>;
     }
 
@@ -87,7 +87,7 @@ export class ProgressControl extends React.Component<{}, { rewindPosition: numbe
 
     private handleMove(e: React.MouseEvent<HTMLDivElement>) {
         const rect = e.currentTarget.getClientRects()[0];
-        const rewindPosition = e.nativeEvent.offsetX * musicKit.instance.player.currentPlaybackDuration / rect.width;
+        const rewindPosition = e.nativeEvent.offsetX * musicKit.instance.currentPlaybackDuration / rect.width;
 
         if(Math.abs(this.state.rewindPosition - rewindPosition) < 1) {
             return;
@@ -101,8 +101,8 @@ export class ProgressControl extends React.Component<{}, { rewindPosition: numbe
     }
 
     async handleSeek(time) {
-        this.setState({ currentPlaybackPercent: (time / musicKit.instance.player.currentPlaybackDuration) * 100 });
-        await musicKit.instance.player.seekToTime(time);
+        this.setState({ currentPlaybackPercent: (time / musicKit.instance.currentPlaybackDuration) * 100 });
+        await musicKit.instance.seekToTime(time);
     }
 
     private handleMouseLeave() {

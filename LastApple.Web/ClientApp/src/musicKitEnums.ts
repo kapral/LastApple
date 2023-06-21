@@ -1,14 +1,14 @@
 ﻿export enum PlaybackStates {
-    completed,
-    ended,
-    loading,
     none,
-    paused,
+    loading,
     playing,
-    seeking,
-    stalled,
+    paused,
     stopped,
+    ended,
+    seeking,
     waiting,
+    stalled,
+    completed
 }
 
 export enum PlaybackBitrate {

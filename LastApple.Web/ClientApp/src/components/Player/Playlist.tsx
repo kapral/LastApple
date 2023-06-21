@@ -88,22 +88,18 @@ export class Playlist extends PureComponent<PlaylistProps> {
     }
 
     removeItems = (position: number, count: number) => {
-        for (let i = 0; i < count; i++) {
-            // @ts-ignore
-            musicKit.instance.player.queue.remove(position);
-        }
+        // todo: implement remove from queue by entire queue reset
 
-        this.props.onRemove(position, count);
+        //this.props.onRemove(position, count);
     };
 
     async addAlbumToLibrary(item: MusicKit.MediaItemOptions) {
-        // @ts-ignore
         const albumId = item.relationships.albums.data[0].id;
 
-        await musicKit.instance.api.addToLibrary({ albums: [albumId] });
+        await musicKit.instance.api.music('/v1/me/library', { ids: { albums:[albumId] } }, { fetchOptions: { method: 'POST' } });
     }
 
     async addToLibrary(item: MusicKit.MediaItemOptions) {
-        await musicKit.instance.api.addToLibrary({ songs: [item.id] });
+        await musicKit.instance.api.music('/v1/me/library', { ids: { songs:[item.id] } }, { fetchOptions: { method: 'POST' } });
     }
 }
