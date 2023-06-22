@@ -16,11 +16,11 @@ public record Session
     [BsonId]
     public Guid Id { get; init; }
 
-    public string? LastfmSessionKey { get; }
+    public string? LastfmSessionKey { get; init; }
 
-    public string? LastfmUsername { get; }
+    public string? LastfmUsername { get; init; }
 
-    public string? MusicUserToken { get; }
+    public string? MusicUserToken { get; init; }
 
-    public string? MusicStorefrontId { get; }
+    public string? MusicStorefrontId { get; init; }
 }

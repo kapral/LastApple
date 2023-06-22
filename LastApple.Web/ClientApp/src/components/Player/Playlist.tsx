@@ -1,14 +1,13 @@
 import * as React from "react";
 import { PureComponent } from "react";
-import { IMediaItemOptions } from "../MusicKitWrapper/MusicKitDefinitions";
 import musicKit from '../../musicKit';
 import { PlaylistTrack } from "./PlaylistTrack";
 import { PlaylistTrackGroup } from "./PlaylistTrackGroup";
 
 interface PlaylistProps {
-    currentTrack: IMediaItemOptions;
+    currentTrack: MusicKit.MediaItemOptions;
     isPlaying: boolean;
-    tracks: IMediaItemOptions[];
+    tracks: MusicKit.MediaItemOptions[];
     offset: number;
     limit: number;
     showAlbumInfo: boolean;
@@ -68,15 +67,15 @@ export class Playlist extends PureComponent<PlaylistProps> {
                 </PlaylistTrackGroup>)}
         </div>;
     }
-    
+
     getVisibleTracks() {
         const firstTrackIndex = this.props.offset;
         const lastTrackIndex = firstTrackIndex + this.props.limit;
-        
+
         return this.props.tracks.slice(firstTrackIndex, lastTrackIndex);
     }
-    
-    groupByAlbum(tracks: IMediaItemOptions[]) {
+
+    groupByAlbum(tracks: MusicKit.MediaItemOptions[]) {
         return tracks.reduce((groups, next, index) => {
             if (groups.current === next.attributes.albumName) {
                 groups.all[groups.all.length - 1].tracks.push(next);
@@ -89,20 +88,18 @@ export class Playlist extends PureComponent<PlaylistProps> {
     }
 
     removeItems = (position: number, count: number) => {
-        for (let i = 0; i < count; i++) {
-            musicKit.instance.player.queue.remove(position);
-        }
+        // todo: implement remove from queue by entire queue reset
 
-        this.props.onRemove(position, count);
+        //this.props.onRemove(position, count);
     };
 
-    async addAlbumToLibrary(item: IMediaItemOptions) {
+    async addAlbumToLibrary(item: MusicKit.MediaItemOptions) {
         const albumId = item.relationships.albums.data[0].id;
 
-        await musicKit.instance.api.addToLibrary({ albums: [albumId] });
+        await musicKit.instance.api.music('/v1/me/library', { ids: { albums:[albumId] } }, { fetchOptions: { method: 'POST' } });
     }
 
-    async addToLibrary(item: IMediaItemOptions) {
-        await musicKit.instance.api.addToLibrary({ songs: [item.id] });
+    async addToLibrary(item: MusicKit.MediaItemOptions) {
+        await musicKit.instance.api.music('/v1/me/library', { ids: { songs:[item.id] } }, { fetchOptions: { method: 'POST' } });
     }
 }

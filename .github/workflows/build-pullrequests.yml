@@ -1,33 +1,38 @@
 name: PR build
 
-on: 
+on:
   pull_request:
-    branches: 
+    branches:
       - master
 
 jobs:
   build:
 
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v1
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.x
+    - uses: actions/setup-node@v3
+      with:
+        node-version: '16.x'
 
     - name: Add GH packages
-      run: dotnet nuget add source --username kapral --password ${{ secrets.GH_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/kapral/index.json"
+      run: |
+        dotnet nuget remove source github
+        dotnet nuget add source --username kapral --password ${{ secrets.GH_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/kapral/index.json"
 
     - name: Build with dotnet
       run: dotnet build --configuration Release
-      
+
     - name: Run tests
       run: dotnet test
-      
+
     - name: Install npm packages
       run: cd LastApple.Web/ClientApp && npm install
-      
+
     - name: Webpack build
       run: cd LastApple.Web/ClientApp && npm run build

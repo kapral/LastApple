@@ -2,30 +2,35 @@ name: Release Master
 
 on:
   push:
-    branches: 
+    branches:
       - master
 
 jobs:
   build:
 
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v1
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.x
+    - uses: actions/setup-node@v3
+      with:
+        node-version: '16.x'
 
     - name: Add GH packages
-      run: dotnet nuget add source --username kapral --password ${{ secrets.GH_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/kapral/index.json"
-         
+      run: |
+        dotnet nuget remove source github
+        dotnet nuget add source --username kapral --password ${{ secrets.GH_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/kapral/index.json"
+
     - name: Create Deploy Package
       run: dotnet publish LastApple.Web/LastApple.Web.csproj -c=Release
-      
+
     - name: Deploy to Azure
       uses: azure/webapps-deploy@v1
-      with: 
+      with:
         app-name: last-apple
         package: LastApple.Web/bin/Release/net6.0/publish
         publish-profile: ${{ secrets.lastApplePublishProfile }}

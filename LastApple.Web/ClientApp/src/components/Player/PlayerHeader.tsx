@@ -1,8 +1,7 @@
-import { IMediaItemOptions } from "../MusicKitWrapper/MusicKitDefinitions";
 import ReactSwitch from "react-switch";
 import * as React from "react";
 
-export type PlayerHeaderProps = { currentTrack: IMediaItemOptions, isScrobblingEnabled: boolean, onScrobblingSwitch(enabled: boolean): void, lastfmAuthenticated: boolean };
+export type PlayerHeaderProps = { currentTrack: MusicKit.MediaItemOptions, isScrobblingEnabled: boolean, onScrobblingSwitch(enabled: boolean): void, lastfmAuthenticated: boolean };
 
 export const PlayerHeader = (props: PlayerHeaderProps) =>
     <div style={{

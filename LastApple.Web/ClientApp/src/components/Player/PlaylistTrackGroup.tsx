@@ -5,18 +5,17 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEllipsisH } from "@fortawesome/free-solid-svg-icons/faEllipsisH";
 import musicKit from "../../musicKit";
 import { faFolderPlus, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
-import { IMediaItemOptions } from "../MusicKitWrapper/MusicKitDefinitions";
 
 type PlaylistTrackGroupProps = {
-    currentTrack: IMediaItemOptions,
-    tracks: IMediaItemOptions[],
+    currentTrack: MusicKit.MediaItemOptions,
+    tracks: MusicKit.MediaItemOptions[],
     isPlaying: boolean,
     index: number,
     onRemove(position: number, count: number),
-    addAlbumToLibrary(item: IMediaItemOptions): void,
+    addAlbumToLibrary(item: MusicKit.MediaItemOptions): void,
 }
 
-export const PlaylistTrackGroup = React.memo((props: React.PropsWithChildren<PlaylistTrackGroupProps>) => 
+export const PlaylistTrackGroup = React.memo((props: React.PropsWithChildren<PlaylistTrackGroupProps>) =>
     <div style={{ marginBottom: '20px' }}>
         <div style={{
             background: '#00000099',
