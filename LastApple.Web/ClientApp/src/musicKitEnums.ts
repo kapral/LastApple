@@ -1,4 +1,4 @@
-﻿export enum PlaybackStates {
+export enum PlaybackStates {
     none,
     loading,
     playing,
