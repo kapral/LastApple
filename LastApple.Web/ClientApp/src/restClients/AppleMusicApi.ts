@@ -40,4 +40,6 @@ class AppleMusicApi {
     }
 }
 
-export default new AppleMusicApi();
+const appleMusicApi = new AppleMusicApi();
+
+export default appleMusicApi;

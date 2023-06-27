@@ -34,4 +34,6 @@ class StationApi {
     }
 }
 
-export default new StationApi();
+const stationApi = new StationApi();
+
+export default stationApi;
