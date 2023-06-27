@@ -30,7 +30,7 @@ export const PlaylistTrack = React.memo((props: PlaylistTrackProps) =>
              onClick={() => props.onTrackSwitch(props.groupOffset + props.index)}>
             <FontAwesomeIcon icon={props.isPlaying ? faPause : faPlay}></FontAwesomeIcon>
         </div>
-        <Dropdown alignRight={true} style={{ float: 'right', fontSize: '18px' }}>
+        <Dropdown align="end" style={{ float: 'right', fontSize: '18px' }}>
             <Dropdown.Toggle as={CustomToggle} id={`item-dropdown-${props.groupOffset + props.index}`}>
                 <FontAwesomeIcon style={{ verticalAlign: 'bottom', margin: '.6rem' }} icon={faEllipsisH}></FontAwesomeIcon>
             </Dropdown.Toggle>
