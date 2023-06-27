@@ -7,7 +7,7 @@ const styles = {
     margin: '0 auto'
 };
 
-export class Layout extends Component {
+export class Layout extends Component<React.PropsWithChildren<{}>> {
     displayName = Layout.name
 
     render() {

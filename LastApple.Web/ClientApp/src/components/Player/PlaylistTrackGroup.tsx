@@ -32,7 +32,7 @@ export const PlaylistTrackGroup = React.memo((props: React.PropsWithChildren<Pla
                 width: 'calc(100% - 60px)',
                 padding: '7px 0 0 10px'
             }}>
-                <Dropdown alignRight={true} style={{
+                <Dropdown align="end" style={{
                     float: 'right',
                     margin: '5px 0',
                     fontSize: '22px'

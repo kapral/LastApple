@@ -1,20 +1,21 @@
 import * as React from 'react';
-import { AsyncTypeahead, TypeaheadLabelKey, TypeaheadModel } from 'react-bootstrap-typeahead';
+import { AsyncTypeahead } from 'react-bootstrap-typeahead';
+import { Option, LabelKey } from 'react-bootstrap-typeahead/types/types';
 
-interface ISearchState<TItem extends TypeaheadModel> {
+interface ISearchState<TItem extends Option> {
     isLoading: boolean;
     matches: Array<TItem>;
 }
 
-interface ISearchProps<TItem extends TypeaheadModel> {
+interface ISearchProps<TItem extends Option> {
     search: (term: string) => Promise<TItem[]>,
     placeholder: string,
     onChanged: (item: TItem) => void;
-    labelAccessor?: TypeaheadLabelKey<TItem>;
+    labelAccessor?: LabelKey;
     elementIndex?: number;
 }
 
-export class Search<TItem extends TypeaheadModel> extends React.Component<ISearchProps<TItem>, ISearchState<TItem>> {
+export class Search<TItem extends Option> extends React.Component<ISearchProps<TItem>, ISearchState<TItem>> {
     constructor(props) {
         super(props);
 
@@ -38,7 +39,7 @@ export class Search<TItem extends TypeaheadModel> extends React.Component<ISearc
                             delay={500}
                             options={this.state.matches}
                             labelKey={this.props.labelAccessor}
-                            onChange={items => this.props.onChanged(items[0])} />
+                            onChange={items => this.props.onChanged(items[0] as TItem)} />
         </div>
     }
 }
