@@ -2,11 +2,12 @@ import 'bootstrap/dist/css/bootstrap.css';
 import '@fortawesome/fontawesome-free/js/all.js'
 import './index.css';
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import App from './App';
 import registerServiceWorker from './registerServiceWorker';
 import env from './Environment';
 import { playbackEventMediator } from './PlaybackEventMediator';
+import { assertNonNullable } from './utils/mics';
 
 window.handleOpenURL = href => {
     const url = new URL(href);
@@ -32,12 +33,12 @@ document.addEventListener('deviceready', function () {
 }, false);
 
 const rootElement = document.getElementById('root');
+assertNonNullable(rootElement);
 
 if (env.isMobile)
     rootElement.classList.add('mobile');
 
-ReactDOM.render(
-    <App />,
-  rootElement);
+const root = ReactDOM.createRoot(rootElement);
+root.render(<App />);
 
 registerServiceWorker();
