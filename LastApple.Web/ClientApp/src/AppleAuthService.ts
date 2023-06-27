@@ -60,4 +60,6 @@ class AppleAuthService {
     }
 }
 
-export default new AppleAuthService();
+const authService = new AppleAuthService();
+
+export default authService;

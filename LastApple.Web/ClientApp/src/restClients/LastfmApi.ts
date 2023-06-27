@@ -36,4 +36,6 @@ class LastfmApi {
     }
 }
 
-export default new LastfmApi();
+const lastFmApi = new LastfmApi();
+
+export default lastFmApi;

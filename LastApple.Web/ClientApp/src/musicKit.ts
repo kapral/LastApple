@@ -35,4 +35,6 @@ class MusicKitObj {
     }
 }
 
-export default new MusicKitObj();
+const musicKit = new MusicKitObj();
+
+export default musicKit;

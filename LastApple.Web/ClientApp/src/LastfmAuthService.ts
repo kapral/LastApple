@@ -29,10 +29,12 @@ class LastfmAuthService {
 
         window.history.replaceState({}, document.title, `/${window.location.hash}`);
     }
-    
+
     async logout() {
         await lastfmApi.logout();
     }
 }
 
-export default new LastfmAuthService();
+const lastFmAuthService = new LastfmAuthService();
+
+export default lastFmAuthService;
