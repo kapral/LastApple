@@ -5,11 +5,8 @@ import { SimilarArtists } from "./Stations/SimilarArtists";
 import { Redirect } from "react-router";
 import { StationDescriptor } from "./StationDescriptor";
 import { MyLibrary } from "./Stations/MyLibrary";
-import { BaseProps } from "../BaseProps";
-import { observer } from "mobx-react";
 
-@observer
-export class StationsList extends Component<BaseProps, { triggerStationCreate: boolean, createdStationId: string }> {
+export class StationsList extends Component<{}, { triggerStationCreate: boolean, createdStationId: string }> {
     constructor(props) {
         super(props);
 
@@ -22,10 +19,10 @@ export class StationsList extends Component<BaseProps, { triggerStationCreate: b
         }
 
         return <div className='station-list' style={{ padding: '5px', display: 'grid' }}>
-                <StationDescriptor appState={this.props.appState} definition={MyLibrary.Definition} station={MyLibrary} />
-                <StationDescriptor appState={this.props.appState} definition={SingleArtist.Definition} station={SingleArtist} />
-                <StationDescriptor appState={this.props.appState} definition={SimilarArtists.Definition} station={SimilarArtists} />
-                <StationDescriptor appState={this.props.appState} definition={Tag.Definition} station={Tag} />
+                <StationDescriptor definition={MyLibrary.Definition} StationComponent={MyLibrary} />
+                <StationDescriptor definition={SingleArtist.Definition} StationComponent={SingleArtist} />
+                <StationDescriptor definition={SimilarArtists.Definition} StationComponent={SimilarArtists} />
+                <StationDescriptor definition={Tag.Definition} StationComponent={Tag} />
             </div>;
     }
 }

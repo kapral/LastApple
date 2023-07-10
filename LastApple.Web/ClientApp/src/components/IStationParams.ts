@@ -1,6 +1,4 @@
-import { BaseProps } from "../BaseProps";
-
-export interface IStationParams extends BaseProps {
+export interface IStationParams {
     triggerCreate: boolean;
 
     onOptionsChanged(isValid: boolean): void;
