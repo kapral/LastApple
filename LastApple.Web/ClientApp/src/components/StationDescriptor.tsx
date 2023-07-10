@@ -1,14 +1,13 @@
 import React, { Component } from 'react';
 import { IStationDefinition } from './IStationDefinition';
-import { BaseProps } from '../BaseProps';
 import { Redirect } from 'react-router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowCircleRight } from '@fortawesome/free-solid-svg-icons';
-import { observer } from 'mobx-react';
+import { IStationParams } from './IStationParams';
 
-interface DescriptorProps extends BaseProps { 
+interface DescriptorProps {
     definition: IStationDefinition;
-    station: Function;
+    StationComponent: React.ComponentType<IStationParams>;
 }
 
 const descriptorStyles: React.CSSProperties = {
@@ -28,27 +27,24 @@ const descriptorTitleStyles: React.CSSProperties = {
 export class StationDescriptor extends Component<DescriptorProps, { isValid: boolean, triggerStationCreate: boolean, createdStationId: string }> {
     constructor(props) {
         super(props);
-        
+
         this.state = {
             isValid: false,
             triggerStationCreate: false,
             createdStationId: null
         };
     }
-    
+
     render(): React.ReactNode {
         if (this.state.createdStationId) {
             return <Redirect to={`/station/${this.state.createdStationId}`}/>
         }
 
-        const Station = observer(this.props.station as any) as Function;
-        
         return <div className={'station-descriptor'} style={descriptorStyles}>
             <h4 style={descriptorTitleStyles}>{this.props.definition.title}</h4>
                 <div style={{ color: '#AAA' }}>{this.props.definition.description}</div>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <Station
-                        appState={this.props.appState}
+                    <this.props.StationComponent
                         triggerCreate={this.state.triggerStationCreate}
                         onStationCreated={id => this.setState({ createdStationId: id })}
                         onOptionsChanged={x => this.handleOptionsChanged(x)} />
@@ -58,11 +54,11 @@ export class StationDescriptor extends Component<DescriptorProps, { isValid: boo
                 </div>
             </div>;
     }
-    
+
     handleStationCreate() {
         if (!this.state.isValid)
             return;
-        
+
         this.setState({ triggerStationCreate: true });
     }
 

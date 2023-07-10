@@ -2,8 +2,8 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCog, faPlay, faSearch } from '@fortawesome/free-solid-svg-icons';
-import { inject, observer } from 'mobx-react';
 import { BaseRouterProps } from '../../BaseRouterProps';
+import { useAppContext } from '../../AppContext';
 
 const navStyle: React.CSSProperties = {
     position: 'fixed',
@@ -38,22 +38,28 @@ const disabledLinkStyle: React.CSSProperties = {
 };
 
 const labelStyle: React.CSSProperties = {
-  marginTop: '5px'  
+  marginTop: '5px'
 };
 
-export const MobileNav = inject('appState')(observer((props: BaseRouterProps) => <nav style={navStyle}>
-    <NavLink style={linkStyle} activeStyle={activeLinkStyle} exact to={'/'}>
-        <FontAwesomeIcon size='2x' icon={faSearch}/>
-        <span style={labelStyle}>New Station</span>
-    </NavLink>
-    <NavLink style={{...linkStyle, ...(!props.appState.latestStationId ? disabledLinkStyle : { })}}
-             activeStyle={activeLinkStyle} 
-             to={`/station/${props.appState.latestStationId}`}>
-        <FontAwesomeIcon size='2x' icon={faPlay}/>
-        <span style={labelStyle}>Now Playing</span>
-    </NavLink>
-    <NavLink style={linkStyle} activeStyle={activeLinkStyle} to={`/settings`}>
-        <FontAwesomeIcon size='2x' icon={faCog}/>
-        <span style={labelStyle}>Settings</span>
-    </NavLink>
-</nav>));
+export const MobileNav = (_: BaseRouterProps) => {
+    const context = useAppContext();
+
+    return (
+        <nav style={navStyle}>
+            <NavLink style={linkStyle} activeStyle={activeLinkStyle} exact to={'/'}>
+                <FontAwesomeIcon size='2x' icon={faSearch} />
+                <span style={labelStyle}>New Station</span>
+            </NavLink>
+            <NavLink style={{ ...linkStyle, ...(!context.latestStationId ? disabledLinkStyle : {}) }}
+                     activeStyle={activeLinkStyle}
+                     to={`/station/${context.latestStationId}`}>
+                <FontAwesomeIcon size='2x' icon={faPlay} />
+                <span style={labelStyle}>Now Playing</span>
+            </NavLink>
+            <NavLink style={linkStyle} activeStyle={activeLinkStyle} to={`/settings`}>
+                <FontAwesomeIcon size='2x' icon={faCog} />
+                <span style={labelStyle}>Settings</span>
+            </NavLink>
+        </nav>
+    );
+};

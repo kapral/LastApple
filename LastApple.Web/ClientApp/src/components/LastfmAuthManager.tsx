@@ -2,10 +2,10 @@ import {Component} from "react";
 import React from "react";
 import lastfmAuthService from '../LastfmAuthService';
 import { Spinner } from 'react-bootstrap';
-import { observer } from "mobx-react";
 import lastfmLogo from '../images/lastfm-logo.png'
 import { BaseRouterProps } from '../BaseRouterProps';
 import { withRouter } from 'react-router-dom'
+import { AppContext } from '../AppContext';
 
 interface LastfmUser {
     name: string;
@@ -13,8 +13,14 @@ interface LastfmUser {
     avatar: Array<string>
 }
 
-@observer
-class LastfmAuthManager extends Component<BaseRouterProps, { pending: boolean, user: LastfmUser }> {
+interface ILastfmAuthManagerProps extends BaseRouterProps {
+    readonly lastfmAuthenticated: boolean;
+}
+
+class LastfmAuthManager extends Component<ILastfmAuthManagerProps, { pending: boolean, user: LastfmUser }> {
+    static contextType = AppContext;
+    context: React.ContextType<typeof AppContext>;
+
     constructor(props) {
         super(props);
 
@@ -26,7 +32,7 @@ class LastfmAuthManager extends Component<BaseRouterProps, { pending: boolean, u
     }
 
     async refreshAuth() {
-        this.props.appState.checkingLastfmAuth = true;
+        this.context.setCheckingLastfmAuth(true);
 
         await lastfmAuthService.tryGetAuthFromParams();
 
@@ -34,8 +40,8 @@ class LastfmAuthManager extends Component<BaseRouterProps, { pending: boolean, u
 
         this.setState({ pending: false, user });
 
-        this.props.appState.lastfmAuthenticated = !!user;
-        this.props.appState.checkingLastfmAuth = false;
+        this.context.setLastfmAuthenticated(!!user);
+        this.context.setCheckingLastfmAuth(false);
     }
 
     async authenticate() {
@@ -45,8 +51,8 @@ class LastfmAuthManager extends Component<BaseRouterProps, { pending: boolean, u
         this.props.history.push('/settings');
     }
 
-    async componentDidUpdate(prevProps: Readonly<BaseRouterProps>, prevState: Readonly<{ pending: boolean; user: LastfmUser }>, snapshot?: any): Promise<void> {
-        if (this.props.appState.lastfmAuthenticated !== prevProps.appState.lastfmAuthenticated)
+    async componentDidUpdate(prevProps: Readonly<ILastfmAuthManagerProps>, prevState: Readonly<{ pending: boolean; user: LastfmUser }>, snapshot?: any): Promise<void> {
+        if (this.props.lastfmAuthenticated !== prevProps.lastfmAuthenticated)
             await this.refreshAuth();
     }
 

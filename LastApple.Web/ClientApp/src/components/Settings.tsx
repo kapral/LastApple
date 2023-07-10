@@ -6,9 +6,9 @@ import appleMusicLogo from '../images/apple-music-logo.png';
 import lastfmLogo from '../images/lastfm-logo.png';
 import { Spinner } from 'react-bootstrap';
 import ReactSwitch from "react-switch";
-import { inject, observer } from "mobx-react";
 import { BaseRouterProps } from "../BaseRouterProps";
 import { MobileUtil } from '../Mobile/MobileUtil';
+import { AppContext } from '../AppContext';
 
 const rowStyles: React.CSSProperties = { flex: 1, display: 'flex', padding: '20px', alignItems: 'center', borderBottom: '1px solid #333' };
 const logoStyles: React.CSSProperties = { height: '30px', marginRight: '15px' };
@@ -17,9 +17,10 @@ interface SettingsProps extends BaseRouterProps {
     appConnect: boolean;
 }
 
-@inject('appState')
-@observer
 export class Settings extends Component<SettingsProps, { loading: boolean, appleAuth: boolean, lastfmAuth: boolean }> {
+    static contextType = AppContext;
+    context: React.ContextType<typeof AppContext>;
+
     constructor(props) {
         super(props);
 
@@ -75,7 +76,7 @@ export class Settings extends Component<SettingsProps, { loading: boolean, apple
             await lastfmAuthService.logout();
 
             this.setState({ lastfmAuth: false });
-            this.props.appState.lastfmAuthenticated = false;
+            this.context.setLastfmAuthenticated(false);
             return;
         }
 

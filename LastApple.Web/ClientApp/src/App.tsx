@@ -5,7 +5,6 @@ import { Home } from './components/Home';
 import { Play } from './components/Play';
 import { Header } from "./components/Header";
 import { Provider } from "mobx-react";
-import { AppState } from "./AppState";
 import * as MobxReactRouter from "mobx-react-router";
 import { RouterStore, syncHistoryWithStore } from "mobx-react-router";
 import { createHashHistory, createBrowserHistory } from "history";
@@ -20,7 +19,9 @@ import { CaptureSessionId } from './components/Mobile/CaptureSessionId';
 
 export default class App extends Component<{}, { showPlayer: boolean }> {
     displayName = App.name;
-    private readonly stores: { routing: MobxReactRouter.RouterStore; appState: AppState };
+
+
+    private readonly stores: { routing: MobxReactRouter.RouterStore };
     private readonly history: MobxReactRouter.SynchronizedHistory;
 
     mobileSettingsRoute = '/settings/app';
@@ -41,8 +42,7 @@ export default class App extends Component<{}, { showPlayer: boolean }> {
         this.history = syncHistoryWithStore(browserHistory, routingStore);
 
         this.stores = {
-            routing: routingStore,
-            appState: new AppState()
+            routing: routingStore
         };
     }
 
@@ -87,4 +87,3 @@ export default class App extends Component<{}, { showPlayer: boolean }> {
         );
     }
 }
-

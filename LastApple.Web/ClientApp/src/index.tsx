@@ -8,6 +8,7 @@ import registerServiceWorker from './registerServiceWorker';
 import env from './Environment';
 import { playbackEventMediator } from './PlaybackEventMediator';
 import { assertNonNullable } from './utils/mics';
+import { AppContextProvider } from './AppContext';
 
 window.handleOpenURL = href => {
     const url = new URL(href);
@@ -39,6 +40,10 @@ if (env.isMobile)
     rootElement.classList.add('mobile');
 
 const root = ReactDOM.createRoot(rootElement);
-root.render(<App />);
+root.render(
+    <AppContextProvider>
+        <App />
+    </AppContextProvider>
+);
 
 registerServiceWorker();

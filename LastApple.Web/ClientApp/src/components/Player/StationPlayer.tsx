@@ -3,8 +3,6 @@ import musicKit from '../../musicKit';
 import * as signalR from '@aspnet/signalr';
 import { HubConnection } from '@aspnet/signalr';
 import { Playlist } from './Playlist';
-import { BaseProps } from '../../BaseProps';
-import { observer } from 'mobx-react';
 import lastfmApi from '../../restClients/LastfmApi';
 import stationApi, { IStation } from '../../restClients/StationApi'
 import environment from '../../Environment';
@@ -13,8 +11,9 @@ import { Spinner } from 'react-bootstrap';
 import { playbackEventMediator } from '../../PlaybackEventMediator';
 import { instance as mediaSessionManager } from '../../MediaSessionManager'
 import { PlaybackStates } from '../../musicKitEnums';
+import { AppContext } from '../../AppContext';
 
-interface IPlayerProps extends BaseProps {
+interface IPlayerProps {
     stationId: string;
 }
 
@@ -30,8 +29,10 @@ interface IAddTrackEvent {
     position: number;
 }
 
-@observer
 export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
+    static contextType = AppContext;
+    context: React.ContextType<typeof AppContext>;
+
     musicKit: MusicKit.MusicKitInstance;
     pendingEvents: Array<IAddTrackEvent> = [];
     station: IStation;
@@ -234,7 +235,7 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
     }
 
     get isScrobblingEnabled() {
-        return this.props.appState.lastfmAuthenticated && this.props.appState.enableScrobbling;
+        return this.context.lastfmAuthenticated && this.context.enableScrobbling;
     }
 
     async topUp() {
@@ -298,7 +299,8 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
                 onPlayPause={this.handlePlayPause}
                 isScrobblingEnabled={this.isScrobblingEnabled}
                 onScrobblingSwitch={this.handleScrobblingSwitch}
-                lastfmAuthenticated={this.props.appState.lastfmAuthenticated}/>
+                lastfmAuthenticated={this.context.lastfmAuthenticated}
+            />
             <Playlist
                 tracks={this.state.tracks}
                 isPlaying={this.state.isPlaying}
@@ -364,6 +366,6 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
     };
 
     handleScrobblingSwitch = (value: boolean) => {
-        this.props.appState.enableScrobbling = value;
+        this.context.setEnableScrobbling(value);
     }
 }

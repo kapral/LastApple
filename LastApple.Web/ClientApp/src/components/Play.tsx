@@ -1,19 +1,21 @@
 import React, {Component} from "react";
 import { StationPlayer } from "./Player/StationPlayer";
-import { inject } from "mobx-react";
 import { BaseRouterProps } from "../BaseRouterProps";
+import { AppContext } from '../AppContext';
 
 interface PlayProps extends BaseRouterProps {
     showPlayer: boolean;
     stationId: string;
 }
 
-@inject('appState')
 export class Play extends Component<PlayProps> {
+    static contextType = AppContext;
+    context: React.ContextType<typeof AppContext>;
+
     private get stationId(): string {
-        return this.props.stationId || this.props.appState.latestStationId;
+        return this.props.stationId || this.context.latestStationId;
     }
-    
+
     componentDidMount(): void {
         this.updateLatestStationId();
     }
@@ -21,13 +23,13 @@ export class Play extends Component<PlayProps> {
     componentDidUpdate(): void {
         this.updateLatestStationId();
     }
-    
+
     updateLatestStationId() {
-        if (this.props.appState.latestStationId !== this.stationId) {
-            this.props.appState.latestStationId = this.stationId;
+        if (this.context.latestStationId !== this.stationId) {
+            this.context.setLatestStationId(this.stationId);
         }
     }
-    
+
     render() {
         const stationId = this.stationId;
 
@@ -35,7 +37,7 @@ export class Play extends Component<PlayProps> {
             return null;
 
         return <div style={{ display: this.props.showPlayer ? 'block' : 'none' }}>
-            <StationPlayer stationId={stationId} appState={this.props.appState}></StationPlayer>
+            <StationPlayer stationId={stationId} />
         </div>;
     }
 }
