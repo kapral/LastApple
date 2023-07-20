@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Footer } from './Footer';
 
 const styles = {
     backgroundColor: '#222',
@@ -13,6 +14,7 @@ export class Layout extends Component<React.PropsWithChildren<{}>> {
     render() {
         return <div style={styles}>
             {this.props.children}
+            <Footer />
         </div>;
     }
 }

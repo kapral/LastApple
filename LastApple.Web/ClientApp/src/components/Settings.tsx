@@ -1,23 +1,17 @@
 import React, { Component } from "react";
 import appleAuthService from '../AppleAuthService';
 import lastfmAuthService from '../LastfmAuthService';
-import environment from "../Environment";
 import appleMusicLogo from '../images/apple-music-logo.png';
 import lastfmLogo from '../images/lastfm-logo.png';
 import { Spinner } from 'react-bootstrap';
 import ReactSwitch from "react-switch";
 import { BaseRouterProps } from "../BaseRouterProps";
-import { MobileUtil } from '../Mobile/MobileUtil';
 import { AppContext } from '../AppContext';
 
 const rowStyles: React.CSSProperties = { flex: 1, display: 'flex', padding: '20px', alignItems: 'center', borderBottom: '1px solid #333' };
 const logoStyles: React.CSSProperties = { height: '30px', marginRight: '15px' };
 
-interface SettingsProps extends BaseRouterProps {
-    appConnect: boolean;
-}
-
-export class Settings extends Component<SettingsProps, { loading: boolean, appleAuth: boolean, lastfmAuth: boolean }> {
+export class Settings extends Component<BaseRouterProps, { loading: boolean, appleAuth: boolean, lastfmAuth: boolean }> {
     static contextType = AppContext;
     context: React.ContextType<typeof AppContext>;
 
@@ -36,7 +30,6 @@ export class Settings extends Component<SettingsProps, { loading: boolean, apple
         const lastfmAuth = !!lastfmUser;
 
         this.setState({ loading: false, appleAuth, lastfmAuth });
-        this.handleAutoRedirectToApp();
 
         if (this.props.match.params['source'] === 'apple' && !appleAuth)
             await this.authenticateApple();
@@ -53,22 +46,11 @@ export class Settings extends Component<SettingsProps, { loading: boolean, apple
             return;
         }
 
-        if (environment.isMobile) {
-            this.openWebAppInViewController('apple');
-            return;
-        }
-
         await appleAuthService.authenticate();
 
         const appleAuth = await appleAuthService.isAuthenticated();
 
         this.setState({ appleAuth });
-        this.handleAutoRedirectToApp();
-    }
-
-    handleAutoRedirectToApp() {
-        if (this.props.appConnect && this.state.appleAuth && this.state.lastfmAuth)
-            window.location.assign(MobileUtil.formatAppUrl());
     }
 
     async authenticateLastfm() {
@@ -77,11 +59,6 @@ export class Settings extends Component<SettingsProps, { loading: boolean, apple
 
             this.setState({ lastfmAuth: false });
             this.context.setLastfmAuthenticated(false);
-            return;
-        }
-
-        if (environment.isMobile) {
-            this.openWebAppInViewController('lastfm');
             return;
         }
 
@@ -129,19 +106,5 @@ export class Settings extends Component<SettingsProps, { loading: boolean, apple
                 />
             </div>
         </div>;
-    }
-
-    openWebAppInViewController(source: string) {
-        window.SafariViewController.show({
-                url: `${environment.websiteUrl}settings/app/${source}`
-            },
-            result => {
-                if (result.event === 'closed')
-                    window.SafariViewController.show({
-                        url: `${environment.websiteUrl}settings/capturesessionid`,
-                        hidden: true
-                    });
-                    this.setState({ loading: true });
-            });
     }
 }

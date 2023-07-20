@@ -8,7 +8,6 @@ import stationApi, { IStation } from '../../restClients/StationApi'
 import environment from '../../Environment';
 import { PlayerControls } from './PlayerControls';
 import { Spinner } from 'react-bootstrap';
-import { playbackEventMediator } from '../../PlaybackEventMediator';
 import { instance as mediaSessionManager } from '../../MediaSessionManager'
 import { PlaybackStates } from '../../musicKitEnums';
 import { AppContext } from '../../AppContext';
@@ -114,7 +113,6 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
 
     async play() {
         await this.musicKit.play()
-        playbackEventMediator.notifyPlayStart();
     }
 
     async appendTracksToQueue(tracks: MusicKit.Songs[]) {
@@ -198,9 +196,6 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
         if (!event) {
             return;
         }
-
-        if (event.state as unknown as PlaybackStates === PlaybackStates.completed)
-            playbackEventMediator.notifyPlayEnd();
 
         if (this.state.suppressEvents)
             return;
@@ -322,8 +317,6 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
     handlePlayPause = async () => {
         if (this.musicKit.isPlaying) {
             await this.musicKit.pause();
-            playbackEventMediator.notifyPlayEnd();
-
             return;
         }
 
