@@ -1,88 +1,74 @@
-import React, { Component } from "react";
-import appleAuthService from '../AppleAuthService';
-import lastfmAuthService from '../LastfmAuthService';
+import React from "react";
 import appleMusicLogo from '../images/apple-music-logo.png';
 import lastfmLogo from '../images/lastfm-logo.png';
 import { Spinner } from 'react-bootstrap';
 import ReactSwitch from "react-switch";
-import { BaseRouterProps } from "../BaseRouterProps";
-import { AppContext } from '../AppContext';
+import { AuthenticationState } from '../authentication';
+import { useAppleContext } from '../apple/AppleContext';
+import { useLastfmContext } from '../lastfm/LastfmContext';
+import { loginApple as serviceLoginApple, logoutApple as serviceLogoutApple } from '../apple/appleAuthentication';
+import { loginLastfm as serviceLoginLastfm, logoutLastfm as serviceLogoutLastfm } from '../lastfm/lastfmAuthentication';
 
 const rowStyles: React.CSSProperties = { flex: 1, display: 'flex', padding: '20px', alignItems: 'center', borderBottom: '1px solid #333' };
 const logoStyles: React.CSSProperties = { height: '30px', marginRight: '15px' };
 
-export class Settings extends Component<BaseRouterProps, { loading: boolean, appleAuth: boolean, lastfmAuth: boolean }> {
-    static contextType = AppContext;
-    context: React.ContextType<typeof AppContext>;
+export const Settings: React.FunctionComponent = () => {
+    const appleContext = useAppleContext();
+    const lastfmContext = useLastfmContext();
 
-    constructor(props) {
-        super(props);
+    const loginApple = React.useCallback(
+        async () => await serviceLoginApple(appleContext.authentication),
+        [appleContext.authentication]
+    );
 
-        this.state = { loading: true, appleAuth: false, lastfmAuth: false };
-    }
+    const logoutApple = React.useCallback(
+        async () => await serviceLogoutApple(appleContext.authentication),
+        [appleContext.authentication]
+    );
 
-    async componentDidMount() {
-        this.setState({ loading: true });
-        await lastfmAuthService.tryGetAuthFromParams();
+    const loginLastfm = React.useCallback(
+        async () => await serviceLoginLastfm(lastfmContext.authentication),
+        [lastfmContext.authentication]
+    );
 
-        const appleAuth = await appleAuthService.isAuthenticated();
-        const lastfmUser = await lastfmAuthService.getAuthenticatedUser();
-        const lastfmAuth = !!lastfmUser;
+    const logoutLastfm = React.useCallback(
+        async () => await serviceLogoutLastfm(lastfmContext.authentication),
+        [lastfmContext.authentication]
+    );
 
-        this.setState({ loading: false, appleAuth, lastfmAuth });
+    const isAppleAuthenticated = appleContext.authentication.state === AuthenticationState.Authenticated;
+    const isLastfmAuthenticated = lastfmContext.authentication.state === AuthenticationState.Authenticated;
 
-        if (this.props.match.params['source'] === 'apple' && !appleAuth)
-            await this.authenticateApple();
+    const toggleAppleAuthentication = React.useCallback(
+        async () =>
+            isAppleAuthenticated
+                ? await logoutApple()
+                : await loginApple(),
+        [isAppleAuthenticated, loginApple, logoutApple]
+    );
 
-        if (this.props.match.params['source'] === 'lastfm' && !lastfmAuth)
-            await this.authenticateLastfm();
-    }
+    const toggleLastfmAuthentication = React.useCallback(
+        async () =>
+            isLastfmAuthenticated
+                ? await logoutLastfm()
+                : await loginLastfm(),
+        [isLastfmAuthenticated, loginLastfm, logoutLastfm]
+    );
 
-    async authenticateApple() {
-        if (this.state.appleAuth) {
-            await appleAuthService.logout();
+    if (appleContext.authentication.state === AuthenticationState.Loading || lastfmContext.authentication.state === AuthenticationState.Loading)
+        return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '200px' }}>
+            <Spinner animation="border" />
+        </div>;
 
-            this.setState({ appleAuth: false });
-            return;
-        }
-
-        await appleAuthService.authenticate();
-
-        const appleAuth = await appleAuthService.isAuthenticated();
-
-        this.setState({ appleAuth });
-    }
-
-    async authenticateLastfm() {
-        if (this.state.lastfmAuth) {
-            await lastfmAuthService.logout();
-
-            this.setState({ lastfmAuth: false });
-            this.context.setLastfmAuthenticated(false);
-            return;
-        }
-
-        await lastfmAuthService.authenticate();
-
-        const lastfmAuth = !!await lastfmAuthService.getAuthenticatedUser();
-
-        this.setState({ lastfmAuth });
-    }
-
-    render() {
-        if (this.state.loading)
-            return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '200px' }}>
-                <Spinner animation="border" />
-            </div>;
-
-        return <div style={{ display: 'flex', flexDirection: 'column' }}>
+    return (
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
             <div style={{ background: '#0E0E0E', padding: '10px 25px'  }}>Connected accounts</div>
             <div style={rowStyles}>
                 <img style={logoStyles} src={appleMusicLogo} alt='Apple Music Logo' />
                 <div style={{ flex: 1 }}>Apple Music</div>
                 <ReactSwitch
-                    checked={this.state.appleAuth}
-                    onChange={() => this.authenticateApple()}
+                    checked={isAppleAuthenticated}
+                    onChange={toggleAppleAuthentication}
                     uncheckedIcon={false}
                     checkedIcon={false}
                     height={22}
@@ -95,8 +81,8 @@ export class Settings extends Component<BaseRouterProps, { loading: boolean, app
                 <img style={logoStyles} src={lastfmLogo} alt='Last.fm logo' />
                 <div style={{ flex: 1 }}>Last.fm</div>
                 <ReactSwitch
-                    checked={this.state.lastfmAuth}
-                    onChange={() => this.authenticateLastfm()}
+                    checked={isLastfmAuthenticated}
+                    onChange={toggleLastfmAuthentication}
                     uncheckedIcon={false}
                     checkedIcon={false}
                     height={22}
@@ -105,6 +91,6 @@ export class Settings extends Component<BaseRouterProps, { loading: boolean, app
                     onColor={'#8e0000'}
                 />
             </div>
-        </div>;
-    }
-}
+        </div>
+    );
+};

@@ -1,16 +1,17 @@
 import * as React from 'react';
 import musicKit from '../../musicKit';
 import * as signalR from '@aspnet/signalr';
-import { HubConnection } from '@aspnet/signalr';
-import { Playlist } from './Playlist';
+import {HubConnection} from '@aspnet/signalr';
+import {Playlist} from './Playlist';
 import lastfmApi from '../../restClients/LastfmApi';
-import stationApi, { IStation } from '../../restClients/StationApi'
+import stationApi, {IStation} from '../../restClients/StationApi'
 import environment from '../../Environment';
-import { PlayerControls } from './PlayerControls';
-import { Spinner } from 'react-bootstrap';
-import { instance as mediaSessionManager } from '../../MediaSessionManager'
-import { PlaybackStates } from '../../musicKitEnums';
-import { AppContext } from '../../AppContext';
+import {PlayerControls} from './PlayerControls';
+import {Spinner} from 'react-bootstrap';
+import {instance as mediaSessionManager} from '../../MediaSessionManager'
+import {PlaybackStates} from '../../musicKitEnums';
+import { LastfmContext } from '../../lastfm/LastfmContext';
+import { AuthenticationState } from '../../authentication';
 
 interface IPlayerProps {
     stationId: string;
@@ -29,8 +30,8 @@ interface IAddTrackEvent {
 }
 
 export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
-    static contextType = AppContext;
-    context: React.ContextType<typeof AppContext>;
+    static contextType = LastfmContext;
+    context: React.ContextType<typeof LastfmContext>;
 
     musicKit: MusicKit.MusicKitInstance;
     pendingEvents: Array<IAddTrackEvent> = [];
@@ -230,7 +231,7 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
     }
 
     get isScrobblingEnabled() {
-        return this.context.lastfmAuthenticated && this.context.enableScrobbling;
+        return this.context.authentication.state === AuthenticationState.Authenticated && this.context.isScrobblingEnabled;
     }
 
     async topUp() {
@@ -294,7 +295,7 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
                 onPlayPause={this.handlePlayPause}
                 isScrobblingEnabled={this.isScrobblingEnabled}
                 onScrobblingSwitch={this.handleScrobblingSwitch}
-                lastfmAuthenticated={this.context.lastfmAuthenticated}
+                lastfmAuthenticated={this.context.authentication.state === AuthenticationState.Authenticated}
             />
             <Playlist
                 tracks={this.state.tracks}
@@ -359,6 +360,6 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
     };
 
     handleScrobblingSwitch = (value: boolean) => {
-        this.context.setEnableScrobbling(value);
+        this.context.setIsScrobblingEnabled(value);
     }
 }

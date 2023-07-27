@@ -1,27 +1,20 @@
-import lastfmApi from "./restClients/LastfmApi";
+import lastfmApi from "../restClients/LastfmApi";
 
 class LastfmAuthService {
-    async getAuthenticatedUser() {
+    public async getAuthenticatedUser() {
         return await lastfmApi.getUser();
     }
 
-    async authenticate() {
+    public async authenticate() {
         window.location.href = await lastfmApi.getAuthUrl(window.location.href);
     }
 
-    private postTokenPromise: Promise<void>;
-
-    async tryGetAuthFromParams() {
+    public tryGetAuthFromParams(): string | null {
         const url = new URL(window.location.href);
-        const token = url.searchParams.get('token');
-
-        if (token) {
-            await (this.postTokenPromise || (this.postTokenPromise = this.postToken(token)));
-            this.postTokenPromise = null;
-        }
+        return url.searchParams.get('token');
     }
 
-    async postToken(token: string) {
+    public async postToken(token: string) {
         const sessionIdResponse = await lastfmApi.postToken(token);
         const sessionId = await sessionIdResponse.json();
 
@@ -30,7 +23,7 @@ class LastfmAuthService {
         window.history.replaceState({}, document.title, `/${window.location.hash}`);
     }
 
-    async logout() {
+    public async logout() {
         await lastfmApi.logout();
     }
 }

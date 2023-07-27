@@ -1,5 +1,11 @@
 import environment from "../Environment";
 
+export interface ILastfmUser {
+    readonly name: string;
+    readonly url: string;
+    readonly avatar: Array<string>
+}
+
 class LastfmApi {
     async getAuthUrl(redirectUrl: string) {
         const encodedUrl = encodeURIComponent(redirectUrl);
@@ -22,7 +28,7 @@ class LastfmApi {
         return await fetch(`${environment.apiUrl}api/lastfm/auth`, { method: 'DELETE', headers: { 'X-SessionId': localStorage.getItem('SessionId') } });
     }
 
-    async getUser() {
+    async getUser(): Promise<ILastfmUser> {
         const userResponse = await fetch(`${environment.apiUrl}api/lastfm/auth/user`, { headers: { 'X-SessionId': localStorage.getItem('SessionId') } });
         return await userResponse.json();
     }
