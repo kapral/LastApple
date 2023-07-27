@@ -1,10 +1,10 @@
-import { Component } from "react";
 import * as React from "react";
-import LastfmAuthManager from "./LastfmAuthManager";
-import { NavLink } from "react-router-dom";
-import { BaseRouterProps } from "../BaseRouterProps";
+import {Component} from "react";
+import {NavLink} from "react-router-dom";
+import {BaseRouterProps} from "../BaseRouterProps";
 import logo from '../images/logo.png';
-import { AppContext } from '../AppContext';
+import {AppContext} from '../AppContext';
+import {LastfmAvatar} from "./LastfmAvatar";
 
 type HeaderProps = BaseRouterProps & {
     showNav: boolean;
@@ -39,9 +39,7 @@ export class Header extends Component<HeaderProps> {
                     <h2 style={titleStyles}>lastream</h2>
                 </div>
                 <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
-                    {this.props.showLastfm &&
-                        <LastfmAuthManager {...this.props} lastfmAuthenticated={this.context.lastfmAuthenticated} />
-                    }
+                    {this.props.showLastfm && <LastfmAvatar />}
                 </div>
             </div>
 

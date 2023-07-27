@@ -1,5 +1,5 @@
-import musicApi from "./restClients/AppleMusicApi";
-import musicKit from './musicKit';
+import musicApi from "../restClients/AppleMusicApi";
+import musicKit from '../musicKit';
 
 class AppleAuthService {
     existingAuthCheckPromise: Promise<boolean>;

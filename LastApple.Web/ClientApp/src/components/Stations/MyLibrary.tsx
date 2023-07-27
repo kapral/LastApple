@@ -1,18 +1,19 @@
-import React, { Component } from "react";
-import { IStationParams } from "../IStationParams";
+import React, {Component} from "react";
+import {IStationParams} from "../IStationParams";
 import stationApi from "../../restClients/StationApi";
-import { AppContext } from '../../AppContext';
+import { LastfmContext } from '../../lastfm/LastfmContext';
+import { AuthenticationState } from '../../authentication';
 
 export class MyLibrary extends Component<IStationParams> {
-    static contextType = AppContext;
-    context: React.ContextType<typeof AppContext>;
+    static contextType = LastfmContext;
+    context: React.ContextType<typeof LastfmContext>;
 
     componentDidMount(): void {
-        this.props.onOptionsChanged(this.context.lastfmAuthenticated);
+        this.props.onOptionsChanged(this.context.authentication.state === AuthenticationState.Authenticated);
     }
 
     async componentDidUpdate() {
-        if(this.context.lastfmAuthenticated) {
+        if(this.context.authentication.state === AuthenticationState.Authenticated) {
             this.props.onOptionsChanged(true);
         }
 
@@ -24,7 +25,7 @@ export class MyLibrary extends Component<IStationParams> {
     }
 
     render(): React.ReactNode {
-        const showWarning = !this.context.lastfmAuthenticated && !this.context.checkingLastfmAuth;
+        const showWarning = this.context.authentication.state === AuthenticationState.Unauthenticated;
         return <div style={{ display: 'flex', flex: 1 }}>
             <div style={{ margin: '10px 10px 10px 0', color: '#ffc123', display: showWarning ? 'block' : 'none' }}>Log in to last.fm to listen to your library.</div>
             <div style={{ flex: 1, height: '54px' }}></div>
