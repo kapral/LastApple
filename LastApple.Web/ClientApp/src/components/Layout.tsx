@@ -1,5 +1,8 @@
 import React from 'react';
 import { Footer } from './Footer';
+import { Header } from "./Header";
+import {useLocation} from "react-router-dom";
+import {noNavRoutes} from "../routes";
 
 const styles = {
     backgroundColor: '#222',
@@ -8,8 +11,16 @@ const styles = {
     margin: '0 auto'
 };
 
-export const Layout: React.FunctionComponent<React.PropsWithChildren> = (props: React.PropsWithChildren) =>
-    <div style={styles}>
-        {props.children}
-        <Footer />
-    </div>;
+export const Layout: React.FunctionComponent<React.PropsWithChildren> = (props: React.PropsWithChildren) => {
+    const location = useLocation();
+
+    const isNavShown = !noNavRoutes.some(r => location.pathname.includes(r));
+
+    return (
+        <div style={styles}>
+            <Header showNav={isNavShown} showLastfm={isNavShown} />
+            {props.children}
+            <Footer/>
+        </div>
+    );
+};
