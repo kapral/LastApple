@@ -5,7 +5,7 @@ import { useHistory } from "react-router";
 import { useLastfmContext } from '../lastfm/LastfmContext';
 import { AuthenticationState } from '../authentication';
 
-export const LastfmAvatar = () => {
+export const LastfmAvatar: React.FunctionComponent = () => {
     const lastfmContext = useLastfmContext();
     const history = useHistory();
 
