@@ -5,11 +5,6 @@ import {LastfmAvatar} from "./LastfmAvatar";
 
 import logo from '../images/logo.png';
 
-interface IHeaderProps {
-    readonly showNav: boolean;
-    readonly showLastfm: boolean;
-}
-
 const navLinkStyle = { color: '#DDD', padding: '10px', textDecoration: 'none', display: 'inline-block' };
 const activeNavLinkStyle = { background: '#222' };
 
@@ -19,12 +14,12 @@ const titleStyles: React.CSSProperties = {
     textAlign: 'center'
 };
 
-export const Header: React.FunctionComponent<IHeaderProps> = (props: IHeaderProps) => {
+export const Header: React.FunctionComponent = () => {
     const appContext = useAppContext();
 
     const headerStyles: React.CSSProperties = {
         background: '#000',
-        padding: `10px 10px ${props.showNav ? 0 : 10}px`,
+        padding: `10px 10px 0`,
         paddingTop: 'max(env(safe-area-inset-top), 10px)'
     };
 
@@ -37,20 +32,18 @@ export const Header: React.FunctionComponent<IHeaderProps> = (props: IHeaderProp
                     <h2 style={titleStyles}>lastream</h2>
                 </div>
                 <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
-                    {props.showLastfm && <LastfmAvatar />}
+                    <LastfmAvatar />
                 </div>
             </div>
 
-            {props.showNav &&
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <NavLink activeStyle={activeNavLinkStyle} style={navLinkStyle} exact to={'/'}>New station</NavLink>
-                    {appContext.latestStationId &&
-                        <NavLink activeStyle={{ background: '#0E0E0E' }} style={navLinkStyle}
-                                 to={`/station/${appContext.latestStationId}`}>Now playing</NavLink>
-                    }
-                    <NavLink style={navLinkStyle} activeStyle={{ background: '#0E0E0E' }} to='/settings'>Settings</NavLink>
-                </div>
-            }
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+                <NavLink activeStyle={activeNavLinkStyle} style={navLinkStyle} exact to={'/'}>New station</NavLink>
+                {appContext.latestStationId &&
+                    <NavLink activeStyle={{ background: '#0E0E0E' }} style={navLinkStyle}
+                             to={`/station/${appContext.latestStationId}`}>Now playing</NavLink>
+                }
+                <NavLink style={navLinkStyle} activeStyle={{ background: '#0E0E0E' }} to='/settings'>Settings</NavLink>
+            </div>
         </div>
     );
 };
