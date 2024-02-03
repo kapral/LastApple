@@ -1,5 +1,6 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Footer } from './Footer';
+import { Header } from "./Header";
 
 const styles = {
     backgroundColor: '#222',
@@ -8,13 +9,9 @@ const styles = {
     margin: '0 auto'
 };
 
-export class Layout extends Component<React.PropsWithChildren<{}>> {
-    displayName = Layout.name
-
-    render() {
-        return <div style={styles}>
-            {this.props.children}
-            <Footer />
-        </div>;
-    }
-}
+export const Layout: React.FunctionComponent<React.PropsWithChildren> = (props: React.PropsWithChildren) =>
+    <div style={styles}>
+        <Header />
+        {props.children}
+        <Footer/>
+    </div>;

@@ -1,15 +1,9 @@
 import * as React from "react";
-import {Component} from "react";
 import {NavLink} from "react-router-dom";
-import {BaseRouterProps} from "../BaseRouterProps";
-import logo from '../images/logo.png';
-import {AppContext} from '../AppContext';
+import {useAppContext} from '../AppContext';
 import {LastfmAvatar} from "./LastfmAvatar";
 
-type HeaderProps = BaseRouterProps & {
-    showNav: boolean;
-    showLastfm: boolean;
-};
+import logo from '../images/logo.png';
 
 const navLinkStyle = { color: '#DDD', padding: '10px', textDecoration: 'none', display: 'inline-block' };
 const activeNavLinkStyle = { background: '#222' };
@@ -20,18 +14,17 @@ const titleStyles: React.CSSProperties = {
     textAlign: 'center'
 };
 
-export class Header extends Component<HeaderProps> {
-    static contextType = AppContext;
-    context: React.ContextType<typeof AppContext>;
+export const Header: React.FunctionComponent = () => {
+    const appContext = useAppContext();
 
-    render() {
-        const headerStyles: React.CSSProperties = {
-            background: '#000',
-            padding: `10px 10px ${this.props.showNav ? 0 : 10}px`,
-            paddingTop: 'max(env(safe-area-inset-top), 10px)'
-        };
+    const headerStyles: React.CSSProperties = {
+        background: '#000',
+        padding: `10px 10px 0`,
+        paddingTop: 'max(env(safe-area-inset-top), 10px)'
+    };
 
-        return <div className='header' style={headerStyles}>
+    return (
+        <div className='header' style={headerStyles}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
                 <div style={{ flex: 1 }}></div>
                 <div className='title-container' style={{ flex: 5, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -39,20 +32,18 @@ export class Header extends Component<HeaderProps> {
                     <h2 style={titleStyles}>lastream</h2>
                 </div>
                 <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
-                    {this.props.showLastfm && <LastfmAvatar />}
+                    <LastfmAvatar />
                 </div>
             </div>
 
-            {this.props.showNav &&
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <NavLink activeStyle={activeNavLinkStyle} style={navLinkStyle} exact to={'/'}>New station</NavLink>
-                    {this.context.latestStationId &&
-                        <NavLink activeStyle={{ background: '#0E0E0E' }} style={navLinkStyle}
-                                 to={`/station/${this.context.latestStationId}`}>Now playing</NavLink>
-                    }
-                    <NavLink style={navLinkStyle} activeStyle={{ background: '#0E0E0E' }} to='/settings'>Settings</NavLink>
-                </div>
-            }
-        </div>;
-    }
-}
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+                <NavLink activeStyle={activeNavLinkStyle} style={navLinkStyle} exact to={'/'}>New station</NavLink>
+                {appContext.latestStationId &&
+                    <NavLink activeStyle={{ background: '#0E0E0E' }} style={navLinkStyle}
+                             to={`/station/${appContext.latestStationId}`}>Now playing</NavLink>
+                }
+                <NavLink style={navLinkStyle} activeStyle={{ background: '#0E0E0E' }} to='/settings'>Settings</NavLink>
+            </div>
+        </div>
+    );
+};
