@@ -4,9 +4,11 @@
         currentPlaybackDuration: number;
         queue: Queue;
         isPlaying: boolean;
+        stop(): Promise<void>;
+        clearQueue(): Promise<Queue>;
     }
 
-    interface MediaItemOptions {
+    interface MediaItem {
         relationships: {
             albums: Relationship<Albums>;
             artists: Relationship<Artists>;
@@ -70,5 +72,8 @@
             parameters?: QueryParameters,
             options?: any
         ): Promise<any>;
+    }
+    interface Events {
+        nowPlayingItemDidChange: { item: MusicKit.MediaItem };
     }
 }

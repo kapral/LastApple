@@ -12,14 +12,15 @@ import {instance as mediaSessionManager} from '../../MediaSessionManager'
 import {PlaybackStates} from '../../musicKitEnums';
 import { LastfmContext } from '../../lastfm/LastfmContext';
 import { AuthenticationState } from '../../authentication';
+import MediaItemOptions = MusicKit.MediaItemOptions;
 
 interface IPlayerProps {
     stationId: string;
 }
 
 interface IPlayerState {
-    currentTrack?: MusicKit.MediaItemOptions;
-    tracks: Array<MusicKit.MediaItemOptions>;
+    currentTrack?: MusicKit.MediaItem;
+    tracks: Array<MusicKit.MediaItem>;
     suppressEvents: boolean;
     isPlaying: boolean;
 }
@@ -39,9 +40,11 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
     requestedItems = 0;
     hubConnection: HubConnection;
 
+    currentTrackScrobbled = false;
+
     private playbackStateSubscription: (x: MusicKit.Events['playbackStateDidChange']) => Promise<void>;
 
-    constructor(props) {
+    constructor(props: IPlayerProps) {
         super(props);
 
         this.state = {
@@ -70,7 +73,7 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
 
         if (this.musicKit) {
             await this.musicKit.stop();
-            await this.musicKit.setQueue({});
+            await this.musicKit.clearQueue();
         } else {
             this.musicKit = await musicKit.getInstance();
 
@@ -78,10 +81,39 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
 
             this.playbackStateSubscription = async (x: MusicKit.Events['playbackStateDidChange']) => await this.handleStateChange(x);
             this.musicKit.addEventListener('playbackStateDidChange', this.playbackStateSubscription);
-            this.musicKit.addEventListener('mediaItemDidChange', (event: any) => {
+            this.musicKit.addEventListener('nowPlayingItemDidChange', async (event: MusicKit.Events['nowPlayingItemDidChange']) => {
+                if (!event.item) {
+                    return;
+                }
+
                 document.title = `${event.item.title} - ${event.item.artistName}`;
+                this.currentTrackScrobbled = false;
+
+                this.setState({ currentTrack: event.item });
+
+                if (this.isScrobblingEnabled) {
+                    await this.setNowPlaying(event.item);
+                }
+
+                if (this.station.isContinuous) {
+                    this.topUp();
+                }
 
                 mediaSessionManager.updateSessionMetadata(event.item.artworkURL);
+            });
+            this.musicKit.addEventListener('playbackProgressDidChange', async (event: MusicKit.Events['playbackProgressDidChange']) => {
+                if (this.currentTrackScrobbled) {
+                    return;
+                }
+
+                if (event.progress < 0.9) {
+                    return;
+                }
+
+                if (this.isScrobblingEnabled) {
+                    await this.scrobble();
+                    this.currentTrackScrobbled = true;
+                }
             });
 
             mediaSessionManager.setNextHandler(() => this.switchNext());
@@ -90,7 +122,7 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
 
         this.station = await stationApi.getStation(this.props.stationId);
 
-        const batchItems = (arr, size) =>
+        const batchItems = (arr: Array<string>, size: number) =>
             arr.length > size
                 ? [arr.slice(0, size), ...batchItems(arr.slice(size), size)]
                 : [arr];
@@ -105,7 +137,11 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
 
         this.setState({ suppressEvents: false });
         if (this.musicKit.queue.items.length) {
-            await this.play();
+            let context = new AudioContext();
+
+            if (context.state === 'running') {
+                await this.play();
+            }
         }
 
         await this.addTracks(this.pendingEvents);
@@ -117,7 +153,7 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
     }
 
     async appendTracksToQueue(tracks: MusicKit.Songs[]) {
-        const currentTracks = this.state.tracks.concat(tracks);
+        const currentTracks = this.state.tracks.concat(tracks as any);
 
         await this.musicKit.playLater({ songs: tracks.map(t => t.id) } as any);
         this.setState({ tracks: currentTracks });
@@ -135,6 +171,8 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
     componentWillUnmount() {
         this.hubConnection.off('trackAdded');
         this.musicKit.removeEventListener('playbackStateDidChange');
+        this.musicKit.removeEventListener('playbackProgressDidChange');
+        this.musicKit.removeEventListener('nowPlayingItemDidChange');
     }
 
     async subscribeToStationEvents() {
@@ -202,31 +240,8 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
             return;
 
         const playing = event.state as unknown as PlaybackStates === PlaybackStates.playing;
-        if (this.state.isPlaying !== playing)
+        if (this.state.isPlaying !== playing) {
             this.setState({ isPlaying: playing });
-
-        const currentTrack = this.state.tracks[this.getCurrentQueuePosition()];
-        if (this.state.currentTrack !== currentTrack)
-            this.setState({ currentTrack: currentTrack });
-
-        if (this.station.isContinuous) {
-            this.topUp();
-        }
-
-        await this.handleScrobblingEvent(event)
-    }
-
-    async handleScrobblingEvent(event: MusicKit.Events['playbackStateDidChange']) {
-        if (!this.isScrobblingEnabled) {
-            return;
-        }
-
-        if (event.state as unknown as PlaybackStates === PlaybackStates.ended) {
-            await this.scrobble();
-        }
-
-        if (event.state as unknown as PlaybackStates === PlaybackStates.playing) {
-            await this.setNowPlaying();
         }
     }
 
@@ -254,20 +269,20 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
         await lastfmApi.postScrobble(this.state.currentTrack.attributes.artistName, this.state.currentTrack.attributes.name);
     }
 
-    async setNowPlaying() {
-        await lastfmApi.postNowPlaying(this.state.currentTrack.attributes.artistName, this.state.currentTrack.attributes.name);
+    async setNowPlaying(item: MediaItemOptions) {
+        await lastfmApi.postNowPlaying(item.attributes.artistName, item.attributes.name);
     }
 
     switchPrev = async() => {
         if (this.musicKit.isPlaying)
-            await this.musicKit.pause();
+            this.musicKit.pause();
 
         await this.musicKit.skipToPreviousItem();
     };
 
     switchNext = async() => {
         if (this.musicKit.isPlaying)
-            await this.musicKit.pause();
+            this.musicKit.pause();
 
         await this.musicKit.skipToNextItem();
     };
@@ -311,20 +326,21 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
     }
 
     static getImageUrl(sourceUrl: string, size: number = 400) {
-        return sourceUrl && sourceUrl.replace('{w}x{h}', `${size}x${size}`)
-            .replace('2000x2000', `${size}x${size}`);
+        return sourceUrl
+            ? sourceUrl.replace('{w}x{h}', `${size}x${size}`).replace('2000x2000', `${size}x${size}`)
+            : 'default-album-cover.png';
     }
 
     handlePlayPause = async () => {
         if (this.musicKit.isPlaying) {
-            await this.musicKit.pause();
+            this.musicKit.pause();
             return;
         }
 
         await this.play();
     };
 
-    handleTrackSwitched = async index => {
+    handleTrackSwitched = async (index: number) => {
         const offset = this.getPlaylistPagingOffset() + index;
         const track = this.state.tracks[offset];
 
@@ -334,8 +350,9 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
             return;
         }
 
-        if (this.musicKit.isPlaying)
-            await this.musicKit.pause();
+        if (this.musicKit.isPlaying){
+            this.musicKit.pause();
+        }
 
         await this.musicKit.changeToMediaAtIndex(offset);
 

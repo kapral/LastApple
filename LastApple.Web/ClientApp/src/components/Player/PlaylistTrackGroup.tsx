@@ -7,12 +7,12 @@ import musicKit from "../../musicKit";
 import { faFolderPlus, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 
 type PlaylistTrackGroupProps = {
-    currentTrack: MusicKit.MediaItemOptions,
-    tracks: MusicKit.MediaItemOptions[],
+    currentTrack: MusicKit.MediaItem,
+    tracks: MusicKit.MediaItem[],
     isPlaying: boolean,
     index: number,
     onRemove(position: number, count: number),
-    addAlbumToLibrary(item: MusicKit.MediaItemOptions): void,
+    addAlbumToLibrary(item: MusicKit.MediaItem): void,
 }
 
 export const PlaylistTrackGroup = React.memo((props: React.PropsWithChildren<PlaylistTrackGroupProps>) =>

@@ -82,7 +82,7 @@ public class CatalogApi : ICatalogApi
     {
         var options = new JsonSerializerOptions {
             PropertyNameCaseInsensitive = true,
-            Converters                  = { new JsonStringEnumConverter() }
+            Converters                  = { new JsonStringEnumMemberConverter() }
         };
         var result   = await JsonSerializer.DeserializeAsync<T>(await content.ReadAsStreamAsync(), options);
 

@@ -7,15 +7,15 @@ import { faEllipsisH } from "@fortawesome/free-solid-svg-icons/faEllipsisH";
 import musicKit from "../../musicKit";
 
 type PlaylistTrackProps = {
-    track: MusicKit.MediaItemOptions,
+    track: MusicKit.MediaItem,
     isCurrent: boolean,
     isPlaying: boolean,
     groupOffset: number,
     index: number,
     onRemove(position: number, count: number),
     onTrackSwitch(position: number): Promise<void>,
-    addAlbumToLibrary(item: MusicKit.MediaItemOptions): void,
-    addToLibrary(item: MusicKit.MediaItemOptions): void
+    addAlbumToLibrary(item: MusicKit.MediaItem): void,
+    addToLibrary(item: MusicKit.MediaItem): void
 }
 
 export const PlaylistTrack = React.memo((props: PlaylistTrackProps) =>

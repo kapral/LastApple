@@ -5,9 +5,9 @@ import { PlaylistTrack } from "./PlaylistTrack";
 import { PlaylistTrackGroup } from "./PlaylistTrackGroup";
 
 interface PlaylistProps {
-    currentTrack: MusicKit.MediaItemOptions;
+    currentTrack: MusicKit.MediaItem;
     isPlaying: boolean;
-    tracks: MusicKit.MediaItemOptions[];
+    tracks: MusicKit.MediaItem[];
     offset: number;
     limit: number;
     showAlbumInfo: boolean;
@@ -75,7 +75,7 @@ export class Playlist extends PureComponent<PlaylistProps> {
         return this.props.tracks.slice(firstTrackIndex, lastTrackIndex);
     }
 
-    groupByAlbum(tracks: MusicKit.MediaItemOptions[]) {
+    groupByAlbum(tracks: MusicKit.MediaItem[]) {
         return tracks.reduce((groups, next, index) => {
             if (groups.current === next.attributes.albumName) {
                 groups.all[groups.all.length - 1].tracks.push(next);
@@ -93,13 +93,13 @@ export class Playlist extends PureComponent<PlaylistProps> {
         //this.props.onRemove(position, count);
     };
 
-    async addAlbumToLibrary(item: MusicKit.MediaItemOptions) {
+    async addAlbumToLibrary(item: MusicKit.MediaItem) {
         const albumId = item.relationships.albums.data[0].id;
 
         await musicKit.instance.api.music('/v1/me/library', { ids: { albums:[albumId] } }, { fetchOptions: { method: 'POST' } });
     }
 
-    async addToLibrary(item: MusicKit.MediaItemOptions) {
+    async addToLibrary(item: MusicKit.MediaItem) {
         await musicKit.instance.api.music('/v1/me/library', { ids: { songs:[item.id] } }, { fetchOptions: { method: 'POST' } });
     }
 }
