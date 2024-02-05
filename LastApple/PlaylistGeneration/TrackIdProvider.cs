@@ -5,16 +5,10 @@ using AppleMusicApi;
 
 namespace LastApple.PlaylistGeneration;
 
-public class TrackIdProvider : ITrackIdProvider
+public class TrackIdProvider(ICatalogApi catalogApi, IStorefrontProvider storefrontProvider) : ITrackIdProvider
 {
-    private readonly ICatalogApi catalogApi;
-    private readonly IStorefrontProvider storefrontProvider;
-
-    public TrackIdProvider(ICatalogApi catalogApi, IStorefrontProvider storefrontProvider)
-    {
-        this.catalogApi         = catalogApi ?? throw new ArgumentNullException(nameof(catalogApi));
-        this.storefrontProvider = storefrontProvider ?? throw new ArgumentNullException(nameof(storefrontProvider));
-    }
+    private readonly ICatalogApi catalogApi = catalogApi ?? throw new ArgumentNullException(nameof(catalogApi));
+    private readonly IStorefrontProvider storefrontProvider = storefrontProvider ?? throw new ArgumentNullException(nameof(storefrontProvider));
 
     public async Task<string?> FindTrackId(string artist, string track)
     {

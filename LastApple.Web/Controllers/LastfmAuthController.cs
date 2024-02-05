@@ -8,27 +8,17 @@ using Microsoft.Extensions.Options;
 namespace LastApple.Web.Controllers;
 
 [Route("api/lastfm/auth")]
-public class LastfmAuthController : Controller
+public class LastfmAuthController(ILastAuth authApi,
+                                  ISessionProvider sessionProvider,
+                                  ISessionRepository sessionRepository,
+                                  IUserApi userApi,
+                                  IOptions<LastfmApiParams> apiParams) : Controller
 {
-    private readonly ILastAuth authApi;
-    private readonly IUserApi userApi;
-    private readonly ISessionProvider sessionProvider;
-    private readonly ISessionRepository sessionRepository;
-    private readonly IOptions<LastfmApiParams> apiParams;
-
-    public LastfmAuthController(
-        ILastAuth authApi,
-        ISessionProvider sessionProvider,
-        ISessionRepository sessionRepository,
-        IUserApi userApi,
-        IOptions<LastfmApiParams> apiParams)
-    {
-        this.authApi           = authApi ?? throw new ArgumentNullException(nameof(authApi));
-        this.sessionProvider   = sessionProvider ?? throw new ArgumentNullException(nameof(sessionProvider));
-        this.sessionRepository = sessionRepository ?? throw new ArgumentNullException(nameof(sessionRepository));
-        this.userApi           = userApi ?? throw new ArgumentNullException(nameof(userApi));
-        this.apiParams         = apiParams ?? throw new ArgumentNullException(nameof(apiParams));
-    }
+    private readonly ILastAuth authApi = authApi ?? throw new ArgumentNullException(nameof(authApi));
+    private readonly IUserApi userApi = userApi ?? throw new ArgumentNullException(nameof(userApi));
+    private readonly ISessionProvider sessionProvider = sessionProvider ?? throw new ArgumentNullException(nameof(sessionProvider));
+    private readonly ISessionRepository sessionRepository = sessionRepository ?? throw new ArgumentNullException(nameof(sessionRepository));
+    private readonly IOptions<LastfmApiParams> apiParams = apiParams ?? throw new ArgumentNullException(nameof(apiParams));
 
     [Route("")]
     public IActionResult InitAuth(string redirectUrl)

@@ -3,16 +3,11 @@ using System.Threading.Tasks;
 
 namespace LastApple;
 
-public class StorefrontProvider : IStorefrontProvider
+public class StorefrontProvider(ISessionProvider sessionProvider) : IStorefrontProvider
 {
     private const string DefaultStorefront = "us";
             
-    private readonly ISessionProvider sessionProvider;
-
-    public StorefrontProvider(ISessionProvider sessionProvider)
-    {
-        this.sessionProvider = sessionProvider ?? throw new ArgumentNullException(nameof(sessionProvider));
-    }
+    private readonly ISessionProvider sessionProvider = sessionProvider ?? throw new ArgumentNullException(nameof(sessionProvider));
 
     public async Task<string> GetStorefront()
     {

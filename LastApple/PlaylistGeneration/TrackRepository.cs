@@ -10,19 +10,13 @@ using LastApple.Model;
 
 namespace LastApple.PlaylistGeneration;
 
-public class TrackRepository : ITrackRepository
+public class TrackRepository(IArtistApi artistApi) : ITrackRepository
 {
     private readonly ConcurrentDictionary<string, object> artistLocks = new();
 
-    private readonly IDictionary<string, CacheItems<Track>> tracksByArtist
-        = new Dictionary<string, CacheItems<Track>>();
+    private readonly Dictionary<string, CacheItems<Track>> tracksByArtist = new();
 
-    private readonly IArtistApi artistApi;
-
-    public TrackRepository(IArtistApi artistApi)
-    {
-        this.artistApi = artistApi ?? throw new ArgumentNullException(nameof(artistApi));
-    }
+    private readonly IArtistApi artistApi = artistApi ?? throw new ArgumentNullException(nameof(artistApi));
 
     public Task<IReadOnlyCollection<Track>> GetArtistTracks(
         Artist artist)

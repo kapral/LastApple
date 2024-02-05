@@ -6,14 +6,9 @@ using MongoDB.Driver.Linq;
 
 namespace LastApple.Persistence;
 
-public class SessionRepository : ISessionRepository
+public class SessionRepository(IMongoClient mongoClient) : ISessionRepository
 {
-    private readonly IMongoClient mongoClient;
-
-    public SessionRepository(IMongoClient mongoClient)
-    {
-        this.mongoClient = mongoClient ?? throw new ArgumentNullException(nameof(mongoClient));
-    }
+    private readonly IMongoClient mongoClient = mongoClient ?? throw new ArgumentNullException(nameof(mongoClient));
 
     public async Task<Session?> GetSession(Guid id)
     {
@@ -25,12 +20,11 @@ public class SessionRepository : ISessionRepository
                                     .FirstOrDefaultAsync();
 
         return domainSession != null
-                   ? new Session(
-                       Id: domainSession.Id,
-                       LastfmSessionKey: domainSession.LastfmSessionKey,
-                       LastfmUsername: domainSession.LastfmUsername,
-                       MusicUserToken: domainSession.MusicUserToken,
-                       MusicStorefrontId: domainSession.MusicStorefrontId)
+                   ? new Session(Id: domainSession.Id,
+                                 LastfmSessionKey: domainSession.LastfmSessionKey,
+                                 LastfmUsername: domainSession.LastfmUsername,
+                                 MusicUserToken: domainSession.MusicUserToken,
+                                 MusicStorefrontId: domainSession.MusicStorefrontId)
                    : null;
     }
 
@@ -40,13 +34,11 @@ public class SessionRepository : ISessionRepository
 
         var db = mongoClient.GetDatabase("lastapple");
 
-        var domainSession = new Model.Session(
-            id: session.Id,
-            lastfmSessionKey: session.LastfmSessionKey,
-            lastfmUsername: session.LastfmUsername,
-            musicUserToken: session.MusicUserToken,
-            musicStorefrontId: session.MusicStorefrontId
-        );
+        var domainSession = new Model.Session(Id: session.Id,
+                                              LastfmSessionKey: session.LastfmSessionKey,
+                                              LastfmUsername: session.LastfmUsername,
+                                              MusicUserToken: session.MusicUserToken,
+                                              MusicStorefrontId: session.MusicStorefrontId);
 
         var filter = new BsonDocument("_id", new BsonBinaryData(domainSession.Id, GuidRepresentation.Standard));
 

@@ -6,21 +6,14 @@ using Microsoft.AspNetCore.Mvc;
 namespace LastApple.Web.Controllers;
 
 [Route("api/station/similarartists")]
-public class SimilarArtistsStationController : Controller
+public class SimilarArtistsStationController(IStationRepository stationRepository,
+                                             IStationGenerator<SimilarArtistsStationDefinition> stationGenerator,
+                                             IBackgroundProcessManager backgroundProcessManager) : Controller
 {
-    private readonly IStationRepository                                 stationRepository;
-    private readonly IStationGenerator<SimilarArtistsStationDefinition> stationGenerator;
-    private readonly IBackgroundProcessManager                          backgroundProcessManager;
-
-    public SimilarArtistsStationController(IStationRepository stationRepository,
-                                           IStationGenerator<SimilarArtistsStationDefinition> stationGenerator,
-                                           IBackgroundProcessManager backgroundProcessManager)
-    {
-        this.stationRepository = stationRepository ?? throw new ArgumentNullException(nameof(stationRepository));
-        this.stationGenerator  = stationGenerator ?? throw new ArgumentNullException(nameof(stationGenerator));
-        this.backgroundProcessManager = backgroundProcessManager ??
-                                        throw new ArgumentNullException(nameof(backgroundProcessManager));
-    }
+    private readonly IStationRepository                                 stationRepository = stationRepository ?? throw new ArgumentNullException(nameof(stationRepository));
+    private readonly IStationGenerator<SimilarArtistsStationDefinition> stationGenerator = stationGenerator ?? throw new ArgumentNullException(nameof(stationGenerator));
+    private readonly IBackgroundProcessManager                          backgroundProcessManager = backgroundProcessManager ??
+                                                                                                   throw new ArgumentNullException(nameof(backgroundProcessManager));
 
     [HttpPost]
     [Route("{artist}")]

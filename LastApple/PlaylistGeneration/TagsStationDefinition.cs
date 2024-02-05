@@ -4,14 +4,9 @@ using LastApple.Model;
 
 namespace LastApple.PlaylistGeneration;
 
-public class TagsStationDefinition : IStationDefinition
+public class TagsStationDefinition(IEnumerable<string> tags) : IStationDefinition
 {
-    public TagsStationDefinition(IEnumerable<string> tags)
-    {
-        Tags = tags ?? throw new ArgumentNullException(nameof(tags));
-    }
-
-    public IEnumerable<string> Tags { get; }
+    public IEnumerable<string> Tags { get; } = tags ?? throw new ArgumentNullException(nameof(tags));
 
     public StationType StationType => StationType.Tags;
 }

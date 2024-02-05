@@ -8,16 +8,11 @@ using Microsoft.Extensions.Logging;
 
 namespace LastApple.Web;
 
-public class BackgroundProcessManager : BackgroundService, IBackgroundProcessManager
+public class BackgroundProcessManager(ILogger<BackgroundProcessManager> logger) : BackgroundService, IBackgroundProcessManager
 {
     private readonly object syncContext = new();
     private readonly IList<Func<Task>> pendingProcesses = new List<Func<Task>>();
-    private readonly ILogger<BackgroundProcessManager> logger;
-
-    public BackgroundProcessManager(ILogger<BackgroundProcessManager> logger)
-    {
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
+    private readonly ILogger<BackgroundProcessManager> logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {

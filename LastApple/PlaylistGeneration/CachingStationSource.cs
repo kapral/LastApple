@@ -6,19 +6,14 @@ using LastApple.Model;
 
 namespace LastApple.PlaylistGeneration;
 
-public class CachingStationSource<TDefinition> : IStationSource<TDefinition> where TDefinition : IStationDefinition
+public class CachingStationSource<TDefinition>(IStationSource<TDefinition> concreteSource,
+                                               ITrackRepository trackRepository)
+    : IStationSource<TDefinition> where TDefinition : IStationDefinition
 {
-    private readonly IStationSource<TDefinition> concreteSource;
-    private readonly ITrackRepository trackRepository;
+    private readonly IStationSource<TDefinition> concreteSource = concreteSource ?? throw new ArgumentNullException(nameof(concreteSource));
+    private readonly ITrackRepository trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
 
-    private readonly IDictionary<IStationDefinition, CacheItems<Artist>> artists
-        = new Dictionary<IStationDefinition, CacheItems<Artist>>();
-
-    public CachingStationSource(IStationSource<TDefinition> concreteSource, ITrackRepository trackRepository)
-    {
-        this.concreteSource  = concreteSource ?? throw new ArgumentNullException(nameof(concreteSource));
-        this.trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
-    }
+    private readonly Dictionary<IStationDefinition, CacheItems<Artist>> artists = new();
 
     public async Task<IReadOnlyCollection<Artist>> GetStationArtists(TDefinition definition)
     {

@@ -4,19 +4,13 @@ using Microsoft.Extensions.Options;
 
 namespace LastApple;
 
-public class DeveloperTokenProvider : IDeveloperTokenProvider
+public class DeveloperTokenProvider(IDeveloperTokenGenerator tokenGenerator, IOptions<AppCredentials> credentials) : IDeveloperTokenProvider
 {
-    private readonly IDeveloperTokenGenerator tokenGenerator;
-    private readonly AppCredentials credentials;
+    private readonly IDeveloperTokenGenerator tokenGenerator = tokenGenerator ?? throw new ArgumentNullException(nameof(tokenGenerator));
+    private readonly AppCredentials credentials = credentials?.Value ?? throw new ArgumentNullException(nameof(credentials));
     private (DateTimeOffset ExpiresAt, string Value) currentToken;
 
     private readonly TimeSpan tokenLifetime = TimeSpan.FromHours(24);
-
-    public DeveloperTokenProvider(IDeveloperTokenGenerator tokenGenerator, IOptions<AppCredentials> credentials)
-    {
-        this.tokenGenerator = tokenGenerator ?? throw new ArgumentNullException(nameof(tokenGenerator));
-        this.credentials    = credentials?.Value ?? throw new ArgumentNullException(nameof(credentials));
-    }
 
     public string GetToken()
     {

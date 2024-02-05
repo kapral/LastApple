@@ -9,14 +9,9 @@ using LastApple.Model;
 
 namespace LastApple.PlaylistGeneration;
 
-public class LastfmLibraryStationSource : IStationSource<LastfmLibraryStationDefinition>
+public class LastfmLibraryStationSource(IUserApi userApi) : IStationSource<LastfmLibraryStationDefinition>
 {
-    private readonly IUserApi userApi;
-
-    public LastfmLibraryStationSource(IUserApi userApi)
-    {
-        this.userApi = userApi ?? throw new ArgumentNullException(nameof(userApi));
-    }
+    private readonly IUserApi userApi = userApi ?? throw new ArgumentNullException(nameof(userApi));
 
     public async Task<IReadOnlyCollection<Artist>> GetStationArtists(LastfmLibraryStationDefinition definition)
     {
