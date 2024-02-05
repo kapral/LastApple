@@ -20,7 +20,7 @@ interface IPlayerProps {
 
 interface IPlayerState {
     currentTrack?: MusicKit.MediaItem;
-    tracks: Array<MusicKit.MediaItem>;
+    tracks: MusicKit.MediaItem[];
     suppressEvents: boolean;
     isPlaying: boolean;
 }
@@ -35,7 +35,7 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
     context: React.ContextType<typeof LastfmContext>;
 
     musicKit: MusicKit.MusicKitInstance;
-    pendingEvents: Array<IAddTrackEvent> = [];
+    pendingEvents: IAddTrackEvent[] = [];
     station: IStation;
     requestedItems = 0;
     hubConnection: HubConnection;
@@ -122,7 +122,7 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
 
         this.station = await stationApi.getStation(this.props.stationId);
 
-        const batchItems = (arr: Array<string>, size: number) =>
+        const batchItems = (arr: string[], size: number) =>
             arr.length > size
                 ? [arr.slice(0, size), ...batchItems(arr.slice(size), size)]
                 : [arr];
@@ -153,9 +153,10 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
     }
 
     async appendTracksToQueue(tracks: MusicKit.Songs[]) {
-        const currentTracks = this.state.tracks.concat(tracks as any);
+        // @ts-ignore
+        const currentTracks = this.state.tracks.concat(tracks);
 
-        await this.musicKit.playLater({ songs: tracks.map(t => t.id) } as any);
+        await this.musicKit.playLater({ songs: tracks.map(t => t.id) });
         this.setState({ tracks: currentTracks });
     }
 
@@ -198,7 +199,7 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
         });
     }
 
-    async addTracks(addTrackEvents: Array<IAddTrackEvent>) {
+    async addTracks(addTrackEvents: IAddTrackEvent[]) {
         for (let event of addTrackEvents) {
             let existingItem = this.musicKit.queue.item(event.position);
 
