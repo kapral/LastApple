@@ -7,20 +7,14 @@ using LastApple.Model;
 
 namespace LastApple.PlaylistGeneration;
 
-public class StationTrackGenerator<TStation> : IStationTrackGenerator<TStation> where TStation : IStationDefinition
+public class StationTrackGenerator<TStation>(IRandomizer randomizer,
+                                             ITrackRepository trackRepository,
+                                             IStationSource<TStation> stationSource)
+    : IStationTrackGenerator<TStation> where TStation : IStationDefinition
 {
-    private readonly IRandomizer randomizer;
-    private readonly ITrackRepository trackRepository;
-    private readonly IStationSource<TStation> stationSource;
-
-    public StationTrackGenerator(IRandomizer randomizer,
-                                 ITrackRepository trackRepository,
-                                 IStationSource<TStation> stationSource)
-    {
-        this.randomizer      = randomizer ?? throw new ArgumentNullException(nameof(randomizer));
-        this.trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
-        this.stationSource   = stationSource ?? throw new ArgumentNullException(nameof(stationSource));
-    }
+    private readonly IRandomizer randomizer = randomizer ?? throw new ArgumentNullException(nameof(randomizer));
+    private readonly ITrackRepository trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
+    private readonly IStationSource<TStation> stationSource = stationSource ?? throw new ArgumentNullException(nameof(stationSource));
 
     public async Task<Track> GetNext(TStation station)
     {

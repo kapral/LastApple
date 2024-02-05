@@ -8,26 +8,17 @@ using Microsoft.AspNetCore.Mvc;
 namespace LastApple.Web.Controllers;
 
 [Route("api/station/lastfmlibrary")]
-public class LastfmLibraryStationController : Controller
+public class LastfmLibraryStationController(IStationRepository stationRepository,
+                                            IStationGenerator<LastfmLibraryStationDefinition> stationGenerator,
+                                            IBackgroundProcessManager processManager,
+                                            IUserApi userApi,
+                                            ISessionProvider sessionProvider) : Controller
 {
-    private readonly IStationRepository stationRepository;
-    private readonly IStationGenerator<LastfmLibraryStationDefinition> stationGenerator;
-    private readonly IBackgroundProcessManager processManager;
-    private readonly IUserApi userApi;
-    private readonly ISessionProvider sessionProvider;
-
-    public LastfmLibraryStationController(IStationRepository stationRepository,
-                                          IStationGenerator<LastfmLibraryStationDefinition> stationGenerator,
-                                          IBackgroundProcessManager processManager,
-                                          IUserApi userApi,
-                                          ISessionProvider sessionProvider)
-    {
-        this.stationRepository = stationRepository ?? throw new ArgumentNullException(nameof(stationRepository));
-        this.stationGenerator  = stationGenerator ?? throw new ArgumentNullException(nameof(stationGenerator));
-        this.userApi           = userApi ?? throw new ArgumentNullException(nameof(userApi));
-        this.sessionProvider   = sessionProvider ?? throw new ArgumentNullException(nameof(sessionProvider));
-        this.processManager    = processManager ?? throw new ArgumentNullException(nameof(processManager));
-    }
+    private readonly IStationRepository stationRepository = stationRepository ?? throw new ArgumentNullException(nameof(stationRepository));
+    private readonly IStationGenerator<LastfmLibraryStationDefinition> stationGenerator = stationGenerator ?? throw new ArgumentNullException(nameof(stationGenerator));
+    private readonly IBackgroundProcessManager processManager = processManager ?? throw new ArgumentNullException(nameof(processManager));
+    private readonly IUserApi userApi = userApi ?? throw new ArgumentNullException(nameof(userApi));
+    private readonly ISessionProvider sessionProvider = sessionProvider ?? throw new ArgumentNullException(nameof(sessionProvider));
 
     [HttpPost]
     [Route("my")]

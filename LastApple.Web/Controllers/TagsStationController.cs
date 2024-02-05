@@ -7,21 +7,14 @@ using Microsoft.AspNetCore.Mvc;
 namespace LastApple.Web.Controllers;
 
 [Route("api/station/tags")]
-public class TagsStationController : Controller
+public class TagsStationController(IStationRepository stationRepository,
+                                   IStationGenerator<TagsStationDefinition> stationGenerator,
+                                   IBackgroundProcessManager backgroundProcessManager) : Controller
 {
-    private readonly IStationRepository                       stationRepository;
-    private readonly IStationGenerator<TagsStationDefinition> stationGenerator;
-    private readonly IBackgroundProcessManager                backgroundProcessManager;
-
-    public TagsStationController(IStationRepository stationRepository,
-                                 IStationGenerator<TagsStationDefinition> stationGenerator,
-                                 IBackgroundProcessManager backgroundProcessManager)
-    {
-        this.stationRepository = stationRepository ?? throw new ArgumentNullException(nameof(stationRepository));
-        this.stationGenerator  = stationGenerator ?? throw new ArgumentNullException(nameof(stationGenerator));
-        this.backgroundProcessManager = backgroundProcessManager ??
-                                        throw new ArgumentNullException(nameof(backgroundProcessManager));
-    }
+    private readonly IStationRepository                       stationRepository = stationRepository ?? throw new ArgumentNullException(nameof(stationRepository));
+    private readonly IStationGenerator<TagsStationDefinition> stationGenerator = stationGenerator ?? throw new ArgumentNullException(nameof(stationGenerator));
+    private readonly IBackgroundProcessManager                backgroundProcessManager = backgroundProcessManager ??
+                                                                                         throw new ArgumentNullException(nameof(backgroundProcessManager));
 
     [HttpPost]
     [Route("{tag}")]

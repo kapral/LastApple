@@ -4,16 +4,10 @@ using System.Threading.Tasks;
 
 namespace LastApple.Web;
 
-public class CachingSessionRepository : ISessionRepository
+public class CachingSessionRepository(ISessionRepository concreteRepository) : ISessionRepository
 {
-    private readonly ISessionRepository concreteRepository;
-    private readonly ConcurrentDictionary<Guid, Task<Session?>> sessionCache;
-
-    public CachingSessionRepository(ISessionRepository concreteRepository)
-    {
-        this.concreteRepository = concreteRepository ?? throw new ArgumentNullException(nameof(concreteRepository));
-        sessionCache            = new ConcurrentDictionary<Guid, Task<Session?>>();
-    }
+    private readonly ISessionRepository concreteRepository = concreteRepository ?? throw new ArgumentNullException(nameof(concreteRepository));
+    private readonly ConcurrentDictionary<Guid, Task<Session?>> sessionCache = new();
 
     public Task<Session?> GetSession(Guid sessionId)
     {

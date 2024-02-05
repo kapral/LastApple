@@ -3,14 +3,9 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace LastApple.Web;
 
-public class SignalrStationEventMediator : IStationEventMediator
+public class SignalrStationEventMediator(IHubContext<StationHub> hubContext) : IStationEventMediator
 {
-    private readonly IHubContext<StationHub> hubContext;
-
-    public SignalrStationEventMediator(IHubContext<StationHub> hubContext)
-    {
-        this.hubContext = hubContext ?? throw new ArgumentNullException(nameof(hubContext));
-    }
+    private readonly IHubContext<StationHub> hubContext = hubContext ?? throw new ArgumentNullException(nameof(hubContext));
 
     public void NotifyTrackAdded(Guid stationId, string trackId, int position)
     {

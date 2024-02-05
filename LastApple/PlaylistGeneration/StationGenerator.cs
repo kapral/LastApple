@@ -5,21 +5,16 @@ using LastApple.Model;
 
 namespace LastApple.PlaylistGeneration;
 
-public class StationGenerator<TStation> : IStationGenerator<TStation> where TStation : IStationDefinition {
-    private readonly IStationTrackGenerator<TStation> trackGenerator;
-    private readonly ITrackIdProvider trackIdProvider;
-    private readonly IStationEventMediator stationEventMediator;
+public class StationGenerator<TStation>(IStationTrackGenerator<TStation> trackGenerator,
+                                        ITrackIdProvider trackIdProvider,
+                                        IStationEventMediator stationEventMediator)
+    : IStationGenerator<TStation> where TStation : IStationDefinition
+{
+    private readonly IStationTrackGenerator<TStation> trackGenerator = trackGenerator ?? throw new ArgumentNullException(nameof(trackGenerator));
+    private readonly ITrackIdProvider trackIdProvider = trackIdProvider ?? throw new ArgumentNullException(nameof(trackIdProvider));
+    private readonly IStationEventMediator stationEventMediator = stationEventMediator ?? throw new ArgumentNullException(nameof(stationEventMediator));
 
     private const int AttemptsLimit = 50;
-
-    public StationGenerator(IStationTrackGenerator<TStation> trackGenerator,
-                            ITrackIdProvider trackIdProvider,
-                            IStationEventMediator stationEventMediator)
-    {
-        this.trackGenerator       = trackGenerator ?? throw new ArgumentNullException(nameof(trackGenerator));
-        this.trackIdProvider      = trackIdProvider ?? throw new ArgumentNullException(nameof(trackIdProvider));
-        this.stationEventMediator = stationEventMediator ?? throw new ArgumentNullException(nameof(stationEventMediator));
-    }
 
     public async Task Generate(Station<TStation> station) {
         await Populate(station);

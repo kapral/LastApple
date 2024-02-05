@@ -10,20 +10,13 @@ using Microsoft.AspNetCore.Mvc;
 namespace LastApple.Web.Controllers;
 
 [Route("api/station/artist")]
-public class ArtistStationController : Controller
+public class ArtistStationController(IStationRepository stationRepository,
+                                     ICatalogApi catalogApi,
+                                     IStorefrontProvider storefrontProvider) : Controller
 {
-    private readonly IStationRepository  stationRepository;
-    private readonly ICatalogApi         catalogApi;
-    private readonly IStorefrontProvider storefrontProvider;
-
-    public ArtistStationController(IStationRepository stationRepository,
-                                   ICatalogApi catalogApi,
-                                   IStorefrontProvider storefrontProvider)
-    {
-        this.stationRepository  = stationRepository ?? throw new ArgumentNullException(nameof(stationRepository));
-        this.catalogApi         = catalogApi ?? throw new ArgumentNullException(nameof(catalogApi));
-        this.storefrontProvider = storefrontProvider ?? throw new ArgumentNullException(nameof(storefrontProvider));
-    }
+    private readonly IStationRepository  stationRepository = stationRepository ?? throw new ArgumentNullException(nameof(stationRepository));
+    private readonly ICatalogApi         catalogApi = catalogApi ?? throw new ArgumentNullException(nameof(catalogApi));
+    private readonly IStorefrontProvider storefrontProvider = storefrontProvider ?? throw new ArgumentNullException(nameof(storefrontProvider));
 
     [HttpPost]
     [Route("{artistId}")]
