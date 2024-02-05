@@ -24,7 +24,7 @@ export const LastfmContextProvider: React.FunctionComponent<React.PropsWithChild
     (props: React.PropsWithChildren<ILastfmContextProviderProps>) => {
         const [state, _setState] = React.useState<AuthenticationState>(AuthenticationState.Loading);
         const [user, _setUser] = React.useState<ILastfmUser | undefined>(undefined);
-        const [isScrobblingEnabled, _setIsScrobblingEnabled] = React.useState<boolean>(false);
+        const [isScrobblingEnabled, _setIsScrobblingEnabled] = React.useState<boolean>(true);
 
         const setState = React.useCallback(
             (value: AuthenticationState) => _setState(value),

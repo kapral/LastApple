@@ -34,14 +34,14 @@ export class SingleArtist extends Component<IStationParams, { currentArtistId: s
 
     render(): React.ReactNode {
         return <div className='station-parameters'>
-            <Search<MusicKit.MediaItemOptions> search={term => this.search(term)}
+            <Search<MusicKit.MediaItem> search={term => this.search(term)}
                                        onChanged={artist => this.handleChanged(artist)}
                                        placeholder={'Radiohead...'}
                                        labelAccessor={x => (x as any).attributes.name}/>
         </div>
     }
 
-    handleChanged(artist: MusicKit.MediaItemOptions) {
+    handleChanged(artist: MusicKit.MediaItem) {
         this.setState({ currentArtistId: artist && artist.id });
         this.props.onOptionsChanged(!!artist);
     }

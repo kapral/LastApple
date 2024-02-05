@@ -48,7 +48,7 @@ const buttonStyles: React.CSSProperties = {
     cursor: 'pointer'
 };
 
-type PlayerControlsProps = { currentTrack: MusicKit.MediaItemOptions, isPlaying: boolean, switchPrev(): void, switchNext(): void, onPlayPause(): void } & PlayerHeaderProps;
+type PlayerControlsProps = { currentTrack: MusicKit.MediaItem, isPlaying: boolean, switchPrev(): void, switchNext(): void, onPlayPause(): void } & PlayerHeaderProps;
 
 export const PlayerControls = (props: PlayerControlsProps) =>
     <div className="player-controls" style={containerStyles}>
