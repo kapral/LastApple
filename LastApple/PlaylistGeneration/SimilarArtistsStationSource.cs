@@ -7,14 +7,9 @@ using LastApple.Model;
 
 namespace LastApple.PlaylistGeneration;
 
-public class SimilarArtistsStationSource : IStationSource<SimilarArtistsStationDefinition>
+public class SimilarArtistsStationSource(IArtistApi artistApi) : IStationSource<SimilarArtistsStationDefinition>
 {
-    private readonly IArtistApi artistApi;
-
-    public SimilarArtistsStationSource(IArtistApi artistApi)
-    {
-        this.artistApi = artistApi ?? throw new ArgumentNullException(nameof(artistApi));
-    }
+    private readonly IArtistApi artistApi = artistApi ?? throw new ArgumentNullException(nameof(artistApi));
 
     public async Task<IReadOnlyCollection<Artist>> GetStationArtists(SimilarArtistsStationDefinition definition)
     {

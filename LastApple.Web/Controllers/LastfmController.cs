@@ -9,26 +9,17 @@ using Microsoft.AspNetCore.Mvc;
 namespace LastApple.Web.Controllers;
 
 [Route("api/lastfm")]
-public class LastfmController : Controller
+public class LastfmController(ISessionProvider sessionProvider,
+                              IScrobbler scrobbler,
+                              IArtistApi artistApi,
+                              ITrackApi trackApi,
+                              ILastAuth lastAuth) : Controller
 {
-    private readonly IScrobbler scrobbler;
-    private readonly IArtistApi artistApi;
-    private readonly ITrackApi trackApi;
-    private readonly ILastAuth lastAuth;
-    private readonly ISessionProvider sessionProvider;
-
-    public LastfmController(ISessionProvider sessionProvider,
-                            IScrobbler scrobbler,
-                            IArtistApi artistApi,
-                            ITrackApi trackApi,
-                            ILastAuth lastAuth)
-    {
-        this.sessionProvider = sessionProvider ?? throw new ArgumentNullException(nameof(sessionProvider));
-        this.scrobbler       = scrobbler ?? throw new ArgumentNullException(nameof(scrobbler));
-        this.artistApi       = artistApi ?? throw new ArgumentNullException(nameof(artistApi));
-        this.trackApi        = trackApi ?? throw new ArgumentNullException(nameof(trackApi));
-        this.lastAuth        = lastAuth ?? throw new ArgumentNullException(nameof(lastAuth));
-    }
+    private readonly IScrobbler scrobbler = scrobbler ?? throw new ArgumentNullException(nameof(scrobbler));
+    private readonly IArtistApi artistApi = artistApi ?? throw new ArgumentNullException(nameof(artistApi));
+    private readonly ITrackApi trackApi = trackApi ?? throw new ArgumentNullException(nameof(trackApi));
+    private readonly ILastAuth lastAuth = lastAuth ?? throw new ArgumentNullException(nameof(lastAuth));
+    private readonly ISessionProvider sessionProvider = sessionProvider ?? throw new ArgumentNullException(nameof(sessionProvider));
 
     [HttpGet]
     [Route("artist/search")]

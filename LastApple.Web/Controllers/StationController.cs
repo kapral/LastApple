@@ -5,14 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 namespace LastApple.Web.Controllers;
 
 [Route("api/station")]
-public class StationController: Controller
+public class StationController(IStationRepository stationRepository) : Controller
 {
-    private readonly IStationRepository stationRepository;
-
-    public StationController(IStationRepository stationRepository)
-    {
-        this.stationRepository = stationRepository ?? throw new ArgumentNullException(nameof(stationRepository));
-    }
+    private readonly IStationRepository stationRepository = stationRepository ?? throw new ArgumentNullException(nameof(stationRepository));
 
     [Route("{stationId}")]
     public ActionResult Get(Guid stationId)

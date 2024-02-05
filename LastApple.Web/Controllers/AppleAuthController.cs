@@ -6,20 +6,13 @@ using Microsoft.AspNetCore.Mvc;
 namespace LastApple.Web.Controllers;
 
 [Route("api/apple/auth")]
-public class AppleAuthController : Controller
+public class AppleAuthController(IDeveloperTokenProvider tokenProvider,
+                                 ISessionProvider sessionProvider,
+                                 ISessionRepository sessionRepository) : Controller
 {
-    private readonly IDeveloperTokenProvider tokenProvider;
-    private readonly ISessionProvider        sessionProvider;
-    private readonly ISessionRepository      sessionRepository;
-
-    public AppleAuthController(IDeveloperTokenProvider tokenProvider,
-                               ISessionProvider sessionProvider,
-                               ISessionRepository sessionRepository)
-    {
-        this.tokenProvider     = tokenProvider ?? throw new ArgumentNullException(nameof(tokenProvider));
-        this.sessionProvider   = sessionProvider ?? throw new ArgumentNullException(nameof(sessionProvider));
-        this.sessionRepository = sessionRepository ?? throw new ArgumentNullException(nameof(sessionRepository));
-    }
+    private readonly IDeveloperTokenProvider tokenProvider = tokenProvider ?? throw new ArgumentNullException(nameof(tokenProvider));
+    private readonly ISessionProvider        sessionProvider = sessionProvider ?? throw new ArgumentNullException(nameof(sessionProvider));
+    private readonly ISessionRepository      sessionRepository = sessionRepository ?? throw new ArgumentNullException(nameof(sessionRepository));
 
     [HttpGet]
     [Route("developertoken")]
