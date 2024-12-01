@@ -19,6 +19,16 @@ jobs:
     - uses: actions/setup-node@v3
       with:
         node-version: '18.x'
+    - uses: cschleiden/replace-tokens@v1
+      with:
+        files: '["**/appsettings.json"]'
+      env:
+        ApplePrivateKey: ${{ secrets.applePrivateKey }}
+        AppleKeyId: ${{ secrets.appleKeyId }}
+        AppleTeamId: ${{ secrets.appleTeamId }}
+        LastfmApiKey: ${{ secrets.lastfmApiKey }}
+        LastfmSecret: ${{ secrets.lastfmSecret }}
+        MongoDbConnectionString: ${{ secrets.mongoDbConnectionString }}
 
     - name: Add GH packages
       run: |
