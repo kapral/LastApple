@@ -21,7 +21,7 @@ jobs:
         node-version: '18.x'
     - uses: cschleiden/replace-tokens@v1
       with:
-        files: '["**/appsettings.json"]'
+        files: '["LastApple.Web/appsettings.json"]'
       env:
         ApplePrivateKey: ${{ secrets.applePrivateKey }}
         AppleKeyId: ${{ secrets.appleKeyId }}
