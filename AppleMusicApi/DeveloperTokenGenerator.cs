@@ -1,11 +1,7 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Security.Cryptography;
-using Jose;
-using Jose.keys;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.OpenSsl;
+using JWT.Algorithms;
+using JWT.Builder;
 
 namespace AppleMusicApi;
 
@@ -13,34 +9,17 @@ public class DeveloperTokenGenerator : IDeveloperTokenGenerator
 {
     public string GenerateDeveloperToken(AppCredentials credentials, TimeSpan duration)
     {
-        var issuedAt  = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-        var expiresAt = DateTimeOffset.UtcNow.Add(duration).ToUnixTimeSeconds();
+        ReadOnlySpan<byte> keyAsSpan = Convert.FromBase64String(credentials.PrivateKey);
 
-        var headers = new Dictionary<string, object>
-        {
-            { "alg", "ES256" },
-            { "kid", credentials.KeyId },
-            { "typ", "JWT" }
-        };
-        var payload = new Dictionary<string, object>
-        {
-            { "iss", credentials.TeamId },
-            { "iat", issuedAt },
-            { "exp", expiresAt }
-        };
+        var prvKey = ECDsa.Create();
+        prvKey.ImportPkcs8PrivateKey(keyAsSpan, out _);
 
-        var privateKey = GetPrivateKey(string.Format(credentials.PrivateKey, Environment.NewLine));
-
-        return JWT.Encode(payload, privateKey, JwsAlgorithm.ES256, headers);
-    }
-
-    private static CngKey GetPrivateKey(string key)
-    {
-        var ecPrivateKeyParameters = (ECPrivateKeyParameters)new PemReader(new StringReader(key)).ReadObject();
-        var x                      = ecPrivateKeyParameters.Parameters.G.AffineXCoord.GetEncoded();
-        var y                      = ecPrivateKeyParameters.Parameters.G.AffineYCoord.GetEncoded();
-        var d                      = ecPrivateKeyParameters.D.ToByteArrayUnsigned();
-
-        return EccKey.New(x, y, d);
+        return new JwtBuilder()
+               .WithAlgorithm(new ES256Algorithm(ECDsa.Create(), prvKey))
+               .AddHeader("kid", credentials.KeyId)
+               .ExpirationTime(DateTimeOffset.Now.Add(duration).UtcDateTime)
+               .IssuedAt(DateTimeOffset.Now.UtcDateTime)
+               .Issuer(credentials.TeamId)
+               .Encode();
     }
 }
