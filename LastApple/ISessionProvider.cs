@@ -4,5 +4,5 @@ namespace LastApple;
 
 public interface ISessionProvider
 {
-    Task<Session?> GetSession();
+    Task<Session> GetSession();
 }

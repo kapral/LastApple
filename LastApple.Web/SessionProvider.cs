@@ -1,31 +1,31 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Primitives;
 
 namespace LastApple.Web;
 
-public class SessionProvider : ISessionProvider
+public class SessionProvider(ISessionRepository sessionRepository, IHttpContextAccessor httpContextAccessor) : ISessionProvider
 {
-    private readonly ISessionRepository sessionRepository;
+    private HttpContext HttpContext => httpContextAccessor.HttpContext ?? throw new InvalidOperationException("HttpContext is not available");
 
-    public SessionProvider(ISessionRepository sessionRepository, IHttpContextAccessor httpContextAccessor)
-    {
-        this.sessionRepository = sessionRepository ?? throw new ArgumentNullException(nameof(sessionRepository));
+    private readonly TimeSpan activityThreshold = TimeSpan.FromMinutes(30);
 
-        if (httpContextAccessor == null) throw new ArgumentNullException(nameof(httpContextAccessor));
+    private string SessionId => HttpContext.Request.Headers["X-SessionId"].ToString();
 
-        if (httpContextAccessor.HttpContext == null) throw new InvalidOperationException("HttpContext is not available.");
-
-        SessionId = httpContextAccessor.HttpContext.Request.Headers["X-SessionId"]!;
-    }
-
-    private string SessionId { get; }
-
-    public async Task<Session?> GetSession()
+    public async Task<Session> GetSession()
     {
         if (!Guid.TryParse(SessionId, out var id))
-            return null;
+            return default;
 
-        return await sessionRepository.GetSession(id);
+        var session = await sessionRepository.GetSession(id);
+
+        if (session.Id != Guid.Empty && DateTimeOffset.UtcNow - session.LastActivityAt > activityThreshold)
+        {
+            session.LastActivityAt = DateTimeOffset.UtcNow;
+            await sessionRepository.SaveSession(session);
+        }
+
+        return session;
     }
 }

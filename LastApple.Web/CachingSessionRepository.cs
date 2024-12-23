@@ -1,29 +1,26 @@
 using System;
-using System.Collections.Concurrent;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace LastApple.Web;
 
-public class CachingSessionRepository(ISessionRepository concreteRepository) : ISessionRepository
+public class CachingSessionRepository(ISessionRepository concreteRepository, IMemoryCache memoryCache) : ISessionRepository
 {
-    private readonly ISessionRepository concreteRepository = concreteRepository ?? throw new ArgumentNullException(nameof(concreteRepository));
-    private readonly ConcurrentDictionary<Guid, Task<Session?>> sessionCache = new();
-
-    public Task<Session?> GetSession(Guid sessionId)
-    {
-        if (sessionCache.TryGetValue(sessionId, out var sessionTask) && !sessionTask.IsCanceled && !sessionTask.IsFaulted)
-            return sessionTask;
-
-        sessionTask = concreteRepository.GetSession(sessionId);
-        return sessionCache.AddOrUpdate(sessionId, sessionTask, (_, _) => sessionTask);
-    }
+    public Task<Session> GetSession(Guid sessionId)
+        => memoryCache.GetOrCreateAsync(Key(sessionId), async entry =>
+        {
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
+            return await concreteRepository.GetSession(sessionId);
+        });
 
     public async Task SaveSession(Session session)
     {
-        if (session == null) throw new ArgumentNullException(nameof(session));
+        ArgumentNullException.ThrowIfNull(session);
 
         await concreteRepository.SaveSession(session);
 
-        sessionCache.TryRemove(session.Id, out _);
+        memoryCache.Remove(Key(session.Id));
     }
+
+    private static string Key(Guid sessionId) => $"session:{sessionId}";
 }

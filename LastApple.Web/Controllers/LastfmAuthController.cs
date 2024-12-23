@@ -38,17 +38,20 @@ public class LastfmAuthController(ILastAuth authApi,
 
         var session = await sessionProvider.GetSession();
 
-        session = session == null
-                      ? new Session(Id: Guid.NewGuid(),
-                                    LastfmSessionKey: authApi.UserSession.Token,
-                                    LastfmUsername: authApi.UserSession.Username,
-                                    MusicUserToken: null,
-                                    MusicStorefrontId: null)
-                      : session with
-                      {
-                          LastfmSessionKey = authApi.UserSession.Token,
-                          LastfmUsername = authApi.UserSession.Username
-                      };
+        session = session.Id == Guid.Empty
+            ? new Session(Guid.NewGuid(),
+                          DateTimeOffset.Now,
+                          DateTimeOffset.Now,
+                          authApi.UserSession.Token,
+                          authApi.UserSession.Username,
+                          null,
+                          null)
+            : session with
+            {
+                LastActivityAt = DateTimeOffset.Now,
+                LastfmSessionKey = authApi.UserSession.Token,
+                LastfmUsername = authApi.UserSession.Username
+            };
 
         await sessionRepository.SaveSession(session);
 
@@ -61,7 +64,7 @@ public class LastfmAuthController(ILastAuth authApi,
     {
         var session = await sessionProvider.GetSession();
 
-        if (session == null)
+        if (session.Id == Guid.Empty)
             return BadRequest();
 
         session = session with
@@ -79,7 +82,7 @@ public class LastfmAuthController(ILastAuth authApi,
     {
         var session = await sessionProvider.GetSession();
 
-        if (string.IsNullOrWhiteSpace(session?.LastfmSessionKey))
+        if (string.IsNullOrWhiteSpace(session.LastfmSessionKey))
             return Json(null);
 
         var userInfoResponse = await userApi.GetInfoAsync(session.LastfmUsername);

@@ -10,7 +10,7 @@ public class Randomizer : IRandomizer {
     }
 
     /// <summary>
-    /// Returns a non-negative random number less then specified
+    /// Returns a non-negative random number less than specified
     /// maximum with higher probability of lower numbers
     /// </summary>
     public int NextDecreasing(int lessThen) {

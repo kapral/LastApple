@@ -26,7 +26,7 @@ public class LastfmLibraryStationController(IStationRepository stationRepository
     {
         var session = await sessionProvider.GetSession();
 
-        if (session == null)
+        if (session.Id == Guid.Empty)
             return Unauthorized();
 
         var user = await userApi.GetInfoAsync(session.LastfmUsername);

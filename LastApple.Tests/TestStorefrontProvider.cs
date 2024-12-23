@@ -19,16 +19,12 @@ public class TestStorefrontProvider
     }
 
     [Test]
-    public void Constructor_Throws_On_Null_Arguments()
-    {
-        Assert.That(() => new StorefrontProvider(null), Throws.ArgumentNullException);
-    }
-
-    [Test]
     public async Task GetStorefront_Returns_Storefront_From_Session()
     {
         sessionProvider.GetSession()
                        .Returns(new Session(Id: Guid.NewGuid(),
+                                            LastActivityAt: DateTimeOffset.Now,
+                                            StartedAt: DateTimeOffset.MinValue,
                                             MusicStorefrontId: "ua",
                                             LastfmSessionKey: null,
                                             LastfmUsername: null,
@@ -40,7 +36,13 @@ public class TestStorefrontProvider
     [Test]
     public async Task GetStorefront_Returns_Default_Storefront_If_No_Session()
     {
-        sessionProvider.GetSession().Returns((Session) null);
+        sessionProvider.GetSession().Returns(new Session(Id: Guid.Empty,
+                                                         LastActivityAt: DateTimeOffset.Now,
+                                                         StartedAt: DateTimeOffset.MinValue,
+                                                         MusicStorefrontId: null,
+                                                         LastfmSessionKey: null,
+                                                         LastfmUsername: null,
+                                                         MusicUserToken: null));
 
         Assert.That(await storefrontProvider.GetStorefront(), Is.EqualTo("us"));
     }
@@ -50,6 +52,8 @@ public class TestStorefrontProvider
     {
         sessionProvider.GetSession()
                        .Returns(new Session(Id: Guid.NewGuid(),
+                                            LastActivityAt: DateTimeOffset.Now,
+                                            StartedAt: DateTimeOffset.MinValue,
                                             MusicStorefrontId: null,
                                             LastfmSessionKey: null,
                                             LastfmUsername: null,

@@ -24,13 +24,6 @@ public class TestTrackIdProvider
     }
 
     [Test]
-    public void Constructor_Throws_On_Null_Arguments()
-    {
-        Assert.That(() => new TrackIdProvider(null, storefrontProvider), Throws.ArgumentNullException);
-        Assert.That(() => new TrackIdProvider(catalogApi, null), Throws.ArgumentNullException);
-    }
-
-    [Test]
     public async Task FindTrackId_Returns_First_Found_Track()
     {
         storefrontProvider.GetStorefront().Returns("ua");

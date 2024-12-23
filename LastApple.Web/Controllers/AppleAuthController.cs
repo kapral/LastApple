@@ -34,8 +34,10 @@ public class AppleAuthController(IDeveloperTokenProvider tokenProvider,
     {
         var session = await sessionProvider.GetSession();
 
-        session = session == null
+        session = session.Id == Guid.Empty
                       ? new Session(Id: Guid.NewGuid(),
+                                    StartedAt: DateTimeOffset.UtcNow,
+                                    LastActivityAt: DateTimeOffset.UtcNow,
                                     LastfmSessionKey: null,
                                     LastfmUsername: null,
                                     MusicUserToken: sessionData.MusicUserToken,
@@ -57,7 +59,7 @@ public class AppleAuthController(IDeveloperTokenProvider tokenProvider,
     {
         var session = await sessionProvider.GetSession();
 
-        if (session == null)
+        if (session.Id == Guid.Empty)
             return BadRequest();
 
         session = session with
