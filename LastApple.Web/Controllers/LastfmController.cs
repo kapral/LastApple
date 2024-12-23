@@ -87,6 +87,6 @@ public class LastfmController(ISessionProvider sessionProvider,
 
     private async Task<string?> GetSessionKey()
     {
-        return (await sessionProvider.GetSession())?.LastfmSessionKey;
+        return (await sessionProvider.GetSession()).LastfmSessionKey;
     }
 }

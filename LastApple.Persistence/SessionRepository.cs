@@ -1,48 +1,44 @@
 using System;
 using System.Threading.Tasks;
-using MongoDB.Bson;
+using Microsoft.Extensions.Options;
 using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 
 namespace LastApple.Persistence;
 
-public class SessionRepository(IMongoClient mongoClient) : ISessionRepository
+public class SessionRepository(IMongoClient mongoClient, IOptions<MongoConnectionDetails> options) : ISessionRepository
 {
-    private readonly IMongoClient mongoClient = mongoClient ?? throw new ArgumentNullException(nameof(mongoClient));
-
-    public async Task<Session?> GetSession(Guid id)
+    public async Task<Session> GetSession(Guid id)
     {
-        var db = mongoClient.GetDatabase("lastapple");
+        var db = mongoClient.GetDatabase(options.Value.DatabaseName);
 
         var domainSession = await db.GetCollection<Model.Session>("sessions")
-                                    .AsQueryable()
-                                    .Where(x => x.Id == id)
-                                    .FirstOrDefaultAsync();
+                              .Find(x => x.Id == id)
+                              .FirstOrDefaultAsync();
 
-        return domainSession != null
-                   ? new Session(Id: domainSession.Id,
-                                 LastfmSessionKey: domainSession.LastfmSessionKey,
-                                 LastfmUsername: domainSession.LastfmUsername,
-                                 MusicUserToken: domainSession.MusicUserToken,
-                                 MusicStorefrontId: domainSession.MusicStorefrontId)
-                   : null;
+        return new Session(Id: domainSession.Id,
+                           StartedAt: domainSession.StartedAt,
+                           LastActivityAt: domainSession.StartedAt,
+                           LastfmSessionKey: domainSession.LastfmSessionKey,
+                           LastfmUsername: domainSession.LastfmUsername,
+                           MusicUserToken: domainSession.MusicUserToken,
+                           MusicStorefrontId: domainSession.MusicStorefrontId);
     }
 
     public async Task SaveSession(Session session)
     {
-        if (session == null) throw new ArgumentNullException(nameof(session));
+        ArgumentNullException.ThrowIfNull(session);
 
-        var db = mongoClient.GetDatabase("lastapple");
+        var db = mongoClient.GetDatabase(options.Value.DatabaseName);
 
         var domainSession = new Model.Session(Id: session.Id,
+                                              StartedAt: session.StartedAt,
+                                              LastActivityAt: DateTimeOffset.UtcNow,
                                               LastfmSessionKey: session.LastfmSessionKey,
                                               LastfmUsername: session.LastfmUsername,
                                               MusicUserToken: session.MusicUserToken,
                                               MusicStorefrontId: session.MusicStorefrontId);
 
-        var filter = new BsonDocument("_id", new BsonBinaryData(domainSession.Id, GuidRepresentation.Standard));
-
         await db.GetCollection<Model.Session>("sessions")
-                .ReplaceOneAsync(filter, domainSession, new ReplaceOptions { IsUpsert = true });
+                .ReplaceOneAsync(x => x.Id == domainSession.Id, domainSession, new ReplaceOptions { IsUpsert = true });
     }
 }
