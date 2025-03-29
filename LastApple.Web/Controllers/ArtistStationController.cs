@@ -14,10 +14,6 @@ public class ArtistStationController(IStationRepository stationRepository,
                                      ICatalogApi catalogApi,
                                      IStorefrontProvider storefrontProvider) : Controller
 {
-    private readonly IStationRepository  stationRepository = stationRepository ?? throw new ArgumentNullException(nameof(stationRepository));
-    private readonly ICatalogApi         catalogApi = catalogApi ?? throw new ArgumentNullException(nameof(catalogApi));
-    private readonly IStorefrontProvider storefrontProvider = storefrontProvider ?? throw new ArgumentNullException(nameof(storefrontProvider));
-
     [HttpPost]
     [Route("{artistId}")]
     public async Task<ActionResult> Create(string artistId)

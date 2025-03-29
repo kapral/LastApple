@@ -21,7 +21,7 @@ public class LastfmLibraryStationSource(IUserApi userApi) : IStationSource<Lastf
 
         return response.Success
                    ? response.Content.Select(x => new Artist(Name: x.Name)).ToArray()
-                   : Array.Empty<Artist>();
+                   : [];
     }
 
     private static LastStatsTimeSpan GetSpan(string period)

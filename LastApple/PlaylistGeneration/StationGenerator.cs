@@ -16,15 +16,15 @@ public class StationGenerator<TStation>(IStationTrackGenerator<TStation> trackGe
 
     private const int AttemptsLimit = 50;
 
-    public async Task Generate(Station<TStation> station) {
-        await Populate(station);
+    public async Task Generate(Station<TStation> station, string storefront) {
+        await Populate(station, storefront);
     }
 
-    public async Task TopUp(Station<TStation> station, int count) {
-        await Populate(station, count);
+    public async Task TopUp(Station<TStation> station, string storefront, int count) {
+        await Populate(station, storefront, count);
     }
 
-    private async Task Populate(Station<TStation> station, int? topUpCount = null)
+    private async Task Populate(Station<TStation> station, string storefront, int? topUpCount = null)
     {
         var attempts = 0;
 
@@ -40,7 +40,7 @@ public class StationGenerator<TStation>(IStationTrackGenerator<TStation> trackGe
             if (nextTrack == null)
                 continue;
 
-            var trackId = await trackIdProvider.FindTrackId(nextTrack.ArtistName, nextTrack.Name);
+            var trackId = await trackIdProvider.FindTrackId(nextTrack.ArtistName, nextTrack.Name, storefront);
             if (trackId == null)
                 continue;
 
