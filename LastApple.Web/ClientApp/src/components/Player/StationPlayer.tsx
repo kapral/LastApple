@@ -319,7 +319,7 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
                 offset={this.getPlaylistPagingOffset()}
                 limit={this.station.isContinuous ? 10 : 1000}
                 currentTrack={this.state.currentTrack}
-                showAlbumInfo={!this.station.isContinuous}
+                showAlbumInfo={this.station.isGroupedByAlbum}
                 onTrackSwitch={this.handleTrackSwitched}
                 onRemove={this.handleTracksRemoved}
             />

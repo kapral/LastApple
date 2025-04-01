@@ -4,16 +4,16 @@ import musicKit from "../../musicKit";
 import { IStationParams } from "../IStationParams";
 import stationApi from "../../restClients/StationApi";
 
-export class SingleArtist extends Component<IStationParams, { currentArtistId: string }> {
+export class SingleArtist extends Component<IStationParams, { currentArtistIds: string[] }> {
     constructor(props) {
         super(props);
 
-        this.state = { currentArtistId: null };
+        this.state = { currentArtistIds: [] };
     }
 
     async componentDidUpdate() {
         if (this.props.triggerCreate) {
-            const station = await stationApi.postStation('artist', this.state.currentArtistId);
+            const station = await stationApi.postStation('artist', this.state.currentArtistIds.join(','));
 
             this.props.onStationCreated(station.id);
         }
@@ -41,9 +41,9 @@ export class SingleArtist extends Component<IStationParams, { currentArtistId: s
         </div>
     }
 
-    handleChanged(artist: MusicKit.MediaItem) {
-        this.setState({ currentArtistId: artist && artist.id });
-        this.props.onOptionsChanged(!!artist);
+    handleChanged(artists: MusicKit.MediaItem[]) {
+        this.setState({ currentArtistIds: artists.map(x => x.id) });
+        this.props.onOptionsChanged(!!artists.length);
     }
 
     static Definition = {
