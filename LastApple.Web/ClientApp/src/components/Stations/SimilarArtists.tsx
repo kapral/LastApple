@@ -30,7 +30,7 @@ export class SimilarArtists extends Component<IStationParams, { artist: string }
     render(): React.ReactNode {
         return <div className='station-parameters'>
             <Search<string> search={term => this.search(term)}
-                                       onChanged={artist => this.handleChanged(artist)}
+                                       onChanged={artist => this.handleChanged(artist[0])}
                                        placeholder={'Placebo...'}/>
         </div>;
     }

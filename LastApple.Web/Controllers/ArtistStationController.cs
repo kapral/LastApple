@@ -14,24 +14,34 @@ public class ArtistStationController(IStationRepository stationRepository,
                                      ICatalogApi catalogApi,
                                      IStorefrontProvider storefrontProvider) : Controller
 {
-    private readonly IStationRepository  stationRepository = stationRepository ?? throw new ArgumentNullException(nameof(stationRepository));
-    private readonly ICatalogApi         catalogApi = catalogApi ?? throw new ArgumentNullException(nameof(catalogApi));
-    private readonly IStorefrontProvider storefrontProvider = storefrontProvider ?? throw new ArgumentNullException(nameof(storefrontProvider));
-
     [HttpPost]
-    [Route("{artistId}")]
-    public async Task<ActionResult> Create(string artistId)
+    [Route("{joinedIds}")]
+    public async Task<ActionResult> Create(string joinedIds)
     {
-        var definition = new ArtistsStationDefinition { Artists = { artistId } };
+        var definition = new ArtistsStationDefinition();
+        var artistIds = joinedIds.Split(',').Select(x => x.Trim()).ToArray();
+
+        foreach (var artistId in artistIds)
+        {
+            definition.Artists.Add(artistId);
+        }
+
         var station = new Station<ArtistsStationDefinition>(definition)
         {
-            Id = Guid.NewGuid()
+            Id = Guid.NewGuid(),
+            IsGroupedByAlbum = artistIds.Length == 1
         };
 
-        var songs = await GetSongs(artistId);
+        var allSongs = new List<string>();
 
-        foreach (var song in songs)
-            station.SongIds.Add(song);
+        foreach (var artistId in artistIds)
+        {
+            var songs = await GetSongs(artistId);
+
+            allSongs.AddRange(songs);
+        }
+
+        station.SongIds.AddRange(allSongs.OrderBy(_ => Guid.NewGuid()));
 
         stationRepository.Create(station);
 

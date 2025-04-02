@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using LastApple.Model;
 using LastApple.PlaylistGeneration;
 using Microsoft.AspNetCore.Mvc;
@@ -8,17 +9,12 @@ namespace LastApple.Web.Controllers;
 [Route("api/station/similarartists")]
 public class SimilarArtistsStationController(IStationRepository stationRepository,
                                              IStationGenerator<SimilarArtistsStationDefinition> stationGenerator,
-                                             IBackgroundProcessManager backgroundProcessManager) : Controller
+                                             IBackgroundProcessManager backgroundProcessManager,
+                                             IStorefrontProvider storefrontProvider) : Controller
 {
-    private readonly IStationRepository                                 stationRepository = stationRepository ?? throw new ArgumentNullException(nameof(stationRepository));
-    private readonly IStationGenerator<SimilarArtistsStationDefinition> stationGenerator = stationGenerator ?? throw new ArgumentNullException(nameof(stationGenerator));
-    private readonly IBackgroundProcessManager                          backgroundProcessManager = backgroundProcessManager ??
-                                                                                                   throw new ArgumentNullException(nameof(backgroundProcessManager));
-
     [HttpPost]
     [Route("{artist}")]
-
-    public IActionResult Create(string artist)
+    public async Task<IActionResult> Create(string artist)
     {
         if (string.IsNullOrWhiteSpace(artist))
             throw new ArgumentException("Value cannot be null or whitespace.", nameof(artist));
@@ -33,21 +29,23 @@ public class SimilarArtistsStationController(IStationRepository stationRepositor
 
         stationRepository.Create(station);
 
-        backgroundProcessManager.AddProcess(() => stationGenerator.Generate(station));
+        var storefront = await storefrontProvider.GetStorefront();
+        backgroundProcessManager.AddProcess(() => stationGenerator.Generate(station, storefront));
 
         return Json(station);
     }
 
     [HttpPost]
     [Route("{stationId}/topup/{count}")]
-    public ActionResult TopUp(Guid stationId, int count)
+    public async Task<ActionResult> TopUp(Guid stationId, int count)
     {
         var station = stationRepository.Get(stationId) as Station<SimilarArtistsStationDefinition>;
 
         if (station == null)
             return NotFound();
 
-        backgroundProcessManager.AddProcess(() => stationGenerator.TopUp(station, count));
+        var storefront = await storefrontProvider.GetStorefront();
+        backgroundProcessManager.AddProcess(() => stationGenerator.TopUp(station, storefront, count));
 
         return NoContent();
     }

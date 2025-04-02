@@ -10,7 +10,6 @@ namespace LastApple.Tests.StationGeneration;
 public class TestTrackIdProvider
 {
     private ICatalogApi catalogApi;
-    private IStorefrontProvider storefrontProvider;
 
     private ITrackIdProvider trackIdProvider;
 
@@ -18,16 +17,13 @@ public class TestTrackIdProvider
     public void Init()
     {
         catalogApi         = Substitute.For<ICatalogApi>();
-        storefrontProvider = Substitute.For<IStorefrontProvider>();
 
-        trackIdProvider = new TrackIdProvider(catalogApi, storefrontProvider);
+        trackIdProvider = new TrackIdProvider(catalogApi);
     }
 
     [Test]
     public async Task FindTrackId_Returns_First_Found_Track()
     {
-        storefrontProvider.GetStorefront().Returns("ua");
-
         const string artist = "Shortparis";
         const string track  = "Amsterdam";
 
@@ -39,7 +35,7 @@ public class TestTrackIdProvider
                                             new ResourceMatches<AlbumAttributes>(new List<Resource<AlbumAttributes>>()),
                                             new ResourceMatches<SongAttributes>(new List<Resource<SongAttributes>> { song })));
 
-        var id = await trackIdProvider.FindTrackId(artist, track);
+        var id = await trackIdProvider.FindTrackId(artist, track, "ua");
 
         Assert.That(id, Is.EqualTo(song.Id));
     }
@@ -47,8 +43,6 @@ public class TestTrackIdProvider
     [Test]
     public async Task FindTrackId_Returns_Null_If_Not_Found()
     {
-        storefrontProvider.GetStorefront().Returns("ua");
-
         const string artist = "Shortparis";
         const string track  = "Amsterdam";
 
@@ -57,7 +51,7 @@ public class TestTrackIdProvider
                                             new ResourceMatches<AlbumAttributes>(new List<Resource<AlbumAttributes>>()),
                                             new ResourceMatches<SongAttributes>(new List<Resource<SongAttributes>>())));
 
-        var id = await trackIdProvider.FindTrackId(artist, track);
+        var id = await trackIdProvider.FindTrackId(artist, track, "ua");
 
         Assert.That(id, Is.Null);
     }
@@ -65,8 +59,6 @@ public class TestTrackIdProvider
     [Test]
     public async Task FindTrackId_Returns_Null_If_Songs_Property_Is_Null()
     {
-        storefrontProvider.GetStorefront().Returns("ua");
-
         const string artist = "Shortparis";
         const string track  = "Amsterdam";
 
@@ -75,7 +67,7 @@ public class TestTrackIdProvider
                                             Albums: new ResourceMatches<AlbumAttributes>(new List<Resource<AlbumAttributes>>()),
                                             Songs: null));
 
-        var id = await trackIdProvider.FindTrackId(artist, track);
+        var id = await trackIdProvider.FindTrackId(artist, track, "ua");
 
         Assert.That(id, Is.Null);
     }

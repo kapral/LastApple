@@ -11,5 +11,7 @@ public abstract record StationBase
 
     public bool IsContinuous { get; init; }
 
-    public IList<string> SongIds { get; } = new List<string>();
+    public bool IsGroupedByAlbum { get; init; }
+
+    public List<string> SongIds { get; } = new();
 }

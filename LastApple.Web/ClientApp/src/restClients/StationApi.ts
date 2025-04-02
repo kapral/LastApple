@@ -9,6 +9,7 @@ export interface IStation {
     songIds: Array<string>
     size: number;
     isContinuous: boolean;
+    isGroupedByAlbum: boolean;
     definition: IStationDefinition;
 }
 

@@ -12,14 +12,9 @@ public class LastfmLibraryStationController(IStationRepository stationRepository
                                             IStationGenerator<LastfmLibraryStationDefinition> stationGenerator,
                                             IBackgroundProcessManager processManager,
                                             IUserApi userApi,
-                                            ISessionProvider sessionProvider) : Controller
+                                            ISessionProvider sessionProvider,
+                                            IStorefrontProvider storefrontProvider) : Controller
 {
-    private readonly IStationRepository stationRepository = stationRepository ?? throw new ArgumentNullException(nameof(stationRepository));
-    private readonly IStationGenerator<LastfmLibraryStationDefinition> stationGenerator = stationGenerator ?? throw new ArgumentNullException(nameof(stationGenerator));
-    private readonly IBackgroundProcessManager processManager = processManager ?? throw new ArgumentNullException(nameof(processManager));
-    private readonly IUserApi userApi = userApi ?? throw new ArgumentNullException(nameof(userApi));
-    private readonly ISessionProvider sessionProvider = sessionProvider ?? throw new ArgumentNullException(nameof(sessionProvider));
-
     [HttpPost]
     [Route("my")]
     public async Task<IActionResult> Create()
@@ -39,22 +34,23 @@ public class LastfmLibraryStationController(IStationRepository stationRepository
         };
 
         stationRepository.Create(station);
+        var storefront = await storefrontProvider.GetStorefront();
 
-        processManager.AddProcess(() => stationGenerator.Generate(station));
+        processManager.AddProcess(() => stationGenerator.Generate(station, storefront));
 
         return Json(station);
     }
 
     [HttpPost]
     [Route("{stationId}/topup/{count}")]
-    public ActionResult TopUp(Guid stationId, int count)
+    public async Task<ActionResult> TopUp(Guid stationId, int count)
     {
-        var station = stationRepository.Get(stationId) as Station<LastfmLibraryStationDefinition>;
-
-        if (station == null)
+        if (stationRepository.Get(stationId) is not Station<LastfmLibraryStationDefinition> station)
             return NotFound();
 
-        processManager.AddProcess(() => stationGenerator.TopUp(station, count));
+        var storefront = await storefrontProvider.GetStorefront();
+
+        processManager.AddProcess(() => stationGenerator.TopUp(station, storefront, count));
 
         return NoContent();
     }

@@ -9,22 +9,17 @@ namespace LastApple.Web.Controllers;
 [Route("api/station/tags")]
 public class TagsStationController(IStationRepository stationRepository,
                                    IStationGenerator<TagsStationDefinition> stationGenerator,
-                                   IBackgroundProcessManager backgroundProcessManager) : Controller
+                                   IBackgroundProcessManager backgroundProcessManager,
+                                   IStorefrontProvider storefrontProvider) : Controller
 {
-    private readonly IStationRepository                       stationRepository = stationRepository ?? throw new ArgumentNullException(nameof(stationRepository));
-    private readonly IStationGenerator<TagsStationDefinition> stationGenerator = stationGenerator ?? throw new ArgumentNullException(nameof(stationGenerator));
-    private readonly IBackgroundProcessManager                backgroundProcessManager = backgroundProcessManager ??
-                                                                                         throw new ArgumentNullException(nameof(backgroundProcessManager));
-
     [HttpPost]
     [Route("{tag}")]
-
-    public IActionResult Create(string tag)
+    public async Task<IActionResult> Create(string tag)
     {
         if (string.IsNullOrWhiteSpace(tag))
             throw new ArgumentException("Value cannot be null or whitespace.", nameof(tag));
 
-        var definition = new TagsStationDefinition(new[] { tag });
+        var definition = new TagsStationDefinition([tag]);
         var station = new Station<TagsStationDefinition>(definition)
         {
             IsContinuous = true,
@@ -33,21 +28,21 @@ public class TagsStationController(IStationRepository stationRepository,
 
         stationRepository.Create(station);
 
-        backgroundProcessManager.AddProcess(() => stationGenerator.Generate(station));
+        var storefront = await storefrontProvider.GetStorefront();
+        backgroundProcessManager.AddProcess(() => stationGenerator.Generate(station, storefront));
 
         return Json(station);
     }
 
     [HttpPost]
     [Route("{stationId}/topup/{count}")]
-    public ActionResult TopUp(Guid stationId, int count)
+    public async Task<ActionResult> TopUp(Guid stationId, int count)
     {
-        var station = stationRepository.Get(stationId) as Station<TagsStationDefinition>;
-
-        if (station == null)
+        if (stationRepository.Get(stationId) is not Station<TagsStationDefinition> station)
             return NotFound();
 
-        backgroundProcessManager.AddProcess(() => stationGenerator.TopUp(station, count));
+        var storefront = await storefrontProvider.GetStorefront();
+        backgroundProcessManager.AddProcess(() => stationGenerator.TopUp(station, storefront, count));
 
         return NoContent();
     }
