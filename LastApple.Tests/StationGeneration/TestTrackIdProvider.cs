@@ -35,7 +35,7 @@ public class TestTrackIdProvider
                                             new ResourceMatches<AlbumAttributes>(new List<Resource<AlbumAttributes>>()),
                                             new ResourceMatches<SongAttributes>(new List<Resource<SongAttributes>> { song })));
 
-        var id = await trackIdProvider.FindTrackId(artist, "ua", track);
+        var id = await trackIdProvider.FindTrackId(artist, track, "ua");
 
         Assert.That(id, Is.EqualTo(song.Id));
     }
@@ -51,7 +51,7 @@ public class TestTrackIdProvider
                                             new ResourceMatches<AlbumAttributes>(new List<Resource<AlbumAttributes>>()),
                                             new ResourceMatches<SongAttributes>(new List<Resource<SongAttributes>>())));
 
-        var id = await trackIdProvider.FindTrackId(artist, "ua", track);
+        var id = await trackIdProvider.FindTrackId(artist, track, "ua");
 
         Assert.That(id, Is.Null);
     }
@@ -67,7 +67,7 @@ public class TestTrackIdProvider
                                             Albums: new ResourceMatches<AlbumAttributes>(new List<Resource<AlbumAttributes>>()),
                                             Songs: null));
 
-        var id = await trackIdProvider.FindTrackId(artist, "ua", track);
+        var id = await trackIdProvider.FindTrackId(artist, track, "ua");
 
         Assert.That(id, Is.Null);
     }
