@@ -41,7 +41,11 @@ public class ArtistStationController(IStationRepository stationRepository,
             allSongs.AddRange(songs);
         }
 
-        station.SongIds.AddRange(allSongs.OrderBy(_ => Guid.NewGuid()));
+        allSongs = artistIds.Length == 1
+            ? allSongs
+            : allSongs.OrderBy(_ => Guid.NewGuid()).ToList();
+
+        station.SongIds.AddRange(allSongs);
 
         stationRepository.Create(station);
 
