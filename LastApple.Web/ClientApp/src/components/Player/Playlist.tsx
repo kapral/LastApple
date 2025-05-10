@@ -55,8 +55,8 @@ export class Playlist extends PureComponent<PlaylistProps> {
                         <PlaylistTrack
                             key={index}
                             track={item}
-                            isPlaying={item === this.props.currentTrack && this.props.isPlaying}
-                            isCurrent={item === this.props.currentTrack}
+                            isPlaying={this.props.isPlaying && item.id === this.props.currentTrack.id}
+                            isCurrent={this.props.currentTrack && item.id === this.props.currentTrack.id}
                             index={index}
                             groupOffset={group.index}
                             onTrackSwitch={this.props.onTrackSwitch}

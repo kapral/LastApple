@@ -36,7 +36,13 @@ h1, h2, h3, h4, h5, h6 {
 
 .station-parameters input {
     border: none;
-    height: 34px;
+    background-color: #191919;
+    color: #AAA;
+}
+
+.station-parameters .rbt-input {
+    border-radius: 0;
+    border: none;
     background-color: #191919;
     color: #AAA;
 }
