@@ -6,6 +6,7 @@
 **/ClientApp/www/**
 **/ClientApp/platforms/**
 **/ClientApp/plugins/**
+**/ClientApp/coverage/**
 **/appsettings.Development.json
 *.user
 *.DS_Store
