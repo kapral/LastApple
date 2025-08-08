@@ -34,7 +34,7 @@ public class LastfmController(ISessionProvider sessionProvider,
 
     [HttpPost]
     [Route("scrobble")]
-    public async Task<IActionResult> Scrobble(string artist, string song)
+    public async Task<IActionResult> Scrobble(string artist, string song, string? album = null)
     {
         var validationResponse = Validate(artist, song);
 
@@ -48,14 +48,14 @@ public class LastfmController(ISessionProvider sessionProvider,
 
         lastAuth.LoadSession(new LastUserSession { Token = sessionKey });
 
-        await scrobbler.ScrobbleAsync(new Scrobble(artist, string.Empty, song, DateTimeOffset.Now));
+        await scrobbler.ScrobbleAsync(new Scrobble(artist, album ?? string.Empty, song, DateTimeOffset.Now));
 
         return NoContent();
     }
 
     [HttpPost]
     [Route("nowplaying")]
-    public async Task<IActionResult> NowPlaying(string artist, string song)
+    public async Task<IActionResult> NowPlaying(string artist, string song, string? album = null)
     {
         var validationResponse = Validate(artist, song);
 
@@ -69,7 +69,7 @@ public class LastfmController(ISessionProvider sessionProvider,
 
         lastAuth.LoadSession(new LastUserSession { Token = sessionKey });
 
-        await trackApi.UpdateNowPlayingAsync(new Scrobble(artist, string.Empty, song, DateTimeOffset.Now) { Duration = TimeSpan.FromMinutes(3) });
+        await trackApi.UpdateNowPlayingAsync(new Scrobble(artist, album ?? string.Empty, song, DateTimeOffset.Now) { Duration = TimeSpan.FromMinutes(3) });
 
         return NoContent();
     }

@@ -33,12 +33,20 @@ class LastfmApi {
         return await userResponse.json();
     }
 
-    async postNowPlaying(artist: string, song: string) {
-        await fetch(`${environment.apiUrl}api/lastfm/nowPlaying?artist=${artist}&song=${song}`, { method: 'POST', headers: { 'X-SessionId': localStorage.getItem('SessionId') } });
+    async postNowPlaying(artist: string, song: string, album?: string) {
+        const params = new URLSearchParams({ artist, song });
+        if (album) {
+            params.append('album', album);
+        }
+        await fetch(`${environment.apiUrl}api/lastfm/nowPlaying?${params}`, { method: 'POST', headers: { 'X-SessionId': localStorage.getItem('SessionId') } });
     }
 
-    async postScrobble(artist: string, song: string) {
-        await fetch(`${environment.apiUrl}api/lastfm/scrobble?artist=${artist}&song=${song}`, { method: 'POST', headers: { 'X-SessionId': localStorage.getItem('SessionId') } });
+    async postScrobble(artist: string, song: string, album?: string) {
+        const params = new URLSearchParams({ artist, song });
+        if (album) {
+            params.append('album', album);
+        }
+        await fetch(`${environment.apiUrl}api/lastfm/scrobble?${params}`, { method: 'POST', headers: { 'X-SessionId': localStorage.getItem('SessionId') } });
     }
 }
 
