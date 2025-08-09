@@ -267,23 +267,17 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
     }
 
     async scrobble() {
-        const duration = this.state.currentTrack.playbackDuration ? Math.round(this.state.currentTrack.playbackDuration * 1000) : undefined;
-        await lastfmApi.postScrobble(
-            this.state.currentTrack.attributes.artistName, 
-            this.state.currentTrack.attributes.name, 
-            this.state.currentTrack.attributes.albumName,
-            duration
-        );
+        await lastfmApi.postScrobble(this.state.currentTrack.attributes.artistName,
+                                     this.state.currentTrack.attributes.name,
+                                     this.state.currentTrack.attributes.albumName,
+                                     this.state.currentTrack.attributes.duration);
     }
 
     async setNowPlaying(item: MusicKit.MediaItem) {
-        const duration = item.playbackDuration ? Math.round(item.playbackDuration * 1000) : undefined;
-        await lastfmApi.postNowPlaying(
-            item.attributes.artistName, 
-            item.attributes.name, 
-            item.attributes.albumName,
-            duration
-        );
+        await lastfmApi.postNowPlaying(item.attributes.artistName,
+                                       item.attributes.name,
+                                       item.attributes.albumName,
+                                       item.playbackDuration);
     }
 
     switchPrev = async() => {
