@@ -13,13 +13,6 @@ interface ScrobbleRequest {
     durationInMillis?: number;
 }
 
-interface NowPlayingRequest {
-    artist: string;
-    song: string;
-    album?: string;
-    durationInMillis?: number;
-}
-
 class LastfmApi {
     async getAuthUrl(redirectUrl: string) {
         const encodedUrl = encodeURIComponent(redirectUrl);
@@ -48,13 +41,7 @@ class LastfmApi {
     }
 
     async postNowPlaying(artist: string, song: string, album?: string, durationInMillis?: number) {
-        const requestBody: NowPlayingRequest = { artist, song };
-        if (album) {
-            requestBody.album = album;
-        }
-        if (durationInMillis) {
-            requestBody.durationInMillis = durationInMillis;
-        }
+        const requestBody: ScrobbleRequest = { artist, song, album, durationInMillis };
         
         await fetch(`${environment.apiUrl}api/lastfm/nowPlaying`, { 
             method: 'POST', 
@@ -67,13 +54,7 @@ class LastfmApi {
     }
 
     async postScrobble(artist: string, song: string, album?: string, durationInMillis?: number) {
-        const requestBody: ScrobbleRequest = { artist, song };
-        if (album) {
-            requestBody.album = album;
-        }
-        if (durationInMillis) {
-            requestBody.durationInMillis = durationInMillis;
-        }
+        const requestBody: ScrobbleRequest = { artist, song, album, durationInMillis };
         
         await fetch(`${environment.apiUrl}api/lastfm/scrobble`, { 
             method: 'POST', 

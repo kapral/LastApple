@@ -49,12 +49,10 @@ public class LastfmController(ISessionProvider sessionProvider,
 
         lastAuth.LoadSession(new LastUserSession { Token = sessionKey });
 
-        var scrobble = new Scrobble(request.Artist, request.Album ?? string.Empty, request.Song, DateTimeOffset.Now);
-        
-        if (request.DurationInMillis.HasValue)
+        var scrobble = new Scrobble(request.Artist, request.Album, request.Song, DateTimeOffset.Now)
         {
-            scrobble.Duration = TimeSpan.FromMilliseconds(request.DurationInMillis.Value);
-        }
+            Duration = TimeSpan.FromMilliseconds(request.DurationInMillis)
+        };
 
         await scrobbler.ScrobbleAsync(scrobble);
 
@@ -63,7 +61,7 @@ public class LastfmController(ISessionProvider sessionProvider,
 
     [HttpPost]
     [Route("nowplaying")]
-    public async Task<IActionResult> NowPlaying([FromBody] NowPlayingRequest request)
+    public async Task<IActionResult> NowPlaying([FromBody] ScrobbleRequest request)
     {
         var validationResponse = Validate(request.Artist, request.Song);
 
@@ -77,17 +75,10 @@ public class LastfmController(ISessionProvider sessionProvider,
 
         lastAuth.LoadSession(new LastUserSession { Token = sessionKey });
 
-        var scrobble = new Scrobble(request.Artist, request.Album ?? string.Empty, request.Song, DateTimeOffset.Now);
-        
-        if (request.DurationInMillis.HasValue)
+        var scrobble = new Scrobble(request.Artist, request.Album, request.Song, DateTimeOffset.Now)
         {
-            scrobble.Duration = TimeSpan.FromMilliseconds(request.DurationInMillis.Value);
-        }
-        else
-        {
-            // Keep backward compatibility with a default duration
-            scrobble.Duration = TimeSpan.FromMinutes(3);
-        }
+            Duration = TimeSpan.FromMilliseconds(request.DurationInMillis)
+        };
 
         await trackApi.UpdateNowPlayingAsync(scrobble);
 
