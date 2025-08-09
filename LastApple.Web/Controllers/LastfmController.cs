@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using IF.Lastfm.Core.Api;
 using IF.Lastfm.Core.Objects;
 using IF.Lastfm.Core.Scrobblers;
+using LastApple.Web.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LastApple.Web.Controllers;
@@ -34,9 +35,9 @@ public class LastfmController(ISessionProvider sessionProvider,
 
     [HttpPost]
     [Route("scrobble")]
-    public async Task<IActionResult> Scrobble(string artist, string song)
+    public async Task<IActionResult> Scrobble([FromBody] ScrobbleRequest request)
     {
-        var validationResponse = Validate(artist, song);
+        var validationResponse = Validate(request.Artist, request.Song);
 
         if (validationResponse != null)
             return validationResponse;
@@ -48,16 +49,21 @@ public class LastfmController(ISessionProvider sessionProvider,
 
         lastAuth.LoadSession(new LastUserSession { Token = sessionKey });
 
-        await scrobbler.ScrobbleAsync(new Scrobble(artist, string.Empty, song, DateTimeOffset.Now));
+        var scrobble = new Scrobble(request.Artist, request.Album, request.Song, DateTimeOffset.Now)
+        {
+            Duration = TimeSpan.FromMilliseconds(request.DurationInMillis)
+        };
+
+        await scrobbler.ScrobbleAsync(scrobble);
 
         return NoContent();
     }
 
     [HttpPost]
     [Route("nowplaying")]
-    public async Task<IActionResult> NowPlaying(string artist, string song)
+    public async Task<IActionResult> NowPlaying([FromBody] ScrobbleRequest request)
     {
-        var validationResponse = Validate(artist, song);
+        var validationResponse = Validate(request.Artist, request.Song);
 
         if (validationResponse != null)
             return validationResponse;
@@ -69,7 +75,12 @@ public class LastfmController(ISessionProvider sessionProvider,
 
         lastAuth.LoadSession(new LastUserSession { Token = sessionKey });
 
-        await trackApi.UpdateNowPlayingAsync(new Scrobble(artist, string.Empty, song, DateTimeOffset.Now) { Duration = TimeSpan.FromMinutes(3) });
+        var scrobble = new Scrobble(request.Artist, request.Album, request.Song, DateTimeOffset.Now)
+        {
+            Duration = TimeSpan.FromMilliseconds(request.DurationInMillis)
+        };
+
+        await trackApi.UpdateNowPlayingAsync(scrobble);
 
         return NoContent();
     }
@@ -86,7 +97,5 @@ public class LastfmController(ISessionProvider sessionProvider,
     }
 
     private async Task<string?> GetSessionKey()
-    {
-        return (await sessionProvider.GetSession()).LastfmSessionKey;
-    }
+        => (await sessionProvider.GetSession()).LastfmSessionKey;
 }

@@ -6,6 +6,13 @@ export interface ILastfmUser {
     readonly avatar: Array<string>
 }
 
+interface ScrobbleRequest {
+    artist: string;
+    song: string;
+    album?: string;
+    durationInMillis?: number;
+}
+
 class LastfmApi {
     async getAuthUrl(redirectUrl: string) {
         const encodedUrl = encodeURIComponent(redirectUrl);
@@ -33,12 +40,30 @@ class LastfmApi {
         return await userResponse.json();
     }
 
-    async postNowPlaying(artist: string, song: string) {
-        await fetch(`${environment.apiUrl}api/lastfm/nowPlaying?artist=${artist}&song=${song}`, { method: 'POST', headers: { 'X-SessionId': localStorage.getItem('SessionId') } });
+    async postNowPlaying(artist: string, song: string, album?: string, durationInMillis?: number) {
+        const requestBody: ScrobbleRequest = { artist, song, album, durationInMillis };
+        
+        await fetch(`${environment.apiUrl}api/lastfm/nowPlaying`, { 
+            method: 'POST', 
+            headers: { 
+                'X-SessionId': localStorage.getItem('SessionId'),
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
+        });
     }
 
-    async postScrobble(artist: string, song: string) {
-        await fetch(`${environment.apiUrl}api/lastfm/scrobble?artist=${artist}&song=${song}`, { method: 'POST', headers: { 'X-SessionId': localStorage.getItem('SessionId') } });
+    async postScrobble(artist: string, song: string, album?: string, durationInMillis?: number) {
+        const requestBody: ScrobbleRequest = { artist, song, album, durationInMillis };
+        
+        await fetch(`${environment.apiUrl}api/lastfm/scrobble`, { 
+            method: 'POST', 
+            headers: { 
+                'X-SessionId': localStorage.getItem('SessionId'),
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
+        });
     }
 }
 
