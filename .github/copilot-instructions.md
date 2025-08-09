@@ -18,7 +18,7 @@ Always reference these instructions first and fallback to search or bash command
 - Configure NuGet source with authentication: `dotnet nuget add source --username [username] --password [PAT] --store-password-in-clear-text --name github "https://nuget.pkg.github.com/kapral/index.json"`
 - Restore packages: `dotnet restore` -- takes 2-3 minutes for private packages. NEVER CANCEL. Set timeout to 5+ minutes.
 - Build solution: `dotnet build --configuration Release` -- takes 10-15 seconds per project. NEVER CANCEL.
-- Run .NET tests: `dotnet test` -- timing depends on MongoDB/API availability. Set timeout to 5+ minutes.
+- Run .NET tests: `dotnet test` -- runs unit tests with mocks, takes 10-15 seconds. Set timeout to 5+ minutes.
 
 #### Without GitHub Packages Access:
 - .NET restore and build will FAIL due to missing `Inflatable.Lastfm` v1.3.0-auth package
@@ -29,7 +29,7 @@ Always reference these instructions first and fallback to search or bash command
 - Install packages: `cd LastApple.Web/ClientApp && npm ci` -- takes 3-5 minutes. NEVER CANCEL. Set timeout to 10+ minutes.
 - Development server: `npm start` -- starts on port 3000, takes 30-60 seconds to compile
 - Production build: `npm run build` -- takes 10-15 seconds. NEVER CANCEL. Set timeout to 5+ minutes.
-- Frontend tests: `npm run test -- --coverage --watchAll=false` -- FAILS due to missing MusicKit global, expected behavior
+- Frontend tests: `npm run test -- --coverage --watchAll=false` -- minimal test coverage, only basic render test exists
 
 ### Application Runtime Requirements
 **CRITICAL**: Full application requires these secrets configured in appsettings.json:
@@ -64,7 +64,7 @@ Always reference these instructions first and fallback to search or bash command
 - Test complete music station generation workflow
 
 ### Known Limitations
-- React tests fail due to missing MusicKit global object -- this is expected
+- React tests are minimal (only basic render test) and need comprehensive test coverage
 - Build requires private GitHub packages for Last.fm integration
 - Full functionality requires Apple Developer account and Last.fm API credentials
 - MongoDB required for session persistence
@@ -127,7 +127,7 @@ dotnet test LastApple.Tests/  # Requires full dependencies
 ### Troubleshooting
 - **NuGet restore fails**: Check GitHub Packages authentication or remove github source temporarily
 - **Frontend build fails**: Verify Node.js version and run `npm ci` to clean install
-- **Tests fail with MusicKit errors**: Expected behavior for frontend tests
+- **Tests fail with MusicKit errors**: React tests are minimal, only basic render test exists currently
 - **API errors in browser**: Expected without proper Apple Music/Last.fm configuration
 
 ## Time Expectations (NEVER CANCEL)
@@ -135,6 +135,6 @@ dotnet test LastApple.Tests/  # Requires full dependencies
 - **npm run build**: 10-15 seconds, set timeout to 5+ minutes  
 - **dotnet restore**: 2-3 minutes with GitHub packages, set timeout to 5+ minutes
 - **dotnet build**: 10-15 seconds per project, set timeout to 5+ minutes
-- **dotnet test**: Variable based on external dependencies, set timeout to 10+ minutes
+- **dotnet test**: 10-15 seconds for unit tests, set timeout to 5+ minutes
 
 ALWAYS wait for builds and tests to complete. Build cancellation leads to incomplete state and requires clean rebuilds.
