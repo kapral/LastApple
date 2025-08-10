@@ -22,18 +22,30 @@ public class TestDeveloperTokenGenerator
     }
 
     [Test]
-    public void GenerateDeveloperToken_Returns_Non_Empty_String_For_Valid_Credentials()
+    public void GenerateDeveloperToken_Throws_On_Invalid_Base64_Key()
     {
         var credentials = new AppCredentials
         {
             TeamId = "test-team",
             KeyId = "test-key",
-            PrivateKey = "LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1JR0hBZ0VBTUJNR0J5cUdTTTQ5QWdFR0NDcUdTTTQ5QXdFSEJHMHdid0lCQVFRZ1lVdjkxLzJZUWRrKzlJQTcKSW1EazROd2o2YTB3QkNJTTlkb1JJbkpzMXNoUkFOQ0FBUjNwVmVhWGZJQUtHcTA2cThiQy84V3Y1dzRVNGJCeQprU0pQUEpYUFl1djdjMnBHQlRaM1VDOFNOb3dOajhhc3FYejlhQThNeVFWRGt2ZVAzTjI3Ym9wdAotLS0tLUVORCBQUklWQVRFIEtFWS0tLS0t"
+            PrivateKey = "invalid-base64"
         };
 
-        var result = generator.GenerateDeveloperToken(credentials, TimeSpan.FromHours(1));
+        Assert.That(() => generator.GenerateDeveloperToken(credentials, TimeSpan.FromHours(1)), 
+            Throws.InstanceOf<FormatException>());
+    }
 
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Not.Empty);
+    [Test]
+    public void GenerateDeveloperToken_Throws_On_Invalid_Key_Format()
+    {
+        var credentials = new AppCredentials
+        {
+            TeamId = "test-team",
+            KeyId = "test-key", 
+            PrivateKey = "dGVzdC1rZXk=" // "test-key" in base64 - valid base64 but invalid PKCS#8
+        };
+
+        Assert.That(() => generator.GenerateDeveloperToken(credentials, TimeSpan.FromHours(1)), 
+            Throws.InstanceOf<System.Security.Cryptography.CryptographicException>());
     }
 }
