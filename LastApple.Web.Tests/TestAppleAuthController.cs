@@ -86,7 +86,7 @@ public class TestAppleAuthController
         var emptySession = new Session(Guid.Empty, DateTimeOffset.MinValue, DateTimeOffset.MinValue, null, null, null, null);
         mockSessionProvider.GetSession().Returns(emptySession);
 
-        var sessionData = new AppleMusicSessionData { MusicUserToken = "new-token", MusicStorefrontId = "us" };
+        var sessionData = new AppleMusicSessionData("new-token", "us");
 
         var result = await controller.PostSessionData(sessionData);
 
@@ -108,7 +108,7 @@ public class TestAppleAuthController
         );
         mockSessionProvider.GetSession().Returns(existingSession);
 
-        var sessionData = new AppleMusicSessionData { MusicUserToken = "new-token", MusicStorefrontId = "us" };
+        var sessionData = new AppleMusicSessionData("new-token", "us");
 
         var result = await controller.PostSessionData(sessionData);
 
