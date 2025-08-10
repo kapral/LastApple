@@ -41,7 +41,7 @@ public class TestStationGenerator
     [Test]
     public async Task Generate_Populates_Station_To_Target_Size()
     {
-        var definition = new SimilarArtistsStationDefinition { Artist = "Test Artist" };
+        var definition = new SimilarArtistsStationDefinition("Test Artist");
         var station = new Station<SimilarArtistsStationDefinition>(definition)
         {
             Id = Guid.NewGuid(),
@@ -71,7 +71,7 @@ public class TestStationGenerator
     [Test]
     public async Task Generate_Notifies_Event_Mediator_For_Each_Track()
     {
-        var definition = new SimilarArtistsStationDefinition { Artist = "Test Artist" };
+        var definition = new SimilarArtistsStationDefinition("Test Artist");
         var station = new Station<SimilarArtistsStationDefinition>(definition)
         {
             Id = Guid.NewGuid(),
@@ -94,7 +94,7 @@ public class TestStationGenerator
     [Test]
     public async Task Generate_Skips_Tracks_Without_Track_Id()
     {
-        var definition = new SimilarArtistsStationDefinition { Artist = "Test Artist" };
+        var definition = new SimilarArtistsStationDefinition("Test Artist");
         var station = new Station<SimilarArtistsStationDefinition>(definition)
         {
             Id = Guid.NewGuid(),
@@ -124,7 +124,7 @@ public class TestStationGenerator
     [Test]
     public async Task Generate_Skips_Duplicate_Track_Ids()
     {
-        var definition = new SimilarArtistsStationDefinition { Artist = "Test Artist" };
+        var definition = new SimilarArtistsStationDefinition("Test Artist");
         var station = new Station<SimilarArtistsStationDefinition>(definition)
         {
             Id = Guid.NewGuid(),
@@ -149,7 +149,7 @@ public class TestStationGenerator
     [Test]
     public async Task TopUp_Adds_Specified_Number_Of_Tracks()
     {
-        var definition = new SimilarArtistsStationDefinition { Artist = "Test Artist" };
+        var definition = new SimilarArtistsStationDefinition("Test Artist");
         var station = new Station<SimilarArtistsStationDefinition>(definition)
         {
             Id = Guid.NewGuid(),
@@ -175,7 +175,7 @@ public class TestStationGenerator
     [Test]
     public async Task Generate_Stops_After_Attempts_Limit_When_No_Valid_Tracks()
     {
-        var definition = new SimilarArtistsStationDefinition { Artist = "Test Artist" };
+        var definition = new SimilarArtistsStationDefinition("Test Artist");
         var station = new Station<SimilarArtistsStationDefinition>(definition)
         {
             Id = Guid.NewGuid(),
