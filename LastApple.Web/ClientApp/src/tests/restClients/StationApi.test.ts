@@ -1,4 +1,13 @@
 import StationApi, { IStation } from '../../restClients/StationApi';
+import environment from '../../Environment';
+
+// Mock environment directly by setting properties
+beforeAll(() => {
+  Object.defineProperty(environment, 'apiUrl', {
+    value: 'http://localhost:5000/',
+    writable: true,
+  });
+});
 
 // Mock localStorage
 const mockLocalStorage = {

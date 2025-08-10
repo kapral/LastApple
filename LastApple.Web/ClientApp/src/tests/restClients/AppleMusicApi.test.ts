@@ -1,13 +1,12 @@
 import AppleMusicApi, { ISessionData } from '../../restClients/AppleMusicApi';
+import environment from '../../Environment';
 
-// Mock environment  
-jest.mock('../../Environment', () => {
-  class MockEnvironment {
-    apiUrl = 'http://localhost:5000/';
-  }
-  return {
-    default: new MockEnvironment(),
-  };
+// Mock environment directly by setting properties
+beforeAll(() => {
+  Object.defineProperty(environment, 'apiUrl', {
+    value: 'http://localhost:5000/',
+    writable: true,
+  });
 });
 
 // Mock localStorage

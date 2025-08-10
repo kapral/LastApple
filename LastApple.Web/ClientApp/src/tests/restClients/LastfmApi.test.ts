@@ -1,4 +1,13 @@
 import LastfmApi, { ILastfmUser } from '../../restClients/LastfmApi';
+import environment from '../../Environment';
+
+// Mock environment directly by setting properties
+beforeAll(() => {
+  Object.defineProperty(environment, 'apiUrl', {
+    value: 'http://localhost:5000/',
+    writable: true,
+  });
+});
 
 // Mock localStorage
 const mockLocalStorage = {
@@ -32,7 +41,7 @@ describe('LastfmApi', () => {
       const result = await LastfmApi.getAuthUrl(redirectUrl);
 
       expect(fetch).toHaveBeenCalledWith(
-        'http://localhost:5000/api/lastfm/auth?redirectUrl=http%3A//localhost%3A3000/callback'
+        'http://localhost:5000/api/lastfm/auth?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2Fcallback'
       );
       expect(result).toBe(mockAuthUrl);
     });
