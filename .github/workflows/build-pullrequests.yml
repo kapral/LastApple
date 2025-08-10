@@ -28,11 +28,14 @@ jobs:
     - name: Build with dotnet
       run: dotnet build --configuration Release
 
-    - name: Run tests
+    - name: Run .NET tests
       run: dotnet test
 
     - name: Install npm packages
       run: cd LastApple.Web/ClientApp && npm ci
+
+    - name: Run React tests
+      run: cd LastApple.Web/ClientApp && npm run test -- --coverage --watchAll=false
 
     - name: Webpack build
       run: cd LastApple.Web/ClientApp && npm run build
