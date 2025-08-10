@@ -15,21 +15,45 @@ jest.mock('../../components/StationDescriptor', () => ({
 }));
 
 // Mock all station components
-jest.mock('../../components/Stations/MyLibrary', () => ({
-  MyLibrary: () => <div data-testid="my-library-component">My Library</div>
-}));
+jest.mock('../../components/Stations/MyLibrary', () => {
+  const MockMyLibrary = () => <div data-testid="my-library-component">My Library</div>;
+  MockMyLibrary.Definition = {
+    title: 'My last.fm Library',
+    description: 'A continuous station based on your last.fm library.',
+    type: MockMyLibrary
+  };
+  return { MyLibrary: MockMyLibrary };
+});
 
-jest.mock('../../components/Stations/SingleArtist', () => ({
-  SingleArtist: () => <div data-testid="single-artist-component">Single Artist</div>
-}));
+jest.mock('../../components/Stations/SingleArtist', () => {
+  const MockSingleArtist = () => <div data-testid="single-artist-component">Single Artist</div>;
+  MockSingleArtist.Definition = {
+    title: 'Artist',
+    description: 'Play all tracks of one artist.',
+    type: MockSingleArtist
+  };
+  return { SingleArtist: MockSingleArtist };
+});
 
-jest.mock('../../components/Stations/SimilarArtists', () => ({
-  SimilarArtists: () => <div data-testid="similar-artists-component">Similar Artists</div>
-}));
+jest.mock('../../components/Stations/SimilarArtists', () => {
+  const MockSimilarArtists = () => <div data-testid="similar-artists-component">Similar Artists</div>;
+  MockSimilarArtists.Definition = {
+    title: 'Similar Artists',
+    description: 'A station containing an artist and similar performers.',
+    type: MockSimilarArtists
+  };
+  return { SimilarArtists: MockSimilarArtists };
+});
 
-jest.mock('../../components/Stations/Tag', () => ({
-  Tag: () => <div data-testid="tag-component">Tag</div>
-}));
+jest.mock('../../components/Stations/Tag', () => {
+  const MockTag = () => <div data-testid="tag-component">Tag</div>;
+  MockTag.Definition = {
+    title: 'Tag',
+    description: 'A station consisting of tracks related to a last.fm tag.',
+    type: MockTag
+  };
+  return { Tag: MockTag };
+});
 
 const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <MemoryRouter>
