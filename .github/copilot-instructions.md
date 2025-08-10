@@ -15,7 +15,7 @@ Always reference these instructions first and fallback to search or bash command
 **AUTHENTICATION REQUIREMENT**: This repository requires GitHub Packages authentication for the private `Inflatable.Lastfm` package (version 1.3.0-auth).
 
 #### With GitHub Packages Access:
-- Configure NuGet source with authentication: `dotnet nuget add source --username [username] --password [PAT] --store-password-in-clear-text --name github "https://nuget.pkg.github.com/kapral/index.json"`
+- Configure NuGet source with authentication: `dotnet nuget add source --username [username] --password ${{ secrets.GH_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/kapral/index.json"`
 - Restore packages: `dotnet restore` -- takes 2-3 minutes for private packages. NEVER CANCEL. Set timeout to 5+ minutes.
 - Build solution: `dotnet build --configuration Release` -- takes 10-15 seconds per project. NEVER CANCEL.
 - Run .NET tests: `dotnet test` -- runs unit tests with mocks, takes 10-15 seconds. Set timeout to 5+ minutes.
