@@ -12,16 +12,27 @@ namespace AppleMusicApi;
 
 public class CatalogApi : ICatalogApi
 {
-    private readonly HttpClient httpClient;
+    private readonly IHttpClientFactory httpClientFactory;
+    private readonly ApiAuthentication authentication;
 
-    public CatalogApi(ApiAuthentication authentication)
+    public CatalogApi(ApiAuthentication authentication, IHttpClientFactory httpClientFactory)
     {
-        if (authentication == null) throw new ArgumentNullException(nameof(authentication));
+        this.authentication = authentication ?? throw new ArgumentNullException(nameof(authentication));
+        this.httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+    }
 
-        httpClient = new HttpClient { BaseAddress = new Uri("https://api.music.apple.com/v1/") };
+    // Legacy constructor for backward compatibility
+    public CatalogApi(ApiAuthentication authentication) : this(authentication, new DefaultHttpClientFactory())
+    {
+    }
 
+    private HttpClient CreateHttpClient()
+    {
+        var httpClient = httpClientFactory.CreateClient();
+        httpClient.BaseAddress = new Uri("https://api.music.apple.com/v1/");
         httpClient.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", authentication.DeveloperToken);
+        return httpClient;
     }
 
     public async Task<SearchResult> Search(SearchParams searchParams, string storefront)
@@ -34,6 +45,7 @@ public class CatalogApi : ICatalogApi
             { "types", SerializeTypes(searchParams.Types) }
         };
 
+        using var httpClient = CreateHttpClient();
         var httpResponse = await httpClient.GetAsync(QueryHelpers.AddQueryString($"catalog/{storefront}/search", parameters));
 
         if(!httpResponse.IsSuccessStatusCode)
@@ -46,6 +58,7 @@ public class CatalogApi : ICatalogApi
 
     public async Task<Resource<ArtistAttributes>?> GetArtist(string id, string storefront)
     {
+        using var httpClient = CreateHttpClient();
         var httpResponse = await httpClient.GetAsync($"catalog/{storefront}/artists/{id}");
 
         if(!httpResponse.IsSuccessStatusCode)
@@ -58,6 +71,7 @@ public class CatalogApi : ICatalogApi
 
     public async Task<IEnumerable<Resource<AlbumAttributes>>> GetAlbums(IEnumerable<string> ids, string storefront)
     {
+        using var httpClient = CreateHttpClient();
         var httpResponse = await httpClient.GetAsync($"catalog/{storefront}/albums?ids={string.Join(',', ids)}");
 
         if(!httpResponse.IsSuccessStatusCode)
@@ -89,4 +103,13 @@ public class CatalogApi : ICatalogApi
         return result ?? throw new InvalidOperationException("Response content is null.");
     }
 
+}
+
+// Default implementation for backward compatibility
+internal class DefaultHttpClientFactory : IHttpClientFactory
+{
+    public HttpClient CreateClient(string name = "")
+    {
+        return new HttpClient();
+    }
 }

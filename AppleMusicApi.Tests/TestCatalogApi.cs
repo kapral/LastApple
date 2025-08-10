@@ -1,5 +1,9 @@
 using System;
+using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 using AppleMusicApi;
+using NSubstitute;
 using NUnit.Framework;
 
 namespace AppleMusicApi.Tests;
@@ -81,8 +85,34 @@ public class TestCatalogApi
         Assert.That(combinedTypes.HasFlag(ResourceType.Albums), Is.True);
     }
 
-    // Note: Integration tests with actual HTTP calls would require valid Apple Music credentials
-    // and would be better suited for integration testing rather than unit testing.
-    // The current implementation of CatalogApi makes it difficult to unit test HTTP behavior
-    // without dependency injection of HttpClient or an HTTP abstraction layer.
+    // Note: CatalogApi now supports dependency injection of IHttpClientFactory for better testability
+    // HTTP integration tests would require mocking and proper Apple Music API structure knowledge
+
+    [Test]
+    public void Constructor_With_HttpClientFactory_Creates_Valid_Instance()
+    {
+        var mockHttpClientFactory = NSubstitute.Substitute.For<IHttpClientFactory>();
+        mockHttpClientFactory.CreateClient(Arg.Any<string>()).Returns(new HttpClient());
+        
+        var api = new CatalogApi(authentication, mockHttpClientFactory);
+        
+        Assert.That(api, Is.Not.Null);
+        Assert.That(api, Is.InstanceOf<ICatalogApi>());
+    }
+
+    [Test]
+    public void Constructor_With_HttpClientFactory_Throws_On_Null_Factory()
+    {
+        Assert.That(() => new CatalogApi(authentication, null), 
+            Throws.ArgumentNullException.With.Property("ParamName").EqualTo("httpClientFactory"));
+    }
+
+    [Test]
+    public void Constructor_With_HttpClientFactory_Throws_On_Null_Authentication()
+    {
+        var mockHttpClientFactory = NSubstitute.Substitute.For<IHttpClientFactory>();
+        
+        Assert.That(() => new CatalogApi(null, mockHttpClientFactory), 
+            Throws.ArgumentNullException.With.Property("ParamName").EqualTo("authentication"));
+    }
 }
