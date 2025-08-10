@@ -58,13 +58,17 @@ jest.mock('@aspnet/signalr', () => ({
 }));
 
 // Mock environment variables
-jest.mock('./Environment', () => ({
-  default: {
-    websiteUrl: 'http://localhost:3000',
-    appleAuthUrl: 'http://localhost:5000/api/apple-auth',
-    lastfmAuthUrl: 'http://localhost:5000/api/lastfm-auth',
-  },
-}));
+jest.mock('./Environment', () => {
+  class MockEnvironment {
+    apiUrl = 'http://localhost:5000/';
+    websiteUrl = 'http://localhost:3000';
+    appleAuthUrl = 'http://localhost:5000/api/apple-auth';
+    lastfmAuthUrl = 'http://localhost:5000/api/lastfm-auth';
+  }
+  return {
+    default: new MockEnvironment(),
+  };
+});
 
 // Mock console.error to avoid noise in tests
 const originalError = console.error;
