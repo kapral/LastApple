@@ -12,5 +12,5 @@ public class CacheItems<TItem>
 
     public Task<IReadOnlyCollection<TItem>>? Task { get; set; }
 
-    public bool HasNoData => Attempts >= Constants.MaxRetryAttempts && Items == null || Items?.Any() == false;
+    public bool HasNoData => Attempts >= Constants.MaxRetryAttempts && (Items == null || !Items.Any());
 }

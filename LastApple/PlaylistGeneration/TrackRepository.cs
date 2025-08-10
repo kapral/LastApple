@@ -46,7 +46,8 @@ public class TrackRepository(IArtistApi artistApi) : ITrackRepository
 
     public bool ArtistHasTracks(Artist artist)
     {
-        return !tracksByArtist.TryGetValue(artist.Name, out var tracks) || !tracks.HasNoData;
+        return !tracksByArtist.TryGetValue(artist.Name, out var tracks) || 
+               (!tracks.HasNoData && !(tracks.Items != null && !tracks.Items.Any()));
     }
 
     private Task<IReadOnlyCollection<Track>> LoadTracks(Artist artist, CacheItems<Track> cachedTracks)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using IF.Lastfm.Core.Api;
+using IF.Lastfm.Core.Api.Helpers;
 using IF.Lastfm.Core.Objects;
 using LastApple.Model;
 using LastApple.PlaylistGeneration;
@@ -34,7 +35,7 @@ public class TestTagsStationSource
     {
         var definition = new TagsStationDefinition(new[] { "rock" });
         tagApi.GetTopArtistsAsync("rock", 1, 200)
-              .Returns(Array.Empty<LastArtist>());
+              .Returns(PageResponse<LastArtist>.CreateSuccessResponse(Array.Empty<LastArtist>()));
 
         var result = await source.GetStationArtists(definition);
 
@@ -52,8 +53,10 @@ public class TestTagsStationSource
             new LastArtist { Name = "Pink Floyd" }
         };
 
-        tagApi.GetTopArtistsAsync("rock", Arg.Any<int>(), Arg.Any<int>())
-              .Returns(lastfmArtists);
+        tagApi.GetTopArtistsAsync("rock", 1, 200)
+              .Returns(PageResponse<LastArtist>.CreateSuccessResponse(lastfmArtists));
+        tagApi.GetTopArtistsAsync("rock", Arg.Is<int>(page => page > 1), 200)
+              .Returns(PageResponse<LastArtist>.CreateSuccessResponse(Array.Empty<LastArtist>()));
 
         var result = await source.GetStationArtists(definition);
 
@@ -83,9 +86,9 @@ public class TestTagsStationSource
         };
 
         tagApi.GetTopArtistsAsync("rock", Arg.Any<int>(), Arg.Any<int>())
-              .Returns(rockArtists);
+              .Returns(PageResponse<LastArtist>.CreateSuccessResponse(rockArtists));
         tagApi.GetTopArtistsAsync("classic", Arg.Any<int>(), Arg.Any<int>())
-              .Returns(classicArtists);
+              .Returns(PageResponse<LastArtist>.CreateSuccessResponse(classicArtists));
 
         var result = await source.GetStationArtists(definition);
 
@@ -126,10 +129,10 @@ public class TestTagsStationSource
             new LastArtist { Name = "Artist7" }
         };
 
-        tagApi.GetTopArtistsAsync("rock", 1, 200).Returns(page1RockArtists);
-        tagApi.GetTopArtistsAsync("alternative", 1, 200).Returns(page1AlternativeArtists);
-        tagApi.GetTopArtistsAsync("rock", 2, 200).Returns(page2RockArtists);
-        tagApi.GetTopArtistsAsync("alternative", 2, 200).Returns(page2AlternativeArtists);
+        tagApi.GetTopArtistsAsync("rock", 1, 200).Returns(PageResponse<LastArtist>.CreateSuccessResponse(page1RockArtists));
+        tagApi.GetTopArtistsAsync("alternative", 1, 200).Returns(PageResponse<LastArtist>.CreateSuccessResponse(page1AlternativeArtists));
+        tagApi.GetTopArtistsAsync("rock", 2, 200).Returns(PageResponse<LastArtist>.CreateSuccessResponse(page2RockArtists));
+        tagApi.GetTopArtistsAsync("alternative", 2, 200).Returns(PageResponse<LastArtist>.CreateSuccessResponse(page2AlternativeArtists));
 
         var result = await source.GetStationArtists(definition);
 
@@ -158,9 +161,9 @@ public class TestTagsStationSource
         };
 
         tagApi.GetTopArtistsAsync("rock", Arg.Any<int>(), Arg.Any<int>())
-              .Returns(rockArtists);
+              .Returns(PageResponse<LastArtist>.CreateSuccessResponse(rockArtists));
         tagApi.GetTopArtistsAsync("jazz", Arg.Any<int>(), Arg.Any<int>())
-              .Returns(jazzArtists);
+              .Returns(PageResponse<LastArtist>.CreateSuccessResponse(jazzArtists));
 
         var result = await source.GetStationArtists(definition);
 
