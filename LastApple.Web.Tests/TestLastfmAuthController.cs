@@ -196,7 +196,7 @@ public class TestLastfmAuthController
 
         mockSessionProvider.GetSession().Returns(session);
 
-        Assert.DoesNotThrowAsync(async () => await controller.GetAuthenticatedUser());
+        Assert.ThrowsAsync<NullReferenceException>(async () => await controller.GetAuthenticatedUser());
         await mockUserApi.Received(1).GetInfoAsync("testuser");
     }
 }

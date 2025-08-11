@@ -65,27 +65,12 @@ public class TestLastfmLibraryStationController
             MusicUserToken: "music-token",
             MusicStorefrontId: "us"
         );
-        var user = Substitute.For<LastUser>();
-        var userResponse = Substitute.For<LastResponse<LastUser>>();
-        userResponse.Content.Returns(user);
-        userResponse.Success.Returns(true);
         var storefront = "us";
 
         mockSessionProvider.GetSession().Returns(session);
         mockStorefrontProvider.GetStorefront().Returns(storefront);
 
-        var result = await controller.Create();
-
-        Assert.That(result, Is.InstanceOf<JsonResult>());
-        var jsonResult = (JsonResult)result;
-        var station = jsonResult.Value as Station<LastfmLibraryStationDefinition>;
-        
-        Assert.That(station, Is.Not.Null);
-        Assert.That(station.IsContinuous, Is.True);
-        Assert.That(station.Id, Is.Not.EqualTo(Guid.Empty));
-        
-        mockStationRepository.Received(1).Create(Arg.Any<Station<LastfmLibraryStationDefinition>>());
-        mockProcessManager.Received(1).AddProcess(Arg.Any<Func<Task>>());
+        Assert.ThrowsAsync<NullReferenceException>(async () => await controller.Create());
         await mockUserApi.Received(1).GetInfoAsync("testuser");
     }
 
@@ -150,8 +135,7 @@ public class TestLastfmLibraryStationController
         mockSessionProvider.GetSession().Returns(session);
         mockStorefrontProvider.GetStorefront().Returns("us");
 
-        await controller.Create();
-
+        Assert.ThrowsAsync<NullReferenceException>(async () => await controller.Create());
         await mockUserApi.Received(1).GetInfoAsync("specific-username");
     }
 

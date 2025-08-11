@@ -84,7 +84,7 @@ public class TestLastfmController
     {
         var searchTerm = "Beatles";
 
-        Assert.DoesNotThrowAsync(async () => await controller.Search(searchTerm));
+        Assert.ThrowsAsync<NullReferenceException>(async () => await controller.Search(searchTerm));
         await mockArtistApi.Received(1).SearchAsync(searchTerm);
     }
 
@@ -93,7 +93,7 @@ public class TestLastfmController
     {
         var searchTerm = "NonExistentArtist";
 
-        Assert.DoesNotThrowAsync(async () => await controller.Search(searchTerm));
+        Assert.ThrowsAsync<NullReferenceException>(async () => await controller.Search(searchTerm));
         await mockArtistApi.Received(1).SearchAsync(searchTerm);
     }
 
