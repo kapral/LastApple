@@ -66,9 +66,9 @@ public class TestLastfmLibraryStationController
             MusicStorefrontId: "us"
         );
         var user = Substitute.For<LastUser>();
-        user.Name.Returns("Test User");
         var userResponse = Substitute.For<LastResponse<LastUser>>();
         userResponse.Content.Returns(user);
+        userResponse.Success.Returns(true);
         var storefront = "us";
 
         mockSessionProvider.GetSession().Returns(session);

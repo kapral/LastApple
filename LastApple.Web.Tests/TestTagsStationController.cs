@@ -165,7 +165,7 @@ public class TestTagsStationController
         var jsonResult = (JsonResult)result;
         var station = jsonResult.Value as Station<TagsStationDefinition>;
         
-        Assert.That(station.Definition.Tags, Has.Count.EqualTo(1));
+        Assert.That(station.Definition.Tags.Count(), Is.EqualTo(1));
         Assert.That(station.Definition.Tags, Contains.Item(tag));
         Assert.That(station.IsContinuous, Is.True);
         Assert.That(station.Id, Is.Not.EqualTo(Guid.Empty));
@@ -203,7 +203,7 @@ public class TestTagsStationController
         
         // Verify the TagsStationDefinition was created with the collection syntax [tag]
         Assert.That(station.Definition.Tags, Is.Not.Null);
-        Assert.That(station.Definition.Tags, Has.Count.EqualTo(1));
+        Assert.That(station.Definition.Tags.Count(), Is.EqualTo(1));
         Assert.That(station.Definition.Tags.First(), Is.EqualTo(tag));
     }
 }
