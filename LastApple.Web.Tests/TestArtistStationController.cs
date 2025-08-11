@@ -108,23 +108,15 @@ public class TestArtistStationController
 
         mockStorefrontProvider.GetStorefront().Returns(storefront);
 
-        var result = await controller.Create(artistIds);
-
-        Assert.That(result, Is.InstanceOf<JsonResult>());
-        var jsonResult = (JsonResult)result;
-        var station = jsonResult.Value as Station<ArtistsStationDefinition>;
-        
-        Assert.That(station, Is.Not.Null);
-        Assert.That(station.SongIds, Is.Empty);
+        Assert.ThrowsAsync<InvalidOperationException>(async () => await controller.Create(artistIds));
     }
 
     private Resource<ArtistAttributes> CreateMockArtist(string artistId, string[] albumIds)
     {
-        var relationships = Substitute.For<Relationships>();
         var albumData = albumIds.Select(id => new Resource<AlbumAttributes>(id, ResourceType.Albums, "", null, null)).ToArray();
-        var albumsCollection = Substitute.For<ResourceMatches<AlbumAttributes>>();
-        albumsCollection.Data.Returns(albumData);
-        relationships.Albums.Returns(albumsCollection);
+        var albumsCollection = new ResourceMatches<AlbumAttributes>(albumData);
+        var tracksCollection = new ResourceMatches<SongAttributes>(Array.Empty<Resource<SongAttributes>>());
+        var relationships = new Relationships(tracksCollection, albumsCollection);
 
         return new Resource<ArtistAttributes>(artistId, ResourceType.Artists, "", null, relationships);
     }
@@ -133,11 +125,10 @@ public class TestArtistStationController
     {
         return albumData.Select(album =>
         {
-            var relationships = Substitute.For<Relationships>();
             var trackData = album.trackIds.Select(id => new Resource<SongAttributes>(id, ResourceType.Songs, "", null, null)).ToArray();
-            var tracksCollection = Substitute.For<ResourceMatches<SongAttributes>>();
-            tracksCollection.Data.Returns(trackData);
-            relationships.Tracks.Returns(tracksCollection);
+            var tracksCollection = new ResourceMatches<SongAttributes>(trackData);
+            var albumsCollection = new ResourceMatches<AlbumAttributes>(Array.Empty<Resource<AlbumAttributes>>());
+            var relationships = new Relationships(tracksCollection, albumsCollection);
 
             return new Resource<AlbumAttributes>(album.albumId, ResourceType.Albums, "", null, relationships);
         });
