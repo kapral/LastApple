@@ -9,6 +9,8 @@ public class DeveloperTokenGenerator : IDeveloperTokenGenerator
 {
     public string GenerateDeveloperToken(AppCredentials credentials, TimeSpan duration)
     {
+        ArgumentNullException.ThrowIfNull(credentials);
+            
         ReadOnlySpan<byte> keyAsSpan = Convert.FromBase64String(credentials.PrivateKey);
 
         var prvKey = ECDsa.Create();
