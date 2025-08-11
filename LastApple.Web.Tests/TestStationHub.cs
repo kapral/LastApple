@@ -27,7 +27,6 @@ public class TestCachingSessionRepository
     [Test]
     public async Task GetSession_Calls_Concrete_Repository_When_Cache_Miss()
     {
-        // Arrange
         var sessionId = Guid.NewGuid();
         var expectedSession = new Session(sessionId, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow, 
             "lastfm-key", "user", "music-token", "us");
@@ -35,10 +34,8 @@ public class TestCachingSessionRepository
         // Mock cache miss - MemoryCache.GetOrCreateAsync will call the factory
         mockConcreteRepository.GetSession(sessionId).Returns(expectedSession);
 
-        // Act
         var result = await cachingRepository.GetSession(sessionId);
 
-        // Assert - MemoryCache.GetOrCreateAsync calls the factory and returns the expected value
         Assert.That(result, Is.EqualTo(expectedSession));
         await mockConcreteRepository.Received().GetSession(sessionId);
     }
@@ -46,11 +43,9 @@ public class TestCachingSessionRepository
     [Test]
     public void SaveSession_Works_With_Valid_Session()
     {
-        // Arrange
         var session = new Session(Guid.NewGuid(), DateTimeOffset.UtcNow, DateTimeOffset.UtcNow, 
             "lastfm-key", "user", "music-token", "us");
 
-        // Act & Assert - Should not throw
         Assert.DoesNotThrowAsync(async () => await cachingRepository.SaveSession(session));
         mockMemoryCache.Received(1).Remove($"session:{session.Id}");
     }
@@ -58,14 +53,11 @@ public class TestCachingSessionRepository
     [Test]
     public async Task SaveSession_Calls_Concrete_Repository_And_Removes_Cache()
     {
-        // Arrange
         var session = new Session(Guid.NewGuid(), DateTimeOffset.UtcNow, DateTimeOffset.UtcNow, 
             "lastfm-key", "user", "music-token", "us");
 
-        // Act
         await cachingRepository.SaveSession(session);
 
-        // Assert
         await mockConcreteRepository.Received(1).SaveSession(session);
         mockMemoryCache.Received(1).Remove($"session:{session.Id}");
     }
@@ -78,10 +70,8 @@ public class TestCachingSessionRepository
         var session = new Session(sessionId, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow, 
             null, null, null, null);
 
-        // Act
         cachingRepository.SaveSession(session);
 
-        // Assert
         mockMemoryCache.Received(1).Remove($"session:{sessionId}");
     }
 }

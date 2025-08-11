@@ -9,8 +9,7 @@ public class DeveloperTokenGenerator : IDeveloperTokenGenerator
 {
     public string GenerateDeveloperToken(AppCredentials credentials, TimeSpan duration)
     {
-        if (credentials == null)
-            throw new ArgumentNullException(nameof(credentials));
+        ArgumentNullException.ThrowIfNull(credentials);
             
         ReadOnlySpan<byte> keyAsSpan = Convert.FromBase64String(credentials.PrivateKey);
 

@@ -21,10 +21,7 @@ public class CatalogApi : ICatalogApi
         this.httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
     }
 
-    // Legacy constructor for backward compatibility
-    public CatalogApi(ApiAuthentication authentication) : this(authentication, new DefaultHttpClientFactory())
-    {
-    }
+
 
     private HttpClient CreateHttpClient()
     {
@@ -103,13 +100,4 @@ public class CatalogApi : ICatalogApi
         return result ?? throw new InvalidOperationException("Response content is null.");
     }
 
-}
-
-// Default implementation for backward compatibility
-internal class DefaultHttpClientFactory : IHttpClientFactory
-{
-    public HttpClient CreateClient(string name = "")
-    {
-        return new HttpClient();
-    }
 }

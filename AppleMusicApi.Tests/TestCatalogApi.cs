@@ -33,14 +33,14 @@ public class TestCatalogApi
     [Test]
     public void Constructor_Throws_On_Null_Authentication()
     {
-        Assert.That(() => new CatalogApi(null), 
+        Assert.That(() => new CatalogApi(null, httpClientFactory), 
             Throws.ArgumentNullException.With.Property("ParamName").EqualTo("authentication"));
     }
 
     [Test]
     public void Constructor_Creates_Valid_Instance()
     {
-        var api = new CatalogApi(authentication);
+        var api = new CatalogApi(authentication, httpClientFactory);
         
         Assert.That(api, Is.Not.Null);
         Assert.That(api, Is.InstanceOf<ICatalogApi>());
@@ -137,7 +137,11 @@ public class TestCatalogApi
             });
 
         var searchParams = new SearchParams("Beatles", ResourceType.Artists, 25, 50);
-        await catalogApi.Search(searchParams, "us");
+        var result = await catalogApi.Search(searchParams, "us");
+        
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Artists, Is.Not.Null);
+        Assert.That(result.Albums, Is.Not.Null);
     }
 
     [Test]
