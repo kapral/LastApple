@@ -11,6 +11,16 @@ const mockAppleContext = {
     },
 };
 
+// Mock utils first
+jest.mock('../../utils/mics', () => ({
+    assertNonNullable: jest.fn((value) => {
+        if (value === undefined || value === null) {
+            throw new Error('Value is null or undefined');
+        }
+        return value;
+    }),
+}));
+
 jest.mock('../../apple/AppleContext', () => ({
     useAppleContext: jest.fn(() => mockAppleContext),
 }));

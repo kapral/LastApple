@@ -43,6 +43,41 @@ Object.defineProperty(window, 'MusicKit', {
   writable: true,
 });
 
+// Mock the musicKit module
+jest.mock('./musicKit', () => ({
+  getInstance: jest.fn().mockResolvedValue({
+    api: {
+      music: jest.fn().mockResolvedValue({
+        data: { data: [] }
+      })
+    },
+    storefrontId: 'us',
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    play: jest.fn(),
+    pause: jest.fn(),
+    stop: jest.fn(),
+    seekToTime: jest.fn(),
+    player: {
+      currentPlaybackTime: 0,
+      currentPlaybackDuration: 0,
+      playbackState: 0,
+      isPlaying: false,
+      nowPlayingItem: null,
+    },
+    queue: {
+      append: jest.fn(),
+      prepend: jest.fn(),
+      remove: jest.fn(),
+    },
+  }),
+  formatMediaTime: jest.fn((seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  }),
+}));
+
 // Mock SignalR
 jest.mock('@aspnet/signalr', () => ({
   HubConnectionBuilder: jest.fn().mockImplementation(() => ({

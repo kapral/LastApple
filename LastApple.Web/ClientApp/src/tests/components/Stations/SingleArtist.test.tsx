@@ -2,6 +2,23 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { SingleArtist } from '../../../components/Stations/SingleArtist';
 
+// Mock musicKit first
+jest.mock('../../../musicKit', () => ({
+    default: {
+        getInstance: jest.fn().mockResolvedValue({
+            api: {
+                music: jest.fn().mockResolvedValue({
+                    data: { data: [
+                        { id: 'artist1', attributes: { name: 'Test Artist 1' } },
+                        { id: 'artist2', attributes: { name: 'Test Artist 2' } }
+                    ] }
+                })
+            },
+            storefrontId: 'us'
+        })
+    }
+}));
+
 // Mock dependencies
 jest.mock('../../../components/Search', () => ({
     Search: ({ search, onChanged, placeholder, labelAccessor }: any) => (
