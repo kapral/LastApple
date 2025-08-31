@@ -3,111 +3,111 @@ import { IAppleAuthenticationState, logoutApple, loginApple, checkAppleLogin } f
 
 // Mock AppleAuthService
 const mockAppleAuthService = {
-  isAuthenticated: jest.fn(),
-  authenticate: jest.fn(),
-  logout: jest.fn(),
+    isAuthenticated: jest.fn(),
+    authenticate: jest.fn(),
+    logout: jest.fn(),
 };
 
 jest.mock('../../apple/AppleAuthService', () => ({
-  default: mockAppleAuthService,
+    default: mockAppleAuthService,
 }));
 
 describe('appleAuthentication', () => {
-  let mockAuthState: IAppleAuthenticationState;
+    let mockAuthState: IAppleAuthenticationState;
 
-  beforeEach(() => {
-    jest.clearAllMocks();
-    mockAuthState = {
-      state: AuthenticationState.Unauthenticated,
-      setState: jest.fn(),
-    };
-  });
-
-  describe('logoutApple', () => {
-    it('should set loading state and logout if authenticated', async () => {
-      mockAppleAuthService.isAuthenticated.mockResolvedValue(true);
-      mockAppleAuthService.logout.mockResolvedValue(undefined);
-
-      await logoutApple(mockAuthState);
-
-      expect(mockAuthState.setState).toHaveBeenCalledWith(AuthenticationState.Loading);
-      expect(mockAppleAuthService.isAuthenticated).toHaveBeenCalled();
-      expect(mockAppleAuthService.logout).toHaveBeenCalled();
-      expect(mockAuthState.setState).toHaveBeenLastCalledWith(AuthenticationState.Unauthenticated);
+    beforeEach(() => {
+        jest.clearAllMocks();
+        mockAuthState = {
+            state: AuthenticationState.Unauthenticated,
+            setState: jest.fn(),
+        };
     });
 
-    it('should set unauthenticated state if not authenticated', async () => {
-      mockAppleAuthService.isAuthenticated.mockResolvedValue(false);
+    describe('logoutApple', () => {
+        it('should set loading state and logout if authenticated', async () => {
+            mockAppleAuthService.isAuthenticated.mockResolvedValue(true);
+            mockAppleAuthService.logout.mockResolvedValue(undefined);
 
-      await logoutApple(mockAuthState);
+            await logoutApple(mockAuthState);
 
-      expect(mockAuthState.setState).toHaveBeenCalledWith(AuthenticationState.Loading);
-      expect(mockAppleAuthService.isAuthenticated).toHaveBeenCalled();
-      expect(mockAppleAuthService.logout).not.toHaveBeenCalled();
-      expect(mockAuthState.setState).toHaveBeenLastCalledWith(AuthenticationState.Unauthenticated);
-    });
-  });
+            expect(mockAuthState.setState).toHaveBeenCalledWith(AuthenticationState.Loading);
+            expect(mockAppleAuthService.isAuthenticated).toHaveBeenCalled();
+            expect(mockAppleAuthService.logout).toHaveBeenCalled();
+            expect(mockAuthState.setState).toHaveBeenLastCalledWith(AuthenticationState.Unauthenticated);
+        });
 
-  describe('loginApple', () => {
-    it('should set authenticated state if already authenticated', async () => {
-      mockAppleAuthService.isAuthenticated.mockResolvedValue(true);
+        it('should set unauthenticated state if not authenticated', async () => {
+            mockAppleAuthService.isAuthenticated.mockResolvedValue(false);
 
-      await loginApple(mockAuthState);
+            await logoutApple(mockAuthState);
 
-      expect(mockAuthState.setState).toHaveBeenCalledWith(AuthenticationState.Loading);
-      expect(mockAppleAuthService.isAuthenticated).toHaveBeenCalled();
-      expect(mockAppleAuthService.authenticate).not.toHaveBeenCalled();
-      expect(mockAuthState.setState).toHaveBeenLastCalledWith(AuthenticationState.Authenticated);
-    });
-
-    it('should authenticate and set authenticated state on success', async () => {
-      mockAppleAuthService.isAuthenticated
-        .mockResolvedValueOnce(false) // Before authentication
-        .mockResolvedValueOnce(true); // After authentication
-      mockAppleAuthService.authenticate.mockResolvedValue(undefined);
-
-      await loginApple(mockAuthState);
-
-      expect(mockAuthState.setState).toHaveBeenCalledWith(AuthenticationState.Loading);
-      expect(mockAppleAuthService.isAuthenticated).toHaveBeenCalledTimes(2);
-      expect(mockAppleAuthService.authenticate).toHaveBeenCalled();
-      expect(mockAuthState.setState).toHaveBeenLastCalledWith(AuthenticationState.Authenticated);
+            expect(mockAuthState.setState).toHaveBeenCalledWith(AuthenticationState.Loading);
+            expect(mockAppleAuthService.isAuthenticated).toHaveBeenCalled();
+            expect(mockAppleAuthService.logout).not.toHaveBeenCalled();
+            expect(mockAuthState.setState).toHaveBeenLastCalledWith(AuthenticationState.Unauthenticated);
+        });
     });
 
-    it('should set unauthenticated state if authentication fails', async () => {
-      mockAppleAuthService.isAuthenticated
-        .mockResolvedValueOnce(false) // Before authentication
-        .mockResolvedValueOnce(false); // After authentication (failed)
-      mockAppleAuthService.authenticate.mockResolvedValue(undefined);
+    describe('loginApple', () => {
+        it('should set authenticated state if already authenticated', async () => {
+            mockAppleAuthService.isAuthenticated.mockResolvedValue(true);
 
-      await loginApple(mockAuthState);
+            await loginApple(mockAuthState);
 
-      expect(mockAuthState.setState).toHaveBeenCalledWith(AuthenticationState.Loading);
-      expect(mockAppleAuthService.isAuthenticated).toHaveBeenCalledTimes(2);
-      expect(mockAppleAuthService.authenticate).toHaveBeenCalled();
-      expect(mockAuthState.setState).toHaveBeenLastCalledWith(AuthenticationState.Unauthenticated);
+            expect(mockAuthState.setState).toHaveBeenCalledWith(AuthenticationState.Loading);
+            expect(mockAppleAuthService.isAuthenticated).toHaveBeenCalled();
+            expect(mockAppleAuthService.authenticate).not.toHaveBeenCalled();
+            expect(mockAuthState.setState).toHaveBeenLastCalledWith(AuthenticationState.Authenticated);
+        });
+
+        it('should authenticate and set authenticated state on success', async () => {
+            mockAppleAuthService.isAuthenticated
+                .mockResolvedValueOnce(false) // Before authentication
+                .mockResolvedValueOnce(true); // After authentication
+            mockAppleAuthService.authenticate.mockResolvedValue(undefined);
+
+            await loginApple(mockAuthState);
+
+            expect(mockAuthState.setState).toHaveBeenCalledWith(AuthenticationState.Loading);
+            expect(mockAppleAuthService.isAuthenticated).toHaveBeenCalledTimes(2);
+            expect(mockAppleAuthService.authenticate).toHaveBeenCalled();
+            expect(mockAuthState.setState).toHaveBeenLastCalledWith(AuthenticationState.Authenticated);
+        });
+
+        it('should set unauthenticated state if authentication fails', async () => {
+            mockAppleAuthService.isAuthenticated
+                .mockResolvedValueOnce(false) // Before authentication
+                .mockResolvedValueOnce(false); // After authentication (failed)
+            mockAppleAuthService.authenticate.mockResolvedValue(undefined);
+
+            await loginApple(mockAuthState);
+
+            expect(mockAuthState.setState).toHaveBeenCalledWith(AuthenticationState.Loading);
+            expect(mockAppleAuthService.isAuthenticated).toHaveBeenCalledTimes(2);
+            expect(mockAppleAuthService.authenticate).toHaveBeenCalled();
+            expect(mockAuthState.setState).toHaveBeenLastCalledWith(AuthenticationState.Unauthenticated);
+        });
     });
-  });
 
-  describe('checkAppleLogin', () => {
-    it('should set authenticated state if authenticated', async () => {
-      mockAppleAuthService.isAuthenticated.mockResolvedValue(true);
+    describe('checkAppleLogin', () => {
+        it('should set authenticated state if authenticated', async () => {
+            mockAppleAuthService.isAuthenticated.mockResolvedValue(true);
 
-      await checkAppleLogin(mockAuthState);
+            await checkAppleLogin(mockAuthState);
 
-      expect(mockAuthState.setState).toHaveBeenCalledWith(AuthenticationState.Loading);
-      expect(mockAppleAuthService.isAuthenticated).toHaveBeenCalled();
-      expect(mockAuthState.setState).toHaveBeenLastCalledWith(AuthenticationState.Authenticated);
+            expect(mockAuthState.setState).toHaveBeenCalledWith(AuthenticationState.Loading);
+            expect(mockAppleAuthService.isAuthenticated).toHaveBeenCalled();
+            expect(mockAuthState.setState).toHaveBeenLastCalledWith(AuthenticationState.Authenticated);
+        });
+
+        it('should set unauthenticated state if not authenticated', async () => {
+            mockAppleAuthService.isAuthenticated.mockResolvedValue(false);
+
+            await checkAppleLogin(mockAuthState);
+
+            expect(mockAuthState.setState).toHaveBeenCalledWith(AuthenticationState.Loading);
+            expect(mockAppleAuthService.isAuthenticated).toHaveBeenCalled();
+            expect(mockAuthState.setState).toHaveBeenLastCalledWith(AuthenticationState.Unauthenticated);
+        });
     });
-
-    it('should set unauthenticated state if not authenticated', async () => {
-      mockAppleAuthService.isAuthenticated.mockResolvedValue(false);
-
-      await checkAppleLogin(mockAuthState);
-
-      expect(mockAuthState.setState).toHaveBeenCalledWith(AuthenticationState.Loading);
-      expect(mockAppleAuthService.isAuthenticated).toHaveBeenCalled();
-      expect(mockAuthState.setState).toHaveBeenLastCalledWith(AuthenticationState.Unauthenticated);
-    });
-  });
 });

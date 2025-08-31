@@ -4,123 +4,123 @@ import { AuthenticationState } from '../../authentication';
 
 // Mock the dependencies
 const mockLastfmContext = {
-  authentication: {
-    state: 0, // AuthenticationState.Loading
-    setState: jest.fn(),
-    user: undefined,
-    setUser: jest.fn(),
-  },
+    authentication: {
+        state: 0, // AuthenticationState.Loading
+        setState: jest.fn(),
+        user: undefined,
+        setUser: jest.fn(),
+    },
 };
 
 const mockLastfmAuthService = {
-  tryGetAuthFromParams: jest.fn(),
-  postToken: jest.fn(),
+    tryGetAuthFromParams: jest.fn(),
+    postToken: jest.fn(),
 };
 
 const mockCheckLastfmLogin = jest.fn();
 
 jest.mock('../../lastfm/LastfmContext', () => ({
-  useLastfmContext: jest.fn(() => mockLastfmContext),
+    useLastfmContext: jest.fn(() => mockLastfmContext),
 }));
 
 jest.mock('../../lastfm/LastfmAuthService', () => ({
-  default: mockLastfmAuthService,
+    default: mockLastfmAuthService,
 }));
 
 jest.mock('../../lastfm/lastfmAuthentication', () => ({
-  checkLastfmLogin: mockCheckLastfmLogin,
+    checkLastfmLogin: mockCheckLastfmLogin,
 }));
 
 describe('useStartupLastfmAuthenticationCheck', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
 
-  it('should set loading state and check login when no token in params', async () => {
-    mockLastfmAuthService.tryGetAuthFromParams.mockReturnValue(null);
-    mockCheckLastfmLogin.mockResolvedValue(undefined);
+    it('should set loading state and check login when no token in params', async () => {
+        mockLastfmAuthService.tryGetAuthFromParams.mockReturnValue(null);
+        mockCheckLastfmLogin.mockResolvedValue(undefined);
 
-    renderHook(() => useStartupLastfmAuthenticationCheck());
+        renderHook(() => useStartupLastfmAuthenticationCheck());
 
-    expect(mockLastfmContext.authentication.setState).toHaveBeenCalledWith(AuthenticationState.Loading);
-    expect(mockLastfmAuthService.tryGetAuthFromParams).toHaveBeenCalled();
-    expect(mockLastfmAuthService.postToken).not.toHaveBeenCalled();
-    
-    // Wait for async operation to complete
-    await new Promise(resolve => setTimeout(resolve, 0));
-    
-    expect(mockCheckLastfmLogin).toHaveBeenCalledWith(mockLastfmContext.authentication);
-  });
+        expect(mockLastfmContext.authentication.setState).toHaveBeenCalledWith(AuthenticationState.Loading);
+        expect(mockLastfmAuthService.tryGetAuthFromParams).toHaveBeenCalled();
+        expect(mockLastfmAuthService.postToken).not.toHaveBeenCalled();
+        
+        // Wait for async operation to complete
+        await new Promise(resolve => setTimeout(resolve, 0));
+        
+        expect(mockCheckLastfmLogin).toHaveBeenCalledWith(mockLastfmContext.authentication);
+    });
 
-  it('should post token and check login when token exists in params', async () => {
-    const testToken = 'test-token-123';
-    mockLastfmAuthService.tryGetAuthFromParams.mockReturnValue(testToken);
-    mockLastfmAuthService.postToken.mockResolvedValue(undefined);
-    mockCheckLastfmLogin.mockResolvedValue(undefined);
+    it('should post token and check login when token exists in params', async () => {
+        const testToken = 'test-token-123';
+        mockLastfmAuthService.tryGetAuthFromParams.mockReturnValue(testToken);
+        mockLastfmAuthService.postToken.mockResolvedValue(undefined);
+        mockCheckLastfmLogin.mockResolvedValue(undefined);
 
-    renderHook(() => useStartupLastfmAuthenticationCheck());
+        renderHook(() => useStartupLastfmAuthenticationCheck());
 
-    expect(mockLastfmContext.authentication.setState).toHaveBeenCalledWith(AuthenticationState.Loading);
-    expect(mockLastfmAuthService.tryGetAuthFromParams).toHaveBeenCalled();
-    
-    // Wait for async operation to complete
-    await new Promise(resolve => setTimeout(resolve, 0));
-    
-    expect(mockLastfmAuthService.postToken).toHaveBeenCalledWith(testToken);
-    expect(mockCheckLastfmLogin).toHaveBeenCalledWith(mockLastfmContext.authentication);
-  });
+        expect(mockLastfmContext.authentication.setState).toHaveBeenCalledWith(AuthenticationState.Loading);
+        expect(mockLastfmAuthService.tryGetAuthFromParams).toHaveBeenCalled();
+        
+        // Wait for async operation to complete
+        await new Promise(resolve => setTimeout(resolve, 0));
+        
+        expect(mockLastfmAuthService.postToken).toHaveBeenCalledWith(testToken);
+        expect(mockCheckLastfmLogin).toHaveBeenCalledWith(mockLastfmContext.authentication);
+    });
 
-  it('should not run effect on re-render', async () => {
-    mockLastfmAuthService.tryGetAuthFromParams.mockReturnValue(null);
-    mockCheckLastfmLogin.mockResolvedValue(undefined);
+    it('should not run effect on re-render', async () => {
+        mockLastfmAuthService.tryGetAuthFromParams.mockReturnValue(null);
+        mockCheckLastfmLogin.mockResolvedValue(undefined);
 
-    const { rerender } = renderHook(() => useStartupLastfmAuthenticationCheck());
+        const { rerender } = renderHook(() => useStartupLastfmAuthenticationCheck());
 
-    expect(mockLastfmContext.authentication.setState).toHaveBeenCalledTimes(1);
-    expect(mockLastfmAuthService.tryGetAuthFromParams).toHaveBeenCalledTimes(1);
+        expect(mockLastfmContext.authentication.setState).toHaveBeenCalledTimes(1);
+        expect(mockLastfmAuthService.tryGetAuthFromParams).toHaveBeenCalledTimes(1);
 
-    rerender();
+        rerender();
 
-    expect(mockLastfmContext.authentication.setState).toHaveBeenCalledTimes(1);
-    expect(mockLastfmAuthService.tryGetAuthFromParams).toHaveBeenCalledTimes(1);
-  });
+        expect(mockLastfmContext.authentication.setState).toHaveBeenCalledTimes(1);
+        expect(mockLastfmAuthService.tryGetAuthFromParams).toHaveBeenCalledTimes(1);
+    });
 
-  it('should handle postToken errors gracefully', async () => {
-    const testToken = 'test-token-123';
-    mockLastfmAuthService.tryGetAuthFromParams.mockReturnValue(testToken);
-    mockLastfmAuthService.postToken.mockRejectedValue(new Error('Token post failed'));
-    mockCheckLastfmLogin.mockResolvedValue(undefined);
+    it('should handle postToken errors gracefully', async () => {
+        const testToken = 'test-token-123';
+        mockLastfmAuthService.tryGetAuthFromParams.mockReturnValue(testToken);
+        mockLastfmAuthService.postToken.mockRejectedValue(new Error('Token post failed'));
+        mockCheckLastfmLogin.mockResolvedValue(undefined);
 
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+        const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
-    renderHook(() => useStartupLastfmAuthenticationCheck());
+        renderHook(() => useStartupLastfmAuthenticationCheck());
 
-    expect(mockLastfmContext.authentication.setState).toHaveBeenCalledWith(AuthenticationState.Loading);
-    
-    // Wait for async operation to complete
-    await new Promise(resolve => setTimeout(resolve, 0));
-    
-    expect(mockLastfmAuthService.postToken).toHaveBeenCalledWith(testToken);
-    expect(mockCheckLastfmLogin).toHaveBeenCalledWith(mockLastfmContext.authentication);
+        expect(mockLastfmContext.authentication.setState).toHaveBeenCalledWith(AuthenticationState.Loading);
+        
+        // Wait for async operation to complete
+        await new Promise(resolve => setTimeout(resolve, 0));
+        
+        expect(mockLastfmAuthService.postToken).toHaveBeenCalledWith(testToken);
+        expect(mockCheckLastfmLogin).toHaveBeenCalledWith(mockLastfmContext.authentication);
 
-    consoleSpy.mockRestore();
-  });
+        consoleSpy.mockRestore();
+    });
 
-  it('should handle checkLastfmLogin errors gracefully', async () => {
-    mockLastfmAuthService.tryGetAuthFromParams.mockReturnValue(null);
-    mockCheckLastfmLogin.mockRejectedValue(new Error('Login check failed'));
+    it('should handle checkLastfmLogin errors gracefully', async () => {
+        mockLastfmAuthService.tryGetAuthFromParams.mockReturnValue(null);
+        mockCheckLastfmLogin.mockRejectedValue(new Error('Login check failed'));
 
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+        const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
-    renderHook(() => useStartupLastfmAuthenticationCheck());
+        renderHook(() => useStartupLastfmAuthenticationCheck());
 
-    expect(mockLastfmContext.authentication.setState).toHaveBeenCalledWith(AuthenticationState.Loading);
-    
-    // Wait for async operation to complete
-    await new Promise(resolve => setTimeout(resolve, 0));
-    
-    expect(mockCheckLastfmLogin).toHaveBeenCalledWith(mockLastfmContext.authentication);
+        expect(mockLastfmContext.authentication.setState).toHaveBeenCalledWith(AuthenticationState.Loading);
+        
+        // Wait for async operation to complete
+        await new Promise(resolve => setTimeout(resolve, 0));
+        
+        expect(mockCheckLastfmLogin).toHaveBeenCalledWith(mockLastfmContext.authentication);
 
-    consoleSpy.mockRestore();
-  });
+        consoleSpy.mockRestore();
+    });
 });
