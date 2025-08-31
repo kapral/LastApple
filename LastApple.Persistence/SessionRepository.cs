@@ -17,7 +17,7 @@ public class SessionRepository(IMongoClient mongoClient, IOptions<MongoConnectio
 
         return new Session(Id: domainSession.Id,
                            StartedAt: domainSession.StartedAt,
-                           LastActivityAt: domainSession.StartedAt,
+                           LastActivityAt: domainSession.LastActivityAt,
                            LastfmSessionKey: domainSession.LastfmSessionKey,
                            LastfmUsername: domainSession.LastfmUsername,
                            MusicUserToken: domainSession.MusicUserToken,
