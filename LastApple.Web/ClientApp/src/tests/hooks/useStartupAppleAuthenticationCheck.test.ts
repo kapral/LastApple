@@ -9,15 +9,15 @@ const mockAppleContext = {
     },
 };
 
-const mockCheckAppleLogin = jest.fn();
-
 jest.mock('../../apple/AppleContext', () => ({
     useAppleContext: jest.fn(() => mockAppleContext),
 }));
 
 jest.mock('../../apple/appleAuthentication', () => ({
-    checkAppleLogin: mockCheckAppleLogin,
+    checkAppleLogin: jest.fn(),
 }));
+
+const { checkAppleLogin } = require('../../apple/appleAuthentication');
 
 describe('useStartupAppleAuthenticationCheck', () => {
     beforeEach(() => {
@@ -27,31 +27,31 @@ describe('useStartupAppleAuthenticationCheck', () => {
     it('should call checkAppleLogin on mount', () => {
         renderHook(() => useStartupAppleAuthenticationCheck());
 
-        expect(mockCheckAppleLogin).toHaveBeenCalledWith(mockAppleContext.authentication);
-        expect(mockCheckAppleLogin).toHaveBeenCalledTimes(1);
+        expect(checkAppleLogin).toHaveBeenCalledWith(mockAppleContext.authentication);
+        expect(checkAppleLogin).toHaveBeenCalledTimes(1);
     });
 
     it('should not call checkAppleLogin on re-render', () => {
         const { rerender } = renderHook(() => useStartupAppleAuthenticationCheck());
 
-        expect(mockCheckAppleLogin).toHaveBeenCalledTimes(1);
+        expect(checkAppleLogin).toHaveBeenCalledTimes(1);
 
         rerender();
 
-        expect(mockCheckAppleLogin).toHaveBeenCalledTimes(1);
+        expect(checkAppleLogin).toHaveBeenCalledTimes(1);
     });
 
     it('should handle async checkAppleLogin execution', async () => {
-        mockCheckAppleLogin.mockResolvedValue(undefined);
+        checkAppleLogin.mockResolvedValue(undefined);
 
         renderHook(() => useStartupAppleAuthenticationCheck());
 
-        expect(mockCheckAppleLogin).toHaveBeenCalledWith(mockAppleContext.authentication);
+        expect(checkAppleLogin).toHaveBeenCalledWith(mockAppleContext.authentication);
         
         // Wait for async operation to complete
         await new Promise(resolve => setTimeout(resolve, 0));
         
-        expect(mockCheckAppleLogin).toHaveBeenCalledTimes(1);
+        expect(checkAppleLogin).toHaveBeenCalledTimes(1);
     });
 
     it('should handle checkAppleLogin errors gracefully', async () => {

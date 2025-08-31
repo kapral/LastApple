@@ -20,12 +20,25 @@ jest.mock('../../../components/Player/ProgressControl', () => ({
 
 jest.mock('../../../components/Player/StationPlayer', () => ({
     StationPlayer: {
-        getImageUrl: jest.fn((url) => url ? url.replace('{w}x{h}', '400x400') : '')
+        getImageUrl: jest.fn()
     }
 }));
 
 jest.mock('@fortawesome/react-fontawesome', () => ({
-    FontAwesomeIcon: ({ icon }: any) => <div data-testid="fontawesome-icon" data-icon={icon.iconName} />
+    FontAwesomeIcon: ({ icon }: any) => {
+        const iconName = icon?.iconName || (typeof icon === 'object' ? icon.iconName || 'unknown' : icon);
+        return <div data-testid="fontawesome-icon" data-icon={iconName} />;
+    }
+}));
+
+jest.mock('@fortawesome/free-solid-svg-icons/faStepBackward', () => ({
+    faStepBackward: { iconName: 'step-backward' }
+}));
+
+jest.mock('@fortawesome/free-solid-svg-icons', () => ({
+    faPause: { iconName: 'pause' },
+    faPlay: { iconName: 'play' },
+    faStepForward: { iconName: 'step-forward' }
 }));
 
 const createMockTrack = (overrides: Partial<MusicKit.MediaItem> = {}): MusicKit.MediaItem => ({
@@ -105,15 +118,17 @@ describe('PlayerControls', () => {
     });
 
     it('displays album artwork with correct background image', () => {
-        const trackWithArtwork = createMockTrack({
-            attributes: {
-                artwork: {
-                    url: 'https://example.com/album/{w}x{h}.jpg',
-                    width: 400,
-                    height: 400
-                }
-            }
+        const StationPlayerMock = require('../../../components/Player/StationPlayer');
+        
+        // Set up the mock implementation
+        StationPlayerMock.StationPlayer.getImageUrl.mockImplementation((url) => {
+            if (!url) return '';
+            return url.replace('{w}x{h}', '400x400');
         });
+        
+        const trackWithArtwork = createMockTrack();
+        // Properly set the artwork URL after creation
+        trackWithArtwork.attributes.artwork.url = 'https://example.com/album/{w}x{h}.jpg';
 
         const { container } = render(<PlayerControls {...defaultProps} currentTrack={trackWithArtwork} />);
 
@@ -244,7 +259,8 @@ describe('PlayerControls', () => {
     it('has correct styling for art container', () => {
         const { container } = render(<PlayerControls {...defaultProps} />);
 
-        const artContainer = container.querySelector('[style*="textAlign: center"]');
+        // The art container is the child of .player-controls
+        const artContainer = container.querySelector('.player-controls > div');
         expect(artContainer).toHaveStyle({
             textAlign: 'center',
             position: 'relative',
@@ -254,11 +270,12 @@ describe('PlayerControls', () => {
     });
 
     it('handles missing artwork gracefully', () => {
-        const trackWithoutArtwork = createMockTrack({
-            attributes: {
-                artwork: null as any
-            }
-        });
+        const trackWithoutArtwork = createMockTrack();
+        // Override the artwork property after creation
+        trackWithoutArtwork.attributes = {
+            ...trackWithoutArtwork.attributes,
+            artwork: null as any
+        };
 
         const { container } = render(<PlayerControls {...defaultProps} currentTrack={trackWithoutArtwork} />);
 
