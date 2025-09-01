@@ -1,6 +1,3 @@
-using LastApple.Persistence;
-using NUnit.Framework;
-
 namespace LastApple.Persistence.Tests;
 
 public class TestMongoConnectionDetails
