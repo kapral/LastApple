@@ -1,15 +1,9 @@
-using System;
-using System.Threading.Tasks;
+using System.Linq;
 using IF.Lastfm.Core.Api;
 using IF.Lastfm.Core.Api.Helpers;
 using IF.Lastfm.Core.Objects;
-using LastApple;
 using LastApple.Model;
 using LastApple.PlaylistGeneration;
-using LastApple.Web.Controllers;
-using Microsoft.AspNetCore.Mvc;
-using NSubstitute;
-using NUnit.Framework;
 
 namespace LastApple.Web.Tests;
 
@@ -26,20 +20,19 @@ public class TestLastfmLibraryStationController
     [SetUp]
     public void Setup()
     {
-        mockStationRepository = Substitute.For<IStationRepository>();
-        mockStationGenerator = Substitute.For<IStationGenerator<LastfmLibraryStationDefinition>>();
-        mockProcessManager = Substitute.For<IBackgroundProcessManager>();
-        mockUserApi = Substitute.For<IUserApi>();
-        mockSessionProvider = Substitute.For<ISessionProvider>();
+        mockStationRepository  = Substitute.For<IStationRepository>();
+        mockStationGenerator   = Substitute.For<IStationGenerator<LastfmLibraryStationDefinition>>();
+        mockProcessManager     = Substitute.For<IBackgroundProcessManager>();
+        mockUserApi            = Substitute.For<IUserApi>();
+        mockSessionProvider    = Substitute.For<ISessionProvider>();
         mockStorefrontProvider = Substitute.For<IStorefrontProvider>();
-        
-        controller = new LastfmLibraryStationController(
-            mockStationRepository, 
-            mockStationGenerator, 
-            mockProcessManager, 
-            mockUserApi, 
-            mockSessionProvider, 
-            mockStorefrontProvider);
+
+        controller = new LastfmLibraryStationController(mockStationRepository,
+                                                        mockStationGenerator,
+                                                        mockProcessManager,
+                                                        mockUserApi,
+                                                        mockSessionProvider,
+                                                        mockStorefrontProvider);
     }
 
     [Test]
@@ -69,20 +62,36 @@ public class TestLastfmLibraryStationController
 
         mockSessionProvider.GetSession().Returns(session);
         mockStorefrontProvider.GetStorefront().Returns(storefront);
+        mockUserApi.GetInfoAsync(session.LastfmUsername)
+                   .Returns(new LastResponse<LastUser>() { Content = new LastUser() });
 
-        Assert.ThrowsAsync<NullReferenceException>(async () => await controller.Create());
-        await mockUserApi.Received(1).GetInfoAsync("testuser");
+        var result = await controller.Create();
+        var station = ((JsonResult)result).Value as Station<LastfmLibraryStationDefinition>;
+
+        Assert.That(station, Is.Not.Null);
+        Assert.That(station.Id, Is.Not.EqualTo(Guid.Empty));
+        Assert.That(station.IsContinuous);
+
+        mockProcessManager.Received().AddProcess(Arg.Any<Func<Task>>());
+
+        var callback = mockProcessManager.ReceivedCalls()
+                                         .Single()
+                                         .GetArguments()[0] as Func<Task>;
+
+        Assert.That(callback, Is.Not.Null);
+        await callback();
+
+        await mockStationGenerator.Received().Generate(station, storefront);
     }
 
     [Test]
     public async Task TopUp_Returns_NotFound_For_Invalid_Station_Id()
     {
         var stationId = Guid.NewGuid();
-        var count = 10;
 
         mockStationRepository.Get(stationId).Returns((StationBase)null);
 
-        var result = await controller.TopUp(stationId, count);
+        var result = await controller.TopUp(stationId, 10);
 
         Assert.That(result, Is.InstanceOf<NotFoundResult>());
     }
@@ -91,12 +100,11 @@ public class TestLastfmLibraryStationController
     public async Task TopUp_Returns_NotFound_For_Wrong_Station_Type()
     {
         var stationId = Guid.NewGuid();
-        var count = 10;
         var wrongTypeStation = Substitute.For<StationBase>();
 
         mockStationRepository.Get(stationId).Returns(wrongTypeStation);
 
-        var result = await controller.TopUp(stationId, count);
+        var result = await controller.TopUp(stationId, 10);
 
         Assert.That(result, Is.InstanceOf<NotFoundResult>());
     }
@@ -105,7 +113,6 @@ public class TestLastfmLibraryStationController
     public async Task TopUp_Adds_TopUp_Process_For_Valid_Station()
     {
         var stationId = Guid.NewGuid();
-        var count = 10;
         var definition = new LastfmLibraryStationDefinition("testuser");
         var station = new Station<LastfmLibraryStationDefinition>(definition) { Id = stationId };
         var storefront = "us";
@@ -113,47 +120,18 @@ public class TestLastfmLibraryStationController
         mockStationRepository.Get(stationId).Returns(station);
         mockStorefrontProvider.GetStorefront().Returns(storefront);
 
-        var result = await controller.TopUp(stationId, count);
+        var result = await controller.TopUp(stationId, 10);
 
         Assert.That(result, Is.InstanceOf<NoContentResult>());
         mockProcessManager.Received(1).AddProcess(Arg.Any<Func<Task>>());
-    }
 
-    [Test]
-    public async Task Create_Calls_UserApi_With_Session_Username()
-    {
-        var session = new Session(
-            Id: Guid.NewGuid(),
-            StartedAt: DateTimeOffset.UtcNow,
-            LastActivityAt: DateTimeOffset.UtcNow,
-            LastfmSessionKey: "session-key",
-            LastfmUsername: "specific-username",
-            MusicUserToken: "music-token",
-            MusicStorefrontId: "us"
-        );
+        var callback = mockProcessManager.ReceivedCalls()
+                                         .Single()
+                                         .GetArguments()[0] as Func<Task>;
 
-        mockSessionProvider.GetSession().Returns(session);
-        mockStorefrontProvider.GetStorefront().Returns("us");
+        Assert.That(callback, Is.Not.Null);
+        await callback();
 
-        Assert.ThrowsAsync<NullReferenceException>(async () => await controller.Create());
-        await mockUserApi.Received(1).GetInfoAsync("specific-username");
-    }
-
-    [Test]
-    public async Task TopUp_Calls_StationGenerator_With_Correct_Parameters()
-    {
-        var stationId = Guid.NewGuid();
-        var count = 25;
-        var definition = new LastfmLibraryStationDefinition("testuser");
-        var station = new Station<LastfmLibraryStationDefinition>(definition) { Id = stationId };
-        var storefront = "uk";
-
-        mockStationRepository.Get(stationId).Returns(station);
-        mockStorefrontProvider.GetStorefront().Returns(storefront);
-
-        await controller.TopUp(stationId, count);
-
-        await mockStorefrontProvider.Received(1).GetStorefront();
-        mockProcessManager.Received(1).AddProcess(Arg.Any<Func<Task>>());
+        await mockStationGenerator.Received().TopUp(station, storefront, 10);
     }
 }
