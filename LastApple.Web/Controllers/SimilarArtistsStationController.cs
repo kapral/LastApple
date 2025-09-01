@@ -14,10 +14,9 @@ public class SimilarArtistsStationController(IStationRepository stationRepositor
 {
     [HttpPost]
     [Route("{artist}")]
-    public async Task<IActionResult> Create(string artist)
+    public async Task<Station<SimilarArtistsStationDefinition>> Create(string artist)
     {
-        if (string.IsNullOrWhiteSpace(artist))
-            throw new ArgumentException("Value cannot be null or whitespace.", nameof(artist));
+        ArgumentException.ThrowIfNullOrWhiteSpace(artist);
 
         var definition = new SimilarArtistsStationDefinition(artist);
 
@@ -32,17 +31,17 @@ public class SimilarArtistsStationController(IStationRepository stationRepositor
         var storefront = await storefrontProvider.GetStorefront();
         backgroundProcessManager.AddProcess(() => stationGenerator.Generate(station, storefront));
 
-        return Json(station);
+        return station;
     }
 
     [HttpPost]
     [Route("{stationId}/topup/{count}")]
     public async Task<ActionResult> TopUp(Guid stationId, int count)
     {
-        var station = stationRepository.Get(stationId) as Station<SimilarArtistsStationDefinition>;
-
-        if (station == null)
+        if (stationRepository.Get(stationId) is not Station<SimilarArtistsStationDefinition> station)
+        {
             return NotFound();
+        }
 
         var storefront = await storefrontProvider.GetStorefront();
         backgroundProcessManager.AddProcess(() => stationGenerator.TopUp(station, storefront, count));

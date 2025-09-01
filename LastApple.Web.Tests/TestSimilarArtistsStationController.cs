@@ -18,11 +18,11 @@ public class TestSimilarArtistsStationController
         mockStationGenerator = Substitute.For<IStationGenerator<SimilarArtistsStationDefinition>>();
         mockBackgroundProcessManager = Substitute.For<IBackgroundProcessManager>();
         mockStorefrontProvider = Substitute.For<IStorefrontProvider>();
-        
+
         controller = new SimilarArtistsStationController(
-            mockStationRepository, 
-            mockStationGenerator, 
-            mockBackgroundProcessManager, 
+            mockStationRepository,
+            mockStationGenerator,
+            mockBackgroundProcessManager,
             mockStorefrontProvider);
     }
 
@@ -52,17 +52,13 @@ public class TestSimilarArtistsStationController
 
         mockStorefrontProvider.GetStorefront().Returns(storefront);
 
-        var result = await controller.Create(artist);
+        var station = await controller.Create(artist);
 
-        Assert.That(result, Is.InstanceOf<JsonResult>());
-        var jsonResult = (JsonResult)result;
-        var station = jsonResult.Value as Station<SimilarArtistsStationDefinition>;
-        
         Assert.That(station, Is.Not.Null);
         Assert.That(station.IsContinuous, Is.True);
         Assert.That(station.Definition.SourceArtist, Is.EqualTo(artist));
         Assert.That(station.Id, Is.Not.EqualTo(Guid.Empty));
-        
+
         mockStationRepository.Received(1).Create(Arg.Any<Station<SimilarArtistsStationDefinition>>());
         mockBackgroundProcessManager.Received(1).AddProcess(Arg.Any<Func<Task>>());
     }
@@ -152,11 +148,8 @@ public class TestSimilarArtistsStationController
 
         mockStorefrontProvider.GetStorefront().Returns(storefront);
 
-        var result = await controller.Create(artist);
+        var station = await controller.Create(artist);
 
-        var jsonResult = (JsonResult)result;
-        var station = jsonResult.Value as Station<SimilarArtistsStationDefinition>;
-        
         Assert.That(station.Definition.SourceArtist, Is.EqualTo(artist));
         Assert.That(station.IsContinuous, Is.True);
         Assert.That(station.Id, Is.Not.EqualTo(Guid.Empty));

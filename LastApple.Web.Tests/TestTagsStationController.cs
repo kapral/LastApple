@@ -15,15 +15,15 @@ public class TestTagsStationController
     [SetUp]
     public void Setup()
     {
-        mockStationRepository = Substitute.For<IStationRepository>();
-        mockStationGenerator = Substitute.For<IStationGenerator<TagsStationDefinition>>();
+        mockStationRepository        = Substitute.For<IStationRepository>();
+        mockStationGenerator         = Substitute.For<IStationGenerator<TagsStationDefinition>>();
         mockBackgroundProcessManager = Substitute.For<IBackgroundProcessManager>();
-        mockStorefrontProvider = Substitute.For<IStorefrontProvider>();
-        
+        mockStorefrontProvider       = Substitute.For<IStorefrontProvider>();
+
         controller = new TagsStationController(
-            mockStationRepository, 
-            mockStationGenerator, 
-            mockBackgroundProcessManager, 
+            mockStationRepository,
+            mockStationGenerator,
+            mockBackgroundProcessManager,
             mockStorefrontProvider);
     }
 
@@ -53,17 +53,13 @@ public class TestTagsStationController
 
         mockStorefrontProvider.GetStorefront().Returns(storefront);
 
-        var result = await controller.Create(tag);
+        var station = await controller.Create(tag);
 
-        Assert.That(result, Is.InstanceOf<JsonResult>());
-        var jsonResult = (JsonResult)result;
-        var station = jsonResult.Value as Station<TagsStationDefinition>;
-        
         Assert.That(station, Is.Not.Null);
         Assert.That(station.IsContinuous, Is.True);
         Assert.That(station.Definition.Tags, Contains.Item(tag));
         Assert.That(station.Id, Is.Not.EqualTo(Guid.Empty));
-        
+
         mockStationRepository.Received(1).Create(Arg.Any<Station<TagsStationDefinition>>());
         mockBackgroundProcessManager.Received(1).AddProcess(Arg.Any<Func<Task>>());
     }
@@ -153,11 +149,8 @@ public class TestTagsStationController
 
         mockStorefrontProvider.GetStorefront().Returns(storefront);
 
-        var result = await controller.Create(tag);
+        var station = await controller.Create(tag);
 
-        var jsonResult = (JsonResult)result;
-        var station = jsonResult.Value as Station<TagsStationDefinition>;
-        
         Assert.That(station.Definition.Tags.Count(), Is.EqualTo(1));
         Assert.That(station.Definition.Tags, Contains.Item(tag));
         Assert.That(station.IsContinuous, Is.True);
@@ -189,11 +182,8 @@ public class TestTagsStationController
 
         mockStorefrontProvider.GetStorefront().Returns(storefront);
 
-        var result = await controller.Create(tag);
+        var station = await controller.Create(tag);
 
-        var jsonResult = (JsonResult)result;
-        var station = jsonResult.Value as Station<TagsStationDefinition>;
-        
         // Verify the TagsStationDefinition was created with the collection syntax [tag]
         Assert.That(station.Definition.Tags, Is.Not.Null);
         Assert.That(station.Definition.Tags.Count(), Is.EqualTo(1));
