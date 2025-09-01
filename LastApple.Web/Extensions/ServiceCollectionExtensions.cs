@@ -16,11 +16,11 @@ public static class ServiceCollectionExtensions
         if (wrappedDescriptor == null)
             throw new InvalidOperationException($"{typeof(TInterface).Name} is not registered");
 
-        var objectFactory = ActivatorUtilities.CreateFactory(typeof(TDecorator),new[] { typeof(TInterface) });
+        var objectFactory = ActivatorUtilities.CreateFactory(typeof(TDecorator), [typeof(TInterface)]);
 
         services.Replace(ServiceDescriptor.Describe(
                              typeof(TInterface),
-                             s => (TInterface) objectFactory(s, new[] { s.CreateInstance(wrappedDescriptor) }),
+                             s => (TInterface) objectFactory(s, [s.CreateInstance(wrappedDescriptor)]),
                              wrappedDescriptor.Lifetime));
     }
 

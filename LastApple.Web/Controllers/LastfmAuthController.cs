@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using IF.Lastfm.Core.Api;
+using IF.Lastfm.Core.Objects;
 using LastApple.Web.Lastfm;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -12,14 +13,9 @@ public class LastfmAuthController(ILastAuth authApi,
                                   ISessionProvider sessionProvider,
                                   ISessionRepository sessionRepository,
                                   IUserApi userApi,
-                                  IOptions<LastfmApiParams> apiParams) : Controller
+                                  IOptions<LastfmApiParams> apiParams,
+                                  TimeProvider timeProvider) : Controller
 {
-    private readonly ILastAuth authApi = authApi ?? throw new ArgumentNullException(nameof(authApi));
-    private readonly IUserApi userApi = userApi ?? throw new ArgumentNullException(nameof(userApi));
-    private readonly ISessionProvider sessionProvider = sessionProvider ?? throw new ArgumentNullException(nameof(sessionProvider));
-    private readonly ISessionRepository sessionRepository = sessionRepository ?? throw new ArgumentNullException(nameof(sessionRepository));
-    private readonly IOptions<LastfmApiParams> apiParams = apiParams ?? throw new ArgumentNullException(nameof(apiParams));
-
     [Route("")]
     public IActionResult InitAuth(string redirectUrl)
     {
@@ -32,30 +28,31 @@ public class LastfmAuthController(ILastAuth authApi,
     }
 
     [HttpPost]
-    public async Task<IActionResult> CompleteAuth(string token)
+    public async Task<Guid> CompleteAuth(string token)
     {
         await authApi.GetSessionTokenAsync(token);
 
         var session = await sessionProvider.GetSession();
+        var now = timeProvider.GetUtcNow();
 
         session = session.Id == Guid.Empty
             ? new Session(Guid.NewGuid(),
-                          DateTimeOffset.Now,
-                          DateTimeOffset.Now,
+                          now,
+                          now,
                           authApi.UserSession.Token,
                           authApi.UserSession.Username,
                           null,
                           null)
             : session with
             {
-                LastActivityAt = DateTimeOffset.Now,
+                LastActivityAt = now,
                 LastfmSessionKey = authApi.UserSession.Token,
                 LastfmUsername = authApi.UserSession.Username
             };
 
         await sessionRepository.SaveSession(session);
 
-        return Json(session.Id);
+        return session.Id;
     }
 
     [HttpDelete]
@@ -78,20 +75,20 @@ public class LastfmAuthController(ILastAuth authApi,
     }
 
     [Route("user")]
-    public async Task<IActionResult> GetAuthenticatedUser()
+    public async Task<LastUser?> GetAuthenticatedUser()
     {
         var session = await sessionProvider.GetSession();
 
         if (string.IsNullOrWhiteSpace(session.LastfmSessionKey))
-            return Json(null);
+        {
+            return null;
+        }
 
         var userInfoResponse = await userApi.GetInfoAsync(session.LastfmUsername);
 
-        return Json(userInfoResponse.Content);
+        return userInfoResponse.Content;
     }
 
     private Uri GetWebAutUrl(Uri redirectUrl)
-    {
-        return new Uri($"http://www.last.fm/api/auth?api_key={apiParams.Value.ApiKey}&cb={Uri.EscapeDataString(redirectUrl.ToString())}");
-    }
+        => new($"http://www.last.fm/api/auth?api_key={apiParams.Value.ApiKey}&cb={Uri.EscapeDataString(redirectUrl.ToString())}");
 }

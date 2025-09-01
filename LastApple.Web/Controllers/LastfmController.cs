@@ -16,27 +16,23 @@ public class LastfmController(ISessionProvider sessionProvider,
                               ITrackApi trackApi,
                               ILastAuth lastAuth) : Controller
 {
-    private readonly IScrobbler scrobbler = scrobbler ?? throw new ArgumentNullException(nameof(scrobbler));
-    private readonly IArtistApi artistApi = artistApi ?? throw new ArgumentNullException(nameof(artistApi));
-    private readonly ITrackApi trackApi = trackApi ?? throw new ArgumentNullException(nameof(trackApi));
-    private readonly ILastAuth lastAuth = lastAuth ?? throw new ArgumentNullException(nameof(lastAuth));
-    private readonly ISessionProvider sessionProvider = sessionProvider ?? throw new ArgumentNullException(nameof(sessionProvider));
-
     [HttpGet]
     [Route("artist/search")]
-    public async Task<IActionResult> Search(string term)
+    public async Task<IReadOnlyCollection<LastArtist>> Search(string term)
     {
-        if (string.IsNullOrWhiteSpace(term)) throw new ArgumentException(nameof(term));
+        ArgumentException.ThrowIfNullOrWhiteSpace(term);
 
         var results = await artistApi.SearchAsync(term);
 
-        return Json(results.Content ?? new List<LastArtist>());
+        return results.Content;
     }
 
     [HttpPost]
     [Route("scrobble")]
     public async Task<IActionResult> Scrobble([FromBody] ScrobbleRequest request)
     {
+        ArgumentNullException.ThrowIfNull(request);
+
         var validationResponse = Validate(request.Artist, request.Song);
 
         if (validationResponse != null)
@@ -63,6 +59,8 @@ public class LastfmController(ISessionProvider sessionProvider,
     [Route("nowplaying")]
     public async Task<IActionResult> NowPlaying([FromBody] ScrobbleRequest request)
     {
+        ArgumentNullException.ThrowIfNull(request);
+
         var validationResponse = Validate(request.Artist, request.Song);
 
         if (validationResponse != null)
