@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using IF.Lastfm.Core.Api;
 using IF.Lastfm.Core.Api.Enums;
@@ -50,7 +48,7 @@ public class TestLastfmLibraryStationSource
 
         var result = await source.GetStationArtists(definition);
 
-        Assert.That(result, Is.EqualTo(new[] { new Artist(Name: "Asaf Avidan") }));
+        Assert.That(result, Is.EqualTo([new Artist(Name: "Asaf Avidan")]));
     }
 #pragma warning restore CS0612
 }

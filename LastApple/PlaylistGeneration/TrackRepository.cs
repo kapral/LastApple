@@ -38,7 +38,7 @@ public class TrackRepository(IArtistApi artistApi) : ITrackRepository
                 return Task.FromResult(cachedTracks.Items);
 
             if (cachedTracks.Attempts >= Constants.MaxRetryAttempts)
-                return Task.FromResult<IReadOnlyCollection<Track>>(Array.Empty<Track>());
+                return Task.FromResult<IReadOnlyCollection<Track>>([]);
 
             return LoadTracks(artist, cachedTracks);
         }
@@ -62,7 +62,7 @@ public class TrackRepository(IArtistApi artistApi) : ITrackRepository
     private static IReadOnlyCollection<Track> SetContent(Task<PageResponse<LastTrack>> previousTask, CacheItems<Track> cacheItems)
     {
         if (!previousTask.IsCompletedSuccessfully || !previousTask.Result.Success)
-            return Array.Empty<Track>();
+            return [];
 
         cacheItems.Items = ExtractResult(previousTask);
 

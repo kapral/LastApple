@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using IF.Lastfm.Core.Api;
 using LastApple.Model;
 
 namespace LastApple.PlaylistGeneration;

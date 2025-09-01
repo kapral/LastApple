@@ -29,7 +29,7 @@ public class TagsStationSource(ITagApi tagApi) : IStationSource<TagsStationDefin
                 var pageArtists = (await tagApi.GetTopArtistsAsync(tag, page, LastFmPageSize)).ToArray();
 
                 if (page == 1 && !pageArtists.Any())
-                    return Array.Empty<Artist>();
+                    return [];
 
                 artists.AddRange(pageArtists.Select(x => new Artist(Name: x.Name)));
                 intersection = intersection?.Intersect(artists).ToArray() ?? artists.ToArray();
@@ -39,6 +39,6 @@ public class TagsStationSource(ITagApi tagApi) : IStationSource<TagsStationDefin
                 return intersection;
         }
 
-        return intersection ?? Array.Empty<Artist>();
+        return intersection ?? [];
     }
 }

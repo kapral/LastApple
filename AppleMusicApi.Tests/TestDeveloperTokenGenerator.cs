@@ -1,7 +1,4 @@
-using System;
-using AppleMusicApi;
 using Microsoft.Extensions.Time.Testing;
-using NUnit.Framework;
 
 namespace AppleMusicApi.Tests;
 

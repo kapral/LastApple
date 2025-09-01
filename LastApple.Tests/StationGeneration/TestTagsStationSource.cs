@@ -1,11 +1,9 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using IF.Lastfm.Core.Api;
 using IF.Lastfm.Core.Api.Helpers;
 using IF.Lastfm.Core.Objects;
-using LastApple.Model;
 using LastApple.PlaylistGeneration;
 using NSubstitute;
 using NUnit.Framework;
@@ -33,9 +31,9 @@ public class TestTagsStationSource
     [Test]
     public async Task GetStationArtists_Returns_Empty_When_No_Artists_Found()
     {
-        var definition = new TagsStationDefinition(new[] { "rock" });
+        var definition = new TagsStationDefinition(["rock"]);
         tagApi.GetTopArtistsAsync("rock", 1, 200)
-              .Returns(PageResponse<LastArtist>.CreateSuccessResponse(Array.Empty<LastArtist>()));
+              .Returns(PageResponse<LastArtist>.CreateSuccessResponse([]));
 
         var result = await source.GetStationArtists(definition);
 
@@ -45,7 +43,7 @@ public class TestTagsStationSource
     [Test]
     public async Task GetStationArtists_Returns_Artists_From_Single_Tag()
     {
-        var definition = new TagsStationDefinition(new[] { "rock" });
+        var definition = new TagsStationDefinition(["rock"]);
         var lastfmArtists = new[]
         {
             new LastArtist { Name = "The Beatles" },
@@ -56,7 +54,7 @@ public class TestTagsStationSource
         tagApi.GetTopArtistsAsync("rock", 1, 200)
               .Returns(PageResponse<LastArtist>.CreateSuccessResponse(lastfmArtists));
         tagApi.GetTopArtistsAsync("rock", Arg.Is<int>(page => page > 1), 200)
-              .Returns(PageResponse<LastArtist>.CreateSuccessResponse(Array.Empty<LastArtist>()));
+              .Returns(PageResponse<LastArtist>.CreateSuccessResponse([]));
 
         var result = await source.GetStationArtists(definition);
 
@@ -69,7 +67,7 @@ public class TestTagsStationSource
     [Test]
     public async Task GetStationArtists_Returns_Intersection_For_Multiple_Tags()
     {
-        var definition = new TagsStationDefinition(new[] { "rock", "classic" });
+        var definition = new TagsStationDefinition(["rock", "classic"]);
         
         var rockArtists = new[]
         {
@@ -99,7 +97,7 @@ public class TestTagsStationSource
     [Test]
     public async Task GetStationArtists_Continues_To_Next_Page_When_Intersection_Too_Small()
     {
-        var definition = new TagsStationDefinition(new[] { "rock", "alternative" });
+        var definition = new TagsStationDefinition(["rock", "alternative"]);
 
         var page1RockArtists = new[]
         {
@@ -146,7 +144,7 @@ public class TestTagsStationSource
     [Test]
     public async Task GetStationArtists_Returns_Empty_When_No_Intersection_Found()
     {
-        var definition = new TagsStationDefinition(new[] { "rock", "jazz" });
+        var definition = new TagsStationDefinition(["rock", "jazz"]);
         
         var rockArtists = new[]
         {

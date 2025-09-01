@@ -62,7 +62,7 @@ public class TestCacheItems
         var cacheItems = new CacheItems<string>
         {
             Attempts = Constants.MaxRetryAttempts,
-            Items = new[] { "item1", "item2" }
+            Items = ["item1", "item2"]
         };
 
         Assert.That(cacheItems.HasNoData, Is.False);
@@ -74,7 +74,7 @@ public class TestCacheItems
         var cacheItems = new CacheItems<string>
         {
             Attempts = 0,
-            Items = new[] { "item1" }
+            Items = ["item1"]
         };
 
         Assert.That(cacheItems.HasNoData, Is.False);
@@ -84,7 +84,7 @@ public class TestCacheItems
     public void Task_Property_Can_Be_Set_And_Retrieved()
     {
         var cacheItems = new CacheItems<string>();
-        var task = Task.FromResult<IReadOnlyCollection<string>>(new[] { "test" });
+        var task = Task.FromResult<IReadOnlyCollection<string>>(["test"]);
 
         cacheItems.Task = task;
 
