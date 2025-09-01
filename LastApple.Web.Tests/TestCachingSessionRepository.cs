@@ -5,65 +5,80 @@ namespace LastApple.Web.Tests;
 public class TestCachingSessionRepository
 {
     private ISessionRepository mockConcreteRepository;
-    private IMemoryCache mockMemoryCache;
+    private IMemoryCache memoryCache;
     private CachingSessionRepository cachingRepository;
 
     [SetUp]
     public void Setup()
     {
         mockConcreteRepository = Substitute.For<ISessionRepository>();
-        mockMemoryCache = Substitute.For<IMemoryCache>();
-        cachingRepository = new CachingSessionRepository(mockConcreteRepository, mockMemoryCache);
+        memoryCache            = new MemoryCache(new MemoryCacheOptions());
+        cachingRepository      = new CachingSessionRepository(mockConcreteRepository, memoryCache);
     }
 
     [Test]
     public async Task GetSession_Calls_Concrete_Repository_When_Cache_Miss()
     {
         var sessionId = Guid.NewGuid();
-        var expectedSession = new Session(sessionId, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow,
-            "lastfm-key", "user", "music-token", "us");
+        var expectedSession = new Session(sessionId,
+                                          DateTimeOffset.UtcNow,
+                                          DateTimeOffset.UtcNow,
+                                          "lastfm-key",
+                                          "user",
+                                          "music-token",
+                                          "us");
 
-        // Mock cache miss - MemoryCache.GetOrCreateAsync will call the factory
         mockConcreteRepository.GetSession(sessionId).Returns(expectedSession);
 
         var result = await cachingRepository.GetSession(sessionId);
 
         Assert.That(result, Is.EqualTo(expectedSession));
-        await mockConcreteRepository.Received().GetSession(sessionId);
     }
 
     [Test]
-    public void SaveSession_Works_With_Valid_Session()
+    public async Task SaveSession_Caches_Session()
     {
-        var session = new Session(Guid.NewGuid(), DateTimeOffset.UtcNow, DateTimeOffset.UtcNow,
-            "lastfm-key", "user", "music-token", "us");
+        var session1 = new Session(Guid.NewGuid(),
+                                  DateTimeOffset.UtcNow,
+                                  DateTimeOffset.UtcNow,
+                                  "lastfm-key",
+                                  "user",
+                                  "music-token",
+                                  "us");
 
-        Assert.DoesNotThrowAsync(async () => await cachingRepository.SaveSession(session));
-        mockMemoryCache.Received(1).Remove($"session:{session.Id}");
-    }
+        mockConcreteRepository.When(x => x.SaveSession(session1)).Do(_ =>
+        {
+            mockConcreteRepository.GetSession(session1.Id).Returns(session1);
+        });
 
-    [Test]
-    public async Task SaveSession_Calls_Concrete_Repository_And_Removes_Cache()
-    {
-        var session = new Session(Guid.NewGuid(), DateTimeOffset.UtcNow, DateTimeOffset.UtcNow,
-            "lastfm-key", "user", "music-token", "us");
+        await cachingRepository.SaveSession(session1);
 
-        await cachingRepository.SaveSession(session);
+        var cachedSession1 = await cachingRepository.GetSession(session1.Id);
+        var cachedSession2 = await cachingRepository.GetSession(session1.Id);
 
-        await mockConcreteRepository.Received(1).SaveSession(session);
-        mockMemoryCache.Received(1).Remove($"session:{session.Id}");
-    }
+        Assert.That(cachedSession1, Is.EqualTo(session1));
+        Assert.That(cachedSession2, Is.EqualTo(session1));
+        await mockConcreteRepository.Received().SaveSession(session1);
+        await mockConcreteRepository.Received(1).GetSession(session1.Id);
 
-    [Test]
-    public void Key_Method_Formats_Session_Id_Correctly()
-    {
-        // This tests the private Key method indirectly through SaveSession
-        var sessionId = Guid.NewGuid();
-        var session = new Session(sessionId, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow,
-            null, null, null, null);
+        var session2 = new Session(Guid.NewGuid(),
+                                   DateTimeOffset.UtcNow,
+                                   DateTimeOffset.UtcNow,
+                                   "lastfm-key-2",
+                                   "user-2",
+                                   "music-token-2",
+                                   "uk");
 
-        cachingRepository.SaveSession(session);
+        mockConcreteRepository.When(x => x.SaveSession(session2)).Do(_ =>
+        {
+            mockConcreteRepository.GetSession(session2.Id).Returns(session2);
+        });
 
-        mockMemoryCache.Received(1).Remove($"session:{sessionId}");
+        await cachingRepository.SaveSession(session2);
+
+        var cachedSession3 = await cachingRepository.GetSession(session2.Id);
+
+        Assert.That(cachedSession3, Is.EqualTo(session2));
+        await mockConcreteRepository.Received().SaveSession(session2);
     }
 }

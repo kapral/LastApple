@@ -1,12 +1,5 @@
-using System;
-using System.Threading.Tasks;
-using LastApple;
 using LastApple.Model;
 using LastApple.PlaylistGeneration;
-using LastApple.Web.Controllers;
-using Microsoft.AspNetCore.Mvc;
-using NSubstitute;
-using NUnit.Framework;
 
 namespace LastApple.Web.Tests;
 

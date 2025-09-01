@@ -1,13 +1,6 @@
-using System;
 using System.Linq;
-using System.Threading.Tasks;
-using LastApple;
 using LastApple.Model;
 using LastApple.PlaylistGeneration;
-using LastApple.Web.Controllers;
-using Microsoft.AspNetCore.Mvc;
-using NSubstitute;
-using NUnit.Framework;
 
 namespace LastApple.Web.Tests;
 
@@ -119,10 +112,10 @@ public class TestTagsStationController
     [Test]
     public async Task TopUp_Adds_TopUp_Process_For_Valid_Station()
     {
-        var stationId = Guid.NewGuid();
-        var count = 15;
-        var definition = new TagsStationDefinition(new[] { "electronic" });
-        var station = new Station<TagsStationDefinition>(definition) { Id = stationId };
+        var stationId  = Guid.NewGuid();
+        var count      = 15;
+        var definition = new TagsStationDefinition(["electronic"]);
+        var station    = new Station<TagsStationDefinition>(definition) { Id = stationId };
         var storefront = "us";
 
         mockStationRepository.Get(stationId).Returns(station);
@@ -137,10 +130,10 @@ public class TestTagsStationController
     [Test]
     public async Task TopUp_Calls_StationGenerator_TopUp()
     {
-        var stationId = Guid.NewGuid();
-        var count = 20;
-        var definition = new TagsStationDefinition(new[] { "alternative" });
-        var station = new Station<TagsStationDefinition>(definition) { Id = stationId };
+        var stationId  = Guid.NewGuid();
+        var count      = 20;
+        var definition = new TagsStationDefinition(["alternative"]);
+        var station    = new Station<TagsStationDefinition>(definition) { Id = stationId };
         var storefront = "ca";
 
         mockStationRepository.Get(stationId).Returns(station);
@@ -174,10 +167,10 @@ public class TestTagsStationController
     [Test]
     public async Task TopUp_With_Zero_Count_Still_Processes()
     {
-        var stationId = Guid.NewGuid();
-        var count = 0;
-        var definition = new TagsStationDefinition(new[] { "ambient" });
-        var station = new Station<TagsStationDefinition>(definition) { Id = stationId };
+        var stationId  = Guid.NewGuid();
+        var count      = 0;
+        var definition = new TagsStationDefinition(["ambient"]);
+        var station    = new Station<TagsStationDefinition>(definition) { Id = stationId };
 
         mockStationRepository.Get(stationId).Returns(station);
         mockStorefrontProvider.GetStorefront().Returns("us");

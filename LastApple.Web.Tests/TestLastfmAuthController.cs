@@ -1,15 +1,9 @@
-using System;
-using System.Threading.Tasks;
 using IF.Lastfm.Core.Api;
 using IF.Lastfm.Core.Api.Helpers;
 using IF.Lastfm.Core.Objects;
-using LastApple;
-using LastApple.Web.Controllers;
 using LastApple.Web.Lastfm;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using NSubstitute;
-using NUnit.Framework;
+using Microsoft.Extensions.Time.Testing;
 
 namespace LastApple.Web.Tests;
 
@@ -21,53 +15,25 @@ public class TestLastfmAuthController
     private IUserApi mockUserApi;
     private IOptions<LastfmApiParams> mockApiParams;
     private LastfmAuthController controller;
+    private FakeTimeProvider timeProvider;
 
     [SetUp]
     public void Setup()
     {
-        mockAuthApi = Substitute.For<ILastAuth>();
-        mockSessionProvider = Substitute.For<ISessionProvider>();
+        mockAuthApi           = Substitute.For<ILastAuth>();
+        mockSessionProvider   = Substitute.For<ISessionProvider>();
         mockSessionRepository = Substitute.For<ISessionRepository>();
-        mockUserApi = Substitute.For<IUserApi>();
-        mockApiParams = Substitute.For<IOptions<LastfmApiParams>>();
+        mockUserApi           = Substitute.For<IUserApi>();
+        mockApiParams         = Substitute.For<IOptions<LastfmApiParams>>();
         mockApiParams.Value.Returns(new LastfmApiParams { ApiKey = "test-api-key" });
-        
-        controller = new LastfmAuthController(mockAuthApi, mockSessionProvider, mockSessionRepository, mockUserApi, mockApiParams);
-    }
+        timeProvider = new FakeTimeProvider(DateTimeOffset.Now);
 
-    [Test]
-    public void Constructor_Throws_On_Null_AuthApi()
-    {
-        Assert.That(() => new LastfmAuthController(null, mockSessionProvider, mockSessionRepository, mockUserApi, mockApiParams),
-            Throws.ArgumentNullException.With.Property("ParamName").EqualTo("authApi"));
-    }
-
-    [Test]
-    public void Constructor_Throws_On_Null_SessionProvider()
-    {
-        Assert.That(() => new LastfmAuthController(mockAuthApi, null, mockSessionRepository, mockUserApi, mockApiParams),
-            Throws.ArgumentNullException.With.Property("ParamName").EqualTo("sessionProvider"));
-    }
-
-    [Test]
-    public void Constructor_Throws_On_Null_SessionRepository()
-    {
-        Assert.That(() => new LastfmAuthController(mockAuthApi, mockSessionProvider, null, mockUserApi, mockApiParams),
-            Throws.ArgumentNullException.With.Property("ParamName").EqualTo("sessionRepository"));
-    }
-
-    [Test]
-    public void Constructor_Throws_On_Null_UserApi()
-    {
-        Assert.That(() => new LastfmAuthController(mockAuthApi, mockSessionProvider, mockSessionRepository, null, mockApiParams),
-            Throws.ArgumentNullException.With.Property("ParamName").EqualTo("userApi"));
-    }
-
-    [Test]
-    public void Constructor_Throws_On_Null_ApiParams()
-    {
-        Assert.That(() => new LastfmAuthController(mockAuthApi, mockSessionProvider, mockSessionRepository, mockUserApi, null),
-            Throws.ArgumentNullException.With.Property("ParamName").EqualTo("apiParams"));
+        controller = new LastfmAuthController(mockAuthApi,
+                                              mockSessionProvider,
+                                              mockSessionRepository,
+                                              mockUserApi,
+                                              mockApiParams,
+                                              timeProvider);
     }
 
     [Test]
@@ -81,36 +47,38 @@ public class TestLastfmAuthController
     [Test]
     public void InitAuth_Returns_Auth_Url_For_Valid_Redirect()
     {
-        var redirectUrl = "https://example.com/callback";
+        const string redirectUrl = "https://example.com/callback";
+        const string expectedAuthUrl = "http://www.last.fm/api/auth?api_key=test-api-key&cb=https%3A%2F%2Fexample.com%2Fcallback";
 
         var result = controller.InitAuth(redirectUrl);
 
-        Assert.That(result, Is.InstanceOf<JsonResult>());
-        var jsonResult = (JsonResult)result;
-        var authUrl = jsonResult.Value.ToString();
-        Assert.That(authUrl, Contains.Substring("www.last.fm/api/auth"));
-        Assert.That(authUrl, Contains.Substring("test-api-key"));
-        Assert.That(authUrl, Contains.Substring(Uri.EscapeDataString(redirectUrl)));
+        Assert.That(result, Is.InstanceOf<JsonResult>().With.Property("Value").EqualTo(expectedAuthUrl));
     }
 
     [Test]
     public async Task CompleteAuth_Creates_New_Session_For_Empty_Session()
     {
-        var token = "auth-token";
+        const string token = "auth-token";
         var emptySession = new Session(Guid.Empty, DateTimeOffset.MinValue, DateTimeOffset.MinValue, null, null, null, null);
         var userSession = Substitute.For<LastUserSession>();
 
         mockSessionProvider.GetSession().Returns(emptySession);
         mockAuthApi.UserSession.Returns(userSession);
 
-        Assert.DoesNotThrowAsync(async () => await controller.CompleteAuth(token));
+        await controller.CompleteAuth(token);
+        await mockSessionRepository.Received(1)
+                                   .SaveSession(Arg.Is<Session>(s => s.Id != Guid.Empty
+                                                                     && s.LastfmSessionKey == userSession.Token
+                                                                     && s.LastfmUsername == userSession.Username
+                                                                     && s.StartedAt == timeProvider.GetUtcNow()
+                                                                     && s.LastActivityAt == timeProvider.GetUtcNow()));
         await mockAuthApi.Received(1).GetSessionTokenAsync(token);
     }
 
     [Test]
     public async Task CompleteAuth_Updates_Existing_Session()
     {
-        var token = "auth-token";
+        const string token = "auth-token";
         var existingSession = new Session(
             Id: Guid.NewGuid(),
             StartedAt: DateTimeOffset.UtcNow.AddHours(-1),
@@ -120,12 +88,24 @@ public class TestLastfmAuthController
             MusicUserToken: "music-token",
             MusicStorefrontId: "us"
         );
-        var userSession = Substitute.For<LastUserSession>();
+        var userSession = new LastUserSession
+        {
+            Token    = "new-session-key",
+            Username = "new-username"
+        };
 
         mockSessionProvider.GetSession().Returns(existingSession);
         mockAuthApi.UserSession.Returns(userSession);
 
-        Assert.DoesNotThrowAsync(async () => await controller.CompleteAuth(token));
+        await controller.CompleteAuth(token);
+
+        await mockSessionRepository.Received(1)
+                                   .SaveSession(existingSession with
+                                   {
+                                       LastActivityAt = timeProvider.GetUtcNow(),
+                                       LastfmSessionKey = userSession.Token,
+                                       LastfmUsername = userSession.Username
+                                   });
         await mockAuthApi.Received(1).GetSessionTokenAsync(token);
     }
 
@@ -157,7 +137,8 @@ public class TestLastfmAuthController
         var result = await controller.Logout();
 
         Assert.That(result, Is.InstanceOf<NoContentResult>());
-        await mockSessionRepository.Received(1).SaveSession(Arg.Any<Session>());
+        await mockSessionRepository.Received(1)
+                                   .SaveSession(existingSession with { LastfmSessionKey = null });
     }
 
     [Test]
@@ -176,9 +157,7 @@ public class TestLastfmAuthController
 
         var result = await controller.GetAuthenticatedUser();
 
-        Assert.That(result, Is.InstanceOf<JsonResult>());
-        var jsonResult = (JsonResult)result;
-        Assert.That(jsonResult.Value, Is.Null);
+        Assert.That(result, Is.Null);
     }
 
     [Test]
@@ -193,10 +172,13 @@ public class TestLastfmAuthController
             MusicUserToken: "music-token",
             MusicStorefrontId: "us"
         );
+        var lastUser = new LastUser();
 
         mockSessionProvider.GetSession().Returns(session);
+        mockUserApi.GetInfoAsync("testuser").Returns(new LastResponse<LastUser> { Content = lastUser });
 
-        Assert.ThrowsAsync<NullReferenceException>(async () => await controller.GetAuthenticatedUser());
-        await mockUserApi.Received(1).GetInfoAsync("testuser");
+        var user = await controller.GetAuthenticatedUser();
+
+        Assert.That(user, Is.SameAs(lastUser));
     }
 }

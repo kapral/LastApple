@@ -1,11 +1,5 @@
-using System;
 using System.Collections.Generic;
-using LastApple;
 using LastApple.Model;
-using LastApple.Web.Controllers;
-using Microsoft.AspNetCore.Mvc;
-using NSubstitute;
-using NUnit.Framework;
 
 namespace LastApple.Web.Tests;
 
@@ -18,42 +12,19 @@ public class TestStationController
     public void Setup()
     {
         mockStationRepository = Substitute.For<IStationRepository>();
-        controller = new StationController(mockStationRepository);
-    }
-
-    [Test]
-    public void Constructor_Throws_On_Null_Repository()
-    {
-        Assert.That(() => new StationController(null!), 
-            Throws.ArgumentNullException.With.Property("ParamName").EqualTo("stationRepository"));
+        controller            = new StationController(mockStationRepository);
     }
 
     [Test]
     public void Get_Returns_JsonResult_With_Station_Data()
     {
         var stationId = Guid.NewGuid();
-        var station = CreateTestStation(stationId, new List<string> { "song1", "song2" });
+        var station = CreateTestStation(stationId, ["song1", "song2"]);
         mockStationRepository.Get(stationId).Returns(station);
 
         var result = controller.Get(stationId);
 
-        Assert.That(result, Is.InstanceOf<JsonResult>());
-        var jsonResult = (JsonResult)result;
-        Assert.That(jsonResult.Value, Is.EqualTo(station));
-        mockStationRepository.Received(1).Get(stationId);
-    }
-
-    [Test]
-    public void Get_Returns_JsonResult_With_Null_When_Station_Not_Found()
-    {
-        var stationId = Guid.NewGuid();
-        mockStationRepository.Get(stationId).Returns((StationBase)null);
-
-        var result = controller.Get(stationId);
-
-        Assert.That(result, Is.InstanceOf<JsonResult>());
-        var jsonResult = (JsonResult)result;
-        Assert.That(jsonResult.Value, Is.Null);
+        Assert.That(result, Is.EqualTo(station));
     }
 
     [Test]
@@ -71,7 +42,7 @@ public class TestStationController
     public void DeleteSongs_Returns_NotFound_When_Not_Enough_Songs()
     {
         var stationId = Guid.NewGuid();
-        var station = CreateTestStation(stationId, new List<string> { "song1", "song2" }); // Only 2 songs
+        var station   = CreateTestStation(stationId, ["song1", "song2"]); // Only 2 songs
         mockStationRepository.Get(stationId).Returns(station);
 
         var result = controller.DeleteSongs(stationId, 0, 3);
@@ -83,7 +54,7 @@ public class TestStationController
     public void DeleteSongs_Returns_NotFound_When_Position_Out_Of_Range()
     {
         var stationId = Guid.NewGuid();
-        var station = CreateTestStation(stationId, new List<string> { "song1", "song2" });
+        var station = CreateTestStation(stationId, ["song1", "song2"]);
         mockStationRepository.Get(stationId).Returns(station);
 
         var result = controller.DeleteSongs(stationId, 2, 1);

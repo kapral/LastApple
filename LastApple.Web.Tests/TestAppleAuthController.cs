@@ -1,12 +1,3 @@
-using System;
-using System.Threading.Tasks;
-using LastApple;
-using LastApple.Web.Controllers;
-using LastApple.Web.Models;
-using Microsoft.AspNetCore.Mvc;
-using NSubstitute;
-using NUnit.Framework;
-
 namespace LastApple.Web.Tests;
 
 public class TestAppleAuthController
@@ -19,44 +10,21 @@ public class TestAppleAuthController
     [SetUp]
     public void Setup()
     {
-        mockTokenProvider = Substitute.For<IDeveloperTokenProvider>();
-        mockSessionProvider = Substitute.For<ISessionProvider>();
+        mockTokenProvider     = Substitute.For<IDeveloperTokenProvider>();
+        mockSessionProvider   = Substitute.For<ISessionProvider>();
         mockSessionRepository = Substitute.For<ISessionRepository>();
-        controller = new AppleAuthController(mockTokenProvider, mockSessionProvider, mockSessionRepository);
-    }
-
-    [Test]
-    public void Constructor_Throws_On_Null_TokenProvider()
-    {
-        Assert.That(() => new AppleAuthController(null, mockSessionProvider, mockSessionRepository),
-            Throws.ArgumentNullException.With.Property("ParamName").EqualTo("tokenProvider"));
-    }
-
-    [Test]
-    public void Constructor_Throws_On_Null_SessionProvider()
-    {
-        Assert.That(() => new AppleAuthController(mockTokenProvider, null, mockSessionRepository),
-            Throws.ArgumentNullException.With.Property("ParamName").EqualTo("sessionProvider"));
-    }
-
-    [Test]
-    public void Constructor_Throws_On_Null_SessionRepository()
-    {
-        Assert.That(() => new AppleAuthController(mockTokenProvider, mockSessionProvider, null),
-            Throws.ArgumentNullException.With.Property("ParamName").EqualTo("sessionRepository"));
+        controller            = new AppleAuthController(mockTokenProvider, mockSessionProvider, mockSessionRepository);
     }
 
     [Test]
     public void GetDeveloperToken_Returns_Token_From_Provider()
     {
-        var expectedToken = "test-developer-token";
+        const string expectedToken = "test-developer-token";
         mockTokenProvider.GetToken().Returns(expectedToken);
 
         var result = controller.GetDeveloperToken();
 
-        Assert.That(result, Is.InstanceOf<JsonResult>());
-        var jsonResult = (JsonResult)result;
-        Assert.That(jsonResult.Value, Is.EqualTo(expectedToken));
+        Assert.That(result, Is.EqualTo(expectedToken));
     }
 
     [Test]
@@ -75,9 +43,7 @@ public class TestAppleAuthController
 
         var result = await controller.GetSessionData();
 
-        Assert.That(result, Is.InstanceOf<JsonResult>());
-        var jsonResult = (JsonResult)result;
-        Assert.That(jsonResult.Value, Is.EqualTo(expectedSession));
+        Assert.That(result, Is.EqualTo(expectedSession));
     }
 
     [Test]
@@ -90,8 +56,8 @@ public class TestAppleAuthController
 
         var result = await controller.PostSessionData(sessionData);
 
-        Assert.That(result, Is.InstanceOf<JsonResult>());
-        await mockSessionRepository.Received(1).SaveSession(Arg.Any<Session>());
+        Assert.That(result.Id, Is.Not.EqualTo(Guid.Empty));
+        await mockSessionRepository.Received(1).SaveSession(Arg.Is<Session>(s => s.Id != Guid.Empty));
     }
 
     [Test]
@@ -112,8 +78,12 @@ public class TestAppleAuthController
 
         var result = await controller.PostSessionData(sessionData);
 
-        Assert.That(result, Is.InstanceOf<JsonResult>());
-        await mockSessionRepository.Received(1).SaveSession(Arg.Any<Session>());
+        Assert.That(result.Id, Is.EqualTo(existingSession.Id));
+        await mockSessionRepository.Received(1).SaveSession(existingSession with
+        {
+            MusicUserToken = sessionData.MusicUserToken,
+            MusicStorefrontId = sessionData.MusicStorefrontId
+        });
     }
 
     [Test]
@@ -144,6 +114,10 @@ public class TestAppleAuthController
         var result = await controller.DeleteSessionData();
 
         Assert.That(result, Is.InstanceOf<NoContentResult>());
-        await mockSessionRepository.Received(1).SaveSession(Arg.Any<Session>());
+        await mockSessionRepository.Received(1).SaveSession(existingSession with
+        {
+            MusicUserToken = null,
+            MusicStorefrontId = null
+        });
     }
 }

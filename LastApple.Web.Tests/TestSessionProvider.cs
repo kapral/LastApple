@@ -1,11 +1,4 @@
-using System;
-using System.Threading.Tasks;
-using LastApple;
-using LastApple.Web;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Primitives;
-using NSubstitute;
-using NUnit.Framework;
 
 namespace LastApple.Web.Tests;
 
@@ -19,10 +12,10 @@ public class TestSessionProvider
     [SetUp]
     public void Setup()
     {
-        mockSessionRepository = Substitute.For<ISessionRepository>();
+        mockSessionRepository   = Substitute.For<ISessionRepository>();
         mockHttpContextAccessor = Substitute.For<IHttpContextAccessor>();
-        mockHttpContext = Substitute.For<HttpContext>();
-        
+        mockHttpContext         = Substitute.For<HttpContext>();
+
         mockHttpContextAccessor.HttpContext.Returns(mockHttpContext);
         sessionProvider = new SessionProvider(mockSessionRepository, mockHttpContextAccessor);
     }
@@ -58,14 +51,14 @@ public class TestSessionProvider
     public async Task GetSession_Returns_Session_When_Valid_SessionId()
     {
         var sessionId = Guid.NewGuid();
-        var session = new Session(sessionId, DateTimeOffset.UtcNow.AddHours(-1), 
+        var session = new Session(sessionId, DateTimeOffset.UtcNow.AddHours(-1),
             DateTimeOffset.UtcNow.AddMinutes(-10), "lastfm-key", "user", "music-token", "us");
-        
+
         var headers = new HeaderDictionary { ["X-SessionId"] = sessionId.ToString() };
         var request = Substitute.For<HttpRequest>();
         request.Headers.Returns(headers);
         mockHttpContext.Request.Returns(request);
-        
+
         mockSessionRepository.GetSession(sessionId).Returns(session);
 
         var result = await sessionProvider.GetSession();
@@ -79,20 +72,20 @@ public class TestSessionProvider
     {
         var sessionId = Guid.NewGuid();
         var oldActivityTime = DateTimeOffset.UtcNow.AddMinutes(-35); // More than 30 minutes ago
-        var session = new Session(sessionId, DateTimeOffset.UtcNow.AddHours(-2), 
+        var session = new Session(sessionId, DateTimeOffset.UtcNow.AddHours(-2),
             oldActivityTime, "lastfm-key", "user", "music-token", "us");
-        
+
         var headers = new HeaderDictionary { ["X-SessionId"] = sessionId.ToString() };
         var request = Substitute.For<HttpRequest>();
         request.Headers.Returns(headers);
         mockHttpContext.Request.Returns(request);
-        
+
         mockSessionRepository.GetSession(sessionId).Returns(session);
 
         var result = await sessionProvider.GetSession();
 
         Assert.That(result.LastActivityAt, Is.GreaterThan(oldActivityTime));
-        await mockSessionRepository.Received(1).SaveSession(Arg.Is<Session>(s => 
+        await mockSessionRepository.Received(1).SaveSession(Arg.Is<Session>(s =>
             s.Id == sessionId && s.LastActivityAt > oldActivityTime));
     }
 
@@ -101,14 +94,14 @@ public class TestSessionProvider
     {
         var sessionId = Guid.NewGuid();
         var recentActivityTime = DateTimeOffset.UtcNow.AddMinutes(-10); // Within 30 minute threshold
-        var session = new Session(sessionId, DateTimeOffset.UtcNow.AddHours(-1), 
+        var session = new Session(sessionId, DateTimeOffset.UtcNow.AddHours(-1),
             recentActivityTime, "lastfm-key", "user", "music-token", "us");
-        
+
         var headers = new HeaderDictionary { ["X-SessionId"] = sessionId.ToString() };
         var request = Substitute.For<HttpRequest>();
         request.Headers.Returns(headers);
         mockHttpContext.Request.Returns(request);
-        
+
         mockSessionRepository.GetSession(sessionId).Returns(session);
 
         var result = await sessionProvider.GetSession();
@@ -122,7 +115,7 @@ public class TestSessionProvider
     {
         mockHttpContextAccessor.HttpContext.Returns((HttpContext)null);
 
-        Assert.That(async () => await sessionProvider.GetSession(), 
+        Assert.That(() => sessionProvider.GetSession(),
             Throws.InvalidOperationException.With.Message.EqualTo("HttpContext is not available"));
     }
 }
