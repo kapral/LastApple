@@ -22,7 +22,9 @@ public class LastfmLibraryStationController(IStationRepository stationRepository
         var session = await sessionProvider.GetSession();
 
         if (session.Id == Guid.Empty)
+        {
             return Unauthorized();
+        }
 
         var user = await userApi.GetInfoAsync(session.LastfmUsername);
 
@@ -46,7 +48,9 @@ public class LastfmLibraryStationController(IStationRepository stationRepository
     public async Task<ActionResult> TopUp(Guid stationId, int count)
     {
         if (stationRepository.Get(stationId) is not Station<LastfmLibraryStationDefinition> station)
+        {
             return NotFound();
+        }
 
         var storefront = await storefrontProvider.GetStorefront();
 

@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using LastApple.Model;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LastApple.Web.Controllers;
@@ -7,13 +7,8 @@ namespace LastApple.Web.Controllers;
 [Route("api/station")]
 public class StationController(IStationRepository stationRepository) : Controller
 {
-    private readonly IStationRepository stationRepository = stationRepository ?? throw new ArgumentNullException(nameof(stationRepository));
-
     [Route("{stationId}")]
-    public ActionResult Get(Guid stationId)
-    {
-        return Json(stationRepository.Get(stationId));
-    }
+    public StationBase? Get(Guid stationId) => stationRepository.Get(stationId);
 
     [HttpDelete]
     [Route("{stationId}/songs")]
@@ -22,10 +17,14 @@ public class StationController(IStationRepository stationRepository) : Controlle
         var station = stationRepository.Get(stationId);
 
         if (station == null || station.SongIds.Count < position + count)
+        {
             return NotFound();
+        }
 
         for (var i = 0; i < count; i++)
+        {
             station.SongIds.RemoveAt(position);
+        }
 
         return NoContent();
     }

@@ -8,7 +8,6 @@ using LastApple.Model;
 using LastApple.PlaylistGeneration;
 using NSubstitute;
 using NUnit.Framework;
-#pragma warning disable CS0612
 
 namespace LastApple.Tests.StationGeneration;
 
@@ -27,15 +26,9 @@ public class TestTrackRepository
     }
 
     [Test]
-    public void Constructor_Throws_On_Null_Arguments()
-    {
-        Assert.That(() => new TrackRepository(null), Throws.ArgumentNullException);
-    }
-
-    [Test]
     public void GetArtistTracks_Throws_On_Null_Arguments()
     {
-        Assert.That(() => repository.GetArtistTracks(null), Throws.ArgumentNullException);
+        Assert.That(() => repository.GetArtistTracks(null!), Throws.ArgumentNullException);
     }
 
     [Test]
@@ -45,7 +38,7 @@ public class TestTrackRepository
         var tracks     = new[] { new Track(Name: "Gop", ArtistName: artist.Name) };
         var lastTracks = new[] { new LastTrack { Name = "Gop", ArtistName = artist.Name } };
 
-        artistApi.GetTopTracksAsync(artist.Name).Returns(PageResponse<LastTrack>.CreateSuccessResponse(lastTracks));
+        artistApi.GetTopTracksAsync(artist.Name).Returns(CreateSuccessResponse(lastTracks));
 
         var result1 = await repository.GetArtistTracks(artist);
         var result2 = await repository.GetArtistTracks(artist);
@@ -98,7 +91,7 @@ public class TestTrackRepository
         var lastTracks = new[] { new LastTrack { Name = "Imperivm", ArtistName = artist.Name } };
 
         await SetupGetArtistTracksFailures(artist, 1);
-        artistApi.GetTopTracksAsync(artist.Name).Returns(PageResponse<LastTrack>.CreateSuccessResponse(lastTracks));
+        artistApi.GetTopTracksAsync(artist.Name).Returns(CreateSuccessResponse(lastTracks));
 
         var result = await repository.GetArtistTracks(artist);
 
@@ -116,7 +109,7 @@ public class TestTrackRepository
 
         await SetupGetArtistTracksUnsuccessfulResults(artist, 1);
         artistApi.GetTopTracksAsync(artist.Name)
-                 .Returns(PageResponse<LastTrack>.CreateSuccessResponse(lastTracks));
+                 .Returns(CreateSuccessResponse(lastTracks));
 
         var result = await repository.GetArtistTracks(artist);
 
@@ -224,5 +217,14 @@ public class TestTrackRepository
 
             Assert.That(await repository.GetArtistTracks(artist), Is.Empty);
         }
+    }
+
+    private static PageResponse<LastTrack> CreateSuccessResponse(LastTrack[] tracks)
+    {
+        // Inflatable.Lastfm marked this method as obsolete, but we need to be able to create a response with Success = true in tests.
+        // as Success flag is used in order to cache empty results and avoid retrying failed requests forever.
+#pragma warning disable CS0612 // Type or member is obsolete
+        return PageResponse<LastTrack>.CreateSuccessResponse(tracks);
+#pragma warning restore CS0612 // Type or member is obsolete
     }
 }

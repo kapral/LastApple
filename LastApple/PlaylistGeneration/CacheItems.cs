@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 
 namespace LastApple.PlaylistGeneration;
 
+// todo: this is looking extremely suspicious, needs refactoring
 public class CacheItems<TItem>
 {
     public int Attempts { get; set; }
@@ -12,5 +13,5 @@ public class CacheItems<TItem>
 
     public Task<IReadOnlyCollection<TItem>>? Task { get; set; }
 
-    public bool HasNoData => Attempts >= Constants.MaxRetryAttempts && Items == null || Items?.Any() == false;
+    public bool HasNoData => Attempts >= Constants.MaxRetryAttempts && (Items == null || !Items.Any());
 }

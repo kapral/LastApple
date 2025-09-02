@@ -1,5 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+# 
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LastApple.Web", "LastApple.Web\LastApple.Web.csproj", "{5DAA0ACE-4A29-46D1-902B-D478643CBBB4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppleMusicApi", "AppleMusicApi\AppleMusicApi.csproj", "{DCA3E40D-AB3F-4720-A555-71D8B671E20C}"
@@ -21,6 +22,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{250D4F
 	ProjectSection(SolutionItems) = preProject
 		nuget.config = nuget.config
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppleMusicApi.Tests", "AppleMusicApi.Tests\AppleMusicApi.Tests.csproj", "{A4F9780A-427A-494A-893B-C36C48C97FDB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LastApple.Persistence.Tests", "LastApple.Persistence.Tests\LastApple.Persistence.Tests.csproj", "{6F967642-CD98-4FDF-A2FA-74B0B6A8CED4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LastApple.Web.Tests", "LastApple.Web.Tests\LastApple.Web.Tests.csproj", "{BBEEF191-B2CB-42E7-B73F-55AA5664B63C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -48,5 +55,17 @@ Global
 		{FFE6EC28-B3B1-4AC4-91EA-F2BE1C771142}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FFE6EC28-B3B1-4AC4-91EA-F2BE1C771142}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FFE6EC28-B3B1-4AC4-91EA-F2BE1C771142}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A4F9780A-427A-494A-893B-C36C48C97FDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4F9780A-427A-494A-893B-C36C48C97FDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A4F9780A-427A-494A-893B-C36C48C97FDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A4F9780A-427A-494A-893B-C36C48C97FDB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6F967642-CD98-4FDF-A2FA-74B0B6A8CED4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F967642-CD98-4FDF-A2FA-74B0B6A8CED4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F967642-CD98-4FDF-A2FA-74B0B6A8CED4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F967642-CD98-4FDF-A2FA-74B0B6A8CED4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BBEEF191-B2CB-42E7-B73F-55AA5664B63C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BBEEF191-B2CB-42E7-B73F-55AA5664B63C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BBEEF191-B2CB-42E7-B73F-55AA5664B63C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BBEEF191-B2CB-42E7-B73F-55AA5664B63C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using IF.Lastfm.Core.Api;
 using IF.Lastfm.Core.Api.Helpers;
@@ -24,12 +25,6 @@ public class TestSimilarArtistsStationSource
     }
 
     [Test]
-    public void Constructor_Throws_On_Null_Arguments()
-    {
-        Assert.That(() => new SimilarArtistsStationSource(null), Throws.ArgumentNullException);
-    }
-
-    [Test]
     public void GetStationArtists_Throws_On_Null_Parameters()
     {
         Assert.That(() => source.GetStationArtists(null), Throws.ArgumentNullException);
@@ -41,12 +36,16 @@ public class TestSimilarArtistsStationSource
         var definition = new SimilarArtistsStationDefinition("Death In June");
         var similar    = new[] { new LastArtist { Name = "Rome" }, new LastArtist { Name = "Sol Invictus" } };
 
-#pragma warning disable CS0612
-        artistApi.GetSimilarAsync(definition.SourceArtist).Returns(PageResponse<LastArtist>.CreateSuccessResponse(similar));
-#pragma warning restore CS0612
+        artistApi.GetSimilarAsync(definition.SourceArtist).Returns(new PageResponse<LastArtist>(similar));
 
         var result = await source.GetStationArtists(definition);
 
-        Assert.That(result, Is.EqualTo(new[] { new Artist(Name: definition.SourceArtist), new Artist(Name: similar[0].Name), new Artist(Name: similar[1].Name) }));
+        var expectedArtists = new[]
+        {
+            new Artist(Name: definition.SourceArtist),
+            new Artist(Name: similar[0].Name),
+            new Artist(Name: similar[1].Name)
+        };
+        Assert.That(result, Is.EqualTo(expectedArtists));
     }
 }

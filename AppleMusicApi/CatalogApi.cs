@@ -10,19 +10,13 @@ using Microsoft.AspNetCore.WebUtilities;
 
 namespace AppleMusicApi;
 
-public class CatalogApi : ICatalogApi
+public class CatalogApi(ApiAuthentication authentication, IHttpClientFactory httpClientFactory) : ICatalogApi
 {
-    private readonly HttpClient httpClient;
-
-    public CatalogApi(ApiAuthentication authentication)
+    private static readonly JsonSerializerOptions JsonSerializerOptions = new()
     {
-        if (authentication == null) throw new ArgumentNullException(nameof(authentication));
-
-        httpClient = new HttpClient { BaseAddress = new Uri("https://api.music.apple.com/v1/") };
-
-        httpClient.DefaultRequestHeaders.Authorization =
-            new AuthenticationHeaderValue("Bearer", authentication.DeveloperToken);
-    }
+        PropertyNameCaseInsensitive = true,
+        Converters                  = { new JsonStringEnumMemberConverter() }
+    };
 
     public async Task<SearchResult> Search(SearchParams searchParams, string storefront)
     {
@@ -34,10 +28,14 @@ public class CatalogApi : ICatalogApi
             { "types", SerializeTypes(searchParams.Types) }
         };
 
-        var httpResponse = await httpClient.GetAsync(QueryHelpers.AddQueryString($"catalog/{storefront}/search", parameters));
+        var httpClient   = CreateHttpClient();
+        var uri          = QueryHelpers.AddQueryString($"catalog/{storefront}/search", parameters);
+        var httpResponse = await httpClient.GetAsync(uri);
 
-        if(!httpResponse.IsSuccessStatusCode)
-            throw new Exception("todo");
+        if (!httpResponse.IsSuccessStatusCode)
+        {
+            throw new ApiException(HttpMethod.Get, uri, httpResponse.StatusCode);
+        }
 
         var apiResponse = await ReadAs<SearchResponse>(httpResponse.Content);
 
@@ -46,26 +44,45 @@ public class CatalogApi : ICatalogApi
 
     public async Task<Resource<ArtistAttributes>?> GetArtist(string id, string storefront)
     {
-        var httpResponse = await httpClient.GetAsync($"catalog/{storefront}/artists/{id}");
+        var httpClient   = CreateHttpClient();
+        var uri          = $"catalog/{storefront}/artists/{id}";
+        var httpResponse = await httpClient.GetAsync(uri);
 
-        if(!httpResponse.IsSuccessStatusCode)
-            throw new Exception("todo");
+        if (!httpResponse.IsSuccessStatusCode)
+        {
+            throw new ApiException(HttpMethod.Get, uri, httpResponse.StatusCode);
+        }
 
         var apiResponse = await ReadAs<ResourceMatches<ArtistAttributes>>(httpResponse.Content);
 
         return apiResponse.Data.FirstOrDefault();
     }
 
-    public async Task<IEnumerable<Resource<AlbumAttributes>>> GetAlbums(IEnumerable<string> ids, string storefront)
+    public async Task<IReadOnlyCollection<Resource<AlbumAttributes>>> GetAlbums(
+        IReadOnlyCollection<string> ids, string storefront)
     {
-        var httpResponse = await httpClient.GetAsync($"catalog/{storefront}/albums?ids={string.Join(',', ids)}");
+        var httpClient   = CreateHttpClient();
+        var uri          = $"catalog/{storefront}/albums?ids={string.Join(',', ids)}";
+        var httpResponse = await httpClient.GetAsync(uri);
 
-        if(!httpResponse.IsSuccessStatusCode)
-            throw new Exception("todo");
+        if (!httpResponse.IsSuccessStatusCode)
+        {
+            throw new ApiException(HttpMethod.Get, uri, httpResponse.StatusCode);
+        }
 
         var apiResponse = await ReadAs<ResourceMatches<AlbumAttributes>>(httpResponse.Content);
 
-        return apiResponse.Data;
+        return apiResponse.Data.ToArray();
+    }
+
+    private HttpClient CreateHttpClient()
+    {
+        var httpClient = httpClientFactory.CreateClient();
+        httpClient.BaseAddress = new Uri("https://api.music.apple.com/v1/");
+
+        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authentication.DeveloperToken);
+
+        return httpClient;
     }
 
     private static string SerializeTypes(ResourceType types)
@@ -80,11 +97,7 @@ public class CatalogApi : ICatalogApi
 
     private static async Task<T> ReadAs<T>(HttpContent content)
     {
-        var options = new JsonSerializerOptions {
-            PropertyNameCaseInsensitive = true,
-            Converters                  = { new JsonStringEnumMemberConverter() }
-        };
-        var result   = await JsonSerializer.DeserializeAsync<T>(await content.ReadAsStreamAsync(), options);
+        var result = await JsonSerializer.DeserializeAsync<T>(await content.ReadAsStreamAsync(), JsonSerializerOptions);
 
         return result ?? throw new InvalidOperationException("Response content is null.");
     }

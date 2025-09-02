@@ -26,19 +26,6 @@ public class TestStationTrackGenerator
     }
 
     [Test]
-    public void Constructor_Throws_On_Null_Arguments()
-    {
-        Assert.That(() => new StationTrackGenerator(null, trackRepository, stationSource),
-                    Throws.ArgumentNullException);
-
-        Assert.That(() => new StationTrackGenerator(randomizer, null, stationSource),
-                    Throws.ArgumentNullException);
-
-        Assert.That(() => new StationTrackGenerator(randomizer, trackRepository, null),
-                    Throws.ArgumentNullException);
-    }
-
-    [Test]
     public void GetNext_Throws_On_Null_Parameters()
     {
         Assert.That(() => generator.GetNext(null), Throws.ArgumentNullException);
@@ -78,5 +65,37 @@ public class TestStationTrackGenerator
 
         Assert.That(track1, Is.EqualTo(darkwoodTracks[0]));
         Assert.That(track2, Is.EqualTo(deathInJuneTracks[1]));
+    }
+
+    [Test]
+    public async Task GetNext_No_Artists_Returns_Null()
+    {
+        var station = new SimilarArtistsStationDefinition("Death In June");
+
+        stationSource.GetStationArtists(station).Returns([]);
+
+        var track = await generator.GetNext(station);
+
+        Assert.That(track, Is.Null);
+    }
+
+    [Test]
+    public async Task GetNext_No_Tracks_Returns_Null()
+    {
+        var station = new SimilarArtistsStationDefinition("Death In June");
+        var artists = new[]
+        {
+            new Artist(Name: "Death In June"),
+            new Artist(Name: "Rome"),
+            new Artist(Name: "Darkwood")
+        };
+
+        stationSource.GetStationArtists(station).Returns(artists);
+        trackRepository.GetArtistTracks(artists[0]).Returns([]);
+        randomizer.NextDecreasing(artists.Length).Returns(0);
+
+        var track = await generator.GetNext(station);
+
+        Assert.That(track, Is.Null);
     }
 }

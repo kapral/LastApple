@@ -16,7 +16,7 @@ public class TestTrackIdProvider
     [SetUp]
     public void Init()
     {
-        catalogApi         = Substitute.For<ICatalogApi>();
+        catalogApi = Substitute.For<ICatalogApi>();
 
         trackIdProvider = new TrackIdProvider(catalogApi);
     }

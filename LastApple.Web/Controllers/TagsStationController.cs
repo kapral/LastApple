@@ -14,10 +14,9 @@ public class TagsStationController(IStationRepository stationRepository,
 {
     [HttpPost]
     [Route("{tag}")]
-    public async Task<IActionResult> Create(string tag)
+    public async Task<Station<TagsStationDefinition>> Create(string tag)
     {
-        if (string.IsNullOrWhiteSpace(tag))
-            throw new ArgumentException("Value cannot be null or whitespace.", nameof(tag));
+        ArgumentException.ThrowIfNullOrWhiteSpace(tag);
 
         var definition = new TagsStationDefinition([tag]);
         var station = new Station<TagsStationDefinition>(definition)
@@ -31,7 +30,7 @@ public class TagsStationController(IStationRepository stationRepository,
         var storefront = await storefrontProvider.GetStorefront();
         backgroundProcessManager.AddProcess(() => stationGenerator.Generate(station, storefront));
 
-        return Json(station);
+        return station;
     }
 
     [HttpPost]
@@ -39,7 +38,9 @@ public class TagsStationController(IStationRepository stationRepository,
     public async Task<ActionResult> TopUp(Guid stationId, int count)
     {
         if (stationRepository.Get(stationId) is not Station<TagsStationDefinition> station)
+        {
             return NotFound();
+        }
 
         var storefront = await storefrontProvider.GetStorefront();
         backgroundProcessManager.AddProcess(() => stationGenerator.TopUp(station, storefront, count));
