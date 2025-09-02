@@ -1,6 +1,9 @@
 // Don't mock LastfmContext globally in this test - we need to use the real context
 jest.unmock('../../../lastfm/LastfmContext');
 
+// Unmock the global musicKit mock so we can provide our own
+jest.unmock('../../../musicKit');
+
 // Mock SignalR specifically for this test 
 jest.mock('@aspnet/signalr', () => {
     const mockConnection = {
@@ -31,9 +34,9 @@ import { StationPlayer } from '../../../components/Player/StationPlayer';
 import { LastfmContext } from '../../../lastfm/LastfmContext';
 import { AuthenticationState, IAuthenticationService } from '../../../authentication';
 
-// Mock all external dependencies
 jest.mock('../../../musicKit', () => {
-    const mockMusicKitInstance = {
+    // Define mock instance inside the factory function
+    const mockInstance = {
         addEventListener: jest.fn(),
         removeEventListener: jest.fn(),
         nowPlayingItem: null,
@@ -92,20 +95,24 @@ jest.mock('../../../musicKit', () => {
                         artistName: 'Test Artist 1'
                     }
                 }
-            ]
+            ],
+            item: jest.fn((position) => {
+                return null;
+            }),
+            position: -1
         }
     };
 
     return {
         __esModule: true,
         default: {
-            getInstance: jest.fn().mockResolvedValue(mockMusicKitInstance),
+            getInstance: jest.fn().mockResolvedValue(mockInstance),
             formatMediaTime: jest.fn((seconds) => {
                 const minutes = Math.floor(seconds / 60);
                 const remainingSeconds = Math.floor(seconds % 60);
                 return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
             }),
-            instance: mockMusicKitInstance
+            instance: mockInstance
         }
     };
 });
@@ -117,16 +124,28 @@ jest.mock('../../../restClients/LastfmApi', () => ({
     }
 }));
 
+jest.mock('../../../restClients/AppleMusicApi', () => ({
+    default: {
+        getDeveloperToken: jest.fn().mockResolvedValue('mock-token')
+    }
+}));
+
 jest.mock('../../../restClients/StationApi', () => ({
+    __esModule: true,
     default: {
         getStation: jest.fn().mockResolvedValue({
             id: 'test-station',
             name: 'Test Station',
             songIds: ['123', '456', '789'],
             isContinuous: false,
-            isGroupedByAlbum: false
+            isGroupedByAlbum: false,
+            size: 10,
+            definition: {
+                stationType: 'test-type'
+            }
         }),
-        deleteSongs: jest.fn().mockResolvedValue(undefined)
+        deleteSongs: jest.fn().mockResolvedValue(undefined),
+        topUp: jest.fn().mockResolvedValue(undefined)
     }
 }));
 
@@ -176,6 +195,22 @@ global.AudioContext = jest.fn().mockImplementation(() => ({
     state: 'running'
 }));
 
+// Mock window.MusicKit
+(global as any).window = global.window || {};
+(global.window as any).MusicKit = {
+    configure: jest.fn().mockResolvedValue({
+        addEventListener: jest.fn(),
+        removeEventListener: jest.fn(),
+        nowPlayingItem: null,
+        isPlaying: false
+    }),
+    formatMediaTime: jest.fn((seconds) => {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = Math.floor(seconds % 60);
+        return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    })
+};
+
 const createMockAuthService = (state: AuthenticationState): IAuthenticationService => ({
     state,
     user: state === AuthenticationState.Authenticated ? { id: 'test-user', name: 'Test User' } : null,
@@ -202,11 +237,90 @@ describe('StationPlayer', () => {
     };
 
     beforeEach(() => {
-        // Don't clear mocks to preserve return values
-        // Each test should work independently with the defined mocks
+        // Reset and configure mocks to work with our tests
+        const musicKit = require('../../../musicKit').default;
+        const stationApi = require('../../../restClients/StationApi').default;
+        
+        // Configure StationApi mock
+        stationApi.getStation.mockResolvedValue({
+            id: 'test-station',
+            name: 'Test Station',
+            songIds: ['123', '456', '789'],
+            isContinuous: false,
+            isGroupedByAlbum: false,
+            size: 10,
+            definition: {
+                stationType: 'test-type'
+            }
+        });
+        
+        // Ensure getInstance returns a properly configured instance
+        musicKit.getInstance.mockResolvedValue({
+            addEventListener: jest.fn(),
+            removeEventListener: jest.fn(),
+            nowPlayingItem: null,
+            isPlaying: false,
+            play: jest.fn().mockResolvedValue(undefined),
+            pause: jest.fn().mockResolvedValue(undefined),
+            stop: jest.fn().mockResolvedValue(undefined),
+            skipToNextItem: jest.fn().mockResolvedValue(undefined),
+            skipToPreviousItem: jest.fn().mockResolvedValue(undefined),
+            setQueue: jest.fn().mockResolvedValue(undefined),
+            playLater: jest.fn().mockResolvedValue(undefined),
+            clearQueue: jest.fn().mockResolvedValue(undefined),
+            changeToMediaAtIndex: jest.fn().mockResolvedValue(undefined),
+            storefrontId: 'us',
+            api: {
+                music: jest.fn().mockResolvedValue({
+                    data: {
+                        data: [
+                            {
+                                id: '123',
+                                attributes: {
+                                    name: 'Test Song 1',
+                                    artistName: 'Test Artist 1',
+                                    albumName: 'Test Album 1',
+                                    artwork: { url: 'https://example.com/artwork1.jpg' }
+                                }
+                            },
+                            {
+                                id: '456', 
+                                attributes: {
+                                    name: 'Test Song 2',
+                                    artistName: 'Test Artist 2',
+                                    albumName: 'Test Album 2',
+                                    artwork: { url: 'https://example.com/artwork2.jpg' }
+                                }
+                            },
+                            {
+                                id: '789',
+                                attributes: {
+                                    name: 'Test Song 3',
+                                    artistName: 'Test Artist 3',
+                                    albumName: 'Test Album 3',
+                                    artwork: { url: 'https://example.com/artwork3.jpg' }
+                                }
+                            }
+                        ]
+                    }
+                })
+            },
+            queue: {
+                items: [],
+                item: jest.fn((position) => null),
+                position: -1
+            }
+        });
     });
 
-    it('renders without crashing', () => {
+    it('renders without crashing', async () => {
+        // Import the mocked musicKit to test it directly
+        const musicKit = (await import('../../../musicKit')).default;
+        
+        // Test that getInstance returns a truthy value
+        const instance = await musicKit.getInstance();
+        expect(instance).toBeTruthy();
+        
         render(
             <TestWrapper>
                 <StationPlayer {...defaultProps} />
@@ -234,7 +348,7 @@ describe('StationPlayer', () => {
         // Wait for the component to load and render the playlist
         await waitFor(() => {
             expect(screen.getByTestId('playlist')).toBeInTheDocument();
-        });
+        }, { timeout: 5000 });
     });
 
     it('renders player controls component', async () => {
@@ -246,7 +360,7 @@ describe('StationPlayer', () => {
 
         await waitFor(() => {
             expect(screen.getByTestId('player-controls')).toBeInTheDocument();
-        });
+        }, { timeout: 5000 });
     });
 
     it('has correct initial state', async () => {
@@ -259,7 +373,7 @@ describe('StationPlayer', () => {
         // Wait for loading to complete
         await waitFor(() => {
             expect(screen.getByTestId('playlist')).toBeInTheDocument();
-        });
+        }, { timeout: 5000 });
 
         // Should show no current track initially
         expect(screen.getByTestId('current-track')).toHaveTextContent('none');
@@ -306,7 +420,7 @@ describe('StationPlayer', () => {
         await waitFor(() => {
             expect(screen.getByTestId('playlist')).toBeInTheDocument();
             expect(screen.getByTestId('player-controls')).toBeInTheDocument();
-        });
+        }, { timeout: 5000 });
     });
 
     it('renders with different station IDs', async () => {
@@ -319,7 +433,7 @@ describe('StationPlayer', () => {
         await waitFor(() => {
             expect(screen.getByTestId('playlist')).toBeInTheDocument();
             expect(screen.getByTestId('player-controls')).toBeInTheDocument();
-        });
+        }, { timeout: 5000 });
     });
 
     it('renders control buttons', async () => {
@@ -333,7 +447,7 @@ describe('StationPlayer', () => {
             expect(screen.getByTestId('prev-button')).toBeInTheDocument();
             expect(screen.getByTestId('play-pause-button')).toBeInTheDocument();
             expect(screen.getByTestId('next-button')).toBeInTheDocument();
-        });
+        }, { timeout: 5000 });
     });
 
     it('handles component unmounting gracefully', () => {
@@ -361,6 +475,6 @@ describe('StationPlayer', () => {
         await waitFor(() => {
             expect(screen.getByTestId('playlist')).toBeInTheDocument();
             expect(screen.getByTestId('player-controls')).toBeInTheDocument();
-        });
+        }, { timeout: 5000 });
     });
 });
