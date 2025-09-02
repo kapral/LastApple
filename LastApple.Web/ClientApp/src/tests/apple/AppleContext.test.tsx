@@ -1,17 +1,26 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
-import { AppleContextProvider, useAppleContext } from '../../apple/AppleContext';
+import { render, screen, act } from '@testing-library/react';
 import { AuthenticationState } from '../../authentication';
 
-// Mock utils
-jest.mock('../../utils/mics', () => ({
-    assertNonNullable: jest.fn((value) => {
-        if (value === undefined || value === null) {
-            throw new Error('Value is null or undefined');
-        }
-        return value;
-    }),
-}));
+// Clear all global mocks for this test file
+beforeEach(() => {
+    jest.clearAllMocks();
+});
+
+// Unmock the AppleContext for this test file
+jest.unmock('../../apple/AppleContext');
+
+// Import after unmocking
+import { AppleContextProvider, useAppleContext } from '../../apple/AppleContext';
+
+// Mock utils with the original function behavior
+jest.mock('../../utils/mics', () => {
+    const originalModule = jest.requireActual('../../utils/mics');
+    return {
+        ...originalModule,
+        assertNonNullable: originalModule.assertNonNullable,
+    };
+});
 
 // Test component that uses the context
 const TestComponent: React.FC = () => {
@@ -41,7 +50,7 @@ describe('AppleContext', () => {
             expect(screen.getByTestId('auth-state')).toHaveTextContent('0');
         });
 
-        it('should allow updating authentication state', () => {
+        it('should allow updating authentication state', async () => {
             render(
                 <AppleContextProvider>
                     <TestComponent />
@@ -49,7 +58,10 @@ describe('AppleContext', () => {
             );
 
             const button = screen.getByTestId('set-authenticated');
-            button.click();
+            
+            await act(async () => {
+                button.click();
+            });
 
             expect(screen.getByTestId('auth-state')).toHaveTextContent('1');
         });
@@ -87,7 +99,7 @@ describe('AppleContext', () => {
 
             expect(() => {
                 render(<TestComponentOutsideProvider />);
-            }).toThrow('Value is null or undefined');
+            }).toThrow('Expected non-nullable value, but got undefined');
 
             consoleSpy.mockRestore();
         });
