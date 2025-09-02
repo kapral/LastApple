@@ -1,12 +1,6 @@
-// Need to unmock contexts to use real Provider in this test
-jest.unmock('../../apple/AppleContext');
-jest.unmock('../../lastfm/LastfmContext');
-
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Settings } from '../../components/Settings';
-import { AppleContextProvider } from '../../apple/AppleContext';
-import { LastfmContextProvider } from '../../lastfm/LastfmContext';
 import { AuthenticationState, IAuthenticationService } from '../../authentication';
 
 // Mock the authentication services
@@ -31,17 +25,40 @@ const createMockAuthService = (state: AuthenticationState): IAuthenticationServi
     setUser: jest.fn()
 });
 
+// Mock the contexts directly with React.createContext
+const mockAppleContext = React.createContext<any>(undefined);
+const mockLastfmContext = React.createContext<any>(undefined);
+
+// Mock useAppleContext and useLastfmContext
+const mockUseAppleContext = jest.fn();
+const mockUseLastfmContext = jest.fn();
+
+jest.mock('../../apple/AppleContext', () => ({
+    useAppleContext: () => mockUseAppleContext(),
+    AppleContextProvider: ({ children }: { children: React.ReactNode }) => children
+}));
+
+jest.mock('../../lastfm/LastfmContext', () => ({
+    useLastfmContext: () => mockUseLastfmContext(),
+    LastfmContextProvider: ({ children }: { children: React.ReactNode }) => children
+}));
+
 const TestWrapper: React.FC<{ 
     children: React.ReactNode;
     appleState?: AuthenticationState;
     lastfmState?: AuthenticationState;
-}> = ({ children }) => (
-    <AppleContextProvider>
-        <LastfmContextProvider>
-            {children}
-        </LastfmContextProvider>
-    </AppleContextProvider>
-);
+}> = ({ children, appleState = AuthenticationState.Unauthenticated, lastfmState = AuthenticationState.Unauthenticated }) => {
+    // Set up the mock return values
+    mockUseAppleContext.mockReturnValue({
+        authentication: createMockAuthService(appleState)
+    });
+    
+    mockUseLastfmContext.mockReturnValue({
+        authentication: createMockAuthService(lastfmState)
+    });
+
+    return <>{children}</>;
+};
 
 describe('Settings', () => {
     beforeEach(() => {

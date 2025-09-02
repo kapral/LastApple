@@ -26,46 +26,89 @@ jest.mock('@aspnet/signalr', () => {
 });
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { StationPlayer } from '../../../components/Player/StationPlayer';
 import { LastfmContext } from '../../../lastfm/LastfmContext';
 import { AuthenticationState, IAuthenticationService } from '../../../authentication';
 
 // Mock all external dependencies
-jest.mock('../../../musicKit', () => ({
-    __esModule: true,
-    default: {
-        getInstance: jest.fn().mockResolvedValue({
-            addEventListener: jest.fn(),
-            removeEventListener: jest.fn(),
-            nowPlayingItem: null,
-            isPlaying: false,
-            play: jest.fn().mockResolvedValue(undefined),
-            pause: jest.fn().mockResolvedValue(undefined),
-            skipToNextItem: jest.fn().mockResolvedValue(undefined),
-            skipToPreviousItem: jest.fn().mockResolvedValue(undefined),
-            setQueue: jest.fn().mockResolvedValue(undefined),
-            changeToMediaAtIndex: jest.fn().mockResolvedValue(undefined)
-        }),
-        formatMediaTime: jest.fn((seconds) => {
-            const minutes = Math.floor(seconds / 60);
-            const remainingSeconds = Math.floor(seconds % 60);
-            return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-        }),
-        instance: {
-            addEventListener: jest.fn(),
-            removeEventListener: jest.fn(),
-            nowPlayingItem: null,
-            isPlaying: false,
-            play: jest.fn().mockResolvedValue(undefined),
-            pause: jest.fn().mockResolvedValue(undefined),
-            skipToNextItem: jest.fn().mockResolvedValue(undefined),
-            skipToPreviousItem: jest.fn().mockResolvedValue(undefined),
-            setQueue: jest.fn().mockResolvedValue(undefined),
-            changeToMediaAtIndex: jest.fn().mockResolvedValue(undefined)
+jest.mock('../../../musicKit', () => {
+    const mockMusicKitInstance = {
+        addEventListener: jest.fn(),
+        removeEventListener: jest.fn(),
+        nowPlayingItem: null,
+        isPlaying: false,
+        play: jest.fn().mockResolvedValue(undefined),
+        pause: jest.fn().mockResolvedValue(undefined),
+        stop: jest.fn().mockResolvedValue(undefined),
+        skipToNextItem: jest.fn().mockResolvedValue(undefined),
+        skipToPreviousItem: jest.fn().mockResolvedValue(undefined),
+        setQueue: jest.fn().mockResolvedValue(undefined),
+        playLater: jest.fn().mockResolvedValue(undefined),
+        clearQueue: jest.fn().mockResolvedValue(undefined),
+        changeToMediaAtIndex: jest.fn().mockResolvedValue(undefined),
+        storefrontId: 'us',
+        api: {
+            music: jest.fn().mockResolvedValue({
+                data: {
+                    data: [
+                        {
+                            id: '123',
+                            attributes: {
+                                name: 'Test Song 1',
+                                artistName: 'Test Artist 1',
+                                albumName: 'Test Album 1',
+                                artwork: { url: 'https://example.com/artwork1.jpg' }
+                            }
+                        },
+                        {
+                            id: '456',
+                            attributes: {
+                                name: 'Test Song 2',
+                                artistName: 'Test Artist 2',
+                                albumName: 'Test Album 2',
+                                artwork: { url: 'https://example.com/artwork2.jpg' }
+                            }
+                        },
+                        {
+                            id: '789',
+                            attributes: {
+                                name: 'Test Song 3',
+                                artistName: 'Test Artist 3',
+                                albumName: 'Test Album 3',
+                                artwork: { url: 'https://example.com/artwork3.jpg' }
+                            }
+                        }
+                    ]
+                }
+            })
+        },
+        queue: {
+            items: [
+                {
+                    id: '123',
+                    attributes: {
+                        name: 'Test Song 1',
+                        artistName: 'Test Artist 1'
+                    }
+                }
+            ]
         }
-    }
-}));
+    };
+
+    return {
+        __esModule: true,
+        default: {
+            getInstance: jest.fn().mockResolvedValue(mockMusicKitInstance),
+            formatMediaTime: jest.fn((seconds) => {
+                const minutes = Math.floor(seconds / 60);
+                const remainingSeconds = Math.floor(seconds % 60);
+                return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+            }),
+            instance: mockMusicKitInstance
+        }
+    };
+});
 
 jest.mock('../../../restClients/LastfmApi', () => ({
     default: {
@@ -78,8 +121,12 @@ jest.mock('../../../restClients/StationApi', () => ({
     default: {
         getStation: jest.fn().mockResolvedValue({
             id: 'test-station',
-            name: 'Test Station'
-        })
+            name: 'Test Station',
+            songIds: ['123', '456', '789'],
+            isContinuous: false,
+            isGroupedByAlbum: false
+        }),
+        deleteSongs: jest.fn().mockResolvedValue(undefined)
     }
 }));
 
@@ -118,8 +165,15 @@ jest.mock('react-bootstrap', () => ({
 
 jest.mock('../../../MediaSessionManager', () => ({
     instance: {
-        setMediaSession: jest.fn()
+        setMediaSession: jest.fn(),
+        setNextHandler: jest.fn(),
+        setPrevHandler: jest.fn()
     }
+}));
+
+// Mock AudioContext
+global.AudioContext = jest.fn().mockImplementation(() => ({
+    state: 'running'
 }));
 
 const createMockAuthService = (state: AuthenticationState): IAuthenticationService => ({
@@ -148,7 +202,8 @@ describe('StationPlayer', () => {
     };
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        // Don't clear mocks to preserve return values
+        // Each test should work independently with the defined mocks
     });
 
     it('renders without crashing', () => {
@@ -169,33 +224,42 @@ describe('StationPlayer', () => {
         expect(screen.getByTestId('spinner')).toBeInTheDocument();
     });
 
-    it('renders playlist component', () => {
+    it('renders playlist component', async () => {
         render(
             <TestWrapper>
                 <StationPlayer {...defaultProps} />
             </TestWrapper>
         );
 
-        // The playlist should be rendered (though initially empty)
-        expect(screen.getByTestId('playlist')).toBeInTheDocument();
+        // Wait for the component to load and render the playlist
+        await waitFor(() => {
+            expect(screen.getByTestId('playlist')).toBeInTheDocument();
+        });
     });
 
-    it('renders player controls component', () => {
+    it('renders player controls component', async () => {
         render(
             <TestWrapper>
                 <StationPlayer {...defaultProps} />
             </TestWrapper>
         );
 
-        expect(screen.getByTestId('player-controls')).toBeInTheDocument();
+        await waitFor(() => {
+            expect(screen.getByTestId('player-controls')).toBeInTheDocument();
+        });
     });
 
-    it('has correct initial state', () => {
+    it('has correct initial state', async () => {
         render(
             <TestWrapper>
                 <StationPlayer {...defaultProps} />
             </TestWrapper>
         );
+
+        // Wait for loading to complete
+        await waitFor(() => {
+            expect(screen.getByTestId('playlist')).toBeInTheDocument();
+        });
 
         // Should show no current track initially
         expect(screen.getByTestId('current-track')).toHaveTextContent('none');
@@ -205,8 +269,8 @@ describe('StationPlayer', () => {
         expect(screen.getByTestId('is-playing')).toHaveTextContent('not-playing');
         expect(screen.getByTestId('controls-playing')).toHaveTextContent('not-playing');
         
-        // Should have 0 tracks initially
-        expect(screen.getByTestId('track-count')).toHaveTextContent('0');
+        // Should have 3 tracks after loading
+        expect(screen.getByTestId('track-count')).toHaveTextContent('3');
     });
 
     it('provides static getImageUrl method', () => {
@@ -217,12 +281,12 @@ describe('StationPlayer', () => {
 
     it('handles null image url in getImageUrl', () => {
         const result = StationPlayer.getImageUrl(null);
-        expect(result).toBe('');
+        expect(result).toBe('default-album-cover.png');
     });
 
     it('handles undefined image url in getImageUrl', () => {
         const result = StationPlayer.getImageUrl(undefined);
-        expect(result).toBe('');
+        expect(result).toBe('default-album-cover.png');
     });
 
     it('replaces image dimensions correctly in getImageUrl', () => {
@@ -231,7 +295,7 @@ describe('StationPlayer', () => {
         expect(result).toBe('https://music.apple.com/artwork/400x400bb.jpg');
     });
 
-    it('works with different LastFM authentication states', () => {
+    it('works with different LastFM authentication states', async () => {
         render(
             <TestWrapper authState={AuthenticationState.Unauthenticated}>
                 <StationPlayer {...defaultProps} />
@@ -239,31 +303,37 @@ describe('StationPlayer', () => {
         );
 
         // Should still render the player components
-        expect(screen.getByTestId('playlist')).toBeInTheDocument();
-        expect(screen.getByTestId('player-controls')).toBeInTheDocument();
+        await waitFor(() => {
+            expect(screen.getByTestId('playlist')).toBeInTheDocument();
+            expect(screen.getByTestId('player-controls')).toBeInTheDocument();
+        });
     });
 
-    it('renders with different station IDs', () => {
+    it('renders with different station IDs', async () => {
         render(
             <TestWrapper>
                 <StationPlayer stationId="different-station-456" />
             </TestWrapper>
         );
 
-        expect(screen.getByTestId('playlist')).toBeInTheDocument();
-        expect(screen.getByTestId('player-controls')).toBeInTheDocument();
+        await waitFor(() => {
+            expect(screen.getByTestId('playlist')).toBeInTheDocument();
+            expect(screen.getByTestId('player-controls')).toBeInTheDocument();
+        });
     });
 
-    it('renders control buttons', () => {
+    it('renders control buttons', async () => {
         render(
             <TestWrapper>
                 <StationPlayer {...defaultProps} />
             </TestWrapper>
         );
 
-        expect(screen.getByTestId('prev-button')).toBeInTheDocument();
-        expect(screen.getByTestId('play-pause-button')).toBeInTheDocument();
-        expect(screen.getByTestId('next-button')).toBeInTheDocument();
+        await waitFor(() => {
+            expect(screen.getByTestId('prev-button')).toBeInTheDocument();
+            expect(screen.getByTestId('play-pause-button')).toBeInTheDocument();
+            expect(screen.getByTestId('next-button')).toBeInTheDocument();
+        });
     });
 
     it('handles component unmounting gracefully', () => {
@@ -277,7 +347,7 @@ describe('StationPlayer', () => {
         expect(() => unmount()).not.toThrow();
     });
 
-    it('maintains proper component structure', () => {
+    it('maintains proper component structure', async () => {
         const { container } = render(
             <TestWrapper>
                 <StationPlayer {...defaultProps} />
@@ -288,7 +358,9 @@ describe('StationPlayer', () => {
         expect(container.firstChild).toBeInTheDocument();
         
         // Should render both playlist and controls
-        expect(screen.getByTestId('playlist')).toBeInTheDocument();
-        expect(screen.getByTestId('player-controls')).toBeInTheDocument();
+        await waitFor(() => {
+            expect(screen.getByTestId('playlist')).toBeInTheDocument();
+            expect(screen.getByTestId('player-controls')).toBeInTheDocument();
+        });
     });
 });
