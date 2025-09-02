@@ -1,20 +1,27 @@
 // Mock LastfmAuthService first
 jest.mock('../../lastfm/LastfmAuthService', () => ({
-    default: {
-        getAuthenticatedUser: jest.fn(),
-        authenticate: jest.fn(),
-        logout: jest.fn(),
-    },
+    getAuthenticatedUser: jest.fn(),
+    authenticate: jest.fn(),
+    logout: jest.fn(),
 }));
 
 import { AuthenticationState } from '../../authentication';
 import { ILastfmAuthenticationState, logoutLastfm, loginLastfm, checkLastfmLogin } from '../../lastfm/lastfmAuthentication';
+
+// Get the mocked service after import
+const mockLastfmAuthService = require('../../lastfm/LastfmAuthService');
 
 describe('lastfmAuthentication', () => {
     let mockAuthState: ILastfmAuthenticationState;
 
     beforeEach(() => {
         jest.clearAllMocks();
+        
+        // Restore the mock functions after clearAllMocks
+        mockLastfmAuthService.getAuthenticatedUser = jest.fn();
+        mockLastfmAuthService.authenticate = jest.fn();
+        mockLastfmAuthService.logout = jest.fn();
+        
         mockAuthState = {
             state: AuthenticationState.Unauthenticated,
             setState: jest.fn(),

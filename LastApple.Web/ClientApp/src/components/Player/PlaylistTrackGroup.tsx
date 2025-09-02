@@ -26,7 +26,7 @@ export const PlaylistTrackGroup = React.memo((props: React.PropsWithChildren<Pla
                 height: '60px',
                 width: '60px',
                 verticalAlign: 'top'
-            }} alt={'album logo'} src={props.tracks[0].attributes.artwork.url.replace('{w}x{h}', '60x60')}/>
+            }} alt={'album logo'} src={props.tracks[0].attributes.artwork?.url?.replace('{w}x{h}', '60x60') || ''}/>
             <div className={'album-header'} style={{
                 display: 'inline-block',
                 width: 'calc(100% - 60px)',
@@ -41,7 +41,7 @@ export const PlaylistTrackGroup = React.memo((props: React.PropsWithChildren<Pla
                         <FontAwesomeIcon style={{ verticalAlign: 'bottom', margin: '.6rem .5rem' }} icon={faEllipsisH} />
                     </Dropdown.Toggle>
                     <Dropdown.Menu>
-                        <Dropdown.Item onSelect={() => props.addAlbumToLibrary(props.tracks[0])} disabled={!musicKit.instance.isAuthorized}>
+                        <Dropdown.Item onSelect={() => props.addAlbumToLibrary(props.tracks[0])} disabled={!musicKit.instance?.isAuthorized}>
                                         <span style={{
                                             display: 'inline-block',
                                             width: '16px',

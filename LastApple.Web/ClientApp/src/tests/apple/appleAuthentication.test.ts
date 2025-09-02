@@ -1,20 +1,27 @@
 // Mock AppleAuthService first
 jest.mock('../../apple/AppleAuthService', () => ({
-    default: {
-        isAuthenticated: jest.fn(),
-        authenticate: jest.fn(),
-        logout: jest.fn(),
-    },
+    isAuthenticated: jest.fn(),
+    authenticate: jest.fn(),
+    logout: jest.fn(),
 }));
 
 import { AuthenticationState } from '../../authentication';
 import { IAppleAuthenticationState, logoutApple, loginApple, checkAppleLogin } from '../../apple/appleAuthentication';
+
+// Get the mocked service after import
+const mockAppleAuthService = require('../../apple/AppleAuthService');
 
 describe('appleAuthentication', () => {
     let mockAuthState: IAppleAuthenticationState;
 
     beforeEach(() => {
         jest.clearAllMocks();
+        
+        // Restore the mock functions after clearAllMocks
+        mockAppleAuthService.isAuthenticated = jest.fn();
+        mockAppleAuthService.authenticate = jest.fn();
+        mockAppleAuthService.logout = jest.fn();
+        
         mockAuthState = {
             state: AuthenticationState.Unauthenticated,
             setState: jest.fn(),

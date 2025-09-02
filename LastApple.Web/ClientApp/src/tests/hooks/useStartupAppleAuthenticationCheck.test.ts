@@ -66,16 +66,16 @@ describe('useStartupAppleAuthenticationCheck', () => {
 
     it('should handle checkAppleLogin errors gracefully', async () => {
         const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-        mockCheckAppleLogin.mockRejectedValue(new Error('Auth check failed'));
+        checkAppleLogin.mockRejectedValue(new Error('Auth check failed'));
 
         renderHook(() => useStartupAppleAuthenticationCheck());
 
-        expect(mockCheckAppleLogin).toHaveBeenCalledWith(mockAppleContext.authentication);
+        expect(checkAppleLogin).toHaveBeenCalledWith(mockAppleContext.authentication);
         
         // Wait for async operation to complete
         await new Promise(resolve => setTimeout(resolve, 0));
         
-        expect(mockCheckAppleLogin).toHaveBeenCalledTimes(1);
+        expect(checkAppleLogin).toHaveBeenCalledTimes(1);
 
         consoleSpy.mockRestore();
     });
