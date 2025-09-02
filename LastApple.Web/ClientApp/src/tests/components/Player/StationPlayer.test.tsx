@@ -1,6 +1,30 @@
 // Don't mock LastfmContext globally in this test - we need to use the real context
 jest.unmock('../../../lastfm/LastfmContext');
 
+// Mock SignalR specifically for this test 
+jest.mock('@aspnet/signalr', () => {
+    const mockConnection = {
+        start: jest.fn().mockResolvedValue(undefined),
+        stop: jest.fn().mockResolvedValue(undefined),
+        on: jest.fn(),
+        off: jest.fn(),
+        invoke: jest.fn().mockResolvedValue(undefined),
+    };
+    
+    const hubConnectionBuilder = {
+        withUrl: jest.fn().mockReturnThis(),
+        build: jest.fn().mockReturnValue(mockConnection),
+    };
+    
+    const MockHubConnectionBuilder = jest.fn().mockImplementation(() => {
+        return hubConnectionBuilder;
+    });
+    
+    return {
+        HubConnectionBuilder: MockHubConnectionBuilder,
+    };
+});
+
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { StationPlayer } from '../../../components/Player/StationPlayer';
@@ -42,24 +66,6 @@ jest.mock('../../../musicKit', () => ({
         }
     }
 }));
-
-jest.mock('@aspnet/signalr', () => {
-    const mockHub = {
-        start: jest.fn().mockResolvedValue(undefined),
-        stop: jest.fn().mockResolvedValue(undefined),
-        on: jest.fn(),
-        off: jest.fn()
-    };
-
-    const mockBuilder = {
-        withUrl: jest.fn().mockReturnThis(),
-        build: jest.fn().mockReturnValue(mockHub)
-    };
-
-    return {
-        HubConnectionBuilder: jest.fn().mockImplementation(() => mockBuilder)
-    };
-});
 
 jest.mock('../../../restClients/LastfmApi', () => ({
     default: {

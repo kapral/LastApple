@@ -148,18 +148,24 @@ jest.mock('./musicKit', () => ({
 }));
 
 // Mock SignalR
-jest.mock('@aspnet/signalr', () => ({
-  HubConnectionBuilder: jest.fn().mockImplementation(() => ({
-    withUrl: jest.fn().mockReturnThis(),
-    build: jest.fn().mockReturnValue({
-      start: jest.fn().mockResolvedValue(undefined),
-      stop: jest.fn().mockResolvedValue(undefined),
-      on: jest.fn(),
-      off: jest.fn(),
-      invoke: jest.fn().mockResolvedValue(undefined),
-    }),
-  })),
-}));
+jest.mock('@aspnet/signalr', () => {
+    const mockConnection = {
+        start: jest.fn().mockResolvedValue(undefined),
+        stop: jest.fn().mockResolvedValue(undefined),
+        on: jest.fn(),
+        off: jest.fn(),
+        invoke: jest.fn().mockResolvedValue(undefined),
+    };
+    
+    const MockHubConnectionBuilder = jest.fn().mockImplementation(() => ({
+        withUrl: jest.fn().mockReturnThis(),
+        build: jest.fn().mockReturnValue(mockConnection),
+    }));
+    
+    return {
+        HubConnectionBuilder: MockHubConnectionBuilder,
+    };
+});
 
 // Mock environment variables
 jest.mock('./Environment', () => {

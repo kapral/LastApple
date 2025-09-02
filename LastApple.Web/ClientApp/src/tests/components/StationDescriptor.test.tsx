@@ -222,7 +222,10 @@ describe('StationDescriptor', () => {
 
             React.useEffect(() => {
                 if (triggerCreate) {
-                    onStationCreated('triggered-station-id');
+                    // Add a small delay before calling onStationCreated to allow the UI to update
+                    setTimeout(() => {
+                        onStationCreated('triggered-station-id');
+                    }, 100);
                 }
             }, [triggerCreate, onStationCreated]);
 
@@ -242,16 +245,19 @@ describe('StationDescriptor', () => {
             </TestWrapper>
         );
 
+        // Wait for the component to initialize and set isValid to true
+        await waitFor(() => {
+            expect(screen.getByText('Waiting for Trigger')).toBeInTheDocument();
+        });
+
         // Debug: Check if component rendered at all
         console.log('Container HTML:', container.innerHTML);
-
-        expect(screen.getByText('Waiting for Trigger')).toBeInTheDocument();
 
         const icon = screen.getByTestId('fontawesome-icon');
         fireEvent.click(icon);
 
         await waitFor(() => {
             expect(screen.getByText('Creation Triggered')).toBeInTheDocument();
-        });
+        }, { timeout: 3000 });
     });
 });

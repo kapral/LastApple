@@ -8,11 +8,19 @@ import { AuthenticationState, IAuthenticationService } from '../../../authentica
 import { LastfmContext } from '../../../lastfm/LastfmContext';
 
 // Mock StationApi with proper Jest factory
-jest.mock('../../../restClients/StationApi', () => ({
-    default: {
-        postStation: jest.fn().mockResolvedValue({ id: 'test-station-id' })
-    }
-}));
+jest.mock('../../../restClients/StationApi', () => {
+    const mockStationApi = {
+        postStation: jest.fn().mockResolvedValue({ id: 'test-station-id' }),
+        getStation: jest.fn(),
+        topUp: jest.fn(),
+        deleteSongs: jest.fn()
+    };
+    
+    return {
+        default: mockStationApi,
+        __esModule: true
+    };
+});
 
 const createMockAuthService = (state: AuthenticationState): IAuthenticationService => ({
     state,
@@ -112,6 +120,10 @@ describe('MyLibrary', () => {
     });
 
     it('creates station when triggerCreate is true and authenticated', async () => {        
+        // Get reference to the mock
+        const mockStationApi = require('../../../restClients/StationApi').default;
+        console.log('Mock StationApi:', mockStationApi);
+        
         const mockOnStationCreated = jest.fn();
 
         const { rerender } = render(
@@ -132,7 +144,6 @@ describe('MyLibrary', () => {
         );
 
         await waitFor(() => {
-            const mockStationApi = require('../../../restClients/StationApi').default;
             expect(mockStationApi.postStation).toHaveBeenCalledWith('lastfmlibrary', 'my');
             expect(mockOnStationCreated).toHaveBeenCalledWith('test-station-id');
         });
