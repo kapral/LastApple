@@ -77,17 +77,11 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
         } else {
             this.musicKit = await musicKit.getInstance();
 
-            if (!this.musicKit) {
-                console.warn('Failed to get MusicKit instance');
-                return;
-            }
-
             await this.subscribeToStationEvents();
 
             this.playbackStateSubscription = async (x: MusicKit.Events['playbackStateDidChange']) => await this.handleStateChange(x);
-            if (this.musicKit.addEventListener) {
-                this.musicKit.addEventListener('playbackStateDidChange', this.playbackStateSubscription);
-                this.musicKit.addEventListener('nowPlayingItemDidChange', async (event: MusicKit.Events['nowPlayingItemDidChange']) => {
+            this.musicKit.addEventListener('playbackStateDidChange', this.playbackStateSubscription);
+            this.musicKit.addEventListener('nowPlayingItemDidChange', async (event: MusicKit.Events['nowPlayingItemDidChange']) => {
                 if (!event.item) {
                     return;
                 }
@@ -121,7 +115,6 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
                     this.currentTrackScrobbled = true;
                 }
             });
-            }
 
             mediaSessionManager.setNextHandler(() => this.switchNext());
             mediaSessionManager.setPrevHandler(() => this.switchPrev());
@@ -180,22 +173,19 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
         if (this.hubConnection) {
             this.hubConnection.off('trackAdded');
         }
-        if (this.musicKit && this.musicKit.removeEventListener) {
-            this.musicKit.removeEventListener('playbackStateDidChange');
-            this.musicKit.removeEventListener('playbackProgressDidChange');
-            this.musicKit.removeEventListener('nowPlayingItemDidChange');
-        }
+        this.musicKit.removeEventListener('playbackStateDidChange');
+        this.musicKit.removeEventListener('playbackProgressDidChange');
+        this.musicKit.removeEventListener('nowPlayingItemDidChange');
     }
 
     async subscribeToStationEvents() {
-        try {
-            this.hubConnection = new signalR.HubConnectionBuilder()
-                .withUrl(`${environment.apiUrl}hubs`)
-                .build();
+        this.hubConnection = new signalR.HubConnectionBuilder()
+            .withUrl(`${environment.apiUrl}hubs`)
+            .build();
 
-            await this.hubConnection.start();
+        await this.hubConnection.start();
 
-            this.hubConnection.on('trackAdded', async (stationId: string, trackId: string, position: number) => {
+        this.hubConnection.on('trackAdded', async (stationId: string, trackId: string, position: number) => {
             if (stationId !== this.props.stationId) {
                 return;
             }
@@ -209,11 +199,6 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
 
             await this.addTracks([event]);
         });
-        } catch (error) {
-            // Gracefully handle SignalR initialization failures (e.g., in test environments)
-            console.warn('Failed to initialize SignalR connection:', error);
-            this.hubConnection = null;
-        }
     }
 
     async addTracks(addTrackEvents: IAddTrackEvent[]) {
