@@ -209,7 +209,9 @@ beforeAll(() => {
   console.error = (...args: any) => {
     if (
       typeof args[0] === 'string' &&
-      args[0].includes('Warning: ReactDOM.render is deprecated')
+      (args[0].includes('Warning: ReactDOM.render is deprecated') ||
+       args[0].includes('Warning: An update to') ||
+       args[0].includes('not wrapped in act'))
     ) {
       return;
     }

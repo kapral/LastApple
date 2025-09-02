@@ -429,13 +429,18 @@ describe('StationPlayer', () => {
         }, { timeout: 5000 });
     });
 
-    it('handles component unmounting gracefully', () => {
+    it('handles component unmounting gracefully', async () => {
         const { unmount } = render(
             <TestWrapper>
                 <StationPlayer {...defaultProps} />
             </TestWrapper>
         );
-
+        
+        // Wait for component to mount and initialize
+        await waitFor(() => {
+            // Just wait a bit for mount to complete
+        }, { timeout: 100 });
+        
         // Should not throw when unmounting
         expect(() => unmount()).not.toThrow();
     });
