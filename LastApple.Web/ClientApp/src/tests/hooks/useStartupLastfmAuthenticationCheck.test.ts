@@ -1,8 +1,9 @@
-import { renderHook } from '@testing-library/react';
-import { useStartupLastfmAuthenticationCheck } from '../../hooks/useStartupLastfmAuthenticationCheck';
-import { AuthenticationState } from '../../authentication';
+// Mock the dependencies first
+const mockLastfmAuthService = {
+    tryGetAuthFromParams: jest.fn(),
+    postToken: jest.fn(),
+};
 
-// Mock the dependencies
 const mockLastfmContext = {
     authentication: {
         state: 0, // AuthenticationState.Loading
@@ -12,24 +13,26 @@ const mockLastfmContext = {
     },
 };
 
-const mockLastfmAuthService = {
-    tryGetAuthFromParams: jest.fn(),
-    postToken: jest.fn(),
-};
-
 const mockCheckLastfmLogin = jest.fn();
+
+jest.mock('../../lastfm/LastfmAuthService', () => ({
+    default: {
+        tryGetAuthFromParams: jest.fn(),
+        postToken: jest.fn(),
+    },
+}));
 
 jest.mock('../../lastfm/LastfmContext', () => ({
     useLastfmContext: jest.fn(() => mockLastfmContext),
 }));
 
-jest.mock('../../lastfm/LastfmAuthService', () => ({
-    default: mockLastfmAuthService,
-}));
-
 jest.mock('../../lastfm/lastfmAuthentication', () => ({
     checkLastfmLogin: mockCheckLastfmLogin,
 }));
+
+import { renderHook } from '@testing-library/react';
+import { useStartupLastfmAuthenticationCheck } from '../../hooks/useStartupLastfmAuthenticationCheck';
+import { AuthenticationState } from '../../authentication';
 
 describe('useStartupLastfmAuthenticationCheck', () => {
     beforeEach(() => {

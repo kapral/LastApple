@@ -1,3 +1,6 @@
+// Don't mock LastfmContext globally in this test - we need to use the real context
+jest.unmock('../../../lastfm/LastfmContext');
+
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { StationPlayer } from '../../../components/Player/StationPlayer';
@@ -108,8 +111,8 @@ const TestWrapper: React.FC<{
 }> = ({ children, authState = AuthenticationState.Authenticated }) => (
     <LastfmContext.Provider value={{
         authentication: createMockAuthService(authState),
-        scrobblePreference: { enabled: true },
-        setScrobblePreference: jest.fn()
+        isScrobblingEnabled: true,
+        setIsScrobblingEnabled: jest.fn()
     }}>
         {children}
     </LastfmContext.Provider>

@@ -1,6 +1,4 @@
 import AppleAuthService from '../../apple/AppleAuthService';
-
-import AppleAuthService from '../../apple/AppleAuthService';
 import musicKit from '../../musicKit';
 import musicApi from '../../restClients/AppleMusicApi';
 

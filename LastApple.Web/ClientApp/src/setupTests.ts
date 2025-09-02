@@ -7,8 +7,8 @@ import '@testing-library/jest-dom';
 // Mock utility functions first
 jest.mock('./utils/mics', () => ({
     assertNonNullable: jest.fn((value) => {
-        if (value === undefined || value === null) {
-            throw new Error('Value is null or undefined');
+        if (value === null || value === undefined) {
+            throw new Error(`Expected non-nullable value, but got ${value}`);
         }
         return value;
     }),

@@ -1,15 +1,11 @@
-import LastfmAuthService from '../../lastfm/LastfmAuthService';
-
-// Mock the dependencies
-const mockLastfmApi = {
-    getUser: jest.fn(),
-    getAuthUrl: jest.fn(),
-    postToken: jest.fn(),
-    logout: jest.fn(),
-};
-
+// Mock the dependencies first
 jest.mock('../../restClients/LastfmApi', () => ({
-    default: mockLastfmApi,
+    default: {
+        getUser: jest.fn(),
+        getAuthUrl: jest.fn(),
+        postToken: jest.fn(),
+        logout: jest.fn(),
+    },
 }));
 
 // Mock localStorage
@@ -18,10 +14,16 @@ const mockLocalStorage = {
     setItem: jest.fn(),
     removeItem: jest.fn(),
     clear: jest.fn(),
+    length: 0,
+    key: jest.fn(),
 };
+
 Object.defineProperty(window, 'localStorage', {
     value: mockLocalStorage,
+    writable: true,
 });
+
+import LastfmAuthService from '../../lastfm/LastfmAuthService';
 
 // Mock window.location and window.history
 const mockLocation = {

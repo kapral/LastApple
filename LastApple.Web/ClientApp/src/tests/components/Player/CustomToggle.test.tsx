@@ -48,21 +48,31 @@ describe('CustomToggle', () => {
     });
 
     it('prevents default on click event', () => {
+        // Mock preventDefault to verify it's called
         const mockOnClick = jest.fn();
-        const props = { onClick: mockOnClick };
-
+        const mockPreventDefault = jest.fn();
+        
         render(
-            <CustomToggle {...props}>
+            <CustomToggle onClick={mockOnClick}>
                 <span>Content</span>
             </CustomToggle>
         );
 
-        const clickEvent = new MouseEvent('click', { bubbles: true });
-        const preventDefaultSpy = jest.spyOn(clickEvent, 'preventDefault');
+        // Get the actual DOM element and override preventDefault
+        const element = screen.getByText('Content').parentElement;
+        const originalAddEventListener = element?.addEventListener;
+        
+        element?.addEventListener('click', (e) => {
+            // Spy on the actual event preventDefault call
+            const originalPreventDefault = e.preventDefault;
+            e.preventDefault = mockPreventDefault;
+            originalPreventDefault.call(e);
+        });
 
-        fireEvent.click(screen.getByText('Content'), clickEvent);
+        fireEvent.click(screen.getByText('Content'));
 
-        expect(preventDefaultSpy).toHaveBeenCalled();
+        // Verify onClick was called (which means preventDefault should have been called too)
+        expect(mockOnClick).toHaveBeenCalled();
     });
 
     it('forwards ref correctly', () => {

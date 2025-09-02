@@ -1,17 +1,24 @@
+// Mock dependencies first
+jest.mock('../../../components/Player/CustomToggle', () => {
+    const mockReact = require('react');
+    return {
+        CustomToggle: mockReact.forwardRef(({ children, ...props }: any, ref: any) =>
+            mockReact.createElement('div', { ref, ...props, 'data-testid': 'custom-toggle' }, children)
+        )
+    };
+});
+
+jest.mock('@fortawesome/react-fontawesome', () => ({
+    FontAwesomeIcon: ({ icon }: any) => 
+        require('react').createElement('div', { 
+            'data-testid': 'fontawesome-icon', 
+            'data-icon': icon.iconName 
+        })
+}));
+
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { PlaylistTrackGroup } from '../../../components/Player/PlaylistTrackGroup';
-
-// Mock dependencies
-jest.mock('../../../components/Player/CustomToggle', () => ({
-    CustomToggle: React.forwardRef(({ children, ...props }: any, ref) => (
-        <div ref={ref} {...props} data-testid="custom-toggle">{children}</div>
-    ))
-}));
-
-jest.mock('@fortawesome/react-fontawesome', () => ({
-    FontAwesomeIcon: ({ icon }: any) => <div data-testid="fontawesome-icon" data-icon={icon.iconName} />
-}));
 
 jest.mock('react-bootstrap', () => ({
     Dropdown: {
