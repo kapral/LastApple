@@ -23,11 +23,18 @@ jest.mock('../../lastfm/LastfmAuthService', () => ({
 }));
 
 jest.mock('../../lastfm/LastfmContext', () => ({
-    useLastfmContext: jest.fn(() => mockLastfmContext),
+    useLastfmContext: jest.fn(() => ({
+        authentication: {
+            state: 0, // AuthenticationState.Loading
+            setState: jest.fn(),
+            user: undefined,
+            setUser: jest.fn(),
+        },
+    })),
 }));
 
 jest.mock('../../lastfm/lastfmAuthentication', () => ({
-    checkLastfmLogin: mockCheckLastfmLogin,
+    checkLastfmLogin: jest.fn(),
 }));
 
 import { renderHook } from '@testing-library/react';

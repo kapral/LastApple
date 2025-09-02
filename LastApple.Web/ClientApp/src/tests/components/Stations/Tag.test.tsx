@@ -1,12 +1,14 @@
-import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { Tag } from '../../../components/Stations/Tag';
-
+// Mock StationApi before importing the component
 jest.mock('../../../restClients/StationApi', () => ({
+    __esModule: true,
     default: {
         postStation: jest.fn().mockResolvedValue({ id: 'test-station-id' })
     }
 }));
+
+import React from 'react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { Tag } from '../../../components/Stations/Tag';
 
 describe('Tag', () => {
     const defaultProps = {
@@ -17,6 +19,10 @@ describe('Tag', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
+        
+        // Ensure the mock implementation is properly set
+        const stationApi = require('../../../restClients/StationApi').default;
+        stationApi.postStation.mockResolvedValue({ id: 'test-station-id' });
     });
 
     it('renders without crashing', () => {

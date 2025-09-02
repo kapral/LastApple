@@ -1,6 +1,21 @@
-import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { SimilarArtists } from '../../../components/Stations/SimilarArtists';
+// Mock APIs before any imports
+jest.mock('../../../restClients/LastfmApi', () => ({
+    __esModule: true,
+    default: {
+        searchArtist: jest.fn().mockResolvedValue([
+            { name: 'Placebo' },
+            { name: 'Radiohead' },
+            { name: 'Coldplay' }
+        ])
+    }
+}));
+
+jest.mock('../../../restClients/StationApi', () => ({
+    __esModule: true,
+    default: {
+        postStation: jest.fn().mockResolvedValue({ id: 'test-station-id' })
+    }
+}));
 
 // Mock dependencies
 jest.mock('../../../components/Search', () => ({
@@ -22,21 +37,9 @@ jest.mock('../../../components/Search', () => ({
     )
 }));
 
-jest.mock('../../../restClients/StationApi', () => ({
-    default: {
-        postStation: jest.fn().mockResolvedValue({ id: 'test-station-id' })
-    }
-}));
-
-jest.mock('../../../restClients/LastfmApi', () => ({
-    default: {
-        searchArtist: jest.fn().mockResolvedValue([
-            { name: 'Placebo' },
-            { name: 'Radiohead' },
-            { name: 'Coldplay' }
-        ])
-    }
-}));
+import React from 'react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { SimilarArtists } from '../../../components/Stations/SimilarArtists';
 
 describe('SimilarArtists', () => {
     const defaultProps = {
@@ -47,6 +50,17 @@ describe('SimilarArtists', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
+        
+        // Restore mock implementations after clearAllMocks
+        const lastfmApi = require('../../../restClients/LastfmApi').default;
+        lastfmApi.searchArtist.mockResolvedValue([
+            { name: 'Placebo' },
+            { name: 'Radiohead' },
+            { name: 'Coldplay' }
+        ]);
+        
+        const stationApi = require('../../../restClients/StationApi').default;
+        stationApi.postStation.mockResolvedValue({ id: 'test-station-id' });
     });
 
     it('renders without crashing', () => {
@@ -115,7 +129,8 @@ describe('SimilarArtists', () => {
         fireEvent.change(searchInput, { target: { value: 'placebo' } });
 
         await waitFor(() => {
-            expect(mockLastfmApi.searchArtist).toHaveBeenCalled();
+            const lastfmApi = require('../../../restClients/LastfmApi').default;
+            expect(lastfmApi.searchArtist).toHaveBeenCalled();
         });
 
         // Then trigger creation
@@ -134,7 +149,8 @@ describe('SimilarArtists', () => {
     });
 
     it('handles empty search results', async () => {
-        mockLastfmApi.searchArtist.mockResolvedValue([]);
+        const lastfmApi = require('../../../restClients/LastfmApi').default;
+        lastfmApi.searchArtist.mockResolvedValue([]);
 
         render(<SimilarArtists {...defaultProps} />);
 
@@ -154,7 +170,8 @@ describe('SimilarArtists', () => {
             { name: 'Artist Two', mbid: '456' }
         ];
 
-        mockLastfmApi.searchArtist.mockResolvedValue(testResults);
+        const lastfmApi = require('../../../restClients/LastfmApi').default;
+        lastfmApi.searchArtist.mockResolvedValue(testResults);
 
         const component = new SimilarArtists(defaultProps);
         const mappedResults = await component.search('test');
@@ -171,7 +188,8 @@ describe('SimilarArtists', () => {
     });
 
     it('handles search errors gracefully', async () => {
-        mockLastfmApi.searchArtist.mockRejectedValue(new Error('Search failed'));
+        const lastfmApi = require('../../../restClients/LastfmApi').default;
+        lastfmApi.searchArtist.mockRejectedValue(new Error('Search failed'));
 
         render(<SimilarArtists {...defaultProps} />);
 

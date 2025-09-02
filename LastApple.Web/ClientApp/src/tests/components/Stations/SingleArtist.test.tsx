@@ -1,23 +1,37 @@
-import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { SingleArtist } from '../../../components/Stations/SingleArtist';
-
-// Mock musicKit first
+// Mock APIs before any imports
 jest.mock('../../../musicKit', () => ({
+    __esModule: true,
     default: {
         getInstance: jest.fn().mockResolvedValue({
+            storefrontId: 'us',
             api: {
                 music: jest.fn().mockResolvedValue({
-                    data: { data: [
-                        { id: 'artist1', attributes: { name: 'Test Artist 1' } },
-                        { id: 'artist2', attributes: { name: 'Test Artist 2' } }
-                    ] }
+                    data: {
+                        results: {
+                            artists: {
+                                data: [
+                                    { id: 'artist-1', attributes: { name: 'Radiohead' } },
+                                    { id: 'artist-2', attributes: { name: 'Thom Yorke' } }
+                                ]
+                            }
+                        }
+                    }
                 })
-            },
-            storefrontId: 'us'
+            }
         })
     }
 }));
+
+jest.mock('../../../restClients/StationApi', () => ({
+    __esModule: true,
+    default: {
+        postStation: jest.fn().mockResolvedValue({ id: 'test-station-id' })
+    }
+}));
+
+import React from 'react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { SingleArtist } from '../../../components/Stations/SingleArtist';
 
 // Mock dependencies
 jest.mock('../../../components/Search', () => ({
@@ -40,15 +54,19 @@ jest.mock('../../../components/Search', () => ({
     )
 }));
 
-jest.mock('../../../restClients/StationApi', () => ({
-    default: {
-        postStation: jest.fn().mockResolvedValue({ id: 'test-station-id' })
-    }
-}));
+describe('SingleArtist', () => {
+    const defaultProps = {
+        triggerCreate: false,
+        onStationCreated: jest.fn(),
+        onOptionsChanged: jest.fn()
+    };
 
-jest.mock('../../../musicKit', () => ({
-    default: {
-        getInstance: jest.fn().mockResolvedValue({
+    beforeEach(() => {
+        jest.clearAllMocks();
+        
+        // Restore mock implementations after clearAllMocks
+        const musicKit = require('../../../musicKit').default;
+        musicKit.getInstance.mockResolvedValue({
             storefrontId: 'us',
             api: {
                 music: jest.fn().mockResolvedValue({
@@ -64,19 +82,10 @@ jest.mock('../../../musicKit', () => ({
                     }
                 })
             }
-        })
-    }
-}));
-
-describe('SingleArtist', () => {
-    const defaultProps = {
-        triggerCreate: false,
-        onStationCreated: jest.fn(),
-        onOptionsChanged: jest.fn()
-    };
-
-    beforeEach(() => {
-        jest.clearAllMocks();
+        });
+        
+        const stationApi = require('../../../restClients/StationApi').default;
+        stationApi.postStation.mockResolvedValue({ id: 'test-station-id' });
     });
 
     it('renders without crashing', () => {
@@ -108,8 +117,8 @@ describe('SingleArtist', () => {
         fireEvent.change(searchInput, { target: { value: 'radiohead' } });
 
         await waitFor(() => {
-            const mockMusicKit = require('../../../musicKit').default;
-            expect(mockMusicKit.getInstance).toHaveBeenCalled();
+            const musicKit = require('../../../musicKit').default;
+            expect(musicKit.getInstance).toHaveBeenCalled();
         });
     });
 
@@ -151,7 +160,8 @@ describe('SingleArtist', () => {
         fireEvent.change(searchInput, { target: { value: 'radiohead' } });
 
         await waitFor(() => {
-            expect(mockMusicKit.getInstance).toHaveBeenCalled();
+            const musicKit = require('../../../musicKit').default;
+            expect(musicKit.getInstance).toHaveBeenCalled();
         });
 
         // Then trigger creation
@@ -216,7 +226,8 @@ describe('SingleArtist', () => {
             }
         };
 
-        mockMusicKit.getInstance.mockResolvedValue(mockMusicKitInstance);
+        const musicKit = require('../../../musicKit').default;
+        musicKit.getInstance.mockResolvedValue(mockMusicKitInstance);
 
         const component = new SingleArtist(defaultProps);
         const results = await component.search('test');
@@ -269,7 +280,8 @@ describe('SingleArtist', () => {
             }
         };
 
-        mockMusicKit.getInstance.mockResolvedValue(mockMusicKitInstance);
+        const musicKit = require('../../../musicKit').default;
+        musicKit.getInstance.mockResolvedValue(mockMusicKitInstance);
 
         const component = new SingleArtist(defaultProps);
         
@@ -284,7 +296,8 @@ describe('SingleArtist', () => {
         fireEvent.change(searchInput, { target: { value: 'test search' } });
 
         await waitFor(() => {
-            const kitInstance = mockMusicKit.getInstance.mock.results[0].value;
+            const musicKit = require('../../../musicKit').default;
+            const kitInstance = musicKit.getInstance.mock.results[0].value;
             expect(kitInstance.api.music).toHaveBeenCalledWith(
                 '/v1/catalog/us/search',
                 {
