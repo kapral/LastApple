@@ -3,11 +3,15 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { PlaylistTrack } from '../../../components/Player/PlaylistTrack';
 
 // Mock dependencies
-jest.mock('../../../components/Player/CustomToggle', () => ({
-    CustomToggle: React.forwardRef(({ children, ...props }: any, ref) => (
-        <div ref={ref} {...props}>{children}</div>
-    ))
-}));
+jest.mock('../../../components/Player/CustomToggle', () => {
+    // Import React within the mock to avoid hoisting issues
+    const mockReact = require('react');
+    return {
+        CustomToggle: mockReact.forwardRef(({ children, ...props }: any, ref) => (
+            mockReact.createElement('div', { ref, ...props }, children)
+        ))
+    };
+});
 
 jest.mock('@fortawesome/react-fontawesome', () => ({
     FontAwesomeIcon: ({ icon }: any) => <div data-testid="fontawesome-icon" data-icon={icon.iconName} />

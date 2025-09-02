@@ -4,6 +4,44 @@
 // learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom';
 
+// Mock utility functions first
+jest.mock('./utils/mics', () => ({
+    assertNonNullable: jest.fn((value) => {
+        if (value === undefined || value === null) {
+            throw new Error('Value is null or undefined');
+        }
+        return value;
+    }),
+}));
+
+// Mock Apple Context with default values
+const mockAppleContextValue = {
+    authentication: {
+        state: 1, // AuthenticationState.Unauthenticated
+        setState: jest.fn(),
+    },
+};
+
+jest.mock('./apple/AppleContext', () => ({
+    useAppleContext: jest.fn(() => mockAppleContextValue),
+    AppleContextProvider: ({ children }: any) => children,
+}));
+
+// Mock Lastfm Context with default values  
+const mockLastfmContextValue = {
+    authentication: {
+        state: 1, // AuthenticationState.Unauthenticated
+        setState: jest.fn(),
+    },
+    user: null,
+    setUser: jest.fn(),
+};
+
+jest.mock('./lastfm/LastfmContext', () => ({
+    useLastfmContext: jest.fn(() => mockLastfmContextValue),
+    LastfmContextProvider: ({ children }: any) => children,
+}));
+
 // Mock MusicKit global object
 const mockMusicKit = {
   configure: jest.fn().mockResolvedValue({
@@ -45,37 +83,68 @@ Object.defineProperty(window, 'MusicKit', {
 
 // Mock the musicKit module
 jest.mock('./musicKit', () => ({
-  getInstance: jest.fn().mockResolvedValue({
-    api: {
-      music: jest.fn().mockResolvedValue({
-        data: { data: [] }
-      })
+  __esModule: true,
+  default: {
+    getInstance: jest.fn().mockResolvedValue({
+      api: {
+        music: jest.fn().mockResolvedValue({
+          data: { data: [] }
+        })
+      },
+      storefrontId: 'us',
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
+      play: jest.fn(),
+      pause: jest.fn(),
+      stop: jest.fn(),
+      seekToTime: jest.fn(),
+      isAuthorized: true,
+      player: {
+        currentPlaybackTime: 0,
+        currentPlaybackDuration: 0,
+        playbackState: 0,
+        isPlaying: false,
+        nowPlayingItem: null,
+      },
+      queue: {
+        append: jest.fn(),
+        prepend: jest.fn(),
+        remove: jest.fn(),
+      },
+    }),
+    instance: {
+      api: {
+        music: jest.fn().mockResolvedValue({
+          data: { data: [] }
+        })
+      },
+      storefrontId: 'us',
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
+      play: jest.fn(),
+      pause: jest.fn(),
+      stop: jest.fn(),
+      seekToTime: jest.fn(),
+      isAuthorized: true,
+      player: {
+        currentPlaybackTime: 0,
+        currentPlaybackDuration: 0,
+        playbackState: 0,
+        isPlaying: false,
+        nowPlayingItem: null,
+      },
+      queue: {
+        append: jest.fn(),
+        prepend: jest.fn(),
+        remove: jest.fn(),
+      },
     },
-    storefrontId: 'us',
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    play: jest.fn(),
-    pause: jest.fn(),
-    stop: jest.fn(),
-    seekToTime: jest.fn(),
-    player: {
-      currentPlaybackTime: 0,
-      currentPlaybackDuration: 0,
-      playbackState: 0,
-      isPlaying: false,
-      nowPlayingItem: null,
-    },
-    queue: {
-      append: jest.fn(),
-      prepend: jest.fn(),
-      remove: jest.fn(),
-    },
-  }),
-  formatMediaTime: jest.fn((seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = Math.floor(seconds % 60);
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-  }),
+    formatMediaTime: jest.fn((seconds: number) => {
+      const minutes = Math.floor(seconds / 60);
+      const remainingSeconds = Math.floor(seconds % 60);
+      return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    }),
+  },
 }));
 
 // Mock SignalR

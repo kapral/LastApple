@@ -3,34 +3,8 @@ import { renderHook } from '@testing-library/react';
 import { useAppleUnauthenticatedWarning } from '../../hooks/useAppleUnauthenticatedWarning';
 import { AuthenticationState } from '../../authentication';
 
-// Mock the dependencies
-const mockAppleContext = {
-    authentication: {
-        state: AuthenticationState.Unauthenticated,
-        setState: jest.fn(),
-    },
-};
-
-// Mock utils first
-jest.mock('../../utils/mics', () => ({
-    assertNonNullable: jest.fn((value) => {
-        if (value === undefined || value === null) {
-            throw new Error('Value is null or undefined');
-        }
-        return value;
-    }),
-}));
-
-jest.mock('../../apple/AppleContext', () => ({
-    useAppleContext: jest.fn(() => mockAppleContext),
-}));
-
-jest.mock('../../components/AppleUnauthenticatedWarning', () => ({
-    AppleUnauthenticatedWarning: () => {
-        const React = require('react');
-        return React.createElement('div', { 'data-testid': 'apple-warning' }, 'Apple Warning');
-    },
-}));
+// Get the mock functions from the global setup
+const { useAppleContext } = require('../../apple/AppleContext');
 
 describe('useAppleUnauthenticatedWarning', () => {
     beforeEach(() => {
@@ -38,7 +12,12 @@ describe('useAppleUnauthenticatedWarning', () => {
     });
 
     it('should return isShown as true when Apple authentication is unauthenticated', () => {
-        mockAppleContext.authentication.state = AuthenticationState.Unauthenticated;
+        useAppleContext.mockReturnValue({
+            authentication: {
+                state: AuthenticationState.Unauthenticated,
+                setState: jest.fn(),
+            },
+        });
 
         const { result } = renderHook(() => useAppleUnauthenticatedWarning());
 
@@ -47,7 +26,12 @@ describe('useAppleUnauthenticatedWarning', () => {
     });
 
     it('should return isShown as false when Apple authentication is authenticated', () => {
-        mockAppleContext.authentication.state = AuthenticationState.Authenticated;
+        useAppleContext.mockReturnValue({
+            authentication: {
+                state: AuthenticationState.Authenticated,
+                setState: jest.fn(),
+            },
+        });
 
         const { result } = renderHook(() => useAppleUnauthenticatedWarning());
 
@@ -56,7 +40,12 @@ describe('useAppleUnauthenticatedWarning', () => {
     });
 
     it('should return isShown as false when Apple authentication is loading', () => {
-        mockAppleContext.authentication.state = AuthenticationState.Loading;
+        useAppleContext.mockReturnValue({
+            authentication: {
+                state: AuthenticationState.Loading,
+                setState: jest.fn(),
+            },
+        });
 
         const { result } = renderHook(() => useAppleUnauthenticatedWarning());
 
@@ -65,7 +54,12 @@ describe('useAppleUnauthenticatedWarning', () => {
     });
 
     it('should return the same Element instance on re-renders', () => {
-        mockAppleContext.authentication.state = AuthenticationState.Unauthenticated;
+        useAppleContext.mockReturnValue({
+            authentication: {
+                state: AuthenticationState.Unauthenticated,
+                setState: jest.fn(),
+            },
+        });
 
         const { result, rerender } = renderHook(() => useAppleUnauthenticatedWarning());
         
@@ -79,13 +73,25 @@ describe('useAppleUnauthenticatedWarning', () => {
     });
 
     it('should update isShown when authentication state changes', () => {
-        mockAppleContext.authentication.state = AuthenticationState.Unauthenticated;
+        useAppleContext.mockReturnValue({
+            authentication: {
+                state: AuthenticationState.Unauthenticated,
+                setState: jest.fn(),
+            },
+        });
 
         const { result, rerender } = renderHook(() => useAppleUnauthenticatedWarning());
 
         expect(result.current.isShown).toBe(true);
 
-        mockAppleContext.authentication.state = AuthenticationState.Authenticated;
+        // Change the mock return value
+        useAppleContext.mockReturnValue({
+            authentication: {
+                state: AuthenticationState.Authenticated,
+                setState: jest.fn(),
+            },
+        });
+
         rerender();
 
         expect(result.current.isShown).toBe(false);
