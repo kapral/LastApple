@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using System.Threading.Tasks;
 using IF.Lastfm.Core.Api;
@@ -23,17 +22,11 @@ public class TestTagsStationSource
     }
 
     [Test]
-    public void Constructor_Throws_On_Null_Arguments()
-    {
-        Assert.That(() => new TagsStationSource(null), Throws.ArgumentNullException);
-    }
-
-    [Test]
     public async Task GetStationArtists_Returns_Empty_When_No_Artists_Found()
     {
         var definition = new TagsStationDefinition(["rock"]);
         tagApi.GetTopArtistsAsync("rock", 1, 200)
-              .Returns(PageResponse<LastArtist>.CreateSuccessResponse([]));
+              .Returns(new PageResponse<LastArtist>([]));
 
         var result = await source.GetStationArtists(definition);
 
@@ -52,9 +45,9 @@ public class TestTagsStationSource
         };
 
         tagApi.GetTopArtistsAsync("rock", 1, 200)
-              .Returns(PageResponse<LastArtist>.CreateSuccessResponse(lastfmArtists));
+              .Returns(new PageResponse<LastArtist>(lastfmArtists));
         tagApi.GetTopArtistsAsync("rock", Arg.Is<int>(page => page > 1), 200)
-              .Returns(PageResponse<LastArtist>.CreateSuccessResponse([]));
+              .Returns(new PageResponse<LastArtist>([]));
 
         var result = await source.GetStationArtists(definition);
 
@@ -68,14 +61,14 @@ public class TestTagsStationSource
     public async Task GetStationArtists_Returns_Intersection_For_Multiple_Tags()
     {
         var definition = new TagsStationDefinition(["rock", "classic"]);
-        
+
         var rockArtists = new[]
         {
             new LastArtist { Name = "The Beatles" },
             new LastArtist { Name = "Led Zeppelin" },
             new LastArtist { Name = "Radiohead" }
         };
-        
+
         var classicArtists = new[]
         {
             new LastArtist { Name = "The Beatles" },
@@ -84,9 +77,9 @@ public class TestTagsStationSource
         };
 
         tagApi.GetTopArtistsAsync("rock", Arg.Any<int>(), Arg.Any<int>())
-              .Returns(PageResponse<LastArtist>.CreateSuccessResponse(rockArtists));
+              .Returns(new PageResponse<LastArtist>(rockArtists));
         tagApi.GetTopArtistsAsync("classic", Arg.Any<int>(), Arg.Any<int>())
-              .Returns(PageResponse<LastArtist>.CreateSuccessResponse(classicArtists));
+              .Returns(new PageResponse<LastArtist>(classicArtists));
 
         var result = await source.GetStationArtists(definition);
 
@@ -104,7 +97,7 @@ public class TestTagsStationSource
             new LastArtist { Name = "Artist1" },
             new LastArtist { Name = "Artist2" }
         };
-        
+
         var page1AlternativeArtists = new[]
         {
             new LastArtist { Name = "Artist1" }
@@ -117,7 +110,7 @@ public class TestTagsStationSource
             new LastArtist { Name = "Artist5" },
             new LastArtist { Name = "Artist6" }
         };
-        
+
         var page2AlternativeArtists = new[]
         {
             new LastArtist { Name = "Artist3" },
@@ -127,10 +120,10 @@ public class TestTagsStationSource
             new LastArtist { Name = "Artist7" }
         };
 
-        tagApi.GetTopArtistsAsync("rock", 1, 200).Returns(PageResponse<LastArtist>.CreateSuccessResponse(page1RockArtists));
-        tagApi.GetTopArtistsAsync("alternative", 1, 200).Returns(PageResponse<LastArtist>.CreateSuccessResponse(page1AlternativeArtists));
-        tagApi.GetTopArtistsAsync("rock", 2, 200).Returns(PageResponse<LastArtist>.CreateSuccessResponse(page2RockArtists));
-        tagApi.GetTopArtistsAsync("alternative", 2, 200).Returns(PageResponse<LastArtist>.CreateSuccessResponse(page2AlternativeArtists));
+        tagApi.GetTopArtistsAsync("rock", 1, 200).Returns(new PageResponse<LastArtist>(page1RockArtists));
+        tagApi.GetTopArtistsAsync("alternative", 1, 200).Returns(new PageResponse<LastArtist>(page1AlternativeArtists));
+        tagApi.GetTopArtistsAsync("rock", 2, 200).Returns(new PageResponse<LastArtist>(page2RockArtists));
+        tagApi.GetTopArtistsAsync("alternative", 2, 200).Returns(new PageResponse<LastArtist>(page2AlternativeArtists));
 
         var result = await source.GetStationArtists(definition);
 
@@ -145,13 +138,13 @@ public class TestTagsStationSource
     public async Task GetStationArtists_Returns_Empty_When_No_Intersection_Found()
     {
         var definition = new TagsStationDefinition(["rock", "jazz"]);
-        
+
         var rockArtists = new[]
         {
             new LastArtist { Name = "Led Zeppelin" },
             new LastArtist { Name = "Deep Purple" }
         };
-        
+
         var jazzArtists = new[]
         {
             new LastArtist { Name = "Miles Davis" },
@@ -159,9 +152,9 @@ public class TestTagsStationSource
         };
 
         tagApi.GetTopArtistsAsync("rock", Arg.Any<int>(), Arg.Any<int>())
-              .Returns(PageResponse<LastArtist>.CreateSuccessResponse(rockArtists));
+              .Returns(new PageResponse<LastArtist>(rockArtists));
         tagApi.GetTopArtistsAsync("jazz", Arg.Any<int>(), Arg.Any<int>())
-              .Returns(PageResponse<LastArtist>.CreateSuccessResponse(jazzArtists));
+              .Returns(new PageResponse<LastArtist>(jazzArtists));
 
         var result = await source.GetStationArtists(definition);
 

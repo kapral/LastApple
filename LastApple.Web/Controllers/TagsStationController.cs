@@ -16,7 +16,7 @@ public class TagsStationController(IStationRepository stationRepository,
     [Route("{tag}")]
     public async Task<Station<TagsStationDefinition>> Create(string tag)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(nameof(tag));
+        ArgumentException.ThrowIfNullOrWhiteSpace(tag);
 
         var definition = new TagsStationDefinition([tag]);
         var station = new Station<TagsStationDefinition>(definition)

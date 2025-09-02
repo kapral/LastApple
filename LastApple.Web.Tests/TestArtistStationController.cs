@@ -75,24 +75,24 @@ public class TestArtistStationController
 
     private Resource<ArtistAttributes> CreateMockArtist(string artistId, string[] albumIds)
     {
-        var albumData = albumIds.Select(id => new Resource<AlbumAttributes>(id, ResourceType.Albums, "", null, null)).ToArray();
+        var albumData = albumIds.Select(id => new Resource<AlbumAttributes>(id, ResourceType.Albums, "", null!, null!)).ToArray();
         var albumsCollection = new ResourceMatches<AlbumAttributes>(albumData);
         var tracksCollection = new ResourceMatches<SongAttributes>(Array.Empty<Resource<SongAttributes>>());
         var relationships = new Relationships(tracksCollection, albumsCollection);
 
-        return new Resource<ArtistAttributes>(artistId, ResourceType.Artists, "", null, relationships);
+        return new Resource<ArtistAttributes>(artistId, ResourceType.Artists, "", null!, relationships);
     }
 
     private IReadOnlyCollection<Resource<AlbumAttributes>> CreateMockAlbums((string albumId, string[] trackIds)[] albumData)
     {
         return albumData.Select(album =>
         {
-            var trackData = album.trackIds.Select(id => new Resource<SongAttributes>(id, ResourceType.Songs, "", null, null)).ToArray();
+            var trackData = album.trackIds.Select(id => new Resource<SongAttributes>(id, ResourceType.Songs, "", null!, null!)).ToArray();
             var tracksCollection = new ResourceMatches<SongAttributes>(trackData);
             var albumsCollection = new ResourceMatches<AlbumAttributes>(Array.Empty<Resource<AlbumAttributes>>());
             var relationships = new Relationships(tracksCollection, albumsCollection);
 
-            return new Resource<AlbumAttributes>(album.albumId, ResourceType.Albums, "", null, relationships);
+            return new Resource<AlbumAttributes>(album.albumId, ResourceType.Albums, "", null!, relationships);
         }).ToArray();
     }
 }

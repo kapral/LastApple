@@ -24,13 +24,6 @@ public class TestLastfmLibraryStationSource
         source = new LastfmLibraryStationSource(userApi);
     }
 
-#pragma warning disable CS0612
-    [Test]
-    public void Constructor_Throws_On_Null_Parameters()
-    {
-        Assert.That(() => new LastfmLibraryStationSource(null), Throws.ArgumentNullException);
-    }
-
     [Test]
     public void GetStationArtists_Throws_On_Null_Arguments()
     {
@@ -44,11 +37,10 @@ public class TestLastfmLibraryStationSource
         var artists    = new[] { new LastArtist { Name = "Asaf Avidan" } };
 
         userApi.GetTopArtists(definition.User, pagenumber: 1, count: 100, span: LastStatsTimeSpan.Year)
-               .Returns(PageResponse<LastArtist>.CreateSuccessResponse(artists));
+               .Returns(new PageResponse<LastArtist>(artists));
 
         var result = await source.GetStationArtists(definition);
 
         Assert.That(result, Is.EqualTo([new Artist(Name: "Asaf Avidan")]));
     }
-#pragma warning restore CS0612
 }

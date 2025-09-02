@@ -15,8 +15,7 @@ public class SimilarArtistsStationSource(IArtistApi artistApi) : IStationSource<
 
         var similarArtists = await artistApi.GetSimilarAsync(definition.SourceArtist);
 
-        return similarArtists.Content.Any()
-                   ? new[] { new Artist(Name: definition.SourceArtist) }.Concat(similarArtists.Select(x => new Artist(Name: x.Name))).ToArray()
-                   : [];
+        return new[] { new Artist(Name: definition.SourceArtist) }
+               .Concat(similarArtists.Select(x => new Artist(Name: x.Name))).ToArray();
     }
 }

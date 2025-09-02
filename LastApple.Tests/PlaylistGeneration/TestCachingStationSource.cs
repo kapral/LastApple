@@ -26,8 +26,8 @@ public class TestCachingStationSource
     [Test]
     public void Constructor_Throws_On_Null_Arguments()
     {
-        Assert.That(() => new CachingStationSource<SimilarArtistsStationDefinition>(null, trackRepository), Throws.ArgumentNullException);
-        Assert.That(() => new CachingStationSource<SimilarArtistsStationDefinition>(concreteSource, null), Throws.ArgumentNullException);
+        Assert.That(() => new CachingStationSource<SimilarArtistsStationDefinition>(null!, trackRepository), Throws.ArgumentNullException);
+        Assert.That(() => new CachingStationSource<SimilarArtistsStationDefinition>(concreteSource, null!), Throws.ArgumentNullException);
     }
 
     [Test]

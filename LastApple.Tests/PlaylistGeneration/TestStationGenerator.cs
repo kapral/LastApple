@@ -23,20 +23,9 @@ public class TestStationGenerator
         stationEventMediator = Substitute.For<IStationEventMediator>();
 
         generator = new StationGenerator<SimilarArtistsStationDefinition>(
-            trackGenerator, 
-            trackIdProvider, 
+            trackGenerator,
+            trackIdProvider,
             stationEventMediator);
-    }
-
-    [Test]
-    public void Constructor_Throws_On_Null_Arguments()
-    {
-        Assert.That(() => new StationGenerator<SimilarArtistsStationDefinition>(null, trackIdProvider, stationEventMediator), 
-            Throws.ArgumentNullException);
-        Assert.That(() => new StationGenerator<SimilarArtistsStationDefinition>(trackGenerator, null, stationEventMediator), 
-            Throws.ArgumentNullException);
-        Assert.That(() => new StationGenerator<SimilarArtistsStationDefinition>(trackGenerator, trackIdProvider, null), 
-            Throws.ArgumentNullException);
     }
 
     [Test]

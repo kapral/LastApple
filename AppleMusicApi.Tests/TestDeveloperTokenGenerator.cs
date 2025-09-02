@@ -16,7 +16,7 @@ public class TestDeveloperTokenGenerator
     [Test]
     public void GenerateDeveloperToken_Throws_On_Null_Credentials()
     {
-        Assert.That(() => generator.GenerateDeveloperToken(null, TimeSpan.FromHours(1)),
+        Assert.That(() => generator.GenerateDeveloperToken(null!, TimeSpan.FromHours(1)),
             Throws.ArgumentNullException);
     }
 

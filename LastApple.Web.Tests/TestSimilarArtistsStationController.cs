@@ -15,19 +15,24 @@ public class TestSimilarArtistsStationController
     [SetUp]
     public void Setup()
     {
-        mockStationRepository = Substitute.For<IStationRepository>();
-        mockStationGenerator = Substitute.For<IStationGenerator<SimilarArtistsStationDefinition>>();
+        mockStationRepository        = Substitute.For<IStationRepository>();
+        mockStationGenerator         = Substitute.For<IStationGenerator<SimilarArtistsStationDefinition>>();
         mockBackgroundProcessManager = Substitute.For<IBackgroundProcessManager>();
-        mockStorefrontProvider = Substitute.For<IStorefrontProvider>();
+        mockStorefrontProvider       = Substitute.For<IStorefrontProvider>();
 
-        controller = new SimilarArtistsStationController(
-            mockStationRepository,
-            mockStationGenerator,
-            mockBackgroundProcessManager,
-            mockStorefrontProvider);
+        controller = new SimilarArtistsStationController(mockStationRepository,
+                                                         mockStationGenerator,
+                                                         mockBackgroundProcessManager,
+                                                         mockStorefrontProvider);
     }
 
-
+    [Test]
+    public void Create_Throws_For_Null_Or_Whitespace_Tag()
+    {
+        Assert.That(() => controller.Create(null!), Throws.ArgumentNullException);
+        Assert.That(() => controller.Create(string.Empty), Throws.ArgumentException);
+        Assert.That(() => controller.Create("   "), Throws.ArgumentException);
+    }
 
     [Test]
     public async Task Create_Creates_Station_For_Valid_Artist()
@@ -56,7 +61,6 @@ public class TestSimilarArtistsStationController
 
         await mockStationGenerator.Received().Generate(station, storefront);
     }
-
 
     [Test]
     public async Task TopUp_Returns_NotFound_For_Invalid_Station_Id()

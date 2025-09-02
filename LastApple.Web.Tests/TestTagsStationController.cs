@@ -20,14 +20,19 @@ public class TestTagsStationController
         mockBackgroundProcessManager = Substitute.For<IBackgroundProcessManager>();
         mockStorefrontProvider       = Substitute.For<IStorefrontProvider>();
 
-        controller = new TagsStationController(
-            mockStationRepository,
-            mockStationGenerator,
-            mockBackgroundProcessManager,
-            mockStorefrontProvider);
+        controller = new TagsStationController(mockStationRepository,
+                                               mockStationGenerator,
+                                               mockBackgroundProcessManager,
+                                               mockStorefrontProvider);
     }
 
-
+    [Test]
+    public void Create_Throws_For_Null_Or_Whitespace_Tag()
+    {
+        Assert.That(() => controller.Create(null!), Throws.ArgumentNullException);
+        Assert.That(() => controller.Create(string.Empty), Throws.ArgumentException);
+        Assert.That(() => controller.Create("   "), Throws.ArgumentException);
+    }
 
     [Test]
     public async Task Create_Creates_Station_For_Valid_Tag()
@@ -56,8 +61,6 @@ public class TestTagsStationController
 
         await mockStationGenerator.Received().Generate(station, storefront);
     }
-
-
 
     [Test]
     public async Task TopUp_Returns_NotFound_For_Invalid_Station_Id()

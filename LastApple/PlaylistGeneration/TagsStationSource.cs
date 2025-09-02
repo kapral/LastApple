@@ -9,7 +9,6 @@ namespace LastApple.PlaylistGeneration;
 
 public class TagsStationSource(ITagApi tagApi) : IStationSource<TagsStationDefinition>
 {
-    private readonly ITagApi tagApi = tagApi ?? throw new ArgumentNullException(nameof(tagApi));
     private const int LastFmPageSize        = 200;
     private const int MaxPageNumber         = 10;
     private const int MinIntersectionLength = 5;

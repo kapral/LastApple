@@ -27,8 +27,8 @@ public class TestDeveloperTokenProvider
     [Test]
     public void Constructor_Throws_On_Null_Arguments()
     {
-        Assert.That(() => new DeveloperTokenProvider(null, credentials), Throws.ArgumentNullException);
-        Assert.That(() => new DeveloperTokenProvider(tokenGenerator, null), Throws.ArgumentNullException);
+        Assert.That(() => new DeveloperTokenProvider(null!, credentials), Throws.ArgumentNullException);
+        Assert.That(() => new DeveloperTokenProvider(tokenGenerator, null!), Throws.ArgumentNullException);
     }
 
     [Test]

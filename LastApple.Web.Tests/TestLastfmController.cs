@@ -31,7 +31,7 @@ public class TestLastfmController
     {
         Assert.That(() => controller.Search(""), Throws.ArgumentException);
         Assert.That(() => controller.Search("   "), Throws.ArgumentException);
-        Assert.That(() => controller.Search(null), Throws.ArgumentNullException);
+        Assert.That(() => controller.Search(null!), Throws.ArgumentNullException);
     }
 
     [Test]

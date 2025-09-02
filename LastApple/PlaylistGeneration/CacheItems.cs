@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 
 namespace LastApple.PlaylistGeneration;
 
+// todo: this is looking extremely suspicious, needs refactoring
 public class CacheItems<TItem>
 {
     public int Attempts { get; set; }
