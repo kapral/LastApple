@@ -26,8 +26,14 @@ jest.mock('../../../components/Search', () => ({
                 placeholder={placeholder}
                 onChange={async (e) => {
                     if (e.target.value) {
-                        const results = await search(e.target.value);
-                        onChanged([results[0]]); // Simulate selecting first result
+                        try {
+                            const results = await search(e.target.value);
+                            onChanged([results[0]]); // Simulate selecting first result
+                        } catch (error) {
+                            // Gracefully handle search errors
+                            console.log('Search error handled:', error.message);
+                            onChanged([]); // Return empty results on error
+                        }
                     } else {
                         onChanged([]);
                     }
@@ -110,6 +116,11 @@ describe('SimilarArtists', () => {
         render(<SimilarArtists {...defaultProps} onOptionsChanged={mockOnOptionsChanged} />);
 
         const searchInput = screen.getByTestId('search-input');
+        
+        // First type something to trigger initial state
+        fireEvent.change(searchInput, { target: { value: 'test' } });
+        
+        // Then clear it
         fireEvent.change(searchInput, { target: { value: '' } });
 
         await waitFor(() => {
@@ -238,6 +249,11 @@ describe('SimilarArtists', () => {
         render(<SimilarArtists {...defaultProps} onOptionsChanged={mockOnOptionsChanged} />);
 
         const searchInput = screen.getByTestId('search-input');
+        
+        // First type something to trigger initial state
+        fireEvent.change(searchInput, { target: { value: 'test' } });
+        
+        // Then clear it
         fireEvent.change(searchInput, { target: { value: '' } });
 
         await waitFor(() => {
