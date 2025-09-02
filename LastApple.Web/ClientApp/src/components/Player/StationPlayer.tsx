@@ -170,7 +170,9 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
     }
 
     componentWillUnmount() {
-        this.hubConnection.off('trackAdded');
+        if (this.hubConnection) {
+            this.hubConnection.off('trackAdded');
+        }
         this.musicKit.removeEventListener('playbackStateDidChange');
         this.musicKit.removeEventListener('playbackProgressDidChange');
         this.musicKit.removeEventListener('nowPlayingItemDidChange');

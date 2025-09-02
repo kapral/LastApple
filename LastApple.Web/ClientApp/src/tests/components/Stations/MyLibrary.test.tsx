@@ -1,9 +1,13 @@
+// Need to unmock contexts to use real Provider in this test
+jest.unmock('../../../lastfm/LastfmContext');
+
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { MyLibrary } from '../../../components/Stations/MyLibrary';
 import { AuthenticationState, IAuthenticationService } from '../../../authentication';
 import { LastfmContext } from '../../../lastfm/LastfmContext';
 
+// Mock StationApi with proper Jest factory
 jest.mock('../../../restClients/StationApi', () => ({
     default: {
         postStation: jest.fn().mockResolvedValue({ id: 'test-station-id' })
@@ -23,8 +27,8 @@ const TestWrapper: React.FC<{
 }> = ({ children, authState = AuthenticationState.Unauthenticated }) => (
     <LastfmContext.Provider value={{
         authentication: createMockAuthService(authState),
-        scrobblePreference: { enabled: true },
-        setScrobblePreference: jest.fn()
+        isScrobblingEnabled: true,
+        setIsScrobblingEnabled: jest.fn()
     }}>
         {children}
     </LastfmContext.Provider>
@@ -39,6 +43,10 @@ describe('MyLibrary', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
+        
+        // Restore StationApi mock after clearAllMocks
+        const mockStationApi = require('../../../restClients/StationApi').default;
+        mockStationApi.postStation.mockResolvedValue({ id: 'test-station-id' });
     });
 
     it('renders without crashing', () => {
@@ -103,7 +111,7 @@ describe('MyLibrary', () => {
         expect(mockOnOptionsChanged).toHaveBeenCalledWith(true);
     });
 
-    it('creates station when triggerCreate is true and authenticated', async () => {
+    it('creates station when triggerCreate is true and authenticated', async () => {        
         const mockOnStationCreated = jest.fn();
 
         const { rerender } = render(

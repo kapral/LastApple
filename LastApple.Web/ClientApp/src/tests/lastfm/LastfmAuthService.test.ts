@@ -29,6 +29,7 @@ import LastfmAuthService from '../../lastfm/LastfmAuthService';
 // Mock window.location and window.history
 const mockLocation = {
     href: 'http://localhost:3000/',
+    hash: '',
     replace: jest.fn(),
 };
 const mockHistory = {
@@ -115,6 +116,7 @@ describe('LastfmAuthService', () => {
             const mockLastfmApi = require('../../restClients/LastfmApi').default;
             mockLastfmApi.postToken.mockResolvedValue(mockResponse);
             mockLocation.href = 'http://localhost:3000/?token=test-token#/home';
+            mockLocation.hash = '#/home';
 
             await LastfmAuthService.postToken(token);
 
@@ -133,6 +135,7 @@ describe('LastfmAuthService', () => {
             const mockLastfmApi = require('../../restClients/LastfmApi').default;
             mockLastfmApi.postToken.mockResolvedValue(mockResponse);
             mockLocation.href = 'http://localhost:3000/?token=test-token';
+            mockLocation.hash = '';
 
             await LastfmAuthService.postToken(token);
 

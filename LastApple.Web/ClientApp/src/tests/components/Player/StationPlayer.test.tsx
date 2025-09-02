@@ -43,22 +43,23 @@ jest.mock('../../../musicKit', () => ({
     }
 }));
 
-jest.mock('@aspnet/signalr', () => ({
-    HubConnectionBuilder: jest.fn().mockImplementation(() => {
-        const mockHub = {
-            start: jest.fn().mockResolvedValue(undefined),
-            stop: jest.fn().mockResolvedValue(undefined),
-            on: jest.fn(),
-            off: jest.fn()
-        };
-        
-        return {
-            withUrl: jest.fn().mockReturnValue({
-                build: jest.fn().mockReturnValue(mockHub)
-            })
-        };
-    })
-}));
+jest.mock('@aspnet/signalr', () => {
+    const mockHub = {
+        start: jest.fn().mockResolvedValue(undefined),
+        stop: jest.fn().mockResolvedValue(undefined),
+        on: jest.fn(),
+        off: jest.fn()
+    };
+
+    const mockBuilder = {
+        withUrl: jest.fn().mockReturnThis(),
+        build: jest.fn().mockReturnValue(mockHub)
+    };
+
+    return {
+        HubConnectionBuilder: jest.fn().mockImplementation(() => mockBuilder)
+    };
+});
 
 jest.mock('../../../restClients/LastfmApi', () => ({
     default: {

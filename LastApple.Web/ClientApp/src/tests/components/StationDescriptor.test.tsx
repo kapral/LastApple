@@ -210,7 +210,7 @@ describe('StationDescriptor', () => {
         });
     });
 
-    it('passes triggerCreate prop to station component when arrow is clicked', () => {
+    it('passes triggerCreate prop to station component when arrow is clicked', async () => {
         const TriggerTestComponent: React.FC<IStationParams> = ({ 
             triggerCreate, 
             onOptionsChanged, 
@@ -247,6 +247,8 @@ describe('StationDescriptor', () => {
         const icon = screen.getByTestId('fontawesome-icon');
         fireEvent.click(icon);
 
-        expect(screen.getByText('Creation Triggered')).toBeInTheDocument();
+        await waitFor(() => {
+            expect(screen.getByText('Creation Triggered')).toBeInTheDocument();
+        });
     });
 });

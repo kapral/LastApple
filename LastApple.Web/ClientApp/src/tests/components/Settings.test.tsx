@@ -1,3 +1,7 @@
+// Need to unmock contexts to use real Provider in this test
+jest.unmock('../../apple/AppleContext');
+jest.unmock('../../lastfm/LastfmContext');
+
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Settings } from '../../components/Settings';
@@ -41,8 +45,8 @@ const TestWrapper: React.FC<{
     }}>
         <LastfmContext.Provider value={{
             authentication: createMockAuthService(lastfmState),
-            scrobblePreference: { enabled: true },
-            setScrobblePreference: jest.fn()
+            isScrobblingEnabled: true,
+            setIsScrobblingEnabled: jest.fn()
         }}>
             {children}
         </LastfmContext.Provider>

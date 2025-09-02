@@ -12,7 +12,7 @@ const mockLastfmContext = {
         user: {
             name: 'testuser',
             url: 'http://last.fm/user/testuser',
-            avatar: ['http://last.fm/avatar.jpg', 'http://last.fm/avatar2.jpg']
+            avatar: ['http://last.fm/avatar1.jpg', 'http://last.fm/avatar2.jpg']
         },
         setState: jest.fn(),
         setUser: jest.fn(),
@@ -28,12 +28,25 @@ jest.mock('../../lastfm/LastfmContext', () => ({
 // Mock the lastfm logo image
 jest.mock('../../images/lastfm-logo.png', () => 'lastfm-logo.png');
 
+// Mock React Bootstrap components
+jest.mock('react-bootstrap', () => ({
+    Spinner: ({ animation, style }: any) => (
+        <div data-testid="spinner" className="spinner-border" style={style}>
+            Loading...
+        </div>
+    )
+}));
+
 describe('LastfmAvatar', () => {
     let history: any;
 
     beforeEach(() => {
         history = createMemoryHistory();
         jest.clearAllMocks();
+        
+        // Reset the context mock to the default state
+        const { useLastfmContext } = require('../../lastfm/LastfmContext');
+        useLastfmContext.mockReturnValue(mockLastfmContext);
     });
 
     const renderWithRouter = (component: React.ReactElement) => {
@@ -49,7 +62,7 @@ describe('LastfmAvatar', () => {
 
         renderWithRouter(<LastfmAvatar />);
 
-        expect(screen.getByRole('status')).toBeInTheDocument();
+        expect(screen.getByTestId('spinner')).toBeInTheDocument();
     });
 
     it('should render user avatar and name when authenticated', () => {
@@ -60,11 +73,11 @@ describe('LastfmAvatar', () => {
             avatar: ['http://last.fm/avatar.jpg']
         };
 
-        renderWithRouter(<LastfmAvatar />);
+        const { container } = renderWithRouter(<LastfmAvatar />);
 
         expect(screen.getByText('testuser')).toBeInTheDocument();
         
-        const avatar = screen.getByRole('img');
+        const avatar = container.querySelector('img');
         expect(avatar).toHaveAttribute('src', 'http://last.fm/avatar.jpg');
         expect(avatar).toHaveStyle('border-radius: 20px');
     });
@@ -73,11 +86,11 @@ describe('LastfmAvatar', () => {
         mockLastfmContext.authentication.state = AuthenticationState.Unauthenticated;
         mockLastfmContext.authentication.user = undefined;
 
-        renderWithRouter(<LastfmAvatar />);
+        const { container } = renderWithRouter(<LastfmAvatar />);
 
         expect(screen.getByText('Log in')).toBeInTheDocument();
         
-        const avatar = screen.getByRole('img');
+        const avatar = container.querySelector('img');
         expect(avatar).toHaveAttribute('src', 'lastfm-logo.png');
     });
 
@@ -102,10 +115,10 @@ describe('LastfmAvatar', () => {
         mockLastfmContext.authentication.state = AuthenticationState.Unauthenticated;
         mockLastfmContext.authentication.user = undefined;
 
-        renderWithRouter(<LastfmAvatar />);
+        const { container } = renderWithRouter(<LastfmAvatar />);
 
-        const link = screen.getByRole('link');
-        fireEvent.click(link);
+        const link = container.querySelector('a');
+        fireEvent.click(link!);
 
         expect(history.location.pathname).toBe('/settings');
     });
@@ -156,9 +169,9 @@ describe('LastfmAvatar', () => {
             avatar: ['http://last.fm/avatar1.jpg', 'http://last.fm/avatar2.jpg']
         };
 
-        renderWithRouter(<LastfmAvatar />);
+        const { container } = renderWithRouter(<LastfmAvatar />);
 
-        const avatar = screen.getByRole('img');
+        const avatar = container.querySelector('img');
         expect(avatar).toHaveAttribute('src', 'http://last.fm/avatar1.jpg');
     });
 });
