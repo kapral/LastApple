@@ -20,21 +20,25 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { PlaylistTrackGroup } from '../../../components/Player/PlaylistTrackGroup';
 
-jest.mock('react-bootstrap', () => ({
-    Dropdown: {
-        Toggle: ({ children }: any) => <div data-testid="dropdown-toggle">{children}</div>,
-        Menu: ({ children }: any) => <div data-testid="dropdown-menu">{children}</div>,
-        Item: ({ children, onSelect, disabled }: any) => (
-            <div 
-                data-testid="dropdown-item" 
-                onClick={onSelect}
-                data-disabled={disabled}
-            >
-                {children}
-            </div>
-        )
-    }
-}));
+jest.mock('react-bootstrap', () => {
+    const MockDropdown = ({ children }: any) => <div data-testid="dropdown">{children}</div>;
+    
+    return {
+        Dropdown: Object.assign(MockDropdown, {
+            Toggle: ({ children }: any) => <div data-testid="dropdown-toggle">{children}</div>,
+            Menu: ({ children }: any) => <div data-testid="dropdown-menu">{children}</div>,
+            Item: ({ children, onSelect, disabled }: any) => (
+                <div 
+                    data-testid="dropdown-item" 
+                    onClick={onSelect}
+                    data-disabled={disabled}
+                >
+                    {children}
+                </div>
+            )
+        })
+    };
+});
 
 jest.mock('../../../musicKit', () => ({
     default: {
