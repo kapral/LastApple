@@ -60,7 +60,7 @@ export const PlayerControls = (props: PlayerControlsProps) =>
                 lastfmAuthenticated={props.lastfmAuthenticated}
             />}
             <div className={'album-art'} style={{
-                backgroundImage: `url(${StationPlayer.getImageUrl(props.currentTrack && props.currentTrack.attributes.artwork && props.currentTrack.attributes.artwork.url)})`,
+                backgroundImage: `url(${StationPlayer.getImageUrl(props.currentTrack?.attributes?.artwork?.url)})`,
                 ...albumArtStyles
             }}>
                 <div style={controlsContainerStyles}>

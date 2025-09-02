@@ -94,11 +94,18 @@ jest.mock('./musicKit', () => ({
       storefrontId: 'us',
       addEventListener: jest.fn(),
       removeEventListener: jest.fn(),
-      play: jest.fn(),
-      pause: jest.fn(),
-      stop: jest.fn(),
+      play: jest.fn().mockResolvedValue(undefined),
+      pause: jest.fn().mockResolvedValue(undefined),
+      stop: jest.fn().mockResolvedValue(undefined),
+      clearQueue: jest.fn().mockResolvedValue(undefined),
+      setQueue: jest.fn().mockResolvedValue(undefined),
+      playLater: jest.fn().mockResolvedValue(undefined),
+      skipToNextItem: jest.fn().mockResolvedValue(undefined),
+      skipToPreviousItem: jest.fn().mockResolvedValue(undefined),
+      changeToMediaAtIndex: jest.fn().mockResolvedValue(undefined),
       seekToTime: jest.fn(),
       isAuthorized: true,
+      nowPlayingItem: null,
       player: {
         currentPlaybackTime: 0,
         currentPlaybackDuration: 0,
@@ -107,9 +114,11 @@ jest.mock('./musicKit', () => ({
         nowPlayingItem: null,
       },
       queue: {
+        items: [],
         append: jest.fn(),
         prepend: jest.fn(),
         remove: jest.fn(),
+        item: jest.fn().mockReturnValue(null),
       },
     }),
     instance: {
@@ -121,11 +130,18 @@ jest.mock('./musicKit', () => ({
       storefrontId: 'us',
       addEventListener: jest.fn(),
       removeEventListener: jest.fn(),
-      play: jest.fn(),
-      pause: jest.fn(),
-      stop: jest.fn(),
+      play: jest.fn().mockResolvedValue(undefined),
+      pause: jest.fn().mockResolvedValue(undefined),
+      stop: jest.fn().mockResolvedValue(undefined),
+      clearQueue: jest.fn().mockResolvedValue(undefined),
+      setQueue: jest.fn().mockResolvedValue(undefined),
+      playLater: jest.fn().mockResolvedValue(undefined),
+      skipToNextItem: jest.fn().mockResolvedValue(undefined),
+      skipToPreviousItem: jest.fn().mockResolvedValue(undefined),
+      changeToMediaAtIndex: jest.fn().mockResolvedValue(undefined),
       seekToTime: jest.fn(),
       isAuthorized: true,
+      nowPlayingItem: null,
       player: {
         currentPlaybackTime: 0,
         currentPlaybackDuration: 0,
@@ -134,9 +150,11 @@ jest.mock('./musicKit', () => ({
         nowPlayingItem: null,
       },
       queue: {
+        items: [],
         append: jest.fn(),
         prepend: jest.fn(),
         remove: jest.fn(),
+        item: jest.fn().mockReturnValue(null),
       },
     },
     formatMediaTime: jest.fn((seconds: number) => {
@@ -147,7 +165,7 @@ jest.mock('./musicKit', () => ({
   },
 }));
 
-// Mock SignalR
+// Mock SignalR with proper builder pattern
 jest.mock('@aspnet/signalr', () => {
     const mockConnection = {
         start: jest.fn().mockResolvedValue(undefined),
@@ -157,10 +175,14 @@ jest.mock('@aspnet/signalr', () => {
         invoke: jest.fn().mockResolvedValue(undefined),
     };
     
-    const MockHubConnectionBuilder = jest.fn().mockImplementation(() => ({
-        withUrl: jest.fn().mockReturnThis(),
-        build: jest.fn().mockReturnValue(mockConnection),
-    }));
+    class MockHubConnectionBuilder {
+        withUrl() {
+            return this;
+        }
+        build() {
+            return mockConnection;
+        }
+    }
     
     return {
         HubConnectionBuilder: MockHubConnectionBuilder,
@@ -180,8 +202,9 @@ jest.mock('./Environment', () => {
   };
 });
 
-// Mock console.error to avoid noise in tests
+// Mock console.error and console.warn to avoid noise in tests
 const originalError = console.error;
+const originalWarn = console.warn;
 beforeAll(() => {
   console.error = (...args: any) => {
     if (
@@ -192,8 +215,20 @@ beforeAll(() => {
     }
     originalError.call(console, ...args);
   };
+  
+  console.warn = (...args: any) => {
+    if (
+      typeof args[0] === 'string' &&
+      (args[0].includes('Failed to initialize SignalR connection') ||
+       args[0].includes('SignalR'))
+    ) {
+      return;
+    }
+    originalWarn.call(console, ...args);
+  };
 });
 
 afterAll(() => {
   console.error = originalError;
+  console.warn = originalWarn;
 });

@@ -4,30 +4,6 @@ jest.unmock('../../../lastfm/LastfmContext');
 // Unmock the global musicKit mock so we can provide our own
 jest.unmock('../../../musicKit');
 
-// Mock SignalR specifically for this test 
-jest.mock('@aspnet/signalr', () => {
-    const mockConnection = {
-        start: jest.fn().mockResolvedValue(undefined),
-        stop: jest.fn().mockResolvedValue(undefined),
-        on: jest.fn(),
-        off: jest.fn(),
-        invoke: jest.fn().mockResolvedValue(undefined),
-    };
-    
-    const hubConnectionBuilder = {
-        withUrl: jest.fn().mockReturnThis(),
-        build: jest.fn().mockReturnValue(mockConnection),
-    };
-    
-    const MockHubConnectionBuilder = jest.fn().mockImplementation(() => {
-        return hubConnectionBuilder;
-    });
-    
-    return {
-        HubConnectionBuilder: MockHubConnectionBuilder,
-    };
-});
-
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { StationPlayer } from '../../../components/Player/StationPlayer';
@@ -254,10 +230,10 @@ describe('StationPlayer', () => {
             }
         });
         
-        // Ensure getInstance returns a properly configured instance
-        musicKit.getInstance.mockResolvedValue({
+        // Ensure getInstance returns a properly configured instance that ALWAYS works
+        const mockMusicKitInstance = {
             addEventListener: jest.fn(),
-            removeEventListener: jest.fn(),
+            removeEventListener: jest.fn(), // This MUST always be available
             nowPlayingItem: null,
             isPlaying: false,
             play: jest.fn().mockResolvedValue(undefined),
@@ -310,7 +286,10 @@ describe('StationPlayer', () => {
                 item: jest.fn((position) => null),
                 position: -1
             }
-        });
+        };
+        
+        // Ensure the musicKit getInstance always returns a valid instance
+        musicKit.getInstance.mockResolvedValue(mockMusicKitInstance);
     });
 
     it('renders without crashing', async () => {
