@@ -35,6 +35,9 @@ describe('AppleAuthService', () => {
         };
         
         mockMusicKit.getInstance.mockResolvedValue(mockMusicKitInstance);
+        
+        // Clear existing auth check promise to ensure clean state
+        (AppleAuthService as any).existingAuthCheckPromise = null;
     });
 
     describe('isAuthenticated', () => {

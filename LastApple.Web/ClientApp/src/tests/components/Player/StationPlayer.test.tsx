@@ -9,7 +9,25 @@ import { AuthenticationState, IAuthenticationService } from '../../../authentica
 
 // Mock all external dependencies
 jest.mock('../../../musicKit', () => ({
+    __esModule: true,
     default: {
+        getInstance: jest.fn().mockResolvedValue({
+            addEventListener: jest.fn(),
+            removeEventListener: jest.fn(),
+            nowPlayingItem: null,
+            isPlaying: false,
+            play: jest.fn().mockResolvedValue(undefined),
+            pause: jest.fn().mockResolvedValue(undefined),
+            skipToNextItem: jest.fn().mockResolvedValue(undefined),
+            skipToPreviousItem: jest.fn().mockResolvedValue(undefined),
+            setQueue: jest.fn().mockResolvedValue(undefined),
+            changeToMediaAtIndex: jest.fn().mockResolvedValue(undefined)
+        }),
+        formatMediaTime: jest.fn((seconds) => {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = Math.floor(seconds % 60);
+            return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }),
         instance: {
             addEventListener: jest.fn(),
             removeEventListener: jest.fn(),
@@ -21,26 +39,25 @@ jest.mock('../../../musicKit', () => ({
             skipToPreviousItem: jest.fn().mockResolvedValue(undefined),
             setQueue: jest.fn().mockResolvedValue(undefined),
             changeToMediaAtIndex: jest.fn().mockResolvedValue(undefined)
-        },
-        getInstance: jest.fn().mockResolvedValue({
-            addEventListener: jest.fn(),
-            removeEventListener: jest.fn(),
-            nowPlayingItem: null,
-            isPlaying: false
-        })
+        }
     }
 }));
 
 jest.mock('@aspnet/signalr', () => ({
-    HubConnectionBuilder: jest.fn().mockImplementation(() => ({
-        withUrl: jest.fn().mockReturnThis(),
-        build: jest.fn().mockReturnValue({
+    HubConnectionBuilder: jest.fn().mockImplementation(() => {
+        const mockHub = {
             start: jest.fn().mockResolvedValue(undefined),
             stop: jest.fn().mockResolvedValue(undefined),
             on: jest.fn(),
             off: jest.fn()
-        })
-    }))
+        };
+        
+        return {
+            withUrl: jest.fn().mockReturnValue({
+                build: jest.fn().mockReturnValue(mockHub)
+            })
+        };
+    })
 }));
 
 jest.mock('../../../restClients/LastfmApi', () => ({
