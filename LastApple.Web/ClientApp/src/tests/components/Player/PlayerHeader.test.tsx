@@ -164,6 +164,10 @@ describe('PlayerHeader', () => {
         render(<PlayerHeader {...defaultProps} currentTrack={trackWithMissingAttributes} />);
 
         expect(screen.getByText('Song Only')).toBeInTheDocument();
-        expect(screen.getByText(' - ')).toBeInTheDocument(); // Empty artist and album
+        // The component renders empty artist and album names separated by ' - '
+        const artistAlbumElement = screen.getByText((_, element) => {
+            return element?.textContent === ' - ';
+        });
+        expect(artistAlbumElement).toBeInTheDocument();
     });
 });

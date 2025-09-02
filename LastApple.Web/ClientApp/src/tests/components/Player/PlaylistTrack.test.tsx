@@ -17,27 +17,97 @@ jest.mock('@fortawesome/react-fontawesome', () => ({
     FontAwesomeIcon: ({ icon }: any) => <div data-testid="fontawesome-icon" data-icon={icon.iconName} />
 }));
 
-jest.mock('react-bootstrap', () => ({
-    Dropdown: {
-        Toggle: ({ children }: any) => <div data-testid="dropdown-toggle">{children}</div>,
-        Menu: ({ children }: any) => <div data-testid="dropdown-menu">{children}</div>,
-        Item: ({ children, onSelect, disabled }: any) => (
-            <div 
-                data-testid="dropdown-item" 
-                onClick={onSelect}
-                data-disabled={disabled}
-            >
-                {children}
-            </div>
-        )
-    }
-}));
+jest.mock('react-bootstrap', () => {
+    const mockReact = require('react');
+    
+    const DropdownComponent = ({ children, align, style }: any) => (
+        mockReact.createElement('div', {
+            'data-testid': 'dropdown',
+            'data-align': align,
+            style: style
+        }, children)
+    );
+    
+    DropdownComponent.Toggle = ({ children }: any) => 
+        mockReact.createElement('div', { 'data-testid': 'dropdown-toggle' }, children);
+    
+    DropdownComponent.Menu = ({ children }: any) => 
+        mockReact.createElement('div', { 'data-testid': 'dropdown-menu' }, children);
+    
+    DropdownComponent.Item = ({ children, onSelect, disabled }: any) => 
+        mockReact.createElement('div', {
+            'data-testid': 'dropdown-item',
+            onClick: onSelect,
+            'data-disabled': disabled
+        }, children);
+    
+    return {
+        Dropdown: DropdownComponent
+    };
+});
 
 jest.mock('../../../musicKit', () => ({
+    __esModule: true,
     default: {
         instance: {
-            isAuthorized: true
-        }
+            isAuthorized: true,
+            api: {
+                music: jest.fn().mockResolvedValue({
+                    data: { data: [] }
+                })
+            },
+            storefrontId: 'us',
+            addEventListener: jest.fn(),
+            removeEventListener: jest.fn(),
+            play: jest.fn(),
+            pause: jest.fn(),
+            stop: jest.fn(),
+            seekToTime: jest.fn(),
+            player: {
+                currentPlaybackTime: 0,
+                currentPlaybackDuration: 0,
+                playbackState: 0,
+                isPlaying: false,
+                nowPlayingItem: null,
+            },
+            queue: {
+                append: jest.fn(),
+                prepend: jest.fn(),
+                remove: jest.fn(),
+            },
+        },
+        getInstance: jest.fn().mockResolvedValue({
+            isAuthorized: true,
+            api: {
+                music: jest.fn().mockResolvedValue({
+                    data: { data: [] }
+                })
+            },
+            storefrontId: 'us',
+            addEventListener: jest.fn(),
+            removeEventListener: jest.fn(),
+            play: jest.fn(),
+            pause: jest.fn(),
+            stop: jest.fn(),
+            seekToTime: jest.fn(),
+            player: {
+                currentPlaybackTime: 0,
+                currentPlaybackDuration: 0,
+                playbackState: 0,
+                isPlaying: false,
+                nowPlayingItem: null,
+            },
+            queue: {
+                append: jest.fn(),
+                prepend: jest.fn(),
+                remove: jest.fn(),
+            },
+        }),
+        formatMediaTime: jest.fn((seconds: number) => {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = Math.floor(seconds % 60);
+            return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }),
     }
 }));
 
@@ -90,25 +160,26 @@ describe('PlaylistTrack', () => {
     });
 
     it('shows play icon when not playing', () => {
-        render(<PlaylistTrack {...defaultProps} isPlaying={false} />);
+        const { container } = render(<PlaylistTrack {...defaultProps} isPlaying={false} />);
         
-        const playIcon = screen.getByTestId('fontawesome-icon');
+        const playButton = container.querySelector('.play-button');
+        const playIcon = playButton?.querySelector('[data-testid="fontawesome-icon"]');
         expect(playIcon).toHaveAttribute('data-icon', 'play');
     });
 
     it('shows pause icon when playing', () => {
-        render(<PlaylistTrack {...defaultProps} isPlaying={true} />);
+        const { container } = render(<PlaylistTrack {...defaultProps} isPlaying={true} />);
         
-        const pauseIcon = screen.getByTestId('fontawesome-icon');
-        expect(pauseIcon).toHaveAttribute('data-icon', 'pause');
+        const playButton = container.querySelector('.play-button');
+        const playIcon = playButton?.querySelector('[data-testid="fontawesome-icon"]');
+        expect(playIcon).toHaveAttribute('data-icon', 'pause');
     });
 
     it('calls onTrackSwitch when play button is clicked', async () => {
         const mockOnTrackSwitch = jest.fn().mockResolvedValue(undefined);
+        const { container } = render(<PlaylistTrack {...defaultProps} onTrackSwitch={mockOnTrackSwitch} index={2} groupOffset={5} />);
         
-        render(<PlaylistTrack {...defaultProps} onTrackSwitch={mockOnTrackSwitch} index={2} groupOffset={5} />);
-        
-        const playButton = screen.getByTestId('fontawesome-icon').closest('.play-button');
+        const playButton = container.querySelector('.play-button');
         fireEvent.click(playButton!);
         
         expect(mockOnTrackSwitch).toHaveBeenCalledWith(7); // groupOffset + index = 5 + 2
@@ -176,13 +247,13 @@ describe('PlaylistTrack', () => {
     });
 
     it('disables library options when not authorized', () => {
-        jest.doMock('../../../musicKit', () => ({
-            default: {
-                instance: {
-                    isAuthorized: false
-                }
-            }
-        }));
+        // Temporarily override the mock for this test
+        const musicKit = require('../../../musicKit');
+        const originalInstance = musicKit.default.instance;
+        musicKit.default.instance = {
+            ...originalInstance,
+            isAuthorized: false
+        };
 
         render(<PlaylistTrack {...defaultProps} />);
 
@@ -196,6 +267,9 @@ describe('PlaylistTrack', () => {
 
         expect(addSongItem).toHaveAttribute('data-disabled', 'true');
         expect(addAlbumItem).toHaveAttribute('data-disabled', 'true');
+
+        // Restore the original mock
+        musicKit.default.instance = originalInstance;
     });
 
     it('enables library options when authorized', () => {
