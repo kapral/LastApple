@@ -3,13 +3,46 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { ProgressControl } from '../../../components/Player/ProgressControl';
 
 jest.mock('../../../musicKit', () => ({
+    __esModule: true,
     default: {
         instance: {
             currentPlaybackDuration: 180, // 3 minutes
+            currentPlaybackTime: 0,
+            playbackState: 0,
+            isPlaying: false,
+            nowPlayingItem: null,
+            isAuthorized: true,
             addEventListener: jest.fn(),
             removeEventListener: jest.fn(),
-            seekToTime: jest.fn().mockResolvedValue(undefined)
+            seekToTime: jest.fn().mockResolvedValue(undefined),
+            play: jest.fn(),
+            pause: jest.fn(),
+            stop: jest.fn(),
+            queue: {
+                append: jest.fn(),
+                prepend: jest.fn(),
+                remove: jest.fn(),
+            },
         },
+        getInstance: jest.fn().mockResolvedValue({
+            currentPlaybackDuration: 180, // 3 minutes
+            currentPlaybackTime: 0,
+            playbackState: 0,
+            isPlaying: false,
+            nowPlayingItem: null,
+            isAuthorized: true,
+            addEventListener: jest.fn(),
+            removeEventListener: jest.fn(),
+            seekToTime: jest.fn().mockResolvedValue(undefined),
+            play: jest.fn(),
+            pause: jest.fn(),
+            stop: jest.fn(),
+            queue: {
+                append: jest.fn(),
+                prepend: jest.fn(),
+                remove: jest.fn(),
+            },
+        }),
         formatMediaTime: jest.fn((seconds) => {
             const minutes = Math.floor(seconds / 60);
             const remainingSeconds = Math.floor(seconds % 60);
@@ -19,8 +52,12 @@ jest.mock('../../../musicKit', () => ({
 }));
 
 describe('ProgressControl', () => {
+    let mockMusicKit: any;
+    
     beforeEach(() => {
         jest.clearAllMocks();
+        // Get the mock after each clear
+        mockMusicKit = require('../../../musicKit').default;
     });
 
     it('renders without crashing', () => {
@@ -54,7 +91,8 @@ describe('ProgressControl', () => {
         render(<ProgressControl />);
         
         expect(mockMusicKit.formatMediaTime).toHaveBeenCalledWith(0); // Initial current time
-        expect(screen.getByText('1:30')).toBeInTheDocument();
+        const timeElements = screen.getAllByText('1:30');
+        expect(timeElements).toHaveLength(2); // Current time and total duration
     });
 
     it('displays formatted total duration', () => {
@@ -63,7 +101,8 @@ describe('ProgressControl', () => {
         render(<ProgressControl />);
         
         expect(mockMusicKit.formatMediaTime).toHaveBeenCalledWith(180); // Total duration
-        expect(screen.getByText('3:00')).toBeInTheDocument();
+        const timeElements = screen.getAllByText('3:00');
+        expect(timeElements).toHaveLength(2); // Current time and total duration
     });
 
     it('renders progress bar with correct styling', () => {
@@ -124,14 +163,18 @@ describe('ProgressControl', () => {
         
         const progressContainer = container.querySelector('[style*="padding: 5px 0"]');
         
-        // First trigger mouse move to set rewind position
-        const mockGetBoundingClientRect = jest.fn().mockReturnValue({
+        // Mock getClientRects to return proper rectangle
+        const mockRect = {
             width: 300,
-            left: 0
-        });
+            left: 0,
+            top: 0,
+            right: 300,
+            bottom: 10,
+            height: 10
+        };
         
         Object.defineProperty(progressContainer, 'getClientRects', {
-            value: () => [mockGetBoundingClientRect()]
+            value: () => [mockRect]
         });
 
         const mockMoveEvent = {
@@ -142,7 +185,7 @@ describe('ProgressControl', () => {
         fireEvent.mouseMove(progressContainer!, mockMoveEvent);
         fireEvent.mouseUp(progressContainer!);
         
-        // Should call seekToTime with the calculated position
+        // Should call seekToTime with the calculated position (150/300 * 180 = 90)
         expect(mockMusicKit.instance.seekToTime).toHaveBeenCalledWith(90);
     });
 
