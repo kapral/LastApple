@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { StationDescriptor } from '../../components/StationDescriptor';
 import { IStationDefinition } from '../../components/IStationDefinition';
@@ -233,7 +233,7 @@ describe('StationDescriptor', () => {
             );
         };
 
-        render(
+        const { container } = render(
             <TestWrapper>
                 <StationDescriptor 
                     definition={mockDefinition} 
@@ -241,6 +241,9 @@ describe('StationDescriptor', () => {
                 />
             </TestWrapper>
         );
+
+        // Debug: Check if component rendered at all
+        console.log('Container HTML:', container.innerHTML);
 
         expect(screen.getByText('Waiting for Trigger')).toBeInTheDocument();
 

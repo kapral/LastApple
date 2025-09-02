@@ -5,8 +5,8 @@ jest.unmock('../../lastfm/LastfmContext');
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Settings } from '../../components/Settings';
-import { AppleContextProvider, AppleContext } from '../../apple/AppleContext';
-import { LastfmContextProvider, LastfmContext } from '../../lastfm/LastfmContext';
+import { AppleContextProvider } from '../../apple/AppleContext';
+import { LastfmContextProvider } from '../../lastfm/LastfmContext';
 import { AuthenticationState, IAuthenticationService } from '../../authentication';
 
 // Mock the authentication services
@@ -35,22 +35,12 @@ const TestWrapper: React.FC<{
     children: React.ReactNode;
     appleState?: AuthenticationState;
     lastfmState?: AuthenticationState;
-}> = ({ 
-    children, 
-    appleState = AuthenticationState.Unauthenticated,
-    lastfmState = AuthenticationState.Unauthenticated 
-}) => (
-    <AppleContext.Provider value={{
-        authentication: createMockAuthService(appleState)
-    }}>
-        <LastfmContext.Provider value={{
-            authentication: createMockAuthService(lastfmState),
-            isScrobblingEnabled: true,
-            setIsScrobblingEnabled: jest.fn()
-        }}>
+}> = ({ children }) => (
+    <AppleContextProvider>
+        <LastfmContextProvider>
             {children}
-        </LastfmContext.Provider>
-    </AppleContext.Provider>
+        </LastfmContextProvider>
+    </AppleContextProvider>
 );
 
 describe('Settings', () => {
