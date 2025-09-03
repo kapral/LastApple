@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import {assertNonNullable} from "./utils/mics";
 
 interface IAppContext {

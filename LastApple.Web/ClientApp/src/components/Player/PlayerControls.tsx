@@ -2,7 +2,7 @@ import { ProgressControl } from "./ProgressControl";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStepBackward } from "@fortawesome/free-solid-svg-icons/faStepBackward";
 import { faPause, faPlay, faStepForward } from "@fortawesome/free-solid-svg-icons";
-import * as React from "react";
+import React from 'react';
 import { StationPlayer } from "./StationPlayer";
 import { PlayerHeader, PlayerHeaderProps } from "./PlayerHeader";
 

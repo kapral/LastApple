@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from 'react';
 import { Dropdown } from "react-bootstrap";
 import { CustomToggle } from "./CustomToggle";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";

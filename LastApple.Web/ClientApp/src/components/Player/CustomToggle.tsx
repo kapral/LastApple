@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from 'react';
 
 export const CustomToggle = React.forwardRef((props: React.PropsWithChildren<{ onClick?: (e: React.MouseEvent) => void }>, ref: React.MutableRefObject<HTMLDivElement>) => (
     <div ref={ref} onClick={(e) => {

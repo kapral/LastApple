@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { AsyncTypeahead } from 'react-bootstrap-typeahead';
 import { Option, LabelKey } from 'react-bootstrap-typeahead/types/types';
 import 'react-bootstrap-typeahead/css/Typeahead.css';
