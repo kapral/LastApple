@@ -1,9 +1,9 @@
 import AsMock from '../AsMock';
 
 /**
- * Get the default mock properties that match setupTests.ts defaults
+ * Default musicKit mock instance - single source of truth
  */
-const getDefaultMockProperties = () => ({
+export const defaultMusicKitInstance = {
     api: {
         music: jest.fn().mockResolvedValue({
             data: { data: [] }
@@ -40,7 +40,7 @@ const getDefaultMockProperties = () => ({
         remove: jest.fn(),
         item: jest.fn().mockReturnValue(null),
     },
-});
+};
 
 /**
  * Utility to override specific parts of the musicKit mock without completely re-mocking
@@ -49,10 +49,7 @@ const getDefaultMockProperties = () => ({
 export const overrideMusicKitInstance = (overrides: any) => {
     const mockMusicKit = AsMock(require('../../musicKit').default);
 
-    // Get current defaults
-    const defaults = getDefaultMockProperties();
-
-    const originalInstance = mockMusicKit.instance || defaults;
+    const originalInstance = mockMusicKit.instance || defaultMusicKitInstance;
 
     // Create the extended instance by merging defaults with overrides
     const extendedInstance = {
@@ -60,15 +57,15 @@ export const overrideMusicKitInstance = (overrides: any) => {
         ...overrides,
         // Deep merge for nested objects
         api: {
-            ...defaults.api,
+            ...defaultMusicKitInstance.api,
             ...overrides.api,
         },
         player: {
-            ...defaults.player,
+            ...defaultMusicKitInstance.player,
             ...overrides.player,
         },
         queue: {
-            ...defaults.queue,
+            ...defaultMusicKitInstance.queue,
             ...overrides.queue,
         },
     };
@@ -87,8 +84,7 @@ export const overrideMusicKitInstance = (overrides: any) => {
  */
 export const resetMusicKitMock = () => {
     const mockMusicKit = AsMock(require('../../musicKit').default);
-    const defaults = getDefaultMockProperties();
 
-    AsMock(mockMusicKit.getInstance).mockResolvedValue(defaults);
-    mockMusicKit.instance = defaults;
+    AsMock(mockMusicKit.getInstance).mockResolvedValue(defaultMusicKitInstance);
+    mockMusicKit.instance = defaultMusicKitInstance;
 };

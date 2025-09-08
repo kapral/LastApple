@@ -83,49 +83,14 @@ Object.defineProperty(window, 'MusicKit', {
 
 // Mock the musicKit module
 jest.mock('./musicKit', () => {
-    // Define default instance directly in the mock factory
-    const defaultInstance = {
-        api: {
-            music: jest.fn().mockResolvedValue({
-                data: { data: [] }
-            })
-        },
-        storefrontId: 'us',
-        addEventListener: jest.fn(),
-        removeEventListener: jest.fn(),
-        play: jest.fn().mockResolvedValue(undefined),
-        pause: jest.fn().mockResolvedValue(undefined),
-        stop: jest.fn().mockResolvedValue(undefined),
-        clearQueue: jest.fn().mockResolvedValue(undefined),
-        setQueue: jest.fn().mockResolvedValue(undefined),
-        playLater: jest.fn().mockResolvedValue(undefined),
-        skipToNextItem: jest.fn().mockResolvedValue(undefined),
-        skipToPreviousItem: jest.fn().mockResolvedValue(undefined),
-        changeToMediaAtIndex: jest.fn().mockResolvedValue(undefined),
-        seekToTime: jest.fn(),
-        isAuthorized: true,
-        nowPlayingItem: null,
-        player: {
-            currentPlaybackTime: 0,
-            currentPlaybackDuration: 0,
-            playbackState: 0,
-            isPlaying: false,
-            nowPlayingItem: null,
-        },
-        queue: {
-            items: [],
-            append: jest.fn(),
-            prepend: jest.fn(),
-            remove: jest.fn(),
-            item: jest.fn().mockReturnValue(null),
-        },
-    };
-
+    // Import the default instance from the single source of truth
+    const { defaultMusicKitInstance } = require('./tests/utils/musicKitTestUtils');
+    
     return {
         __esModule: true,
         default: {
-            getInstance: jest.fn().mockResolvedValue(defaultInstance),
-            instance: defaultInstance,
+            getInstance: jest.fn().mockResolvedValue(defaultMusicKitInstance),
+            instance: defaultMusicKitInstance,
             formatMediaTime: jest.fn((seconds: number) => {
                 const minutes = Math.floor(seconds / 60);
                 const remainingSeconds = Math.floor(seconds % 60);
