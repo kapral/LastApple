@@ -1,6 +1,8 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { PlayerControls } from '../../../components/Player/PlayerControls';
+import * as StationPlayer from '../../../components/Player/StationPlayer'
+import AsMock from "../../AsMock";
 
 // Mock dependencies
 jest.mock('../../../components/Player/PlayerHeader', () => ({
@@ -100,8 +102,8 @@ describe('PlayerControls', () => {
 
     it('passes correct props to PlayerHeader', () => {
         render(
-            <PlayerControls 
-                {...defaultProps} 
+            <PlayerControls
+                {...defaultProps}
                 isScrobblingEnabled={true}
                 lastfmAuthenticated={false}
             />
@@ -118,14 +120,12 @@ describe('PlayerControls', () => {
     });
 
     it('displays album artwork with correct background image', () => {
-        const StationPlayerMock = require('../../../components/Player/StationPlayer');
-        
         // Set up the mock implementation
-        StationPlayerMock.StationPlayer.getImageUrl.mockImplementation((url) => {
+        AsMock(StationPlayer.StationPlayer.getImageUrl).mockImplementation((url) => {
             if (!url) return '';
             return url.replace('{w}x{h}', '400x400');
         });
-        
+
         const trackWithArtwork = createMockTrack();
         // Properly set the artwork URL after creation
         trackWithArtwork.attributes.artwork.url = 'https://example.com/album/{w}x{h}.jpg';
@@ -175,7 +175,7 @@ describe('PlayerControls', () => {
 
         const icons = screen.getAllByTestId('fontawesome-icon');
         const prevIcon = icons.find(icon => icon.getAttribute('data-icon') === 'step-backward');
-        
+
         fireEvent.click(prevIcon!.parentElement!);
         expect(mockSwitchPrev).toHaveBeenCalledTimes(1);
     });
@@ -187,7 +187,7 @@ describe('PlayerControls', () => {
 
         const icons = screen.getAllByTestId('fontawesome-icon');
         const nextIcon = icons.find(icon => icon.getAttribute('data-icon') === 'step-forward');
-        
+
         fireEvent.click(nextIcon!.parentElement!);
         expect(mockSwitchNext).toHaveBeenCalledTimes(1);
     });
@@ -199,7 +199,7 @@ describe('PlayerControls', () => {
 
         const icons = screen.getAllByTestId('fontawesome-icon');
         const playIcon = icons.find(icon => icon.getAttribute('data-icon') === 'play');
-        
+
         fireEvent.click(playIcon!.parentElement!);
         expect(mockOnPlayPause).toHaveBeenCalledTimes(1);
     });
@@ -211,7 +211,7 @@ describe('PlayerControls', () => {
 
         const toggleButton = screen.getByText('Toggle Scrobble');
         fireEvent.click(toggleButton);
-        
+
         expect(mockOnScrobblingSwitch).toHaveBeenCalledWith(true);
     });
 
@@ -270,12 +270,7 @@ describe('PlayerControls', () => {
     });
 
     it('handles missing artwork gracefully', () => {
-        const trackWithoutArtwork = createMockTrack();
-        // Override the artwork property after creation
-        trackWithoutArtwork.attributes = {
-            ...trackWithoutArtwork.attributes,
-            artwork: null as any
-        };
+        const trackWithoutArtwork = createMockTrack({attributes: { artwork: null }});
 
         const { container } = render(<PlayerControls {...defaultProps} currentTrack={trackWithoutArtwork} />);
 

@@ -8,7 +8,7 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { StationPlayer } from '../../../components/Player/StationPlayer';
 import { LastfmContext } from '../../../lastfm/LastfmContext';
-import { AuthenticationState, IAuthenticationService } from '../../../authentication';
+import { AuthenticationState } from '../../../authentication';
 
 jest.mock('../../../musicKit', () => {
     // Define mock instance inside the factory function
@@ -187,14 +187,14 @@ global.AudioContext = jest.fn().mockImplementation(() => ({
     })
 };
 
-const createMockAuthService = (state: AuthenticationState): IAuthenticationService => ({
+const createMockAuthService = (state: AuthenticationState) => ({
     state,
-    user: state === AuthenticationState.Authenticated ? { id: 'test-user', name: 'Test User' } : null,
+    user: state === AuthenticationState.Authenticated ? { id: 'test-user', name: 'Test User', url: '', avatar: [] } : null,
     setState: jest.fn(),
     setUser: jest.fn()
 });
 
-const TestWrapper: React.FC<{ 
+const TestWrapper: React.FC<{
     children: React.ReactNode;
     authState?: AuthenticationState;
 }> = ({ children, authState = AuthenticationState.Authenticated }) => (
@@ -216,7 +216,7 @@ describe('StationPlayer', () => {
         // Reset and configure mocks to work with our tests
         const musicKit = require('../../../musicKit').default;
         const stationApi = require('../../../restClients/StationApi').default;
-        
+
         // Configure StationApi mock
         stationApi.getStation.mockResolvedValue({
             id: 'test-station',
@@ -229,7 +229,7 @@ describe('StationPlayer', () => {
                 stationType: 'test-type'
             }
         });
-        
+
         // Ensure getInstance returns a properly configured instance that ALWAYS works
         const mockMusicKitInstance = {
             addEventListener: jest.fn(),
@@ -260,7 +260,7 @@ describe('StationPlayer', () => {
                                 }
                             },
                             {
-                                id: '456', 
+                                id: '456',
                                 attributes: {
                                     name: 'Test Song 2',
                                     artistName: 'Test Artist 2',
@@ -287,7 +287,7 @@ describe('StationPlayer', () => {
                 position: -1
             }
         };
-        
+
         // Ensure the musicKit getInstance always returns a valid instance
         musicKit.getInstance.mockResolvedValue(mockMusicKitInstance);
     });
@@ -295,11 +295,11 @@ describe('StationPlayer', () => {
     it('renders without crashing', async () => {
         // Import the mocked musicKit to test it directly
         const musicKit = (await import('../../../musicKit')).default;
-        
+
         // Test that getInstance returns a truthy value
         const instance = await musicKit.getInstance();
         expect(instance).toBeTruthy();
-        
+
         render(
             <TestWrapper>
                 <StationPlayer {...defaultProps} />
@@ -357,11 +357,11 @@ describe('StationPlayer', () => {
         // Should show no current track initially
         expect(screen.getByTestId('current-track')).toHaveTextContent('none');
         expect(screen.getByTestId('controls-track')).toHaveTextContent('none');
-        
+
         // Should not be playing initially
         expect(screen.getByTestId('is-playing')).toHaveTextContent('not-playing');
         expect(screen.getByTestId('controls-playing')).toHaveTextContent('not-playing');
-        
+
         // Should have 3 tracks after loading
         expect(screen.getByTestId('track-count')).toHaveTextContent('3');
     });
@@ -435,12 +435,12 @@ describe('StationPlayer', () => {
                 <StationPlayer {...defaultProps} />
             </TestWrapper>
         );
-        
+
         // Wait for component to mount and initialize
         await waitFor(() => {
             // Just wait a bit for mount to complete
         }, { timeout: 100 });
-        
+
         // Should not throw when unmounting
         expect(() => unmount()).not.toThrow();
     });
@@ -454,7 +454,7 @@ describe('StationPlayer', () => {
 
         // Should have a main container
         expect(container.firstChild).toBeInTheDocument();
-        
+
         // Should render both playlist and controls
         await waitFor(() => {
             expect(screen.getByTestId('playlist')).toBeInTheDocument();

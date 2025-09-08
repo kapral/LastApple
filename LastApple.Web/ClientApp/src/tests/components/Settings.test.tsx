@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Settings } from '../../components/Settings';
-import { AuthenticationState, IAuthenticationService } from '../../authentication';
+import { AuthenticationState } from '../../authentication';
 
 // Mock the authentication services
 jest.mock('../../apple/appleAuthentication', () => ({
@@ -18,16 +18,12 @@ jest.mock('../../lastfm/lastfmAuthentication', () => ({
 jest.mock('../../images/apple-music-logo.png', () => 'apple-music-logo.png');
 jest.mock('../../images/lastfm-logo.png', () => 'lastfm-logo.png');
 
-const createMockAuthService = (state: AuthenticationState): IAuthenticationService => ({
+const createMockAuthService = (state: AuthenticationState) => ({
     state,
-    user: state === AuthenticationState.Authenticated ? { id: 'test-user', name: 'Test User' } : null,
+    user: state === AuthenticationState.Authenticated ? { id: 'test-user', name: 'Test User', url: '', avatar: [] } : null,
     setState: jest.fn(),
     setUser: jest.fn()
 });
-
-// Mock the contexts directly with React.createContext
-const mockAppleContext = React.createContext<any>(undefined);
-const mockLastfmContext = React.createContext<any>(undefined);
 
 // Mock useAppleContext and useLastfmContext
 const mockUseAppleContext = jest.fn();
@@ -43,7 +39,7 @@ jest.mock('../../lastfm/LastfmContext', () => ({
     LastfmContextProvider: ({ children }: { children: React.ReactNode }) => children
 }));
 
-const TestWrapper: React.FC<{ 
+const TestWrapper: React.FC<{
     children: React.ReactNode;
     appleState?: AuthenticationState;
     lastfmState?: AuthenticationState;
@@ -52,7 +48,7 @@ const TestWrapper: React.FC<{
     mockUseAppleContext.mockReturnValue({
         authentication: createMockAuthService(appleState)
     });
-    
+
     mockUseLastfmContext.mockReturnValue({
         authentication: createMockAuthService(lastfmState)
     });
@@ -197,7 +193,7 @@ describe('Settings', () => {
 
         const switches = screen.getAllByRole('switch');
         const appleSwitch = switches[0];
-        
+
         fireEvent.click(appleSwitch);
 
         await waitFor(() => {
@@ -216,7 +212,7 @@ describe('Settings', () => {
 
         const switches = screen.getAllByRole('switch');
         const appleSwitch = switches[0];
-        
+
         fireEvent.click(appleSwitch);
 
         await waitFor(() => {
@@ -235,7 +231,7 @@ describe('Settings', () => {
 
         const switches = screen.getAllByRole('switch');
         const lastfmSwitch = switches[1];
-        
+
         fireEvent.click(lastfmSwitch);
 
         await waitFor(() => {
@@ -254,7 +250,7 @@ describe('Settings', () => {
 
         const switches = screen.getAllByRole('switch');
         const lastfmSwitch = switches[1];
-        
+
         fireEvent.click(lastfmSwitch);
 
         await waitFor(() => {

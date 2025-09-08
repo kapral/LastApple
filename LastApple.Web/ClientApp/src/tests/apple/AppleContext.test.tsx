@@ -30,8 +30,7 @@ const TestComponent: React.FC = () => {
             <div data-testid="auth-state">{context.authentication.state}</div>
             <button
                 onClick={() => context.authentication.setState(AuthenticationState.Authenticated)}
-                data-testid="set-authenticated"
-            >
+                data-testid="set-authenticated">
                 Set Authenticated
             </button>
         </div>
@@ -58,7 +57,7 @@ describe('AppleContext', () => {
             );
 
             const button = screen.getByTestId('set-authenticated');
-            
+
             await act(async () => {
                 button.click();
             });
@@ -68,7 +67,7 @@ describe('AppleContext', () => {
 
         it('should provide context value with correct structure', () => {
             let contextValue: any;
-            
+
             const TestContextReader: React.FC = () => {
                 contextValue = useAppleContext();
                 return <div>Context reader</div>;
@@ -106,7 +105,7 @@ describe('AppleContext', () => {
 
         it('should return context when used inside provider', () => {
             let contextValue: any;
-            
+
             const TestContextReader: React.FC = () => {
                 contextValue = useAppleContext();
                 return <div>Context available</div>;

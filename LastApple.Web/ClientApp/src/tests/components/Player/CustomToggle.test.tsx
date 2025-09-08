@@ -51,7 +51,7 @@ describe('CustomToggle', () => {
         // Mock preventDefault to verify it's called
         const mockOnClick = jest.fn();
         const mockPreventDefault = jest.fn();
-        
+
         render(
             <CustomToggle onClick={mockOnClick}>
                 <span>Content</span>
@@ -60,8 +60,7 @@ describe('CustomToggle', () => {
 
         // Get the actual DOM element and override preventDefault
         const element = screen.getByText('Content').parentElement;
-        const originalAddEventListener = element?.addEventListener;
-        
+
         element?.addEventListener('click', (e) => {
             // Spy on the actual event preventDefault call
             const originalPreventDefault = e.preventDefault;

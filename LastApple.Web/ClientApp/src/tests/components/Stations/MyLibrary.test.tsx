@@ -4,7 +4,7 @@ jest.unmock('../../../lastfm/LastfmContext');
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { MyLibrary } from '../../../components/Stations/MyLibrary';
-import { AuthenticationState, IAuthenticationService } from '../../../authentication';
+import { AuthenticationState } from '../../../authentication';
 import { LastfmContext } from '../../../lastfm/LastfmContext';
 
 // Mock StationApi with proper Jest factory
@@ -15,21 +15,21 @@ jest.mock('../../../restClients/StationApi', () => {
         topUp: jest.fn(),
         deleteSongs: jest.fn()
     };
-    
+
     return {
         default: mockStationApi,
         __esModule: true
     };
 });
 
-const createMockAuthService = (state: AuthenticationState): IAuthenticationService => ({
+const createMockAuthService = (state: AuthenticationState) => ({
     state,
-    user: state === AuthenticationState.Authenticated ? { id: 'test-user', name: 'Test User' } : null,
+    user: state === AuthenticationState.Authenticated ? { id: 'test-user', name: 'Test User', url: '', avatar: [] } : null,
     setState: jest.fn(),
     setUser: jest.fn()
 });
 
-const TestWrapper: React.FC<{ 
+const TestWrapper: React.FC<{
     children: React.ReactNode;
     authState?: AuthenticationState;
 }> = ({ children, authState = AuthenticationState.Unauthenticated }) => (
@@ -51,7 +51,7 @@ describe('MyLibrary', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
-        
+
         // Restore StationApi mock after clearAllMocks
         const mockStationApi = require('../../../restClients/StationApi').default;
         mockStationApi.postStation.mockResolvedValue({ id: 'test-station-id' });
@@ -119,11 +119,11 @@ describe('MyLibrary', () => {
         expect(mockOnOptionsChanged).toHaveBeenCalledWith(true);
     });
 
-    it('creates station when triggerCreate is true and authenticated', async () => {        
+    it('creates station when triggerCreate is true and authenticated', async () => {
         // Get reference to the mock
         const mockStationApi = require('../../../restClients/StationApi').default;
         console.log('Mock StationApi:', mockStationApi);
-        
+
         const mockOnStationCreated = jest.fn();
 
         const { rerender } = render(
@@ -135,10 +135,10 @@ describe('MyLibrary', () => {
         // Trigger station creation
         rerender(
             <TestWrapper authState={AuthenticationState.Authenticated}>
-                <MyLibrary 
-                    {...defaultProps} 
+                <MyLibrary
+                    {...defaultProps}
                     triggerCreate={true}
-                    onStationCreated={mockOnStationCreated} 
+                    onStationCreated={mockOnStationCreated}
                 />
             </TestWrapper>
         );
