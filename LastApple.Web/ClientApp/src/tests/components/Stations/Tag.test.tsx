@@ -192,24 +192,14 @@ describe('Tag', () => {
     });
 
     it('calls handleChanged with current target value', () => {
-        const component = new Tag(defaultProps);
-        const mockSetState = jest.fn();
         const mockOnOptionsChanged = jest.fn();
         
-        component.setState = mockSetState;
-        component.props.onOptionsChanged = mockOnOptionsChanged;
+        render(<Tag {...defaultProps} onOptionsChanged={mockOnOptionsChanged} />);
 
-        // Simulate the actual event structure
-        const mockEvent = {
-            currentTarget: { value: 'ambient' }
-        } as React.ChangeEvent<HTMLInputElement>;
-
-        component.render();
+        const input = screen.getByPlaceholderText('Rock...') as HTMLInputElement;
         
-        // Manually call handleChanged like the onChange would
-        component.handleChanged('ambient');
+        fireEvent.change(input, { target: { value: 'ambient' } });
 
-        expect(mockSetState).toHaveBeenCalledWith({ tagName: 'ambient' });
         expect(mockOnOptionsChanged).toHaveBeenCalledWith(true);
     });
 

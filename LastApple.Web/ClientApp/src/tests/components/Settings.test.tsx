@@ -48,11 +48,11 @@ const TestWrapper: React.FC<{
     lastfmState?: AuthenticationState;
 }> = ({ children, appleState = AuthenticationState.Unauthenticated, lastfmState = AuthenticationState.Unauthenticated }) => {
     // Set up the mock return values
-    mockUseAppleContext.mockReturnValue({
+    AsMock(mockUseAppleContext).mockReturnValue({
         authentication: createMockAuthService(appleState)
     });
 
-    mockUseLastfmContext.mockReturnValue({
+    AsMock(mockUseLastfmContext).mockReturnValue({
         authentication: createMockAuthService(lastfmState)
     });
 

@@ -32,8 +32,8 @@ describe('lastfmAuthentication', () => {
     describe('logoutLastfm', () => {
         it('should set loading state and logout if authenticated user exists', async () => {
             const mockUser = { name: 'testuser', url: 'http://last.fm/user/testuser', avatar: [] };
-            mockLastfmAuthService.getAuthenticatedUser.mockResolvedValue(mockUser);
-            mockLastfmAuthService.logout.mockResolvedValue(undefined);
+            AsMock(mockLastfmAuthService.getAuthenticatedUser).mockResolvedValue(mockUser);
+            AsMock(mockLastfmAuthService.logout).mockResolvedValue(undefined);
 
             await logoutLastfm(mockAuthState);
 
@@ -45,7 +45,7 @@ describe('lastfmAuthentication', () => {
         });
 
         it('should set unauthenticated state if no authenticated user exists', async () => {
-            mockLastfmAuthService.getAuthenticatedUser.mockResolvedValue(null);
+            AsMock(mockLastfmAuthService.getAuthenticatedUser).mockResolvedValue(null);
 
             await logoutLastfm(mockAuthState);
 
@@ -60,7 +60,7 @@ describe('lastfmAuthentication', () => {
     describe('loginLastfm', () => {
         it('should set authenticated state if user already exists', async () => {
             const mockUser = { name: 'testuser', url: 'http://last.fm/user/testuser', avatar: [] };
-            mockLastfmAuthService.getAuthenticatedUser.mockResolvedValue(mockUser);
+            AsMock(mockLastfmAuthService.getAuthenticatedUser).mockResolvedValue(mockUser);
 
             await loginLastfm(mockAuthState);
 
@@ -72,10 +72,10 @@ describe('lastfmAuthentication', () => {
 
         it('should authenticate and set authenticated state on success', async () => {
             const mockUser = { name: 'testuser', url: 'http://last.fm/user/testuser', avatar: [] };
-            mockLastfmAuthService.getAuthenticatedUser
+            AsMock(mockLastfmAuthService.getAuthenticatedUser)
                 .mockResolvedValueOnce(null) // Before authentication
                 .mockResolvedValueOnce(mockUser); // After authentication
-            mockLastfmAuthService.authenticate.mockResolvedValue(undefined);
+            AsMock(mockLastfmAuthService.authenticate).mockResolvedValue(undefined);
 
             await loginLastfm(mockAuthState);
 
@@ -87,10 +87,10 @@ describe('lastfmAuthentication', () => {
         });
 
         it('should set unauthenticated state if authentication fails', async () => {
-            mockLastfmAuthService.getAuthenticatedUser
+            AsMock(mockLastfmAuthService.getAuthenticatedUser)
                 .mockResolvedValueOnce(null) // Before authentication
                 .mockResolvedValueOnce(null); // After authentication (failed)
-            mockLastfmAuthService.authenticate.mockResolvedValue(undefined);
+            AsMock(mockLastfmAuthService.authenticate).mockResolvedValue(undefined);
 
             await loginLastfm(mockAuthState);
 
@@ -105,7 +105,7 @@ describe('lastfmAuthentication', () => {
     describe('checkLastfmLogin', () => {
         it('should set authenticated state and user if user exists', async () => {
             const mockUser = { name: 'testuser', url: 'http://last.fm/user/testuser', avatar: [] };
-            mockLastfmAuthService.getAuthenticatedUser.mockResolvedValue(mockUser);
+            AsMock(mockLastfmAuthService.getAuthenticatedUser).mockResolvedValue(mockUser);
 
             await checkLastfmLogin(mockAuthState);
 
@@ -116,7 +116,7 @@ describe('lastfmAuthentication', () => {
         });
 
         it('should set unauthenticated state if no user exists', async () => {
-            mockLastfmAuthService.getAuthenticatedUser.mockResolvedValue(null);
+            AsMock(mockLastfmAuthService.getAuthenticatedUser).mockResolvedValue(null);
 
             await checkLastfmLogin(mockAuthState);
 

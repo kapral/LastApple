@@ -1,5 +1,6 @@
 import LastfmApi, { ILastfmUser } from '../../restClients/LastfmApi';
 import environment from '../../Environment';
+import AsMock from '../AsMock';
 
 // Mock environment directly by setting properties
 beforeAll(() => {
@@ -26,7 +27,7 @@ global.fetch = jest.fn();
 describe('LastfmApi', () => {
     beforeEach(() => {
         jest.clearAllMocks();
-        mockLocalStorage.getItem.mockReturnValue('test-session-id');
+        AsMock(mockLocalStorage.getItem).mockReturnValue('test-session-id');
     });
 
     describe('getAuthUrl', () => {

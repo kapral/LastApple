@@ -163,7 +163,7 @@ describe('SimilarArtists', () => {
 
     it('handles empty search results', async () => {
         
-        mockLastfmApi.searchArtist.mockResolvedValue([]);
+        AsMock(mockLastfmApi.searchArtist).mockResolvedValue([]);
 
         render(<SimilarArtists {...defaultProps} />);
 
@@ -184,7 +184,7 @@ describe('SimilarArtists', () => {
             { name: 'Artist Two', mbid: '456' }
         ];
 
-        mockLastfmApi.searchArtist.mockResolvedValue(testResults);
+        AsMock(mockLastfmApi.searchArtist).mockResolvedValue(testResults);
 
         // Test the search method more safely using component render
         render(<SimilarArtists {...defaultProps} />);
@@ -208,7 +208,7 @@ describe('SimilarArtists', () => {
 
     it('handles search errors gracefully', async () => {
         
-        mockLastfmApi.searchArtist.mockRejectedValue(new Error('Search failed'));
+        AsMock(mockLastfmApi.searchArtist).mockRejectedValue(new Error('Search failed'));
 
         render(<SimilarArtists {...defaultProps} />);
 

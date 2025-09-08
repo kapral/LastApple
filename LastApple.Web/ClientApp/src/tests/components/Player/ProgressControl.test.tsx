@@ -83,7 +83,7 @@ describe('ProgressControl', () => {
     });
 
     it('displays formatted current time', () => {
-        mockMusicKit.formatMediaTime.mockReturnValue('1:30');
+        AsMock(mockMusicKit.formatMediaTime).mockReturnValue('1:30');
         
         render(<ProgressControl />);
         
@@ -93,7 +93,7 @@ describe('ProgressControl', () => {
     });
 
     it('displays formatted total duration', () => {
-        mockMusicKit.formatMediaTime.mockReturnValue('3:00');
+        AsMock(mockMusicKit.formatMediaTime).mockReturnValue('3:00');
         
         render(<ProgressControl />);
         
@@ -188,7 +188,7 @@ describe('ProgressControl', () => {
         const component = render(<ProgressControl />);
         
         // Get the event handler that was added
-        const addEventListenerCall = mockMusicKit.instance.addEventListener.mock.calls.find(
+        const addEventListenerCall = AsMock(mockMusicKit.instance.addEventListener).mock.calls.find(
             call => call[0] === 'playbackTimeDidChange'
         );
         
@@ -211,7 +211,7 @@ describe('ProgressControl', () => {
     it('handles zero duration gracefully', async () => {
         const component = render(<ProgressControl />);
         
-        const addEventListenerCall = mockMusicKit.instance.addEventListener.mock.calls.find(
+        const addEventListenerCall = AsMock(mockMusicKit.instance.addEventListener).mock.calls.find(
             call => call[0] === 'playbackTimeDidChange'
         );
         
@@ -233,7 +233,7 @@ describe('ProgressControl', () => {
     it('handles infinite duration gracefully', async () => {
         const component = render(<ProgressControl />);
         
-        const addEventListenerCall = mockMusicKit.instance.addEventListener.mock.calls.find(
+        const addEventListenerCall = AsMock(mockMusicKit.instance.addEventListener).mock.calls.find(
             call => call[0] === 'playbackTimeDidChange'
         );
         

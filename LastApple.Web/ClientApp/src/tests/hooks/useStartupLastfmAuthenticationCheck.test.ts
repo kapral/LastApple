@@ -57,8 +57,8 @@ describe('useStartupLastfmAuthenticationCheck', () => {
             },
         };
         AsMock(useLastfmContext).mockReturnValue(mockContext);
-        mockLastfmAuthService.tryGetAuthFromParams.mockReturnValue(null);
-        checkLastfmLogin.mockResolvedValue(undefined);
+        AsMock(mockLastfmAuthService.tryGetAuthFromParams).mockReturnValue(null);
+        AsMock(checkLastfmLogin).mockResolvedValue(undefined);
 
         renderHook(() => useStartupLastfmAuthenticationCheck());
 
@@ -84,9 +84,9 @@ describe('useStartupLastfmAuthenticationCheck', () => {
         AsMock(useLastfmContext).mockReturnValue(mockContext);
         
         const testToken = 'test-token-123';
-        mockLastfmAuthService.tryGetAuthFromParams.mockReturnValue(testToken);
-        mockLastfmAuthService.postToken.mockResolvedValue(undefined);
-        checkLastfmLogin.mockResolvedValue(undefined);
+        AsMock(mockLastfmAuthService.tryGetAuthFromParams).mockReturnValue(testToken);
+        AsMock(mockLastfmAuthService.postToken).mockResolvedValue(undefined);
+        AsMock(checkLastfmLogin).mockResolvedValue(undefined);
 
         renderHook(() => useStartupLastfmAuthenticationCheck());
 
@@ -110,8 +110,8 @@ describe('useStartupLastfmAuthenticationCheck', () => {
             },
         };
         AsMock(useLastfmContext).mockReturnValue(mockContext);
-        mockLastfmAuthService.tryGetAuthFromParams.mockReturnValue(null);
-        checkLastfmLogin.mockResolvedValue(undefined);
+        AsMock(mockLastfmAuthService.tryGetAuthFromParams).mockReturnValue(null);
+        AsMock(checkLastfmLogin).mockResolvedValue(undefined);
 
         const { rerender } = renderHook(() => useStartupLastfmAuthenticationCheck());
 

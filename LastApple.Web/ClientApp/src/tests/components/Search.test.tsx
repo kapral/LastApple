@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Search } from '../../components/Search';
+import AsMock from '../AsMock';
 
 interface TestItem {
     id: string;
@@ -64,7 +65,7 @@ describe('Search', () => {
     });
 
     it('calls search function with delay when typing', async () => {
-        mockSearch.mockResolvedValue([
+        AsMock(mockSearch).mockResolvedValue([
             { id: '1', name: 'Test Artist', label: 'Test Artist' }
         ]);
 
@@ -87,7 +88,7 @@ describe('Search', () => {
 
     it('shows loading state during search', async () => {
         // Mock a delayed search response
-        mockSearch.mockImplementation(() => 
+        AsMock(mockSearch).mockImplementation(() => 
             new Promise(resolve => setTimeout(() => resolve([]), 200))
         );
 
@@ -115,7 +116,7 @@ describe('Search', () => {
             { id: '2', name: 'Artist 2', label: 'Artist 2' }
         ];
 
-        mockSearch.mockResolvedValue(testItems);
+        AsMock(mockSearch).mockResolvedValue(testItems);
 
         render(
             <Search<TestItem>
@@ -139,7 +140,7 @@ describe('Search', () => {
     });
 
     it('handles empty search results', async () => {
-        mockSearch.mockResolvedValue([]);
+        AsMock(mockSearch).mockResolvedValue([]);
 
         render(
             <Search<TestItem>

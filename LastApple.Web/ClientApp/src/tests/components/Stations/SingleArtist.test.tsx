@@ -225,7 +225,7 @@ describe('SingleArtist', () => {
             }
         };
 
-        mockMusicKit.getInstance.mockResolvedValue(mockMusicKitInstance);
+        AsMock(mockMusicKit.getInstance).mockResolvedValue(mockMusicKitInstance);
 
         const component = new SingleArtist(defaultProps);
         const results = await component.search('test');
@@ -278,7 +278,7 @@ describe('SingleArtist', () => {
             }
         };
 
-        mockMusicKit.getInstance.mockResolvedValue(mockMusicKitInstance);
+        AsMock(mockMusicKit.getInstance).mockResolvedValue(mockMusicKitInstance);
 
         const component = new SingleArtist(defaultProps);
         

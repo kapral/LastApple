@@ -218,7 +218,7 @@ describe('StationPlayer', () => {
     beforeEach(() => {
         // Reset and configure mocks to work with our tests
         // Configure StationApi mock
-        mockStationApi.getStation.mockResolvedValue({
+        AsMock(mockStationApi.getStation).mockResolvedValue({
             id: 'test-station',
             name: 'Test Station',
             songIds: ['123', '456', '789'],
@@ -289,7 +289,7 @@ describe('StationPlayer', () => {
         };
 
         // Ensure the musicKit getInstance always returns a valid instance
-        mockMusicKit.getInstance.mockResolvedValue(mockMusicKitInstance);
+        AsMock(mockMusicKit.getInstance).mockResolvedValue(mockMusicKitInstance);
     });
 
     it('renders without crashing', async () => {
