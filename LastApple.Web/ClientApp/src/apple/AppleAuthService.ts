@@ -5,18 +5,23 @@ class AppleAuthService {
     existingAuthCheckPromise: Promise<boolean>;
 
     async isAuthenticated() {
-        const kit = await musicKit.getInstance();
+        let kit = await musicKit.getInstance();
 
-        if (kit.isAuthorized)
+        if (kit.isAuthorized) {
             return true;
+        }
 
-        if (this.existingAuthCheckPromise)
+        if (this.existingAuthCheckPromise) {
             return await this.existingAuthCheckPromise;
+        }
 
         let resolve = null;
         this.existingAuthCheckPromise = new Promise<boolean>(r => resolve = r);
 
         await this.tryGetExistingAuthentication();
+
+        // re-read the instance just so it's easier to mock the changes in tests
+        kit = await musicKit.getInstance();
 
         resolve(kit.isAuthorized);
 

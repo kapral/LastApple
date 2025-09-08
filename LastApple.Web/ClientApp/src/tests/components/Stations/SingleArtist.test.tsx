@@ -27,6 +27,13 @@ jest.mock('../../../components/Search', () => ({
     )
 }));
 
+jest.mock('../../../restClients/StationApi', () => ({
+    __esModule: true,
+    default: {
+        postStation: jest.fn().mockResolvedValue({ id: 'test-station-id' })
+    }
+}));
+
 describe('SingleArtist', () => {
     const defaultProps = {
         triggerCreate: false,
@@ -36,10 +43,10 @@ describe('SingleArtist', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
-        
+
         // Reset musicKit mock to defaults
         resetMusicKitMock();
-        
+
         // Override only the API response we need for artist search
         overrideMusicKitInstance({
             api: {
@@ -57,7 +64,7 @@ describe('SingleArtist', () => {
                 })
             }
         });
-        
+
         AsMock(mockStationApi.postStation).mockResolvedValue({ id: 'test-station-id' });
     });
 
@@ -113,10 +120,10 @@ describe('SingleArtist', () => {
         render(<SingleArtist {...defaultProps} onOptionsChanged={mockOnOptionsChanged} />);
 
         const searchInput = screen.getByTestId('search-input');
-        
+
         // First type something to trigger initial state
         fireEvent.change(searchInput, { target: { value: 'test' } });
-        
+
         // Then clear it
         fireEvent.change(searchInput, { target: { value: '' } });
 
@@ -142,10 +149,10 @@ describe('SingleArtist', () => {
 
         // Then trigger creation
         rerender(
-            <SingleArtist 
-                {...defaultProps} 
+            <SingleArtist
+                {...defaultProps}
                 triggerCreate={true}
-                onStationCreated={mockOnStationCreated} 
+                onStationCreated={mockOnStationCreated}
             />
         );
 
@@ -159,7 +166,7 @@ describe('SingleArtist', () => {
         // Temporarily override the mock to return empty results
         const kitInstance = await mockMusicKit.getInstance();
         const originalMock = kitInstance.api.music;
-        
+
         // Mock empty results temporarily
         kitInstance.api.music = jest.fn().mockResolvedValue({
             data: {
@@ -253,7 +260,7 @@ describe('SingleArtist', () => {
         AsMock(mockMusicKit.getInstance).mockResolvedValue(mockMusicKitInstance);
 
         const component = new SingleArtist(defaultProps);
-        
+
         // Should not throw when API fails
         await expect(component.search('error')).rejects.toThrow('API Error');
     });

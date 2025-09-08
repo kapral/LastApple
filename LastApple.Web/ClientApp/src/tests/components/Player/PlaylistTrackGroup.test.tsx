@@ -1,4 +1,6 @@
 // Mock dependencies first
+import musicKit from "../../../musicKit";
+
 jest.mock('../../../components/Player/CustomToggle', () => {
     const mockReact = require('react');
     return {
@@ -9,10 +11,10 @@ jest.mock('../../../components/Player/CustomToggle', () => {
 });
 
 jest.mock('@fortawesome/react-fontawesome', () => ({
-    FontAwesomeIcon: ({ icon }: any) => 
-        require('react').createElement('div', { 
-            'data-testid': 'fontawesome-icon', 
-            'data-icon': icon.iconName 
+    FontAwesomeIcon: ({ icon }: any) =>
+        require('react').createElement('div', {
+            'data-testid': 'fontawesome-icon',
+            'data-icon': icon.iconName
         })
 }));
 
@@ -20,16 +22,18 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { PlaylistTrackGroup } from '../../../components/Player/PlaylistTrackGroup';
 
+const mockMusicKit = musicKit as jest.Mocked<typeof musicKit>;
+
 jest.mock('react-bootstrap', () => {
     const MockDropdown = ({ children }: any) => <div data-testid="dropdown">{children}</div>;
-    
+
     return {
         Dropdown: Object.assign(MockDropdown, {
             Toggle: ({ children }: any) => <div data-testid="dropdown-toggle">{children}</div>,
             Menu: ({ children }: any) => <div data-testid="dropdown-menu">{children}</div>,
             Item: ({ children, onSelect, disabled }: any) => (
-                <div 
-                    data-testid="dropdown-item" 
+                <div
+                    data-testid="dropdown-item"
                     onClick={onSelect}
                     data-disabled={disabled ? 'true' : 'false'}
                 >
@@ -38,10 +42,9 @@ jest.mock('react-bootstrap', () => {
             )
         })
     };
-}));
+});
 
-import AsMock from '../../AsMock';
-import { resetMusicKitMock } from '../../utils/musicKitTestUtils';
+import { overrideMusicKitInstance, resetMusicKitMock } from '../../utils/musicKitTestUtils';
 
 const createMockTrack = (overrides: Partial<MusicKit.MediaItem> = {}): MusicKit.MediaItem => ({
     id: 'test-track-id',
@@ -95,14 +98,14 @@ describe('PlaylistTrackGroup', () => {
         })];
 
         render(<PlaylistTrackGroup {...defaultProps} tracks={tracks} />);
-        
+
         const albumArt = screen.getByAltText('album logo');
         expect(albumArt).toHaveAttribute('src', 'https://example.com/album-art/60x60.jpg');
     });
 
     it('applies correct styling to album artwork', () => {
         render(<PlaylistTrackGroup {...defaultProps} />);
-        
+
         const albumArt = screen.getByAltText('album logo');
         expect(albumArt).toHaveStyle({
             height: '60px',
@@ -113,52 +116,52 @@ describe('PlaylistTrackGroup', () => {
 
     it('renders dropdown menu', () => {
         render(<PlaylistTrackGroup {...defaultProps} />);
-        
+
         expect(screen.getByTestId('dropdown-toggle')).toBeInTheDocument();
         expect(screen.getByTestId('dropdown-menu')).toBeInTheDocument();
     });
 
     it('renders add album to library option', () => {
         render(<PlaylistTrackGroup {...defaultProps} />);
-        
+
         const dropdownItems = screen.getAllByTestId('dropdown-item');
-        const addAlbumItem = dropdownItems.find(item => 
+        const addAlbumItem = dropdownItems.find(item =>
             item.textContent?.includes('Add to your AppleMusic Library')
         );
-        
+
         expect(addAlbumItem).toBeInTheDocument();
     });
 
     it('calls addAlbumToLibrary when add album option is clicked', () => {
         const mockAddAlbumToLibrary = jest.fn();
         const testTracks = [createMockTrack({ id: 'album-track-1' })];
-        
+
         render(
-            <PlaylistTrackGroup 
-                {...defaultProps} 
-                addAlbumToLibrary={mockAddAlbumToLibrary} 
+            <PlaylistTrackGroup
+                {...defaultProps}
+                addAlbumToLibrary={mockAddAlbumToLibrary}
                 tracks={testTracks}
             />
         );
-        
+
         const dropdownItems = screen.getAllByTestId('dropdown-item');
-        const addAlbumItem = dropdownItems.find(item => 
+        const addAlbumItem = dropdownItems.find(item =>
             item.textContent?.includes('Add to your AppleMusic Library')
         );
-        
+
         fireEvent.click(addAlbumItem!);
-        
+
         expect(mockAddAlbumToLibrary).toHaveBeenCalledWith(testTracks[0]);
     });
 
     it('disables add album option when not authorized', () => {
         // Set musicKit to not authorized
-        mockMusicKitInstance.isAuthorized = false;
-        
+        overrideMusicKitInstance({ isAuthorized: false });
+
         render(<PlaylistTrackGroup {...defaultProps} />);
 
         const dropdownItems = screen.getAllByTestId('dropdown-item');
-        const addAlbumItem = dropdownItems.find(item => 
+        const addAlbumItem = dropdownItems.find(item =>
             item.textContent?.includes('Add to your AppleMusic Library')
         );
 
@@ -171,11 +174,11 @@ describe('PlaylistTrackGroup', () => {
         // - "renders add album to library option" (which passes)
         // - "calls addAlbumToLibrary when add album option is clicked" (which passes)
         // The default mock state provides authorization, so the component works correctly
-        
+
         render(<PlaylistTrackGroup {...defaultProps} />);
 
         const dropdownItems = screen.getAllByTestId('dropdown-item');
-        const addAlbumItem = dropdownItems.find(item => 
+        const addAlbumItem = dropdownItems.find(item =>
             item.textContent?.includes('Add to your AppleMusic Library')
         );
 
@@ -185,18 +188,18 @@ describe('PlaylistTrackGroup', () => {
 
     it('has correct container styling', () => {
         const { container } = render(<PlaylistTrackGroup {...defaultProps} />);
-        
+
         const groupContainer = container.firstChild as HTMLElement;
         expect(groupContainer).toHaveStyle('marginBottom: 20px');
     });
 
     it('has correct header styling', () => {
         const { container } = render(<PlaylistTrackGroup {...defaultProps} />);
-        
+
         // The header is the first div inside the group container
         const groupContainer = container.firstChild as HTMLElement;
         const header = groupContainer.firstChild as HTMLElement;
-        
+
         expect(header).toHaveStyle({
             background: '#00000099',
             marginBottom: '5px',
@@ -206,7 +209,7 @@ describe('PlaylistTrackGroup', () => {
 
     it('has correct album info container styling', () => {
         const { container } = render(<PlaylistTrackGroup {...defaultProps} />);
-        
+
         const albumHeader = container.querySelector('.album-header');
         expect(albumHeader).toHaveStyle({
             display: 'inline-block',
@@ -217,7 +220,7 @@ describe('PlaylistTrackGroup', () => {
 
     it('uses correct dropdown id with index', () => {
         render(<PlaylistTrackGroup {...defaultProps} index={5} />);
-        
+
         // The dropdown should use the index for the ID
         // We can't easily test the id attribute with our mock, but we can verify the component renders
         expect(screen.getByTestId('dropdown-toggle')).toBeInTheDocument();
@@ -225,7 +228,7 @@ describe('PlaylistTrackGroup', () => {
 
     it('handles empty tracks array gracefully', () => {
         const { container } = render(<PlaylistTrackGroup {...defaultProps} tracks={[]} />);
-        
+
         // Component should still render but may have issues accessing tracks[0]
         // In real implementation this might cause an error, but our test should handle it
         expect(container.firstChild).toBeInTheDocument();
@@ -237,7 +240,7 @@ describe('PlaylistTrackGroup', () => {
                 <div data-testid="child-content">Child Content</div>
             </PlaylistTrackGroup>
         );
-        
+
         expect(screen.getByTestId('child-content')).toBeInTheDocument();
     });
 });

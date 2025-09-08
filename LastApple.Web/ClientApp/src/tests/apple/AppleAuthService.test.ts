@@ -2,13 +2,12 @@ import AppleAuthService from '../../apple/AppleAuthService';
 import musicKit from '../../musicKit';
 import musicApi from '../../restClients/AppleMusicApi';
 import AsMock from '../AsMock';
-import { resetMusicKitMock } from '../utils/musicKitTestUtils';
+import { overrideMusicKitInstance, resetMusicKitMock } from '../utils/musicKitTestUtils';
 
 jest.mock('../../musicKit');
 jest.mock('../../restClients/AppleMusicApi');
 
 // Type the mocked modules
-const mockMusicKit = musicKit as jest.Mocked<typeof musicKit>;
 const mockMusicApi = musicApi as jest.Mocked<typeof musicApi>;
 
 // Mock localStorage
@@ -23,29 +22,18 @@ Object.defineProperty(window, 'localStorage', {
 });
 
 describe('AppleAuthService', () => {
-    let mockMusicKitInstance: any;
 
     beforeEach(() => {
         jest.clearAllMocks();
         resetMusicKitMock();
-        
-        mockMusicKitInstance = {
-            isAuthorized: false,
-            musicUserToken: 'test-token',
-            storefrontId: 'us',
-            authorize: jest.fn(),
-            unauthorize: jest.fn(),
-        };
-        
-        AsMock(mockMusicKit.getInstance).mockResolvedValue(mockMusicKitInstance);
-        
+
         // Clear existing auth check promise to ensure clean state
         (AppleAuthService as any).existingAuthCheckPromise = null;
     });
 
     describe('isAuthenticated', () => {
         it('should return true if already authorized', async () => {
-            mockMusicKitInstance.isAuthorized = true;
+            overrideMusicKitInstance({ isAuthorized: true });
 
             const result = await AppleAuthService.isAuthenticated();
 
@@ -54,15 +42,17 @@ describe('AppleAuthService', () => {
         });
 
         it('should try to get existing authentication if not authorized', async () => {
-            mockMusicKitInstance.isAuthorized = false;
+            overrideMusicKitInstance({ isAuthorized: false });
             AsMock(mockMusicApi.getSessionData).mockResolvedValue({
                 musicUserToken: 'existing-token',
                 musicStorefrontId: 'us'
             });
-            
+
+            const instance = await musicKit.getInstance();
+
             // After setting tokens, simulate authorization
             AsMock(mockMusicApi.getSessionData).mockImplementation(() => {
-                mockMusicKitInstance.isAuthorized = true;
+                overrideMusicKitInstance({ isAuthorized: true });
                 return Promise.resolve({
                     musicUserToken: 'existing-token',
                     musicStorefrontId: 'us'
@@ -77,7 +67,7 @@ describe('AppleAuthService', () => {
         });
 
         it('should handle case when no session data exists', async () => {
-            mockMusicKitInstance.isAuthorized = false;
+            overrideMusicKitInstance({ isAuthorized: false });
             AsMock(mockMusicApi.getSessionData).mockResolvedValue(null);
 
             const result = await AppleAuthService.isAuthenticated();
@@ -86,7 +76,7 @@ describe('AppleAuthService', () => {
         });
 
         it('should reuse existing auth check promise when called multiple times', async () => {
-            mockMusicKitInstance.isAuthorized = false;
+            overrideMusicKitInstance({ isAuthorized: false });
             AsMock(mockMusicApi.getSessionData).mockResolvedValue(null);
 
             // Call isAuthenticated twice simultaneously
@@ -104,16 +94,14 @@ describe('AppleAuthService', () => {
 
     describe('authenticate', () => {
         it('should authorize with MusicKit and save session data', async () => {
-            AsMock(mockMusicKitInstance.authorize).mockResolvedValue(undefined);
-            mockMusicKitInstance.musicUserToken = 'new-token';
-            mockMusicKitInstance.storefrontId = 'us';
-            
+            overrideMusicKitInstance({ musicUserToken: 'new-token', storefrontId: 'us' });
+
             const sessionData = { id: 'session-123', musicUserToken: 'new-token', musicStorefrontId: 'us' };
             AsMock(mockMusicApi.postSessionData).mockResolvedValue(sessionData);
 
             await AppleAuthService.authenticate();
 
-            expect(mockMusicKitInstance.authorize).toHaveBeenCalled();
+            expect(musicKit.instance.authorize).toHaveBeenCalled();
             expect(mockMusicApi.postSessionData).toHaveBeenCalledWith({
                 musicUserToken: 'new-token',
                 musicStorefrontId: 'us'
@@ -124,12 +112,11 @@ describe('AppleAuthService', () => {
 
     describe('logout', () => {
         it('should unauthorize with MusicKit and delete session data', async () => {
-            AsMock(mockMusicKitInstance.unauthorize).mockResolvedValue(undefined);
             AsMock(mockMusicApi.deleteSessionData).mockResolvedValue(undefined);
 
             await AppleAuthService.logout();
 
-            expect(mockMusicKitInstance.unauthorize).toHaveBeenCalled();
+            expect(musicKit.instance.unauthorize).toHaveBeenCalled();
             expect(mockMusicApi.deleteSessionData).toHaveBeenCalled();
         });
     });

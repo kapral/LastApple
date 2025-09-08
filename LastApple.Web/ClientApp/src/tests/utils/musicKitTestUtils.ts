@@ -12,6 +12,8 @@ const getDefaultMockProperties = () => ({
     storefrontId: 'us',
     addEventListener: jest.fn(),
     removeEventListener: jest.fn(),
+    authorize: jest.fn().mockResolvedValue(undefined),
+    unauthorize: jest.fn().mockResolvedValue(undefined),
     play: jest.fn().mockResolvedValue(undefined),
     pause: jest.fn().mockResolvedValue(undefined),
     stop: jest.fn().mockResolvedValue(undefined),
@@ -46,13 +48,15 @@ const getDefaultMockProperties = () => ({
  */
 export const overrideMusicKitInstance = (overrides: any) => {
     const mockMusicKit = AsMock(require('../../musicKit').default);
-    
+
     // Get current defaults
     const defaults = getDefaultMockProperties();
-    
+
+    const originalInstance = mockMusicKit.instance || defaults;
+
     // Create the extended instance by merging defaults with overrides
     const extendedInstance = {
-        ...defaults,
+        ...originalInstance,
         ...overrides,
         // Deep merge for nested objects
         api: {
@@ -68,13 +72,13 @@ export const overrideMusicKitInstance = (overrides: any) => {
             ...overrides.queue,
         },
     };
-    
+
     // Update the getInstance mock to return the extended instance
     AsMock(mockMusicKit.getInstance).mockResolvedValue(extendedInstance);
-    
+
     // Also update the instance property for direct access
     mockMusicKit.instance = extendedInstance;
-    
+
     return extendedInstance;
 };
 
@@ -84,7 +88,7 @@ export const overrideMusicKitInstance = (overrides: any) => {
 export const resetMusicKitMock = () => {
     const mockMusicKit = AsMock(require('../../musicKit').default);
     const defaults = getDefaultMockProperties();
-    
+
     AsMock(mockMusicKit.getInstance).mockResolvedValue(defaults);
     mockMusicKit.instance = defaults;
 };
