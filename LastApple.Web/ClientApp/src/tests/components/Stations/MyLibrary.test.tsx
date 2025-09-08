@@ -6,6 +6,8 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { MyLibrary } from '../../../components/Stations/MyLibrary';
 import { AuthenticationState } from '../../../authentication';
 import { LastfmContext } from '../../../lastfm/LastfmContext';
+import mockStationApi from '../../../restClients/StationApi';
+import AsMock from '../../AsMock';
 
 // Mock StationApi with proper Jest factory
 jest.mock('../../../restClients/StationApi', () => {
@@ -53,8 +55,7 @@ describe('MyLibrary', () => {
         jest.clearAllMocks();
 
         // Restore StationApi mock after clearAllMocks
-        const mockStationApi = require('../../../restClients/StationApi').default;
-        mockStationApi.postStation.mockResolvedValue({ id: 'test-station-id' });
+        AsMock(mockStationApi.postStation).mockResolvedValue({ id: 'test-station-id' });
     });
 
     it('renders without crashing', () => {
@@ -120,10 +121,6 @@ describe('MyLibrary', () => {
     });
 
     it('creates station when triggerCreate is true and authenticated', async () => {
-        // Get reference to the mock
-        const mockStationApi = require('../../../restClients/StationApi').default;
-        console.log('Mock StationApi:', mockStationApi);
-
         const mockOnStationCreated = jest.fn();
 
         const { rerender } = render(

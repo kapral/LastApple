@@ -1,7 +1,16 @@
+// Mock StationApi before importing the component
+jest.mock('../../../restClients/StationApi', () => ({
+    __esModule: true,
+    default: {
+        postStation: jest.fn().mockResolvedValue({ id: 'test-station-id' })
+    }
+}));
+
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Tag } from '../../../components/Stations/Tag';
-import stationApi from "../../../restClients/StationApi";
+import mockStationApi from '../../../restClients/StationApi';
+import AsMock from '../../AsMock';
 
 describe('Tag', () => {
     const defaultProps = {
@@ -12,8 +21,9 @@ describe('Tag', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
-
-        stationApi.postStation = jest.fn().mockResolvedValue({ id: 'test-station-id' });
+        
+        // Restore the mock function after clearAllMocks
+        AsMock(mockStationApi.postStation).mockResolvedValue({ id: 'test-station-id' });
     });
 
     it('renders without crashing', () => {
@@ -60,7 +70,7 @@ describe('Tag', () => {
         render(<Tag {...defaultProps} onOptionsChanged={mockOnOptionsChanged} />);
 
         const input = screen.getByPlaceholderText('Rock...');
-
+        
         // First enter a tag
         fireEvent.change(input, { target: { value: 'rock' } });
         expect(mockOnOptionsChanged).toHaveBeenCalledWith(true);
@@ -93,15 +103,14 @@ describe('Tag', () => {
 
         // Then trigger creation
         rerender(
-            <Tag
-                {...defaultProps}
+            <Tag 
+                {...defaultProps} 
                 triggerCreate={true}
-                onStationCreated={mockOnStationCreated}
+                onStationCreated={mockOnStationCreated} 
             />
         );
 
         await waitFor(() => {
-            const mockStationApi = require('../../../restClients/StationApi').default;
             expect(mockStationApi.postStation).toHaveBeenCalledWith('tags', 'jazz');
             expect(mockOnStationCreated).toHaveBeenCalledWith('test-station-id');
         });
@@ -116,15 +125,14 @@ describe('Tag', () => {
 
         // Don't enter any tag, just trigger creation
         rerender(
-            <Tag
-                {...defaultProps}
+            <Tag 
+                {...defaultProps} 
                 triggerCreate={true}
-                onStationCreated={mockOnStationCreated}
+                onStationCreated={mockOnStationCreated} 
             />
         );
 
         await waitFor(() => {
-            const mockStationApi = require('../../../restClients/StationApi').default;
             expect(mockStationApi.postStation).toHaveBeenCalledWith('tags', null);
             expect(mockOnStationCreated).toHaveBeenCalledWith('test-station-id');
         });
@@ -136,7 +144,7 @@ describe('Tag', () => {
         render(<Tag {...defaultProps} onOptionsChanged={mockOnOptionsChanged} />);
 
         const input = screen.getByPlaceholderText('Rock...');
-
+        
         fireEvent.change(input, { target: { value: 'r' } });
         expect(mockOnOptionsChanged).toHaveBeenCalledWith(true);
 
@@ -177,21 +185,27 @@ describe('Tag', () => {
         render(<Tag {...defaultProps} />);
 
         const input = screen.getByPlaceholderText('Rock...') as HTMLInputElement;
-
+        
         fireEvent.change(input, { target: { value: 'indie' } });
-
+        
         expect(input.value).toBe('indie');
     });
 
     it('calls handleChanged with current target value', () => {
         const component = new Tag(defaultProps);
         const mockSetState = jest.fn();
-
+        const mockOnOptionsChanged = jest.fn();
+        
         component.setState = mockSetState;
-        const mockOnOptionsChanged = jest.spyOn(component.props, 'onOptionsChanged');
+        component.props.onOptionsChanged = mockOnOptionsChanged;
+
+        // Simulate the actual event structure
+        const mockEvent = {
+            currentTarget: { value: 'ambient' }
+        } as React.ChangeEvent<HTMLInputElement>;
 
         component.render();
-
+        
         // Manually call handleChanged like the onChange would
         component.handleChanged('ambient');
 

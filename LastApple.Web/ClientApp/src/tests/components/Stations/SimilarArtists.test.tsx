@@ -46,6 +46,9 @@ jest.mock('../../../components/Search', () => ({
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { SimilarArtists } from '../../../components/Stations/SimilarArtists';
+import mockLastfmApi from '../../../restClients/LastfmApi';
+import mockStationApi from '../../../restClients/StationApi';
+import AsMock from '../../AsMock';
 
 describe('SimilarArtists', () => {
     const defaultProps = {
@@ -58,15 +61,13 @@ describe('SimilarArtists', () => {
         jest.clearAllMocks();
         
         // Restore mock implementations after clearAllMocks
-        const lastfmApi = require('../../../restClients/LastfmApi').default;
-        lastfmApi.searchArtist.mockResolvedValue([
+        AsMock(mockLastfmApi.searchArtist).mockResolvedValue([
             { name: 'Placebo' },
             { name: 'Radiohead' },
             { name: 'Coldplay' }
         ]);
         
-        const stationApi = require('../../../restClients/StationApi').default;
-        stationApi.postStation.mockResolvedValue({ id: 'test-station-id' });
+        AsMock(mockStationApi.postStation).mockResolvedValue({ id: 'test-station-id' });
     });
 
     it('renders without crashing', () => {
@@ -92,7 +93,7 @@ describe('SimilarArtists', () => {
         fireEvent.change(searchInput, { target: { value: 'radiohead' } });
 
         await waitFor(() => {
-            const mockLastfmApi = require('../../../restClients/LastfmApi').default;
+            
             expect(mockLastfmApi.searchArtist).toHaveBeenCalledWith('radiohead');
         });
     });
@@ -140,8 +141,8 @@ describe('SimilarArtists', () => {
         fireEvent.change(searchInput, { target: { value: 'placebo' } });
 
         await waitFor(() => {
-            const lastfmApi = require('../../../restClients/LastfmApi').default;
-            expect(lastfmApi.searchArtist).toHaveBeenCalled();
+            
+            expect(mockLastfmApi.searchArtist).toHaveBeenCalled();
         });
 
         // Then trigger creation
@@ -154,15 +155,15 @@ describe('SimilarArtists', () => {
         );
 
         await waitFor(() => {
-            const stationApi = require('../../../restClients/StationApi').default;
-            expect(stationApi.postStation).toHaveBeenCalledWith('similarartists', 'Placebo');
+            
+            expect(mockStationApi.postStation).toHaveBeenCalledWith('similarartists', 'Placebo');
             expect(mockOnStationCreated).toHaveBeenCalledWith('test-station-id');
         });
     });
 
     it('handles empty search results', async () => {
-        const lastfmApi = require('../../../restClients/LastfmApi').default;
-        lastfmApi.searchArtist.mockResolvedValue([]);
+        
+        mockLastfmApi.searchArtist.mockResolvedValue([]);
 
         render(<SimilarArtists {...defaultProps} />);
 
@@ -170,8 +171,8 @@ describe('SimilarArtists', () => {
         fireEvent.change(searchInput, { target: { value: 'nonexistent' } });
 
         await waitFor(() => {
-            const lastfmApi = require('../../../restClients/LastfmApi').default;
-            expect(lastfmApi.searchArtist).toHaveBeenCalledWith('nonexistent');
+            
+            expect(mockLastfmApi.searchArtist).toHaveBeenCalledWith('nonexistent');
         });
 
         // Should not crash and handle empty results gracefully
@@ -183,8 +184,7 @@ describe('SimilarArtists', () => {
             { name: 'Artist Two', mbid: '456' }
         ];
 
-        const lastfmApi = require('../../../restClients/LastfmApi').default;
-        lastfmApi.searchArtist.mockResolvedValue(testResults);
+        mockLastfmApi.searchArtist.mockResolvedValue(testResults);
 
         // Test the search method more safely using component render
         render(<SimilarArtists {...defaultProps} />);
@@ -194,7 +194,7 @@ describe('SimilarArtists', () => {
         fireEvent.change(searchInput, { target: { value: 'test' } });
         
         await waitFor(() => {
-            expect(lastfmApi.searchArtist).toHaveBeenCalledWith('test');
+            expect(mockLastfmApi.searchArtist).toHaveBeenCalledWith('test');
         });
     });
 
@@ -207,8 +207,8 @@ describe('SimilarArtists', () => {
     });
 
     it('handles search errors gracefully', async () => {
-        const lastfmApi = require('../../../restClients/LastfmApi').default;
-        lastfmApi.searchArtist.mockRejectedValue(new Error('Search failed'));
+        
+        mockLastfmApi.searchArtist.mockRejectedValue(new Error('Search failed'));
 
         render(<SimilarArtists {...defaultProps} />);
 

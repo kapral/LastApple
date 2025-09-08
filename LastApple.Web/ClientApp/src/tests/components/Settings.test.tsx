@@ -2,6 +2,9 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Settings } from '../../components/Settings';
 import { AuthenticationState } from '../../authentication';
+import { loginApple, logoutApple } from '../../apple/appleAuthentication';
+import { loginLastfm, logoutLastfm } from '../../lastfm/lastfmAuthentication';
+import AsMock from '../AsMock';
 
 // Mock the authentication services
 jest.mock('../../apple/appleAuthentication', () => ({
@@ -59,6 +62,12 @@ const TestWrapper: React.FC<{
 describe('Settings', () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        
+        // Restore the mock functions after clearAllMocks
+        AsMock(loginApple).mockResolvedValue(undefined);
+        AsMock(logoutApple).mockResolvedValue(undefined);
+        AsMock(loginLastfm).mockResolvedValue(undefined);
+        AsMock(logoutLastfm).mockResolvedValue(undefined);
     });
 
     it('renders without crashing', () => {
@@ -183,8 +192,6 @@ describe('Settings', () => {
     });
 
     it('calls Apple login when Apple switch is toggled on', async () => {
-        const { loginApple } = require('../../apple/appleAuthentication');
-
         render(
             <TestWrapper appleState={AuthenticationState.Unauthenticated}>
                 <Settings />
@@ -202,8 +209,6 @@ describe('Settings', () => {
     });
 
     it('calls Apple logout when Apple switch is toggled off', async () => {
-        const { logoutApple } = require('../../apple/appleAuthentication');
-
         render(
             <TestWrapper appleState={AuthenticationState.Authenticated}>
                 <Settings />
@@ -221,8 +226,6 @@ describe('Settings', () => {
     });
 
     it('calls Last.fm login when Last.fm switch is toggled on', async () => {
-        const { loginLastfm } = require('../../lastfm/lastfmAuthentication');
-
         render(
             <TestWrapper lastfmState={AuthenticationState.Unauthenticated}>
                 <Settings />
@@ -240,8 +243,6 @@ describe('Settings', () => {
     });
 
     it('calls Last.fm logout when Last.fm switch is toggled off', async () => {
-        const { logoutLastfm } = require('../../lastfm/lastfmAuthentication');
-
         render(
             <TestWrapper lastfmState={AuthenticationState.Authenticated}>
                 <Settings />

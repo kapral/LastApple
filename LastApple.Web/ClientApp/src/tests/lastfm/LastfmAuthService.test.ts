@@ -25,6 +25,8 @@ Object.defineProperty(window, 'localStorage', {
 });
 
 import LastfmAuthService from '../../lastfm/LastfmAuthService';
+import mockLastfmApi from '../../restClients/LastfmApi';
+import AsMock from '../AsMock';
 
 // Mock window.location and window.history
 const mockLocation = {
@@ -47,6 +49,13 @@ Object.defineProperty(window, 'history', {
 describe('LastfmAuthService', () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        
+        // Restore the mock functions after clearAllMocks
+        AsMock(mockLastfmApi.getUser).mockResolvedValue(null);
+        AsMock(mockLastfmApi.getAuthUrl).mockResolvedValue('');
+        AsMock(mockLastfmApi.postToken).mockResolvedValue(null);
+        AsMock(mockLastfmApi.logout).mockResolvedValue(undefined);
+        
         mockLocation.href = 'http://localhost:3000/';
     });
 
@@ -57,8 +66,7 @@ describe('LastfmAuthService', () => {
                 url: 'http://last.fm/user/testuser',
                 avatar: ['http://last.fm/avatar.jpg']
             };
-            const mockLastfmApi = require('../../restClients/LastfmApi').default;
-            mockLastfmApi.getUser.mockResolvedValue(mockUser);
+            AsMock(mockLastfmApi.getUser).mockResolvedValue(mockUser);
 
             const result = await LastfmAuthService.getAuthenticatedUser();
 
@@ -70,8 +78,7 @@ describe('LastfmAuthService', () => {
     describe('authenticate', () => {
         it('should redirect to auth URL', async () => {
             const authUrl = 'http://last.fm/auth?token=xyz';
-            const mockLastfmApi = require('../../restClients/LastfmApi').default;
-            mockLastfmApi.getAuthUrl.mockResolvedValue(authUrl);
+            AsMock(mockLastfmApi.getAuthUrl).mockResolvedValue(authUrl);
 
             await LastfmAuthService.authenticate();
 
@@ -113,8 +120,7 @@ describe('LastfmAuthService', () => {
             const mockResponse = {
                 json: jest.fn().mockResolvedValue(sessionId),
             };
-            const mockLastfmApi = require('../../restClients/LastfmApi').default;
-            mockLastfmApi.postToken.mockResolvedValue(mockResponse);
+            AsMock(mockLastfmApi.postToken).mockResolvedValue(mockResponse);
             mockLocation.href = 'http://localhost:3000/?token=test-token#/home';
             mockLocation.hash = '#/home';
 
@@ -132,8 +138,7 @@ describe('LastfmAuthService', () => {
             const mockResponse = {
                 json: jest.fn().mockResolvedValue(sessionId),
             };
-            const mockLastfmApi = require('../../restClients/LastfmApi').default;
-            mockLastfmApi.postToken.mockResolvedValue(mockResponse);
+            AsMock(mockLastfmApi.postToken).mockResolvedValue(mockResponse);
             mockLocation.href = 'http://localhost:3000/?token=test-token';
             mockLocation.hash = '';
 
@@ -145,8 +150,7 @@ describe('LastfmAuthService', () => {
 
     describe('logout', () => {
         it('should call logout API', async () => {
-            const mockLastfmApi = require('../../restClients/LastfmApi').default;
-            mockLastfmApi.logout.mockResolvedValue(undefined);
+            AsMock(mockLastfmApi.logout).mockResolvedValue(undefined);
 
             await LastfmAuthService.logout();
 
