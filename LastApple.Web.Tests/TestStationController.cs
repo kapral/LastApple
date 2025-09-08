@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using LastApple.Model;
+using LastApple.Web.Exceptions;
 
 namespace LastApple.Web.Tests;
 
@@ -28,38 +29,35 @@ public class TestStationController
     }
 
     [Test]
-    public void DeleteSongs_Returns_NotFound_When_Station_Null()
+    public void DeleteSongs_Throws_NotFoundException_When_Station_Null()
     {
         var stationId = Guid.NewGuid();
         mockStationRepository.Get(stationId).Returns((StationBase)null);
 
-        var result = controller.DeleteSongs(stationId, 0, 1);
-
-        Assert.That(result, Is.InstanceOf<NotFoundResult>());
+        var exception = Assert.Throws<NotFoundException>(() => controller.DeleteSongs(stationId, 0, 1));
+        Assert.That(exception, Is.Not.Null);
     }
 
     [Test]
-    public void DeleteSongs_Returns_NotFound_When_Not_Enough_Songs()
+    public void DeleteSongs_Throws_NotFoundException_When_Not_Enough_Songs()
     {
         var stationId = Guid.NewGuid();
         var station   = CreateTestStation(stationId, ["song1", "song2"]); // Only 2 songs
         mockStationRepository.Get(stationId).Returns(station);
 
-        var result = controller.DeleteSongs(stationId, 0, 3);
-
-        Assert.That(result, Is.InstanceOf<NotFoundResult>());
+        var exception = Assert.Throws<NotFoundException>(() => controller.DeleteSongs(stationId, 0, 3));
+        Assert.That(exception, Is.Not.Null);
     }
 
     [Test]
-    public void DeleteSongs_Returns_NotFound_When_Position_Out_Of_Range()
+    public void DeleteSongs_Throws_NotFoundException_When_Position_Out_Of_Range()
     {
         var stationId = Guid.NewGuid();
         var station = CreateTestStation(stationId, ["song1", "song2"]);
         mockStationRepository.Get(stationId).Returns(station);
 
-        var result = controller.DeleteSongs(stationId, 2, 1);
-
-        Assert.That(result, Is.InstanceOf<NotFoundResult>());
+        var exception = Assert.Throws<NotFoundException>(() => controller.DeleteSongs(stationId, 2, 1));
+        Assert.That(exception, Is.Not.Null);
     }
 
     [Test]
@@ -70,9 +68,7 @@ public class TestStationController
         var station = CreateTestStation(stationId, songIds);
         mockStationRepository.Get(stationId).Returns(station);
 
-        var result = controller.DeleteSongs(stationId, 1, 2);
-
-        Assert.That(result, Is.InstanceOf<NoContentResult>());
+        Assert.DoesNotThrow(() => controller.DeleteSongs(stationId, 1, 2));
         Assert.That(station.SongIds, Has.Count.EqualTo(2));
         Assert.That(station.SongIds[0], Is.EqualTo("song1")); // First song remains
         Assert.That(station.SongIds[1], Is.EqualTo("song4")); // Last song moved down
@@ -86,9 +82,7 @@ public class TestStationController
         var station = CreateTestStation(stationId, songIds);
         mockStationRepository.Get(stationId).Returns(station);
 
-        var result = controller.DeleteSongs(stationId, 1, 1);
-
-        Assert.That(result, Is.InstanceOf<NoContentResult>());
+        Assert.DoesNotThrow(() => controller.DeleteSongs(stationId, 1, 1));
         Assert.That(station.SongIds, Has.Count.EqualTo(2));
         Assert.That(station.SongIds[0], Is.EqualTo("song1"));
         Assert.That(station.SongIds[1], Is.EqualTo("song3"));
