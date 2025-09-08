@@ -14,6 +14,9 @@ Always reference these instructions first and fallback to search or bash command
 - **Documentation Alignment**: Ensure any code changes are reflected in relevant documentation and comments.
 
 ### Testing Strategy for AI Agents
+- **Mandatory Test Execution**: Always ensure both .NET and JavaScript tests pass before making any commit. Use `dotnet test` and `npm test` in ClientApp.
+- **Test Preservation**: Never delete tests in order to fix them. Instead, update tests appropriately or fix the underlying code causing test failures.
+- **No AAA Comments**: Avoid using `// arrange`, `// act`, `// assert` comments in test code. Keep tests clean and self-documenting.
 - **Test-First Approach**: When possible, create tests that validate the expected behavior before implementing changes.
 - **Existing Test Compatibility**: Ensure new changes don't break existing tests unless the test needs to be updated for the new functionality.
 - **Mock Dependencies**: Use existing mocking patterns for external dependencies (Apple Music API, Last.fm API, MongoDB).
