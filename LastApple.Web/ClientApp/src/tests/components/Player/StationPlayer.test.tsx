@@ -9,6 +9,9 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { StationPlayer } from '../../../components/Player/StationPlayer';
 import { LastfmContext } from '../../../lastfm/LastfmContext';
 import { AuthenticationState } from '../../../authentication';
+import mockMusicKit from '../../../musicKit';
+import mockStationApi from '../../../restClients/StationApi';
+import AsMock from '../../AsMock';
 
 jest.mock('../../../musicKit', () => {
     // Define mock instance inside the factory function
@@ -214,11 +217,8 @@ describe('StationPlayer', () => {
 
     beforeEach(() => {
         // Reset and configure mocks to work with our tests
-        const musicKit = require('../../../musicKit').default;
-        const stationApi = require('../../../restClients/StationApi').default;
-
         // Configure StationApi mock
-        stationApi.getStation.mockResolvedValue({
+        mockStationApi.getStation.mockResolvedValue({
             id: 'test-station',
             name: 'Test Station',
             songIds: ['123', '456', '789'],
@@ -289,7 +289,7 @@ describe('StationPlayer', () => {
         };
 
         // Ensure the musicKit getInstance always returns a valid instance
-        musicKit.getInstance.mockResolvedValue(mockMusicKitInstance);
+        mockMusicKit.getInstance.mockResolvedValue(mockMusicKitInstance);
     });
 
     it('renders without crashing', async () => {
@@ -297,7 +297,7 @@ describe('StationPlayer', () => {
         const musicKit = (await import('../../../musicKit')).default;
 
         // Test that getInstance returns a truthy value
-        const instance = await musicKit.getInstance();
+        const instance = await mockMusicKit.getInstance();
         expect(instance).toBeTruthy();
 
         render(

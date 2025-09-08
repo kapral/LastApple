@@ -7,9 +7,8 @@ jest.mock('../../lastfm/LastfmAuthService', () => ({
 
 import { AuthenticationState } from '../../authentication';
 import { ILastfmAuthenticationState, logoutLastfm, loginLastfm, checkLastfmLogin } from '../../lastfm/lastfmAuthentication';
-
-// Get the mocked service after import
-const mockLastfmAuthService = require('../../lastfm/LastfmAuthService');
+import mockLastfmAuthService from '../../lastfm/LastfmAuthService';
+import AsMock from '../AsMock';
 
 describe('lastfmAuthentication', () => {
     let mockAuthState: ILastfmAuthenticationState;
@@ -18,9 +17,9 @@ describe('lastfmAuthentication', () => {
         jest.clearAllMocks();
         
         // Restore the mock functions after clearAllMocks
-        mockLastfmAuthService.getAuthenticatedUser = jest.fn();
-        mockLastfmAuthService.authenticate = jest.fn();
-        mockLastfmAuthService.logout = jest.fn();
+        AsMock(mockLastfmAuthService.getAuthenticatedUser).mockResolvedValue(null);
+        AsMock(mockLastfmAuthService.authenticate).mockResolvedValue(undefined);
+        AsMock(mockLastfmAuthService.logout).mockResolvedValue(undefined);
         
         mockAuthState = {
             state: AuthenticationState.Unauthenticated,

@@ -32,6 +32,9 @@ jest.mock('../../../restClients/StationApi', () => ({
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { SingleArtist } from '../../../components/Stations/SingleArtist';
+import mockMusicKit from '../../../musicKit';
+import mockStationApi from '../../../restClients/StationApi';
+import AsMock from '../../AsMock';
 
 // Mock dependencies
 jest.mock('../../../components/Search', () => ({
@@ -65,8 +68,7 @@ describe('SingleArtist', () => {
         jest.clearAllMocks();
         
         // Restore mock implementations after clearAllMocks
-        const musicKit = require('../../../musicKit').default;
-        musicKit.getInstance.mockResolvedValue({
+        AsMock(mockMusicKit.getInstance).mockResolvedValue({
             storefrontId: 'us',
             api: {
                 music: jest.fn().mockResolvedValue({
@@ -84,8 +86,7 @@ describe('SingleArtist', () => {
             }
         });
         
-        const stationApi = require('../../../restClients/StationApi').default;
-        stationApi.postStation.mockResolvedValue({ id: 'test-station-id' });
+        AsMock(mockStationApi.postStation).mockResolvedValue({ id: 'test-station-id' });
     });
 
     it('renders without crashing', () => {
@@ -117,8 +118,7 @@ describe('SingleArtist', () => {
         fireEvent.change(searchInput, { target: { value: 'radiohead' } });
 
         await waitFor(() => {
-            const musicKit = require('../../../musicKit').default;
-            expect(musicKit.getInstance).toHaveBeenCalled();
+            expect(mockMusicKit.getInstance).toHaveBeenCalled();
         });
     });
 
@@ -165,8 +165,7 @@ describe('SingleArtist', () => {
         fireEvent.change(searchInput, { target: { value: 'radiohead' } });
 
         await waitFor(() => {
-            const musicKit = require('../../../musicKit').default;
-            expect(musicKit.getInstance).toHaveBeenCalled();
+            expect(mockMusicKit.getInstance).toHaveBeenCalled();
         });
 
         // Then trigger creation
@@ -179,7 +178,6 @@ describe('SingleArtist', () => {
         );
 
         await waitFor(() => {
-            const mockStationApi = require('../../../restClients/StationApi').default;
             expect(mockStationApi.postStation).toHaveBeenCalledWith('artist', 'artist-1,artist-2');
             expect(mockOnStationCreated).toHaveBeenCalledWith('test-station-id');
         });
@@ -187,8 +185,7 @@ describe('SingleArtist', () => {
 
     it('handles empty search results gracefully', async () => {
         // Temporarily override the mock to return empty results
-        const musicKit = require('../../../musicKit').default;
-        const kitInstance = await musicKit.getInstance();
+        const kitInstance = await mockMusicKit.getInstance();
         const originalMock = kitInstance.api.music;
         
         // Mock empty results temporarily
@@ -228,8 +225,7 @@ describe('SingleArtist', () => {
             }
         };
 
-        const musicKit = require('../../../musicKit').default;
-        musicKit.getInstance.mockResolvedValue(mockMusicKitInstance);
+        mockMusicKit.getInstance.mockResolvedValue(mockMusicKitInstance);
 
         const component = new SingleArtist(defaultProps);
         const results = await component.search('test');
@@ -282,8 +278,7 @@ describe('SingleArtist', () => {
             }
         };
 
-        const musicKit = require('../../../musicKit').default;
-        musicKit.getInstance.mockResolvedValue(mockMusicKitInstance);
+        mockMusicKit.getInstance.mockResolvedValue(mockMusicKitInstance);
 
         const component = new SingleArtist(defaultProps);
         
@@ -298,11 +293,10 @@ describe('SingleArtist', () => {
         fireEvent.change(searchInput, { target: { value: 'test search' } });
 
         await waitFor(() => {
-            const musicKit = require('../../../musicKit').default;
-            const kitInstance = musicKit.getInstance();
+            const kitInstance = mockMusicKit.getInstance();
             // Since getInstance returns a promise, we need to access the resolved value
             // or check the call to the API directly from the mocked musicKit
-            expect(musicKit.getInstance).toHaveBeenCalled();
+            expect(mockMusicKit.getInstance).toHaveBeenCalled();
         });
     });
 });

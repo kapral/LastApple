@@ -1,6 +1,8 @@
 import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { ProgressControl } from '../../../components/Player/ProgressControl';
+import mockMusicKit from '../../../musicKit';
+import AsMock from '../../AsMock';
 
 jest.mock('../../../musicKit', () => ({
     __esModule: true,
@@ -67,7 +69,6 @@ describe('ProgressControl', () => {
     it('adds event listener on mount', () => {
         render(<ProgressControl />);
         
-        const mockMusicKit = require('../../../musicKit').default;
         expect(mockMusicKit.instance.addEventListener).toHaveBeenCalledWith(
             'playbackTimeDidChange',
             expect.any(Function)
