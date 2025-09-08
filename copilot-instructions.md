@@ -1,4 +1,6 @@
-# Copilot Instructions for LastApple
+# Setup Instructions for LastApple
+
+> **Note**: For comprehensive AI agent and development instructions, see [`.github/agents.md`](.github/agents.md)
 
 ## Development Setup
 
@@ -27,9 +29,9 @@ The repository is configured with `GH_TOKEN` secret for CI/CD authentication. Th
     dotnet nuget add source --username kapral --password ${{ secrets.GH_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/kapral/index.json"
 ```
 
-#### For Copilot Development
+#### For AI Agent Development
 
-When working with GitHub Copilot in this repository, the `GH_TOKEN` secret should be available as an environment variable. If authentication fails, ensure the token is properly configured in the repository secrets.
+When working with AI agents in this repository, refer to the comprehensive instructions in [`.github/agents.md`](.github/agents.md) which includes agent-specific guidelines, security considerations, and development workflows. The `GH_TOKEN` secret should be available as an environment variable for automated builds.
 
 ## Building and Testing
 
