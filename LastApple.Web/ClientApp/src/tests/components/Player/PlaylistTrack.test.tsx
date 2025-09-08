@@ -46,70 +46,8 @@ jest.mock('react-bootstrap', () => {
     };
 });
 
-jest.mock('../../../musicKit', () => ({
-    __esModule: true,
-    default: {
-        instance: {
-            isAuthorized: true,
-            api: {
-                music: jest.fn().mockResolvedValue({
-                    data: { data: [] }
-                })
-            },
-            storefrontId: 'us',
-            addEventListener: jest.fn(),
-            removeEventListener: jest.fn(),
-            play: jest.fn(),
-            pause: jest.fn(),
-            stop: jest.fn(),
-            seekToTime: jest.fn(),
-            player: {
-                currentPlaybackTime: 0,
-                currentPlaybackDuration: 0,
-                playbackState: 0,
-                isPlaying: false,
-                nowPlayingItem: null,
-            },
-            queue: {
-                append: jest.fn(),
-                prepend: jest.fn(),
-                remove: jest.fn(),
-            },
-        },
-        getInstance: jest.fn().mockResolvedValue({
-            isAuthorized: true,
-            api: {
-                music: jest.fn().mockResolvedValue({
-                    data: { data: [] }
-                })
-            },
-            storefrontId: 'us',
-            addEventListener: jest.fn(),
-            removeEventListener: jest.fn(),
-            play: jest.fn(),
-            pause: jest.fn(),
-            stop: jest.fn(),
-            seekToTime: jest.fn(),
-            player: {
-                currentPlaybackTime: 0,
-                currentPlaybackDuration: 0,
-                playbackState: 0,
-                isPlaying: false,
-                nowPlayingItem: null,
-            },
-            queue: {
-                append: jest.fn(),
-                prepend: jest.fn(),
-                remove: jest.fn(),
-            },
-        }),
-        formatMediaTime: jest.fn((seconds: number) => {
-            const minutes = Math.floor(seconds / 60);
-            const remainingSeconds = Math.floor(seconds % 60);
-            return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-        }),
-    }
-}));
+import AsMock from '../../AsMock';
+import { resetMusicKitMock } from '../../utils/musicKitTestUtils';
 
 const createMockTrack = (overrides: Partial<MusicKit.MediaItem> = {}): MusicKit.MediaItem => ({
     id: 'test-track-id',
@@ -139,6 +77,7 @@ describe('PlaylistTrack', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
+        resetMusicKitMock();
     });
 
     it('renders without crashing', () => {

@@ -3,59 +3,21 @@ import { render, screen, fireEvent, act } from '@testing-library/react';
 import { ProgressControl } from '../../../components/Player/ProgressControl';
 import mockMusicKit from '../../../musicKit';
 import AsMock from '../../AsMock';
-
-jest.mock('../../../musicKit', () => ({
-    __esModule: true,
-    default: {
-        instance: {
-            currentPlaybackDuration: 180, // 3 minutes
-            currentPlaybackTime: 0,
-            playbackState: 0,
-            isPlaying: false,
-            nowPlayingItem: null,
-            isAuthorized: true,
-            addEventListener: jest.fn(),
-            removeEventListener: jest.fn(),
-            seekToTime: jest.fn().mockResolvedValue(undefined),
-            play: jest.fn(),
-            pause: jest.fn(),
-            stop: jest.fn(),
-            queue: {
-                append: jest.fn(),
-                prepend: jest.fn(),
-                remove: jest.fn(),
-            },
-        },
-        getInstance: jest.fn().mockResolvedValue({
-            currentPlaybackDuration: 180, // 3 minutes
-            currentPlaybackTime: 0,
-            playbackState: 0,
-            isPlaying: false,
-            nowPlayingItem: null,
-            isAuthorized: true,
-            addEventListener: jest.fn(),
-            removeEventListener: jest.fn(),
-            seekToTime: jest.fn().mockResolvedValue(undefined),
-            play: jest.fn(),
-            pause: jest.fn(),
-            stop: jest.fn(),
-            queue: {
-                append: jest.fn(),
-                prepend: jest.fn(),
-                remove: jest.fn(),
-            },
-        }),
-        formatMediaTime: jest.fn((seconds) => {
-            const minutes = Math.floor(seconds / 60);
-            const remainingSeconds = Math.floor(seconds % 60);
-            return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-        })
-    }
-}));
+import { overrideMusicKitInstance, resetMusicKitMock } from '../../utils/musicKitTestUtils';
 
 describe('ProgressControl', () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        resetMusicKitMock();
+        
+        // Override specific properties needed for ProgressControl tests
+        overrideMusicKitInstance({
+            currentPlaybackDuration: 180, // 3 minutes
+            currentPlaybackTime: 0,
+            playbackState: 0,
+            isPlaying: false,
+            seekToTime: jest.fn().mockResolvedValue(undefined),
+        });
     });
 
     it('renders without crashing', () => {

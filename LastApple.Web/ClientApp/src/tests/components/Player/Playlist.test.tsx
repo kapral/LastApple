@@ -29,15 +29,8 @@ jest.mock('../../../components/Player/PlaylistTrackGroup', () => ({
     )
 }));
 
-jest.mock('../../../musicKit', () => ({
-    default: {
-        instance: {
-            api: {
-                addToLibrary: jest.fn().mockResolvedValue(undefined)
-            }
-        }
-    }
-}));
+import AsMock from '../../AsMock';
+import { overrideMusicKitInstance, resetMusicKitMock } from '../../utils/musicKitTestUtils';
 
 const createMockTrack = (overrides: Partial<MusicKit.MediaItem> = {}): MusicKit.MediaItem => ({
     id: `track-${Math.random()}`,
@@ -66,6 +59,17 @@ describe('Playlist', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
+        resetMusicKitMock();
+        
+        // Override specific API method needed for Playlist tests
+        overrideMusicKitInstance({
+            api: {
+                music: jest.fn().mockResolvedValue({
+                    data: { data: [] }
+                }),
+                addToLibrary: jest.fn().mockResolvedValue(undefined)
+            }
+        });
     });
 
     it('renders without crashing', () => {

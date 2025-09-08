@@ -1,9 +1,6 @@
 // Don't mock LastfmContext globally in this test - we need to use the real context
 jest.unmock('../../../lastfm/LastfmContext');
 
-// Unmock the global musicKit mock so we can provide our own
-jest.unmock('../../../musicKit');
-
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { StationPlayer } from '../../../components/Player/StationPlayer';
@@ -12,89 +9,7 @@ import { AuthenticationState } from '../../../authentication';
 import mockMusicKit from '../../../musicKit';
 import mockStationApi from '../../../restClients/StationApi';
 import AsMock from '../../AsMock';
-
-jest.mock('../../../musicKit', () => {
-    // Define mock instance inside the factory function
-    const mockInstance = {
-        addEventListener: jest.fn(),
-        removeEventListener: jest.fn(),
-        nowPlayingItem: null,
-        isPlaying: false,
-        play: jest.fn().mockResolvedValue(undefined),
-        pause: jest.fn().mockResolvedValue(undefined),
-        stop: jest.fn().mockResolvedValue(undefined),
-        skipToNextItem: jest.fn().mockResolvedValue(undefined),
-        skipToPreviousItem: jest.fn().mockResolvedValue(undefined),
-        setQueue: jest.fn().mockResolvedValue(undefined),
-        playLater: jest.fn().mockResolvedValue(undefined),
-        clearQueue: jest.fn().mockResolvedValue(undefined),
-        changeToMediaAtIndex: jest.fn().mockResolvedValue(undefined),
-        storefrontId: 'us',
-        api: {
-            music: jest.fn().mockResolvedValue({
-                data: {
-                    data: [
-                        {
-                            id: '123',
-                            attributes: {
-                                name: 'Test Song 1',
-                                artistName: 'Test Artist 1',
-                                albumName: 'Test Album 1',
-                                artwork: { url: 'https://example.com/artwork1.jpg' }
-                            }
-                        },
-                        {
-                            id: '456',
-                            attributes: {
-                                name: 'Test Song 2',
-                                artistName: 'Test Artist 2',
-                                albumName: 'Test Album 2',
-                                artwork: { url: 'https://example.com/artwork2.jpg' }
-                            }
-                        },
-                        {
-                            id: '789',
-                            attributes: {
-                                name: 'Test Song 3',
-                                artistName: 'Test Artist 3',
-                                albumName: 'Test Album 3',
-                                artwork: { url: 'https://example.com/artwork3.jpg' }
-                            }
-                        }
-                    ]
-                }
-            })
-        },
-        queue: {
-            items: [
-                {
-                    id: '123',
-                    attributes: {
-                        name: 'Test Song 1',
-                        artistName: 'Test Artist 1'
-                    }
-                }
-            ],
-            item: jest.fn((position) => {
-                return null;
-            }),
-            position: -1
-        }
-    };
-
-    return {
-        __esModule: true,
-        default: {
-            getInstance: jest.fn().mockResolvedValue(mockInstance),
-            formatMediaTime: jest.fn((seconds) => {
-                const minutes = Math.floor(seconds / 60);
-                const remainingSeconds = Math.floor(seconds % 60);
-                return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-            }),
-            instance: mockInstance
-        }
-    };
-});
+import { overrideMusicKitInstance, resetMusicKitMock } from '../../utils/musicKitTestUtils';
 
 jest.mock('../../../restClients/LastfmApi', () => ({
     default: {
@@ -216,36 +131,13 @@ describe('StationPlayer', () => {
     };
 
     beforeEach(() => {
-        // Reset and configure mocks to work with our tests
-        // Configure StationApi mock
-        AsMock(mockStationApi.getStation).mockResolvedValue({
-            id: 'test-station',
-            name: 'Test Station',
-            songIds: ['123', '456', '789'],
-            isContinuous: false,
-            isGroupedByAlbum: false,
-            size: 10,
-            definition: {
-                stationType: 'test-type'
-            }
-        });
-
-        // Ensure getInstance returns a properly configured instance that ALWAYS works
-        const mockMusicKitInstance = {
-            addEventListener: jest.fn(),
-            removeEventListener: jest.fn(), // This MUST always be available
-            nowPlayingItem: null,
-            isPlaying: false,
-            play: jest.fn().mockResolvedValue(undefined),
-            pause: jest.fn().mockResolvedValue(undefined),
-            stop: jest.fn().mockResolvedValue(undefined),
-            skipToNextItem: jest.fn().mockResolvedValue(undefined),
-            skipToPreviousItem: jest.fn().mockResolvedValue(undefined),
-            setQueue: jest.fn().mockResolvedValue(undefined),
-            playLater: jest.fn().mockResolvedValue(undefined),
-            clearQueue: jest.fn().mockResolvedValue(undefined),
-            changeToMediaAtIndex: jest.fn().mockResolvedValue(undefined),
-            storefrontId: 'us',
+        jest.clearAllMocks();
+        
+        // Reset musicKit mock to defaults
+        resetMusicKitMock();
+        
+        // Override only the properties we need for StationPlayer tests
+        overrideMusicKitInstance({
             api: {
                 music: jest.fn().mockResolvedValue({
                     data: {
@@ -284,12 +176,25 @@ describe('StationPlayer', () => {
             queue: {
                 items: [],
                 item: jest.fn((position) => null),
-                position: -1
+                position: -1,
+                append: jest.fn(),
+                prepend: jest.fn(),
+                remove: jest.fn(),
             }
-        };
+        });
 
-        // Ensure the musicKit getInstance always returns a valid instance
-        AsMock(mockMusicKit.getInstance).mockResolvedValue(mockMusicKitInstance);
+        // Setup StationApi mock
+        AsMock(mockStationApi.getStation).mockResolvedValue({
+            id: 'test-station',
+            name: 'Test Station',
+            songIds: ['123', '456', '789'],
+            isContinuous: false,
+            isGroupedByAlbum: false,
+            size: 10,
+            definition: {
+                stationType: 'test-type'
+            }
+        });
     });
 
     it('renders without crashing', async () => {

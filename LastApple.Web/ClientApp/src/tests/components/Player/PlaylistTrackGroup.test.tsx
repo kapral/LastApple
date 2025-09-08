@@ -38,17 +38,10 @@ jest.mock('react-bootstrap', () => {
             )
         })
     };
-});
-
-// Mock musicKit outside the describe block and make it configurable
-const mockMusicKitInstance = { isAuthorized: true };
-jest.mock('../../../musicKit', () => ({
-    default: {
-        get instance() {
-            return mockMusicKitInstance;
-        }
-    }
 }));
+
+import AsMock from '../../AsMock';
+import { resetMusicKitMock } from '../../utils/musicKitTestUtils';
 
 const createMockTrack = (overrides: Partial<MusicKit.MediaItem> = {}): MusicKit.MediaItem => ({
     id: 'test-track-id',
@@ -83,9 +76,7 @@ describe('PlaylistTrackGroup', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
-        
-        // Reset musicKit mock to default authorized state
-        mockMusicKitInstance.isAuthorized = true;
+        resetMusicKitMock();
     });
 
     it('renders without crashing', () => {

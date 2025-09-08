@@ -1,40 +1,10 @@
-// Mock APIs before any imports
-jest.mock('../../../musicKit', () => ({
-    __esModule: true,
-    default: {
-        getInstance: jest.fn().mockResolvedValue({
-            storefrontId: 'us',
-            api: {
-                music: jest.fn().mockResolvedValue({
-                    data: {
-                        results: {
-                            artists: {
-                                data: [
-                                    { id: 'artist-1', attributes: { name: 'Radiohead' } },
-                                    { id: 'artist-2', attributes: { name: 'Thom Yorke' } }
-                                ]
-                            }
-                        }
-                    }
-                })
-            }
-        })
-    }
-}));
-
-jest.mock('../../../restClients/StationApi', () => ({
-    __esModule: true,
-    default: {
-        postStation: jest.fn().mockResolvedValue({ id: 'test-station-id' })
-    }
-}));
-
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { SingleArtist } from '../../../components/Stations/SingleArtist';
 import mockMusicKit from '../../../musicKit';
 import mockStationApi from '../../../restClients/StationApi';
 import AsMock from '../../AsMock';
+import { overrideMusicKitInstance, resetMusicKitMock } from '../../utils/musicKitTestUtils';
 
 // Mock dependencies
 jest.mock('../../../components/Search', () => ({
@@ -67,9 +37,11 @@ describe('SingleArtist', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         
-        // Restore mock implementations after clearAllMocks
-        AsMock(mockMusicKit.getInstance).mockResolvedValue({
-            storefrontId: 'us',
+        // Reset musicKit mock to defaults
+        resetMusicKitMock();
+        
+        // Override only the API response we need for artist search
+        overrideMusicKitInstance({
             api: {
                 music: jest.fn().mockResolvedValue({
                     data: {

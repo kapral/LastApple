@@ -2,6 +2,7 @@ import AppleAuthService from '../../apple/AppleAuthService';
 import musicKit from '../../musicKit';
 import musicApi from '../../restClients/AppleMusicApi';
 import AsMock from '../AsMock';
+import { resetMusicKitMock } from '../utils/musicKitTestUtils';
 
 jest.mock('../../musicKit');
 jest.mock('../../restClients/AppleMusicApi');
@@ -26,6 +27,7 @@ describe('AppleAuthService', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
+        resetMusicKitMock();
         
         mockMusicKitInstance = {
             isAuthorized: false,
