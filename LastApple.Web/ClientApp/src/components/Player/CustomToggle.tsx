@@ -1,10 +1,11 @@
-import * as React from "react";
+import React from 'react';
 
-export const CustomToggle = React.forwardRef((props: React.PropsWithChildren<{}>, ref: React.MutableRefObject<HTMLDivElement>) => (
+export const CustomToggle = React.forwardRef((props: React.PropsWithChildren<{ onClick?: (e: React.MouseEvent) => void }>, ref: React.MutableRefObject<HTMLDivElement>) => (
     <div ref={ref} onClick={(e) => {
         e.preventDefault();
-        // @ts-ignore
-        props.onClick(e);
+        if (props.onClick) {
+            props.onClick(e);
+        }
     }} style={{ cursor: 'pointer' }}>
         {props.children}
     </div>

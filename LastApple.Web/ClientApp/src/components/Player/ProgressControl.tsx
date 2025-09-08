@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import musicKit from '../../musicKit';
 
 const progressStyles: React.CSSProperties = {

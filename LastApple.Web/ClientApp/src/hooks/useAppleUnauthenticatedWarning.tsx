@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import {useAppleContext} from "../apple/AppleContext";
 import {AuthenticationState} from "../authentication";
 import {AppleUnauthenticatedWarning} from "../components/AppleUnauthenticatedWarning";

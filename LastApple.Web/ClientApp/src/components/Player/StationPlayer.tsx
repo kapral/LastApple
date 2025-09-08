@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import musicKit from '../../musicKit';
 import * as signalR from '@aspnet/signalr';
 import {HubConnection} from '@aspnet/signalr';
@@ -12,7 +12,6 @@ import {instance as mediaSessionManager} from '../../MediaSessionManager'
 import {PlaybackStates} from '../../musicKitEnums';
 import { LastfmContext } from '../../lastfm/LastfmContext';
 import { AuthenticationState } from '../../authentication';
-import MediaItemOptions = MusicKit.MediaItemOptions;
 
 interface IPlayerProps {
     stationId: string;
@@ -72,7 +71,7 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
             this.setState({ currentTrack: null, tracks: [] });
 
         if (this.musicKit) {
-            await this.musicKit.stop();
+            this.musicKit.stop();
             await this.musicKit.clearQueue();
         } else {
             this.musicKit = await musicKit.getInstance();
@@ -96,7 +95,7 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
                 }
 
                 if (this.station.isContinuous) {
-                    this.topUp();
+                    await this.topUp();
                 }
 
                 mediaSessionManager.updateSessionMetadata(event.item.artworkURL);

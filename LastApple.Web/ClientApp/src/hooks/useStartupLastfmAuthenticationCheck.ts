@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import lastfmAuthService from "../lastfm/LastfmAuthService";
 import { useLastfmContext } from "../lastfm/LastfmContext";
 import { AuthenticationState } from "../authentication";

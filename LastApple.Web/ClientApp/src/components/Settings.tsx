@@ -57,7 +57,7 @@ export const Settings: React.FunctionComponent = () => {
 
     if (appleContext.authentication.state === AuthenticationState.Loading || lastfmContext.authentication.state === AuthenticationState.Loading)
         return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '200px' }}>
-            <Spinner animation="border" />
+            <Spinner animation="border" role="status" />
         </div>;
 
     return (
@@ -75,6 +75,7 @@ export const Settings: React.FunctionComponent = () => {
                     width={44}
                     offColor={'#888'}
                     onColor={'#8e0000'}
+                    role="switch"
                 />
             </div>
             <div style={rowStyles}>
@@ -89,6 +90,7 @@ export const Settings: React.FunctionComponent = () => {
                     width={44}
                     offColor={'#888'}
                     onColor={'#8e0000'}
+                    role="switch"
                 />
             </div>
         </div>
