@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using IF.Lastfm.Core.Api;
 using IF.Lastfm.Core.Objects;
+using LastApple.Web.Exceptions;
 using LastApple.Web.Lastfm;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -17,14 +18,14 @@ public class LastfmAuthController(ILastAuth authApi,
                                   TimeProvider timeProvider) : Controller
 {
     [Route("")]
-    public IActionResult InitAuth(string redirectUrl)
+    public string InitAuth(string redirectUrl)
     {
         if (!Uri.TryCreate(redirectUrl, UriKind.Absolute, out var uri))
-            return BadRequest();
+            throw new BadRequestException();
 
         var authUrl = GetWebAutUrl(uri);
 
-        return Json(authUrl.ToString());
+        return authUrl.ToString();
     }
 
     [HttpPost]
@@ -57,12 +58,12 @@ public class LastfmAuthController(ILastAuth authApi,
 
     [HttpDelete]
     [Route("")]
-    public async Task<IActionResult> Logout()
+    public async Task Logout()
     {
         var session = await sessionProvider.GetSession();
 
         if (session.Id == Guid.Empty)
-            return BadRequest();
+            throw new BadRequestException();
 
         session = session with
         {
@@ -70,8 +71,6 @@ public class LastfmAuthController(ILastAuth authApi,
         };
 
         await sessionRepository.SaveSession(session);
-
-        return NoContent();
     }
 
     [Route("user")]

@@ -1,6 +1,7 @@
 using IF.Lastfm.Core.Api;
 using IF.Lastfm.Core.Api.Helpers;
 using IF.Lastfm.Core.Objects;
+using LastApple.Web.Exceptions;
 using LastApple.Web.Lastfm;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Time.Testing;
@@ -37,11 +38,10 @@ public class TestLastfmAuthController
     }
 
     [Test]
-    public void InitAuth_Returns_BadRequest_For_Invalid_Url()
+    public void InitAuth_Throws_BadRequestException_For_Invalid_Url()
     {
-        var result = controller.InitAuth("invalid-url");
-
-        Assert.That(result, Is.InstanceOf<BadRequestResult>());
+        var exception = Assert.Throws<BadRequestException>(() => controller.InitAuth("invalid-url"));
+        Assert.That(exception, Is.Not.Null);
     }
 
     [Test]
@@ -52,7 +52,7 @@ public class TestLastfmAuthController
 
         var result = controller.InitAuth(redirectUrl);
 
-        Assert.That(result, Is.InstanceOf<JsonResult>().With.Property("Value").EqualTo(expectedAuthUrl));
+        Assert.That(result, Is.EqualTo(expectedAuthUrl));
     }
 
     [Test]
@@ -110,14 +110,13 @@ public class TestLastfmAuthController
     }
 
     [Test]
-    public async Task Logout_Returns_BadRequest_For_Empty_Session()
+    public async Task Logout_Throws_BadRequestException_For_Empty_Session()
     {
         var emptySession = new Session(Guid.Empty, DateTimeOffset.MinValue, DateTimeOffset.MinValue, null, null, null, null);
         mockSessionProvider.GetSession().Returns(emptySession);
 
-        var result = await controller.Logout();
-
-        Assert.That(result, Is.InstanceOf<BadRequestResult>());
+        var exception = Assert.ThrowsAsync<BadRequestException>(async () => await controller.Logout());
+        Assert.That(exception, Is.Not.Null);
     }
 
     [Test]
@@ -134,9 +133,7 @@ public class TestLastfmAuthController
         );
         mockSessionProvider.GetSession().Returns(existingSession);
 
-        var result = await controller.Logout();
-
-        Assert.That(result, Is.InstanceOf<NoContentResult>());
+        Assert.DoesNotThrowAsync(async () => await controller.Logout());
         await mockSessionRepository.Received(1)
                                    .SaveSession(existingSession with { LastfmSessionKey = null });
     }

@@ -2,6 +2,7 @@ using IF.Lastfm.Core.Api;
 using IF.Lastfm.Core.Api.Helpers;
 using IF.Lastfm.Core.Objects;
 using IF.Lastfm.Core.Scrobblers;
+using LastApple.Web.Exceptions;
 
 namespace LastApple.Web.Tests;
 
@@ -48,36 +49,33 @@ public class TestLastfmController
     }
 
     [Test]
-    public async Task Scrobble_Returns_BadRequest_For_Empty_Artist()
+    public async Task Scrobble_Throws_BadRequestException_For_Empty_Artist()
     {
         var request = new ScrobbleRequest("", "Test Song", "Test Album");
 
-        var result = await controller.Scrobble(request);
-
-        Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
+        var exception = Assert.ThrowsAsync<BadRequestException>(async () => await controller.Scrobble(request));
+        Assert.That(exception, Is.Not.Null);
     }
 
     [Test]
-    public async Task Scrobble_Returns_BadRequest_For_Empty_Song()
+    public async Task Scrobble_Throws_BadRequestException_For_Empty_Song()
     {
         var request = new ScrobbleRequest("Test Artist", "", "Test Album");
 
-        var result = await controller.Scrobble(request);
-
-        Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
+        var exception = Assert.ThrowsAsync<BadRequestException>(async () => await controller.Scrobble(request));
+        Assert.That(exception, Is.Not.Null);
     }
 
     [Test]
-    public async Task Scrobble_Returns_Unauthorized_For_No_Session_Key()
+    public async Task Scrobble_Throws_UnauthorizedException_For_No_Session_Key()
     {
         var request = new ScrobbleRequest("Test Artist", "Test Song", "Test Album");
         var session = new Session(Guid.NewGuid(), DateTimeOffset.UtcNow, DateTimeOffset.UtcNow, null, null, "music-token", "us");
 
         mockSessionProvider.GetSession().Returns(session);
 
-        var result = await controller.Scrobble(request);
-
-        Assert.That(result, Is.InstanceOf<UnauthorizedResult>());
+        var exception = Assert.ThrowsAsync<UnauthorizedException>(async () => await controller.Scrobble(request));
+        Assert.That(exception, Is.Not.Null);
     }
 
     [Test]
@@ -88,44 +86,39 @@ public class TestLastfmController
 
         mockSessionProvider.GetSession().Returns(session);
 
-        var result = await controller.Scrobble(request);
-
-        Assert.That(result, Is.InstanceOf<NoContentResult>());
+        Assert.DoesNotThrowAsync(async () => await controller.Scrobble(request));
         mockLastAuth.Received(1).LoadSession(Arg.Is<LastUserSession>(s => s.Token == "session-key"));
         await mockScrobbler.Received(1).ScrobbleAsync(Arg.Is<Scrobble>(s => s.Artist == "Test Artist" && s.Track == "Test Song" && s.Album == "Test Album" && s.Duration == TimeSpan.FromMinutes(5)));
     }
 
     [Test]
-    public async Task NowPlaying_Returns_BadRequest_For_Empty_Artist()
+    public async Task NowPlaying_Throws_BadRequestException_For_Empty_Artist()
     {
         var request = new ScrobbleRequest("", "Test Song", "Test Album");
 
-        var result = await controller.NowPlaying(request);
-
-        Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
+        var exception = Assert.ThrowsAsync<BadRequestException>(async () => await controller.NowPlaying(request));
+        Assert.That(exception, Is.Not.Null);
     }
 
     [Test]
-    public async Task NowPlaying_Returns_BadRequest_For_Empty_Song()
+    public async Task NowPlaying_Throws_BadRequestException_For_Empty_Song()
     {
         var request = new ScrobbleRequest("Test Artist", "", "Test Album");
 
-        var result = await controller.NowPlaying(request);
-
-        Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
+        var exception = Assert.ThrowsAsync<BadRequestException>(async () => await controller.NowPlaying(request));
+        Assert.That(exception, Is.Not.Null);
     }
 
     [Test]
-    public async Task NowPlaying_Returns_Unauthorized_For_No_Session_Key()
+    public async Task NowPlaying_Throws_UnauthorizedException_For_No_Session_Key()
     {
         var request = new ScrobbleRequest("Test Artist", "Test Song", "Test Album");
         var session = new Session(Guid.NewGuid(), DateTimeOffset.UtcNow, DateTimeOffset.UtcNow, null, null, "music-token", "us");
 
         mockSessionProvider.GetSession().Returns(session);
 
-        var result = await controller.NowPlaying(request);
-
-        Assert.That(result, Is.InstanceOf<UnauthorizedResult>());
+        var exception = Assert.ThrowsAsync<UnauthorizedException>(async () => await controller.NowPlaying(request));
+        Assert.That(exception, Is.Not.Null);
     }
 
     [Test]
@@ -136,9 +129,7 @@ public class TestLastfmController
 
         mockSessionProvider.GetSession().Returns(session);
 
-        var result = await controller.NowPlaying(request);
-
-        Assert.That(result, Is.InstanceOf<NoContentResult>());
+        Assert.DoesNotThrowAsync(async () => await controller.NowPlaying(request));
         mockLastAuth.Received(1).LoadSession(Arg.Is<LastUserSession>(s => s.Token == "session-key"));
         await mockTrackApi.Received(1).UpdateNowPlayingAsync(Arg.Is<Scrobble>(s => s.Artist == "Test Artist"
                                                                                    && s.Track == "Test Song"

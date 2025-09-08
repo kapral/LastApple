@@ -1,3 +1,5 @@
+using LastApple.Web.Exceptions;
+
 namespace LastApple.Web.Tests;
 
 public class TestAppleAuthController
@@ -87,14 +89,13 @@ public class TestAppleAuthController
     }
 
     [Test]
-    public async Task DeleteSessionData_Returns_BadRequest_For_Empty_Session()
+    public async Task DeleteSessionData_Throws_BadRequestException_For_Empty_Session()
     {
         var emptySession = new Session(Guid.Empty, DateTimeOffset.MinValue, DateTimeOffset.MinValue, null, null, null, null);
         mockSessionProvider.GetSession().Returns(emptySession);
 
-        var result = await controller.DeleteSessionData();
-
-        Assert.That(result, Is.InstanceOf<BadRequestResult>());
+        var exception = Assert.ThrowsAsync<BadRequestException>(async () => await controller.DeleteSessionData());
+        Assert.That(exception, Is.Not.Null);
     }
 
     [Test]
@@ -111,9 +112,7 @@ public class TestAppleAuthController
         );
         mockSessionProvider.GetSession().Returns(existingSession);
 
-        var result = await controller.DeleteSessionData();
-
-        Assert.That(result, Is.InstanceOf<NoContentResult>());
+        Assert.DoesNotThrowAsync(async () => await controller.DeleteSessionData());
         await mockSessionRepository.Received(1).SaveSession(existingSession with
         {
             MusicUserToken = null,
