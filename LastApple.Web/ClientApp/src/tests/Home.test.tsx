@@ -1,6 +1,8 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { Home } from '../components/Home';
+import { useAppleUnauthenticatedWarning } from '../hooks/useAppleUnauthenticatedWarning';
+import AsMock from './AsMock';
 
 // Mock the custom hook and components at the module level
 jest.mock('../hooks/useAppleUnauthenticatedWarning', () => ({
@@ -12,12 +14,10 @@ jest.mock('../components/StationsList', () => ({
 }));
 
 describe('Home Component', () => {
-    const mockUseAppleUnauthenticatedWarning = require('../hooks/useAppleUnauthenticatedWarning').useAppleUnauthenticatedWarning;
-
     beforeEach(() => {
         jest.clearAllMocks();
         // Set default mock implementation
-        mockUseAppleUnauthenticatedWarning.mockReturnValue({
+        AsMock(useAppleUnauthenticatedWarning).mockReturnValue({
             isShown: false,
             Element: null,
         });
@@ -30,7 +30,7 @@ describe('Home Component', () => {
     });
 
     it('does not show warning when not needed', () => {
-        mockUseAppleUnauthenticatedWarning.mockReturnValue({
+        AsMock(useAppleUnauthenticatedWarning).mockReturnValue({
             isShown: false,
             Element: null,
         });
@@ -42,7 +42,7 @@ describe('Home Component', () => {
     });
 
     it('shows warning when needed', () => {
-        mockUseAppleUnauthenticatedWarning.mockReturnValue({
+        AsMock(useAppleUnauthenticatedWarning).mockReturnValue({
             isShown: true,
             Element: <div data-testid="apple-warning">Warning</div>,
         });

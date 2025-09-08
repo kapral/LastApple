@@ -54,12 +54,8 @@ jest.mock('../../../musicKit', () => ({
 }));
 
 describe('ProgressControl', () => {
-    let mockMusicKit: any;
-    
     beforeEach(() => {
         jest.clearAllMocks();
-        // Get the mock after each clear
-        mockMusicKit = require('../../../musicKit').default;
     });
 
     it('renders without crashing', () => {

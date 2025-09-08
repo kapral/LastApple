@@ -24,22 +24,19 @@ jest.mock('../../lastfm/lastfmAuthentication', () => ({
 import { renderHook } from '@testing-library/react';
 import { useStartupLastfmAuthenticationCheck } from '../../hooks/useStartupLastfmAuthenticationCheck';
 import { AuthenticationState } from '../../authentication';
+import mockLastfmAuthService from '../../lastfm/LastfmAuthService';
+import { useLastfmContext } from '../../lastfm/LastfmContext';
+import { checkLastfmLogin } from '../../lastfm/lastfmAuthentication';
+import AsMock from '../AsMock';
 
 describe('useStartupLastfmAuthenticationCheck', () => {
-    let mockLastfmAuthService: any;
-    let mockUseLastfmContext: any;
-    let mockCheckLastfmLogin: any;
-
     beforeEach(() => {
         jest.clearAllMocks();
         
-        // Get the mock instances
-        mockLastfmAuthService = require('../../lastfm/LastfmAuthService').default;
-        mockUseLastfmContext = require('../../lastfm/LastfmContext').useLastfmContext;
-        mockCheckLastfmLogin = require('../../lastfm/lastfmAuthentication').checkLastfmLogin;
-        
-        // Set up default mock context return
-        mockUseLastfmContext.mockReturnValue({
+        // Restore mock functions after clearAllMocks
+        AsMock(mockLastfmAuthService.tryGetAuthFromParams).mockResolvedValue(null);
+        AsMock(mockLastfmAuthService.postToken).mockResolvedValue(undefined);
+        AsMock(useLastfmContext).mockReturnValue({
             authentication: {
                 state: 0, // AuthenticationState.Loading
                 setState: jest.fn(),
@@ -47,6 +44,7 @@ describe('useStartupLastfmAuthenticationCheck', () => {
                 setUser: jest.fn(),
             },
         });
+        AsMock(checkLastfmLogin).mockResolvedValue(undefined);
     });
 
     it('should set loading state and check login when no token in params', async () => {
@@ -58,9 +56,9 @@ describe('useStartupLastfmAuthenticationCheck', () => {
                 setUser: jest.fn(),
             },
         };
-        mockUseLastfmContext.mockReturnValue(mockContext);
+        AsMock(useLastfmContext).mockReturnValue(mockContext);
         mockLastfmAuthService.tryGetAuthFromParams.mockReturnValue(null);
-        mockCheckLastfmLogin.mockResolvedValue(undefined);
+        checkLastfmLogin.mockResolvedValue(undefined);
 
         renderHook(() => useStartupLastfmAuthenticationCheck());
 
@@ -71,7 +69,7 @@ describe('useStartupLastfmAuthenticationCheck', () => {
         // Wait for async operation to complete
         await new Promise(resolve => setTimeout(resolve, 0));
         
-        expect(mockCheckLastfmLogin).toHaveBeenCalledWith(mockContext.authentication);
+        expect(checkLastfmLogin).toHaveBeenCalledWith(mockContext.authentication);
     });
 
     it('should post token and check login when token exists in params', async () => {
@@ -83,12 +81,12 @@ describe('useStartupLastfmAuthenticationCheck', () => {
                 setUser: jest.fn(),
             },
         };
-        mockUseLastfmContext.mockReturnValue(mockContext);
+        AsMock(useLastfmContext).mockReturnValue(mockContext);
         
         const testToken = 'test-token-123';
         mockLastfmAuthService.tryGetAuthFromParams.mockReturnValue(testToken);
         mockLastfmAuthService.postToken.mockResolvedValue(undefined);
-        mockCheckLastfmLogin.mockResolvedValue(undefined);
+        checkLastfmLogin.mockResolvedValue(undefined);
 
         renderHook(() => useStartupLastfmAuthenticationCheck());
 
@@ -99,7 +97,7 @@ describe('useStartupLastfmAuthenticationCheck', () => {
         await new Promise(resolve => setTimeout(resolve, 0));
         
         expect(mockLastfmAuthService.postToken).toHaveBeenCalledWith(testToken);
-        expect(mockCheckLastfmLogin).toHaveBeenCalledWith(mockContext.authentication);
+        expect(checkLastfmLogin).toHaveBeenCalledWith(mockContext.authentication);
     });
 
     it('should not run effect on re-render', async () => {
@@ -111,9 +109,9 @@ describe('useStartupLastfmAuthenticationCheck', () => {
                 setUser: jest.fn(),
             },
         };
-        mockUseLastfmContext.mockReturnValue(mockContext);
+        AsMock(useLastfmContext).mockReturnValue(mockContext);
         mockLastfmAuthService.tryGetAuthFromParams.mockReturnValue(null);
-        mockCheckLastfmLogin.mockResolvedValue(undefined);
+        checkLastfmLogin.mockResolvedValue(undefined);
 
         const { rerender } = renderHook(() => useStartupLastfmAuthenticationCheck());
 

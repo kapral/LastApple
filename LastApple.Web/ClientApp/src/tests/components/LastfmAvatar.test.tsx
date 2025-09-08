@@ -4,6 +4,8 @@ import { Router } from 'react-router';
 import { createMemoryHistory } from 'history';
 import { LastfmAvatar } from '../../components/LastfmAvatar';
 import { AuthenticationState } from '../../authentication';
+import { useLastfmContext } from '../../lastfm/LastfmContext';
+import AsMock from '../AsMock';
 
 // Mock the context
 const mockLastfmContext = {
@@ -45,8 +47,7 @@ describe('LastfmAvatar', () => {
         jest.clearAllMocks();
         
         // Reset the context mock to the default state
-        const { useLastfmContext } = require('../../lastfm/LastfmContext');
-        useLastfmContext.mockReturnValue(mockLastfmContext);
+        AsMock(useLastfmContext).mockReturnValue(mockLastfmContext);
     });
 
     const renderWithRouter = (component: React.ReactElement) => {

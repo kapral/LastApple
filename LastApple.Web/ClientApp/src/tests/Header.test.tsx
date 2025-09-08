@@ -2,6 +2,8 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { Header } from '../components/Header';
+import { useAppContext } from '../AppContext';
+import AsMock from './AsMock';
 
 // Mock modules at the top level
 jest.mock('../AppContext', () => ({
@@ -19,11 +21,9 @@ const HeaderWithRouter = () => (
 );
 
 describe('Header Component', () => {
-    const mockUseAppContext = require('../AppContext').useAppContext;
-
     beforeEach(() => {
         jest.clearAllMocks();
-        mockUseAppContext.mockReturnValue({
+        AsMock(useAppContext).mockReturnValue({
             latestStationId: null,
         });
     });
@@ -43,7 +43,7 @@ describe('Header Component', () => {
     });
 
     it('shows "Now playing" link when latestStationId is available', () => {
-        mockUseAppContext.mockReturnValue({
+        AsMock(useAppContext).mockReturnValue({
             latestStationId: 'test-station-id',
         });
 
@@ -53,7 +53,7 @@ describe('Header Component', () => {
     });
 
     it('does not show "Now playing" link when latestStationId is not available', () => {
-        mockUseAppContext.mockReturnValue({
+        AsMock(useAppContext).mockReturnValue({
             latestStationId: null,
         });
 
