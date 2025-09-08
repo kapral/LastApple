@@ -35,12 +35,41 @@ Always reference these instructions first and fallback to search or bash command
 - **Error Context**: When reporting build or test failures, include sufficient context to understand the root cause.
 - **Documentation Updates**: Update relevant documentation when making architectural or behavioral changes.
 
-## Working Effectively
+## Setup Instructions
 
 ### Prerequisites and Environment Setup
 - Install .NET 8.0 SDK from Microsoft's official site
 - Install Node.js v18.x or higher: `node --version` should return v18+
 - Ensure npm is available: `npm --version`
+
+### GitHub Packages Authentication
+
+This project depends on a private NuGet package `Inflatable.Lastfm` hosted on GitHub Packages. To build the solution locally or in CI/CD, you need to authenticate with GitHub Packages using a Personal Access Token.
+
+#### For Local Development
+
+1. Create a Personal Access Token (PAT) with `read:packages` permission
+2. Configure NuGet authentication:
+
+```bash
+dotnet nuget remove source github
+dotnet nuget add source --username [your-github-username] --password [your-PAT] --store-password-in-clear-text --name github "https://nuget.pkg.github.com/kapral/index.json"
+```
+
+#### For GitHub Actions
+
+The repository is configured with `GH_TOKEN` secret for CI/CD authentication. The workflow automatically configures authentication:
+
+```yaml
+- name: Add GH packages
+  run: |
+    dotnet nuget remove source github
+    dotnet nuget add source --username kapral --password ${{ secrets.GH_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/kapral/index.json"
+```
+
+#### For AI Agent Development
+
+When working with AI agents in this repository, the `GH_TOKEN` secret should be available as an environment variable for automated builds.
 
 ### Build Process (CRITICAL TIMING INFORMATION)
 **AUTHENTICATION REQUIREMENT**: This repository requires GitHub Packages authentication for the private `Inflatable.Lastfm` package (version 1.3.0-auth).
