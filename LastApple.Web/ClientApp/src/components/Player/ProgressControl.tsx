@@ -26,7 +26,7 @@ export const ProgressControl: React.FC = () => {
     const [currentPlaybackPercent, setCurrentPlaybackPercent] = useState(0);
     const [currentPlaybackTime, setCurrentPlaybackTime] = useState(0);
 
-    const handlePlaybackTimeChanged = useCallback((event: MusicKit.Events['playbackTimeDidChange']) => {
+    const handlePlaybackTimeChanged = useCallback((event: any) => {
         const eventCurrentPlaybackTime = event.currentPlaybackTime;
         const currentPlaybackDuration = event.currentPlaybackDuration;
 
@@ -66,14 +66,14 @@ export const ProgressControl: React.FC = () => {
         setRewindPosition(newRewindPosition);
     }, [rewindPosition]);
 
-    const handleClick = useCallback(async () => {
-        await handleSeek(rewindPosition);
-    }, [rewindPosition]);
-
     const handleSeek = useCallback(async (time: number) => {
         setCurrentPlaybackPercent((time / musicKit.instance.currentPlaybackDuration) * 100);
         await musicKit.instance.seekToTime(time);
     }, []);
+
+    const handleClick = useCallback(async () => {
+        await handleSeek(rewindPosition);
+    }, [rewindPosition, handleSeek]);
 
     const handleMouseLeave = useCallback(() => {
         setRewindPosition(0);

@@ -4,7 +4,7 @@ import musicKit from "../../musicKit";
 import { IStationParams } from "../IStationParams";
 import stationApi from "../../restClients/StationApi";
 
-export const SingleArtist: React.FC<IStationParams> = ({ triggerCreate, onStationCreated, onOptionsChanged }) => {
+export const SingleArtist: React.FC<IStationParams> & { Definition: any } = ({ triggerCreate, onStationCreated, onOptionsChanged }) => {
     const [currentArtistIds, setCurrentArtistIds] = useState<string[]>([]);
 
     useEffect(() => {

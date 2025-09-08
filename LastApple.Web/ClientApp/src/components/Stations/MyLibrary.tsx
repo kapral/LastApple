@@ -4,7 +4,7 @@ import stationApi from "../../restClients/StationApi";
 import { LastfmContext } from '../../lastfm/LastfmContext';
 import { AuthenticationState } from '../../authentication';
 
-export const MyLibrary: React.FC<IStationParams> = ({ triggerCreate, onStationCreated, onOptionsChanged }) => {
+export const MyLibrary: React.FC<IStationParams> & { Definition: any } = ({ triggerCreate, onStationCreated, onOptionsChanged }) => {
     const context = useContext(LastfmContext);
 
     useEffect(() => {

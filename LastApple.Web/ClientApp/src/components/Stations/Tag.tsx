@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { IStationParams } from "../IStationParams";
 import stationApi from "../../restClients/StationApi";
 
-export const Tag: React.FC<IStationParams> = ({ triggerCreate, onStationCreated, onOptionsChanged }) => {
+export const Tag: React.FC<IStationParams> & { Definition: any } = ({ triggerCreate, onStationCreated, onOptionsChanged }) => {
     const [tagName, setTagName] = useState<string | null>(null);
 
     useEffect(() => {

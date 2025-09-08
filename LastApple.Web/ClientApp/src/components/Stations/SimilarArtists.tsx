@@ -4,7 +4,7 @@ import { IStationParams } from "../IStationParams";
 import stationApi from "../../restClients/StationApi";
 import lastfmApi from "../../restClients/LastfmApi";
 
-export const SimilarArtists: React.FC<IStationParams> = ({ triggerCreate, onStationCreated, onOptionsChanged }) => {
+export const SimilarArtists: React.FC<IStationParams> & { Definition: any } = ({ triggerCreate, onStationCreated, onOptionsChanged }) => {
     const [artist, setArtist] = useState<string | null>(null);
 
     useEffect(() => {
