@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { AsyncTypeahead } from 'react-bootstrap-typeahead';
 import { Option, LabelKey } from 'react-bootstrap-typeahead/types/types';
 import 'react-bootstrap-typeahead/css/Typeahead.css';
@@ -16,32 +16,36 @@ interface ISearchProps<TItem extends Option> {
     elementIndex?: number;
 }
 
-export class Search<TItem extends Option> extends React.Component<ISearchProps<TItem>, ISearchState<TItem>> {
-    constructor(props) {
-        super(props);
+export const Search = <TItem extends Option>({ 
+    search, 
+    placeholder, 
+    onChanged, 
+    labelAccessor, 
+    elementIndex 
+}: ISearchProps<TItem>) => {
+    const [isLoading, setIsLoading] = useState(false);
+    const [matches, setMatches] = useState<Array<TItem>>([]);
 
-        this.state = {isLoading: false, matches: []};
-    }
+    const handleSearch = useCallback(async (term: string) => {
+        setIsLoading(true);
 
-    async search(term: string) {
-        this.setState({ isLoading: true, matches: this.state.matches });
+        try {
+            const searchMatches = await search(term);
+            setMatches(searchMatches);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [search]);
 
-        const matches = await this.props.search(term);
-
-        this.setState({ isLoading: false, matches });
-    }
-
-    render() {
-        return <div className={`search-control-${this.props.elementIndex || 0}`}>
-            <AsyncTypeahead id={'artist-search-'}
-                            multiple
-                            placeholder={this.props.placeholder}
-                            isLoading={this.state.isLoading}
-                            onSearch={query => this.search(query)}
-                            delay={500}
-                            options={this.state.matches}
-                            labelKey={this.props.labelAccessor}
-                            onChange={items => this.props.onChanged(items as TItem[])} />
-        </div>
-    }
-}
+    return <div className={`search-control-${elementIndex || 0}`}>
+        <AsyncTypeahead id={'artist-search-'}
+                        multiple
+                        placeholder={placeholder}
+                        isLoading={isLoading}
+                        onSearch={handleSearch}
+                        delay={500}
+                        options={matches}
+                        labelKey={labelAccessor}
+                        onChange={items => onChanged(items as TItem[])} />
+    </div>
+};

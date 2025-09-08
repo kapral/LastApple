@@ -1,25 +1,24 @@
-import React, { Component } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Search } from "../Search";
 import musicKit from "../../musicKit";
 import { IStationParams } from "../IStationParams";
 import stationApi from "../../restClients/StationApi";
 
-export class SingleArtist extends Component<IStationParams, { currentArtistIds: string[] }> {
-    constructor(props) {
-        super(props);
+export const SingleArtist: React.FC<IStationParams> = ({ triggerCreate, onStationCreated, onOptionsChanged }) => {
+    const [currentArtistIds, setCurrentArtistIds] = useState<string[]>([]);
 
-        this.state = { currentArtistIds: [] };
-    }
+    useEffect(() => {
+        const createStation = async () => {
+            if (triggerCreate) {
+                const station = await stationApi.postStation('artist', currentArtistIds.join(','));
+                onStationCreated(station.id);
+            }
+        };
 
-    async componentDidUpdate() {
-        if (this.props.triggerCreate) {
-            const station = await stationApi.postStation('artist', this.state.currentArtistIds.join(','));
+        createStation();
+    }, [triggerCreate, currentArtistIds, onStationCreated]);
 
-            this.props.onStationCreated(station.id);
-        }
-    }
-
-    async search(term: string) {
+    const search = useCallback(async (term: string) => {
         const kit = await musicKit.getInstance();
         const parameters = { term: term, types: ['artists'], l: 'en-us' };
 
@@ -30,25 +29,23 @@ export class SingleArtist extends Component<IStationParams, { currentArtistIds: 
         }
 
         return response.data.results.artists.data.map(x => x);
-    }
+    }, []);
 
-    render(): React.ReactNode {
-        return <div className='station-parameters'>
-            <Search<MusicKit.MediaItem> search={term => this.search(term)}
-                                       onChanged={artist => this.handleChanged(artist)}
-                                       placeholder={'Radiohead...'}
-                                       labelAccessor={x => (x as any).attributes.name}/>
-        </div>
-    }
+    const handleChanged = useCallback((artists: MusicKit.MediaItem[]) => {
+        setCurrentArtistIds(artists.map(x => x.id));
+        onOptionsChanged(!!artists.length);
+    }, [onOptionsChanged]);
 
-    handleChanged(artists: MusicKit.MediaItem[]) {
-        this.setState({ currentArtistIds: artists.map(x => x.id) });
-        this.props.onOptionsChanged(!!artists.length);
-    }
+    return <div className='station-parameters'>
+        <Search<MusicKit.MediaItem> search={search}
+                                   onChanged={handleChanged}
+                                   placeholder={'Radiohead...'}
+                                   labelAccessor={x => (x as any).attributes.name}/>
+    </div>
+};
 
-    static Definition = {
-        title: 'Artist',
-        description: 'Play all tracks of one artist.',
-        type: SingleArtist
-    };
-}
+SingleArtist.Definition = {
+    title: 'Artist',
+    description: 'Play all tracks of one artist.',
+    type: SingleArtist
+};

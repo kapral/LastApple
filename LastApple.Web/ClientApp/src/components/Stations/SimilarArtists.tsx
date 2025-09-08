@@ -1,48 +1,43 @@
-import React, { Component } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Search } from "../Search";
 import { IStationParams } from "../IStationParams";
 import stationApi from "../../restClients/StationApi";
 import lastfmApi from "../../restClients/LastfmApi";
 
-export class SimilarArtists extends Component<IStationParams, { artist: string }> {
-    constructor(props) {
-        super(props);
+export const SimilarArtists: React.FC<IStationParams> = ({ triggerCreate, onStationCreated, onOptionsChanged }) => {
+    const [artist, setArtist] = useState<string | null>(null);
 
-        this.state = {
-            artist: null
+    useEffect(() => {
+        const createStation = async () => {
+            if (triggerCreate) {
+                const station = await stationApi.postStation('similarartists', artist);
+                onStationCreated(station.id);
+            }
         };
-    }
 
-    async componentDidUpdate() {
-        if (this.props.triggerCreate) {
-            const station = await stationApi.postStation('similarartists', this.state.artist);
+        createStation();
+    }, [triggerCreate, artist, onStationCreated]);
 
-            this.props.onStationCreated(station.id);
-        }
-    }
-
-    async search(term: string) {
+    const search = useCallback(async (term: string) => {
         const results = await lastfmApi.searchArtist(term);
-
         return results.map(x => x.name);
-    }
+    }, []);
 
-    render(): React.ReactNode {
-        return <div className='station-parameters'>
-            <Search<string> search={term => this.search(term)}
-                                       onChanged={artist => this.handleChanged(artist[0])}
-                                       placeholder={'Placebo...'}/>
-        </div>;
-    }
+    const handleChanged = useCallback((artists: string[]) => {
+        const selectedArtist = artists[0];
+        setArtist(selectedArtist);
+        onOptionsChanged(!!selectedArtist);
+    }, [onOptionsChanged]);
 
-    handleChanged(artist: string) {
-        this.setState({ artist: artist });
-        this.props.onOptionsChanged(!!artist);
-    }
+    return <div className='station-parameters'>
+        <Search<string> search={search}
+                                   onChanged={handleChanged}
+                                   placeholder={'Placebo...'}/>
+    </div>;
+};
 
-    static Definition = {
-        title: 'Similar Artists',
-        description: 'A station containing an artist and similar performers.',
-        type: SimilarArtists
-    };
-}
+SimilarArtists.Definition = {
+    title: 'Similar Artists',
+    description: 'A station containing an artist and similar performers.',
+    type: SimilarArtists
+};
