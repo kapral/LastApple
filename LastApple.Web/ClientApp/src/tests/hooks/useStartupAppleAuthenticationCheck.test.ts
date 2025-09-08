@@ -11,6 +11,10 @@ jest.mock('../../apple/appleAuthentication', () => ({
     checkAppleLogin: jest.fn(),
 }));
 
+import { useAppleContext as mockUseAppleContext } from '../../apple/AppleContext';
+import { checkAppleLogin as mockCheckAppleLogin } from '../../apple/appleAuthentication';
+import AsMock from "../AsMock";
+
 // Mock utils
 jest.mock('../../utils/mics', () => ({
     assertNonNullable: jest.fn((value) => {
@@ -22,18 +26,11 @@ jest.mock('../../utils/mics', () => ({
 }));
 
 describe('useStartupAppleAuthenticationCheck', () => {
-    let mockUseAppleContext: any;
-    let mockCheckAppleLogin: any;
-
     beforeEach(() => {
         jest.clearAllMocks();
-        
-        // Get the mock instances
-        mockUseAppleContext = require('../../apple/AppleContext').useAppleContext;
-        mockCheckAppleLogin = require('../../apple/appleAuthentication').checkAppleLogin;
-        
+
         // Set up default mock context return
-        mockUseAppleContext.mockReturnValue({
+        AsMock(mockUseAppleContext).mockReturnValue({
             authentication: {
                 state: 0,
                 setState: jest.fn(),
@@ -48,8 +45,8 @@ describe('useStartupAppleAuthenticationCheck', () => {
                 setState: jest.fn(),
             },
         };
-        mockUseAppleContext.mockReturnValue(mockContext);
-        
+        AsMock(mockUseAppleContext).mockReturnValue(mockContext);
+
         renderHook(() => useStartupAppleAuthenticationCheck());
 
         expect(mockCheckAppleLogin).toHaveBeenCalledWith(mockContext.authentication);
@@ -63,8 +60,8 @@ describe('useStartupAppleAuthenticationCheck', () => {
                 setState: jest.fn(),
             },
         };
-        mockUseAppleContext.mockReturnValue(mockContext);
-        
+        AsMock(mockUseAppleContext).mockReturnValue(mockContext);
+
         const { rerender } = renderHook(() => useStartupAppleAuthenticationCheck());
 
         expect(mockCheckAppleLogin).toHaveBeenCalledTimes(1);
@@ -81,16 +78,16 @@ describe('useStartupAppleAuthenticationCheck', () => {
                 setState: jest.fn(),
             },
         };
-        mockUseAppleContext.mockReturnValue(mockContext);
-        mockCheckAppleLogin.mockResolvedValue(undefined);
+        AsMock(mockUseAppleContext).mockReturnValue(mockContext);
+        AsMock(mockCheckAppleLogin).mockResolvedValue(undefined);
 
         renderHook(() => useStartupAppleAuthenticationCheck());
 
         expect(mockCheckAppleLogin).toHaveBeenCalledWith(mockContext.authentication);
-        
+
         // Wait for async operation to complete
         await new Promise(resolve => setTimeout(resolve, 0));
-        
+
         expect(mockCheckAppleLogin).toHaveBeenCalledTimes(1);
     });
 

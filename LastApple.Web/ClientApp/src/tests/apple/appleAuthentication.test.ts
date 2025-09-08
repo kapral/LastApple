@@ -1,27 +1,19 @@
-// Mock AppleAuthService first
-jest.mock('../../apple/AppleAuthService', () => ({
-    isAuthenticated: jest.fn(),
-    authenticate: jest.fn(),
-    logout: jest.fn(),
-}));
-
 import { AuthenticationState } from '../../authentication';
 import { IAppleAuthenticationState, logoutApple, loginApple, checkAppleLogin } from '../../apple/appleAuthentication';
-
-// Get the mocked service after import
-const mockAppleAuthService = require('../../apple/AppleAuthService');
+import mockAppleAuthService from '../../apple/AppleAuthService';
+import AsMock from "../AsMock";
 
 describe('appleAuthentication', () => {
     let mockAuthState: IAppleAuthenticationState;
 
     beforeEach(() => {
         jest.clearAllMocks();
-        
+
         // Restore the mock functions after clearAllMocks
         mockAppleAuthService.isAuthenticated = jest.fn();
         mockAppleAuthService.authenticate = jest.fn();
         mockAppleAuthService.logout = jest.fn();
-        
+
         mockAuthState = {
             state: AuthenticationState.Unauthenticated,
             setState: jest.fn(),
@@ -30,8 +22,8 @@ describe('appleAuthentication', () => {
 
     describe('logoutApple', () => {
         it('should set loading state and logout if authenticated', async () => {
-            mockAppleAuthService.isAuthenticated.mockResolvedValue(true);
-            mockAppleAuthService.logout.mockResolvedValue(undefined);
+            AsMock(mockAppleAuthService.isAuthenticated).mockResolvedValue(true);
+            AsMock(mockAppleAuthService.logout).mockResolvedValue(undefined);
 
             await logoutApple(mockAuthState);
 
@@ -42,7 +34,7 @@ describe('appleAuthentication', () => {
         });
 
         it('should set unauthenticated state if not authenticated', async () => {
-            mockAppleAuthService.isAuthenticated.mockResolvedValue(false);
+            AsMock(mockAppleAuthService.isAuthenticated).mockResolvedValue(false);
 
             await logoutApple(mockAuthState);
 
@@ -55,7 +47,7 @@ describe('appleAuthentication', () => {
 
     describe('loginApple', () => {
         it('should set authenticated state if already authenticated', async () => {
-            mockAppleAuthService.isAuthenticated.mockResolvedValue(true);
+            AsMock(mockAppleAuthService.isAuthenticated).mockResolvedValue(true);
 
             await loginApple(mockAuthState);
 
@@ -66,10 +58,10 @@ describe('appleAuthentication', () => {
         });
 
         it('should authenticate and set authenticated state on success', async () => {
-            mockAppleAuthService.isAuthenticated
+            AsMock(mockAppleAuthService.isAuthenticated)
                 .mockResolvedValueOnce(false) // Before authentication
                 .mockResolvedValueOnce(true); // After authentication
-            mockAppleAuthService.authenticate.mockResolvedValue(undefined);
+            AsMock(mockAppleAuthService.authenticate).mockResolvedValue(undefined);
 
             await loginApple(mockAuthState);
 
@@ -80,10 +72,10 @@ describe('appleAuthentication', () => {
         });
 
         it('should set unauthenticated state if authentication fails', async () => {
-            mockAppleAuthService.isAuthenticated
+            AsMock(mockAppleAuthService.isAuthenticated)
                 .mockResolvedValueOnce(false) // Before authentication
                 .mockResolvedValueOnce(false); // After authentication (failed)
-            mockAppleAuthService.authenticate.mockResolvedValue(undefined);
+            AsMock(mockAppleAuthService.authenticate).mockResolvedValue(undefined);
 
             await loginApple(mockAuthState);
 
@@ -96,7 +88,7 @@ describe('appleAuthentication', () => {
 
     describe('checkAppleLogin', () => {
         it('should set authenticated state if authenticated', async () => {
-            mockAppleAuthService.isAuthenticated.mockResolvedValue(true);
+            AsMock(mockAppleAuthService.isAuthenticated).mockResolvedValue(true);
 
             await checkAppleLogin(mockAuthState);
 
@@ -106,7 +98,7 @@ describe('appleAuthentication', () => {
         });
 
         it('should set unauthenticated state if not authenticated', async () => {
-            mockAppleAuthService.isAuthenticated.mockResolvedValue(false);
+            AsMock(mockAppleAuthService.isAuthenticated).mockResolvedValue(false);
 
             await checkAppleLogin(mockAuthState);
 
