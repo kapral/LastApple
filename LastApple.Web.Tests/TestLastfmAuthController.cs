@@ -110,13 +110,12 @@ public class TestLastfmAuthController
     }
 
     [Test]
-    public async Task Logout_Throws_BadRequestException_For_Empty_Session()
+    public void Logout_Throws_BadRequestException_For_Empty_Session()
     {
         var emptySession = new Session(Guid.Empty, DateTimeOffset.MinValue, DateTimeOffset.MinValue, null, null, null, null);
         mockSessionProvider.GetSession().Returns(emptySession);
 
-        var exception = Assert.ThrowsAsync<BadRequestException>(async () => await controller.Logout());
-        Assert.That(exception, Is.Not.Null);
+        Assert.That(() => controller.Logout(), Throws.TypeOf<BadRequestException>());
     }
 
     [Test]
@@ -133,7 +132,7 @@ public class TestLastfmAuthController
         );
         mockSessionProvider.GetSession().Returns(existingSession);
 
-        Assert.DoesNotThrowAsync(async () => await controller.Logout());
+        await controller.Logout();
         await mockSessionRepository.Received(1)
                                    .SaveSession(existingSession with { LastfmSessionKey = null });
     }

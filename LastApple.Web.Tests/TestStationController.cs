@@ -68,7 +68,7 @@ public class TestStationController
         var station = CreateTestStation(stationId, songIds);
         mockStationRepository.Get(stationId).Returns(station);
 
-        Assert.DoesNotThrow(() => controller.DeleteSongs(stationId, 1, 2));
+        controller.DeleteSongs(stationId, 1, 2);
         Assert.That(station.SongIds, Has.Count.EqualTo(2));
         Assert.That(station.SongIds[0], Is.EqualTo("song1")); // First song remains
         Assert.That(station.SongIds[1], Is.EqualTo("song4")); // Last song moved down
@@ -82,7 +82,7 @@ public class TestStationController
         var station = CreateTestStation(stationId, songIds);
         mockStationRepository.Get(stationId).Returns(station);
 
-        Assert.DoesNotThrow(() => controller.DeleteSongs(stationId, 1, 1));
+        controller.DeleteSongs(stationId, 1, 1);
         Assert.That(station.SongIds, Has.Count.EqualTo(2));
         Assert.That(station.SongIds[0], Is.EqualTo("song1"));
         Assert.That(station.SongIds[1], Is.EqualTo("song3"));

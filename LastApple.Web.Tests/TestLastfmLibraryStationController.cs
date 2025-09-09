@@ -37,13 +37,12 @@ public class TestLastfmLibraryStationController
     }
 
     [Test]
-    public async Task Create_Throws_UnauthorizedException_For_Empty_Session()
+    public void Create_Throws_UnauthorizedException_For_Empty_Session()
     {
         var emptySession = new Session(Guid.Empty, DateTimeOffset.MinValue, DateTimeOffset.MinValue, null, null, null, null);
         mockSessionProvider.GetSession().Returns(emptySession);
 
-        var exception = Assert.ThrowsAsync<UnauthorizedException>(async () => await controller.Create());
-        Assert.That(exception, Is.Not.Null);
+        Assert.That(() => controller.Create(), Throws.TypeOf<UnauthorizedException>());
     }
 
     [Test]
@@ -84,26 +83,24 @@ public class TestLastfmLibraryStationController
     }
 
     [Test]
-    public async Task TopUp_Throws_NotFoundException_For_Invalid_Station_Id()
+    public void TopUp_Throws_NotFoundException_For_Invalid_Station_Id()
     {
         var stationId = Guid.NewGuid();
 
         mockStationRepository.Get(stationId).Returns((StationBase)null);
 
-        var exception = Assert.ThrowsAsync<NotFoundException>(async () => await controller.TopUp(stationId, 10));
-        Assert.That(exception, Is.Not.Null);
+        Assert.That(() => controller.TopUp(stationId, 10), Throws.TypeOf<NotFoundException>());
     }
 
     [Test]
-    public async Task TopUp_Throws_NotFoundException_For_Wrong_Station_Type()
+    public void TopUp_Throws_NotFoundException_For_Wrong_Station_Type()
     {
         var stationId = Guid.NewGuid();
         var wrongTypeStation = Substitute.For<StationBase>();
 
         mockStationRepository.Get(stationId).Returns(wrongTypeStation);
 
-        var exception = Assert.ThrowsAsync<NotFoundException>(async () => await controller.TopUp(stationId, 10));
-        Assert.That(exception, Is.Not.Null);
+        Assert.That(() => controller.TopUp(stationId, 10), Throws.TypeOf<NotFoundException>());
     }
 
     [Test]
@@ -117,7 +114,7 @@ public class TestLastfmLibraryStationController
         mockStationRepository.Get(stationId).Returns(station);
         mockStorefrontProvider.GetStorefront().Returns(storefront);
 
-        Assert.DoesNotThrowAsync(async () => await controller.TopUp(stationId, 10));
+        await controller.TopUp(stationId, 10);
         mockProcessManager.Received(1).AddProcess(Arg.Any<Func<Task>>());
 
         var callback = mockProcessManager.ReceivedCalls()

@@ -64,19 +64,18 @@ public class TestTagsStationController
     }
 
     [Test]
-    public async Task TopUp_Throws_NotFoundException_For_Invalid_Station_Id()
+    public void TopUp_Throws_NotFoundException_For_Invalid_Station_Id()
     {
         var stationId = Guid.NewGuid();
         var count = 10;
 
         mockStationRepository.Get(stationId).Returns((StationBase)null);
 
-        var exception = Assert.ThrowsAsync<NotFoundException>(async () => await controller.TopUp(stationId, count));
-        Assert.That(exception, Is.Not.Null);
+        Assert.That(() => controller.TopUp(stationId, count), Throws.TypeOf<NotFoundException>());
     }
 
     [Test]
-    public async Task TopUp_Throws_NotFoundException_For_Wrong_Station_Type()
+    public void TopUp_Throws_NotFoundException_For_Wrong_Station_Type()
     {
         var stationId = Guid.NewGuid();
         var count = 10;
@@ -84,8 +83,7 @@ public class TestTagsStationController
 
         mockStationRepository.Get(stationId).Returns(wrongTypeStation);
 
-        var exception = Assert.ThrowsAsync<NotFoundException>(async () => await controller.TopUp(stationId, count));
-        Assert.That(exception, Is.Not.Null);
+        Assert.That(() => controller.TopUp(stationId, count), Throws.TypeOf<NotFoundException>());
     }
 
     [Test]
@@ -100,7 +98,7 @@ public class TestTagsStationController
         mockStationRepository.Get(stationId).Returns(station);
         mockStorefrontProvider.GetStorefront().Returns(storefront);
 
-        Assert.DoesNotThrowAsync(async () => await controller.TopUp(stationId, count));
+        await controller.TopUp(stationId, count);
         mockBackgroundProcessManager.Received(1).AddProcess(Arg.Any<Func<Task>>());
 
         var callback = mockBackgroundProcessManager.ReceivedCalls()
