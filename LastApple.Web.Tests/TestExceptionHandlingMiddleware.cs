@@ -20,12 +20,17 @@ public class TestExceptionHandlingMiddleware
     [SetUp]
     public void Setup()
     {
-        mockLogger = Substitute.For<ILogger<ExceptionHandlingMiddleware>>();
-        mockNext = Substitute.For<RequestDelegate>();
+        mockLogger     = Substitute.For<ILogger<ExceptionHandlingMiddleware>>();
+        mockNext       = Substitute.For<RequestDelegate>();
         responseStream = new MemoryStream();
-        
-        httpContext = new DefaultHttpContext();
-        httpContext.Response.Body = responseStream;
+
+        httpContext = new DefaultHttpContext
+        {
+            Response =
+            {
+                Body = responseStream
+            }
+        };
 
         middleware = new ExceptionHandlingMiddleware(mockNext, mockLogger);
     }
@@ -105,7 +110,7 @@ public class TestExceptionHandlingMiddleware
 
         var responseContent = Encoding.UTF8.GetString(responseStream.ToArray());
         var response = JsonSerializer.Deserialize<JsonElement>(responseContent);
-        
+
         Assert.That(response.GetProperty("error").GetString(), Is.EqualTo("Test bad request"));
         Assert.That(response.GetProperty("statusCode").GetInt32(), Is.EqualTo(400));
     }
@@ -119,10 +124,10 @@ public class TestExceptionHandlingMiddleware
         await middleware.InvokeAsync(httpContext);
 
         Assert.That(httpContext.Response.StatusCode, Is.EqualTo((int)HttpStatusCode.Unauthorized));
-        
+
         var responseContent = Encoding.UTF8.GetString(responseStream.ToArray());
         var response = JsonSerializer.Deserialize<JsonElement>(responseContent);
-        
+
         Assert.That(response.GetProperty("error").GetString(), Is.EqualTo("Test unauthorized"));
         Assert.That(response.GetProperty("statusCode").GetInt32(), Is.EqualTo(401));
     }
@@ -136,10 +141,10 @@ public class TestExceptionHandlingMiddleware
         await middleware.InvokeAsync(httpContext);
 
         Assert.That(httpContext.Response.StatusCode, Is.EqualTo((int)HttpStatusCode.NotFound));
-        
+
         var responseContent = Encoding.UTF8.GetString(responseStream.ToArray());
         var response = JsonSerializer.Deserialize<JsonElement>(responseContent);
-        
+
         Assert.That(response.GetProperty("error").GetString(), Is.EqualTo("Test not found"));
         Assert.That(response.GetProperty("statusCode").GetInt32(), Is.EqualTo(404));
     }
@@ -183,23 +188,8 @@ public class TestExceptionHandlingMiddleware
 
         var responseContent = Encoding.UTF8.GetString(responseStream.ToArray());
         var response = JsonSerializer.Deserialize<JsonElement>(responseContent);
-        
+
         Assert.That(response.GetProperty("error").GetString(), Is.EqualTo("An unexpected error occurred."));
         Assert.That(response.GetProperty("statusCode").GetInt32(), Is.EqualTo(500));
-    }
-
-    [Test]
-    public async Task InvokeAsync_GeneralException_DoesNotExposeOriginalMessage()
-    {
-        var exception = new InvalidOperationException("Sensitive internal error details");
-        mockNext.When(x => x.Invoke(httpContext)).Do(_ => throw exception);
-
-        await middleware.InvokeAsync(httpContext);
-
-        var responseContent = Encoding.UTF8.GetString(responseStream.ToArray());
-        var response = JsonSerializer.Deserialize<JsonElement>(responseContent);
-        
-        Assert.That(response.GetProperty("error").GetString(), Is.Not.EqualTo("Sensitive internal error details"));
-        Assert.That(response.GetProperty("error").GetString(), Is.EqualTo("An unexpected error occurred."));
     }
 }
