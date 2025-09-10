@@ -13,8 +13,7 @@ public class TestExceptionHandlingMiddleware
 {
     private ILogger<ExceptionHandlingMiddleware> mockLogger;
     private RequestDelegate mockNext;
-    private HttpContext mockHttpContext;
-    private HttpResponse mockResponse;
+    private DefaultHttpContext httpContext;
     private MemoryStream responseStream;
     private ExceptionHandlingMiddleware middleware;
 
@@ -23,12 +22,10 @@ public class TestExceptionHandlingMiddleware
     {
         mockLogger = Substitute.For<ILogger<ExceptionHandlingMiddleware>>();
         mockNext = Substitute.For<RequestDelegate>();
-        mockHttpContext = Substitute.For<HttpContext>();
-        mockResponse = Substitute.For<HttpResponse>();
         responseStream = new MemoryStream();
-
-        mockHttpContext.Response.Returns(mockResponse);
-        mockResponse.Body.Returns(responseStream);
+        
+        httpContext = new DefaultHttpContext();
+        httpContext.Response.Body = responseStream;
 
         middleware = new ExceptionHandlingMiddleware(mockNext, mockLogger);
     }
@@ -42,60 +39,69 @@ public class TestExceptionHandlingMiddleware
     [Test]
     public async Task InvokeAsync_NoException_CallsNextMiddleware()
     {
-        await middleware.InvokeAsync(mockHttpContext);
+        await middleware.InvokeAsync(httpContext);
 
-        await mockNext.Received(1).Invoke(mockHttpContext);
+        await mockNext.Received(1).Invoke(httpContext);
     }
 
     [Test]
     public async Task InvokeAsync_NoException_DoesNotModifyResponse()
     {
-        await middleware.InvokeAsync(mockHttpContext);
+        var originalStatusCode = httpContext.Response.StatusCode;
+        var originalContentType = httpContext.Response.ContentType;
 
-        mockResponse.DidNotReceiveWithAnyArgs().StatusCode = default;
-        mockResponse.DidNotReceiveWithAnyArgs().ContentType = default;
+        await middleware.InvokeAsync(httpContext);
+
+        Assert.That(httpContext.Response.StatusCode, Is.EqualTo(originalStatusCode));
+        Assert.That(httpContext.Response.ContentType, Is.EqualTo(originalContentType));
     }
 
     [Test]
     public async Task InvokeAsync_HttpException_LogsWarning()
     {
         var exception = new BadRequestException("Test bad request");
-        mockNext.When(x => x.Invoke(mockHttpContext)).Do(_ => throw exception);
+        mockNext.When(x => x.Invoke(httpContext)).Do(_ => throw exception);
 
-        await middleware.InvokeAsync(mockHttpContext);
+        await middleware.InvokeAsync(httpContext);
 
-        mockLogger.Received(1).LogWarning(exception, "HTTP exception occurred: {Message}", "Test bad request");
+        // Verify that LogWarning was called with the expected parameters
+        mockLogger.Received(1).Log(
+            LogLevel.Warning,
+            Arg.Any<EventId>(),
+            Arg.Is<object>(o => o.ToString().Contains("HTTP exception occurred: Test bad request")),
+            exception,
+            Arg.Any<Func<object, Exception, string>>());
     }
 
     [Test]
     public async Task InvokeAsync_HttpException_SetsCorrectStatusCode()
     {
         var exception = new BadRequestException("Test bad request");
-        mockNext.When(x => x.Invoke(mockHttpContext)).Do(_ => throw exception);
+        mockNext.When(x => x.Invoke(httpContext)).Do(_ => throw exception);
 
-        await middleware.InvokeAsync(mockHttpContext);
+        await middleware.InvokeAsync(httpContext);
 
-        mockResponse.Received(1).StatusCode = (int)HttpStatusCode.BadRequest;
+        Assert.That(httpContext.Response.StatusCode, Is.EqualTo((int)HttpStatusCode.BadRequest));
     }
 
     [Test]
     public async Task InvokeAsync_HttpException_SetsJsonContentType()
     {
         var exception = new BadRequestException("Test bad request");
-        mockNext.When(x => x.Invoke(mockHttpContext)).Do(_ => throw exception);
+        mockNext.When(x => x.Invoke(httpContext)).Do(_ => throw exception);
 
-        await middleware.InvokeAsync(mockHttpContext);
+        await middleware.InvokeAsync(httpContext);
 
-        mockResponse.Received(1).ContentType = "application/json";
+        Assert.That(httpContext.Response.ContentType, Is.EqualTo("application/json"));
     }
 
     [Test]
     public async Task InvokeAsync_HttpException_WritesCorrectJsonResponse()
     {
         var exception = new BadRequestException("Test bad request");
-        mockNext.When(x => x.Invoke(mockHttpContext)).Do(_ => throw exception);
+        mockNext.When(x => x.Invoke(httpContext)).Do(_ => throw exception);
 
-        await middleware.InvokeAsync(mockHttpContext);
+        await middleware.InvokeAsync(httpContext);
 
         var responseContent = Encoding.UTF8.GetString(responseStream.ToArray());
         var response = JsonSerializer.Deserialize<JsonElement>(responseContent);
@@ -108,11 +114,11 @@ public class TestExceptionHandlingMiddleware
     public async Task InvokeAsync_UnauthorizedException_ReturnsUnauthorizedResponse()
     {
         var exception = new UnauthorizedException("Test unauthorized");
-        mockNext.When(x => x.Invoke(mockHttpContext)).Do(_ => throw exception);
+        mockNext.When(x => x.Invoke(httpContext)).Do(_ => throw exception);
 
-        await middleware.InvokeAsync(mockHttpContext);
+        await middleware.InvokeAsync(httpContext);
 
-        mockResponse.Received(1).StatusCode = (int)HttpStatusCode.Unauthorized;
+        Assert.That(httpContext.Response.StatusCode, Is.EqualTo((int)HttpStatusCode.Unauthorized));
         
         var responseContent = Encoding.UTF8.GetString(responseStream.ToArray());
         var response = JsonSerializer.Deserialize<JsonElement>(responseContent);
@@ -125,11 +131,11 @@ public class TestExceptionHandlingMiddleware
     public async Task InvokeAsync_NotFoundException_ReturnsNotFoundResponse()
     {
         var exception = new NotFoundException("Test not found");
-        mockNext.When(x => x.Invoke(mockHttpContext)).Do(_ => throw exception);
+        mockNext.When(x => x.Invoke(httpContext)).Do(_ => throw exception);
 
-        await middleware.InvokeAsync(mockHttpContext);
+        await middleware.InvokeAsync(httpContext);
 
-        mockResponse.Received(1).StatusCode = (int)HttpStatusCode.NotFound;
+        Assert.That(httpContext.Response.StatusCode, Is.EqualTo((int)HttpStatusCode.NotFound));
         
         var responseContent = Encoding.UTF8.GetString(responseStream.ToArray());
         var response = JsonSerializer.Deserialize<JsonElement>(responseContent);
@@ -142,32 +148,38 @@ public class TestExceptionHandlingMiddleware
     public async Task InvokeAsync_GeneralException_LogsError()
     {
         var exception = new InvalidOperationException("Test general exception");
-        mockNext.When(x => x.Invoke(mockHttpContext)).Do(_ => throw exception);
+        mockNext.When(x => x.Invoke(httpContext)).Do(_ => throw exception);
 
-        await middleware.InvokeAsync(mockHttpContext);
+        await middleware.InvokeAsync(httpContext);
 
-        mockLogger.Received(1).LogError(exception, "An unexpected error occurred: {Message}", "Test general exception");
+        // Verify that LogError was called with the expected parameters
+        mockLogger.Received(1).Log(
+            LogLevel.Error,
+            Arg.Any<EventId>(),
+            Arg.Is<object>(o => o.ToString().Contains("An unexpected error occurred: Test general exception")),
+            exception,
+            Arg.Any<Func<object, Exception, string>>());
     }
 
     [Test]
     public async Task InvokeAsync_GeneralException_ReturnsInternalServerError()
     {
         var exception = new InvalidOperationException("Test general exception");
-        mockNext.When(x => x.Invoke(mockHttpContext)).Do(_ => throw exception);
+        mockNext.When(x => x.Invoke(httpContext)).Do(_ => throw exception);
 
-        await middleware.InvokeAsync(mockHttpContext);
+        await middleware.InvokeAsync(httpContext);
 
-        mockResponse.Received(1).StatusCode = (int)HttpStatusCode.InternalServerError;
-        mockResponse.Received(1).ContentType = "application/json";
+        Assert.That(httpContext.Response.StatusCode, Is.EqualTo((int)HttpStatusCode.InternalServerError));
+        Assert.That(httpContext.Response.ContentType, Is.EqualTo("application/json"));
     }
 
     [Test]
     public async Task InvokeAsync_GeneralException_WritesGenericErrorMessage()
     {
         var exception = new InvalidOperationException("Test general exception");
-        mockNext.When(x => x.Invoke(mockHttpContext)).Do(_ => throw exception);
+        mockNext.When(x => x.Invoke(httpContext)).Do(_ => throw exception);
 
-        await middleware.InvokeAsync(mockHttpContext);
+        await middleware.InvokeAsync(httpContext);
 
         var responseContent = Encoding.UTF8.GetString(responseStream.ToArray());
         var response = JsonSerializer.Deserialize<JsonElement>(responseContent);
@@ -180,9 +192,9 @@ public class TestExceptionHandlingMiddleware
     public async Task InvokeAsync_GeneralException_DoesNotExposeOriginalMessage()
     {
         var exception = new InvalidOperationException("Sensitive internal error details");
-        mockNext.When(x => x.Invoke(mockHttpContext)).Do(_ => throw exception);
+        mockNext.When(x => x.Invoke(httpContext)).Do(_ => throw exception);
 
-        await middleware.InvokeAsync(mockHttpContext);
+        await middleware.InvokeAsync(httpContext);
 
         var responseContent = Encoding.UTF8.GetString(responseStream.ToArray());
         var response = JsonSerializer.Deserialize<JsonElement>(responseContent);
