@@ -89,12 +89,12 @@ public class TestAppleAuthController
     }
 
     [Test]
-    public async Task DeleteSessionData_Throws_BadRequestException_For_Empty_Session()
+    public void DeleteSessionData_Throws_BadRequestException_For_Empty_Session()
     {
         var emptySession = new Session(Guid.Empty, DateTimeOffset.MinValue, DateTimeOffset.MinValue, null, null, null, null);
         mockSessionProvider.GetSession().Returns(emptySession);
 
-        Assert.That(async () => await controller.DeleteSessionData(), Throws.TypeOf<BadRequestException>());
+        Assert.That(() => controller.DeleteSessionData(), Throws.TypeOf<BadRequestException>());
     }
 
     [Test]

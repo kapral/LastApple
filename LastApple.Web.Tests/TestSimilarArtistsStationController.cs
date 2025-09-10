@@ -64,18 +64,18 @@ public class TestSimilarArtistsStationController
     }
 
     [Test]
-    public async Task TopUp_Throws_NotFoundException_For_Invalid_Station_Id()
+    public void TopUp_Throws_NotFoundException_For_Invalid_Station_Id()
     {
         var stationId = Guid.NewGuid();
         var count = 10;
 
         mockStationRepository.Get(stationId).Returns((StationBase)null);
 
-        Assert.That(async () => await controller.TopUp(stationId, count), Throws.TypeOf<NotFoundException>());
+        Assert.That(() => controller.TopUp(stationId, count), Throws.TypeOf<NotFoundException>());
     }
 
     [Test]
-    public async Task TopUp_Throws_NotFoundException_For_Wrong_Station_Type()
+    public void TopUp_Throws_NotFoundException_For_Wrong_Station_Type()
     {
         var stationId = Guid.NewGuid();
         var count = 10;
@@ -83,7 +83,7 @@ public class TestSimilarArtistsStationController
 
         mockStationRepository.Get(stationId).Returns(wrongTypeStation);
 
-        Assert.That(async () => await controller.TopUp(stationId, count), Throws.TypeOf<NotFoundException>());
+        Assert.That(() => controller.TopUp(stationId, count), Throws.TypeOf<NotFoundException>());
     }
 
     [Test]
