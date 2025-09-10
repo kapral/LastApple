@@ -83,24 +83,24 @@ public class TestLastfmLibraryStationController
     }
 
     [Test]
-    public void TopUp_Throws_NotFoundException_For_Invalid_Station_Id()
+    public async Task TopUp_Throws_NotFoundException_For_Invalid_Station_Id()
     {
         var stationId = Guid.NewGuid();
 
         mockStationRepository.Get(stationId).Returns((StationBase)null);
 
-        Assert.That(() => controller.TopUp(stationId, 10), Throws.TypeOf<NotFoundException>());
+        Assert.That(async () => await controller.TopUp(stationId, 10), Throws.TypeOf<NotFoundException>());
     }
 
     [Test]
-    public void TopUp_Throws_NotFoundException_For_Wrong_Station_Type()
+    public async Task TopUp_Throws_NotFoundException_For_Wrong_Station_Type()
     {
         var stationId = Guid.NewGuid();
         var wrongTypeStation = Substitute.For<StationBase>();
 
         mockStationRepository.Get(stationId).Returns(wrongTypeStation);
 
-        Assert.That(() => controller.TopUp(stationId, 10), Throws.TypeOf<NotFoundException>());
+        Assert.That(async () => await controller.TopUp(stationId, 10), Throws.TypeOf<NotFoundException>());
     }
 
     [Test]
