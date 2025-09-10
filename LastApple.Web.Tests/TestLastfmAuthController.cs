@@ -40,8 +40,7 @@ public class TestLastfmAuthController
     [Test]
     public void InitAuth_Throws_BadRequestException_For_Invalid_Url()
     {
-        var exception = Assert.Throws<BadRequestException>(() => controller.InitAuth("invalid-url"));
-        Assert.That(exception, Is.Not.Null);
+        Assert.That(() => controller.InitAuth("invalid-url"), Throws.TypeOf<BadRequestException>());
     }
 
     [Test]

@@ -34,8 +34,7 @@ public class TestStationController
         var stationId = Guid.NewGuid();
         mockStationRepository.Get(stationId).Returns((StationBase)null);
 
-        var exception = Assert.Throws<NotFoundException>(() => controller.DeleteSongs(stationId, 0, 1));
-        Assert.That(exception, Is.Not.Null);
+        Assert.That(() => controller.DeleteSongs(stationId, 0, 1), Throws.TypeOf<NotFoundException>());
     }
 
     [Test]
@@ -45,8 +44,7 @@ public class TestStationController
         var station   = CreateTestStation(stationId, ["song1", "song2"]); // Only 2 songs
         mockStationRepository.Get(stationId).Returns(station);
 
-        var exception = Assert.Throws<NotFoundException>(() => controller.DeleteSongs(stationId, 0, 3));
-        Assert.That(exception, Is.Not.Null);
+        Assert.That(() => controller.DeleteSongs(stationId, 0, 3), Throws.TypeOf<NotFoundException>());
     }
 
     [Test]
@@ -56,8 +54,7 @@ public class TestStationController
         var station = CreateTestStation(stationId, ["song1", "song2"]);
         mockStationRepository.Get(stationId).Returns(station);
 
-        var exception = Assert.Throws<NotFoundException>(() => controller.DeleteSongs(stationId, 2, 1));
-        Assert.That(exception, Is.Not.Null);
+        Assert.That(() => controller.DeleteSongs(stationId, 2, 1), Throws.TypeOf<NotFoundException>());
     }
 
     [Test]

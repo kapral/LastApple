@@ -19,39 +19,24 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Exception
         catch (HttpException httpException)
         {
             logger.LogWarning(httpException, "HTTP exception occurred: {Message}", httpException.Message);
-            await HandleHttpExceptionAsync(context, httpException);
+            await HandleException(context, httpException.StatusCode, httpException.Message);;
         }
         catch (Exception exception)
         {
             logger.LogError(exception, "An unexpected error occurred: {Message}", exception.Message);
-            await HandleGenericExceptionAsync(context, exception);
+            await HandleException(context, HttpStatusCode.InternalServerError, "An unexpected error occurred.");
         }
     }
 
-    private static async Task HandleHttpExceptionAsync(HttpContext context, HttpException httpException)
+    private static async Task HandleException(HttpContext context, HttpStatusCode statusCode, string message)
     {
-        context.Response.StatusCode = (int)httpException.StatusCode;
+        context.Response.StatusCode = (int)statusCode;
         context.Response.ContentType = "application/json";
 
         var response = new
         {
-            error = httpException.Message,
-            statusCode = (int)httpException.StatusCode
-        };
-
-        var jsonResponse = JsonSerializer.Serialize(response);
-        await context.Response.WriteAsync(jsonResponse);
-    }
-
-    private static async Task HandleGenericExceptionAsync(HttpContext context, Exception exception)
-    {
-        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-        context.Response.ContentType = "application/json";
-
-        var response = new
-        {
-            error = "An internal server error occurred.",
-            statusCode = (int)HttpStatusCode.InternalServerError
+            error = message,
+            statusCode = (int)statusCode
         };
 
         var jsonResponse = JsonSerializer.Serialize(response);

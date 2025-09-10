@@ -140,7 +140,6 @@ public class Startup(IConfiguration configuration)
             app.UseHsts();
         }
 
-        // Add exception handling middleware
         app.UseMiddleware<ExceptionHandlingMiddleware>();
 
         app.UseCors(AllowCorsPolicy);
