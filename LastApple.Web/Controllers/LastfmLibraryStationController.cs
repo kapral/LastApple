@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using IF.Lastfm.Core.Api;
 using LastApple.Model;
 using LastApple.PlaylistGeneration;
+using LastApple.Web.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LastApple.Web.Controllers;
@@ -17,13 +18,13 @@ public class LastfmLibraryStationController(IStationRepository stationRepository
 {
     [HttpPost]
     [Route("my")]
-    public async Task<IActionResult> Create()
+    public async Task<Station<LastfmLibraryStationDefinition>> Create()
     {
         var session = await sessionProvider.GetSession();
 
         if (session.Id == Guid.Empty)
         {
-            return Unauthorized();
+            throw new UnauthorizedException();
         }
 
         var user = await userApi.GetInfoAsync(session.LastfmUsername);
@@ -40,22 +41,20 @@ public class LastfmLibraryStationController(IStationRepository stationRepository
 
         processManager.AddProcess(() => stationGenerator.Generate(station, storefront));
 
-        return Json(station);
+        return station;
     }
 
     [HttpPost]
     [Route("{stationId}/topup/{count}")]
-    public async Task<ActionResult> TopUp(Guid stationId, int count)
+    public async Task TopUp(Guid stationId, int count)
     {
         if (stationRepository.Get(stationId) is not Station<LastfmLibraryStationDefinition> station)
         {
-            return NotFound();
+            throw new NotFoundException();
         }
 
         var storefront = await storefrontProvider.GetStorefront();
 
         processManager.AddProcess(() => stationGenerator.TopUp(station, storefront, count));
-
-        return NoContent();
     }
 }

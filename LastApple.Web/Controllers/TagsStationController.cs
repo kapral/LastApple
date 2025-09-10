@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using LastApple.Model;
 using LastApple.PlaylistGeneration;
+using LastApple.Web.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LastApple.Web.Controllers;
@@ -35,16 +36,14 @@ public class TagsStationController(IStationRepository stationRepository,
 
     [HttpPost]
     [Route("{stationId}/topup/{count}")]
-    public async Task<ActionResult> TopUp(Guid stationId, int count)
+    public async Task TopUp(Guid stationId, int count)
     {
         if (stationRepository.Get(stationId) is not Station<TagsStationDefinition> station)
         {
-            return NotFound();
+            throw new NotFoundException();
         }
 
         var storefront = await storefrontProvider.GetStorefront();
         backgroundProcessManager.AddProcess(() => stationGenerator.TopUp(station, storefront, count));
-
-        return NoContent();
     }
 }

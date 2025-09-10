@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using IF.Lastfm.Core.Api;
 using IF.Lastfm.Core.Objects;
 using IF.Lastfm.Core.Scrobblers;
+using LastApple.Web.Exceptions;
 using LastApple.Web.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,19 +30,16 @@ public class LastfmController(ISessionProvider sessionProvider,
 
     [HttpPost]
     [Route("scrobble")]
-    public async Task<IActionResult> Scrobble([FromBody] ScrobbleRequest request)
+    public async Task Scrobble([FromBody] ScrobbleRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var validationResponse = Validate(request.Artist, request.Song);
-
-        if (validationResponse != null)
-            return validationResponse;
+        Validate(request.Artist, request.Song);
 
         var sessionKey = await GetSessionKey();
 
         if (string.IsNullOrWhiteSpace(sessionKey))
-            return Unauthorized();
+            throw new UnauthorizedException();
 
         lastAuth.LoadSession(new LastUserSession { Token = sessionKey });
 
@@ -51,25 +49,20 @@ public class LastfmController(ISessionProvider sessionProvider,
         };
 
         await scrobbler.ScrobbleAsync(scrobble);
-
-        return NoContent();
     }
 
     [HttpPost]
     [Route("nowplaying")]
-    public async Task<IActionResult> NowPlaying([FromBody] ScrobbleRequest request)
+    public async Task NowPlaying([FromBody] ScrobbleRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var validationResponse = Validate(request.Artist, request.Song);
-
-        if (validationResponse != null)
-            return validationResponse;
+        Validate(request.Artist, request.Song);
 
         var sessionKey = await GetSessionKey();
 
         if (string.IsNullOrWhiteSpace(sessionKey))
-            return Unauthorized();
+            throw new UnauthorizedException();
 
         lastAuth.LoadSession(new LastUserSession { Token = sessionKey });
 
@@ -79,19 +72,15 @@ public class LastfmController(ISessionProvider sessionProvider,
         };
 
         await trackApi.UpdateNowPlayingAsync(scrobble);
-
-        return NoContent();
     }
 
-    private IActionResult? Validate(string artist, string song)
+    private void Validate(string artist, string song)
     {
         if (string.IsNullOrWhiteSpace(artist))
-            return BadRequest($"{nameof(artist)} is empty.");
+            throw new BadRequestException($"{nameof(artist)} is empty.");
 
         if (string.IsNullOrWhiteSpace(song))
-            return BadRequest($"{nameof(song)} is empty.");
-
-        return null;
+            throw new BadRequestException($"{nameof(song)} is empty.");
     }
 
     private async Task<string?> GetSessionKey()

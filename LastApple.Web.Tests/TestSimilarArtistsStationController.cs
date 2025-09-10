@@ -1,6 +1,7 @@
 using System.Linq;
 using LastApple.Model;
 using LastApple.PlaylistGeneration;
+using LastApple.Web.Exceptions;
 
 namespace LastApple.Web.Tests;
 
@@ -63,20 +64,18 @@ public class TestSimilarArtistsStationController
     }
 
     [Test]
-    public async Task TopUp_Returns_NotFound_For_Invalid_Station_Id()
+    public void TopUp_Throws_NotFoundException_For_Invalid_Station_Id()
     {
         var stationId = Guid.NewGuid();
         var count = 10;
 
         mockStationRepository.Get(stationId).Returns((StationBase)null);
 
-        var result = await controller.TopUp(stationId, count);
-
-        Assert.That(result, Is.InstanceOf<NotFoundResult>());
+        Assert.That(() => controller.TopUp(stationId, count), Throws.TypeOf<NotFoundException>());
     }
 
     [Test]
-    public async Task TopUp_Returns_NotFound_For_Wrong_Station_Type()
+    public void TopUp_Throws_NotFoundException_For_Wrong_Station_Type()
     {
         var stationId = Guid.NewGuid();
         var count = 10;
@@ -84,9 +83,7 @@ public class TestSimilarArtistsStationController
 
         mockStationRepository.Get(stationId).Returns(wrongTypeStation);
 
-        var result = await controller.TopUp(stationId, count);
-
-        Assert.That(result, Is.InstanceOf<NotFoundResult>());
+        Assert.That(() => controller.TopUp(stationId, count), Throws.TypeOf<NotFoundException>());
     }
 
     [Test]
@@ -101,9 +98,7 @@ public class TestSimilarArtistsStationController
         mockStationRepository.Get(stationId).Returns(station);
         mockStorefrontProvider.GetStorefront().Returns(storefront);
 
-        var result = await controller.TopUp(stationId, count);
-
-        Assert.That(result, Is.InstanceOf<NoContentResult>());
+        await controller.TopUp(stationId, count);
         mockBackgroundProcessManager.Received(1).AddProcess(Arg.Any<Func<Task>>());
 
         var callback = mockBackgroundProcessManager.ReceivedCalls()

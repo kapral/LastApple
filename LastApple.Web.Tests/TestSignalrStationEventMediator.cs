@@ -19,7 +19,7 @@ public class TestSignalrStationEventMediator
         var mediator = new SignalrStationEventMediator(mockHubContext);
         var stationId = Guid.NewGuid();
 
-        Assert.DoesNotThrow(() => mediator.NotifyTrackAdded(stationId, "track-123", 5));
+        mediator.NotifyTrackAdded(stationId, "track-123", 5);
 
         var expectedArgs = new object[]
         {

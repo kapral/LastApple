@@ -1,5 +1,6 @@
 using System;
 using LastApple.Model;
+using LastApple.Web.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LastApple.Web.Controllers;
@@ -12,20 +13,18 @@ public class StationController(IStationRepository stationRepository) : Controlle
 
     [HttpDelete]
     [Route("{stationId}/songs")]
-    public ActionResult DeleteSongs(Guid stationId, int position, int count)
+    public void DeleteSongs(Guid stationId, int position, int count)
     {
         var station = stationRepository.Get(stationId);
 
         if (station == null || station.SongIds.Count < position + count)
         {
-            return NotFound();
+            throw new NotFoundException();
         }
 
         for (var i = 0; i < count; i++)
         {
             station.SongIds.RemoveAt(position);
         }
-
-        return NoContent();
     }
 }

@@ -4,6 +4,7 @@ using IF.Lastfm.Core.Api.Helpers;
 using IF.Lastfm.Core.Objects;
 using LastApple.Model;
 using LastApple.PlaylistGeneration;
+using LastApple.Web.Exceptions;
 
 namespace LastApple.Web.Tests;
 
@@ -36,14 +37,12 @@ public class TestLastfmLibraryStationController
     }
 
     [Test]
-    public async Task Create_Returns_Unauthorized_For_Empty_Session()
+    public void Create_Throws_UnauthorizedException_For_Empty_Session()
     {
         var emptySession = new Session(Guid.Empty, DateTimeOffset.MinValue, DateTimeOffset.MinValue, null, null, null, null);
         mockSessionProvider.GetSession().Returns(emptySession);
 
-        var result = await controller.Create();
-
-        Assert.That(result, Is.InstanceOf<UnauthorizedResult>());
+        Assert.That(() => controller.Create(), Throws.TypeOf<UnauthorizedException>());
     }
 
     [Test]
@@ -65,8 +64,7 @@ public class TestLastfmLibraryStationController
         mockUserApi.GetInfoAsync(session.LastfmUsername)
                    .Returns(new LastResponse<LastUser>() { Content = new LastUser() });
 
-        var result = await controller.Create();
-        var station = ((JsonResult)result).Value as Station<LastfmLibraryStationDefinition>;
+        var station = await controller.Create();
 
         Assert.That(station, Is.Not.Null);
         Assert.That(station.Id, Is.Not.EqualTo(Guid.Empty));
@@ -85,28 +83,24 @@ public class TestLastfmLibraryStationController
     }
 
     [Test]
-    public async Task TopUp_Returns_NotFound_For_Invalid_Station_Id()
+    public void TopUp_Throws_NotFoundException_For_Invalid_Station_Id()
     {
         var stationId = Guid.NewGuid();
 
         mockStationRepository.Get(stationId).Returns((StationBase)null);
 
-        var result = await controller.TopUp(stationId, 10);
-
-        Assert.That(result, Is.InstanceOf<NotFoundResult>());
+        Assert.That(() => controller.TopUp(stationId, 10), Throws.TypeOf<NotFoundException>());
     }
 
     [Test]
-    public async Task TopUp_Returns_NotFound_For_Wrong_Station_Type()
+    public void TopUp_Throws_NotFoundException_For_Wrong_Station_Type()
     {
         var stationId = Guid.NewGuid();
         var wrongTypeStation = Substitute.For<StationBase>();
 
         mockStationRepository.Get(stationId).Returns(wrongTypeStation);
 
-        var result = await controller.TopUp(stationId, 10);
-
-        Assert.That(result, Is.InstanceOf<NotFoundResult>());
+        Assert.That(() => controller.TopUp(stationId, 10), Throws.TypeOf<NotFoundException>());
     }
 
     [Test]
@@ -120,9 +114,7 @@ public class TestLastfmLibraryStationController
         mockStationRepository.Get(stationId).Returns(station);
         mockStorefrontProvider.GetStorefront().Returns(storefront);
 
-        var result = await controller.TopUp(stationId, 10);
-
-        Assert.That(result, Is.InstanceOf<NoContentResult>());
+        await controller.TopUp(stationId, 10);
         mockProcessManager.Received(1).AddProcess(Arg.Any<Func<Task>>());
 
         var callback = mockProcessManager.ReceivedCalls()

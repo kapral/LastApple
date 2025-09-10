@@ -7,6 +7,7 @@ using LastApple.Persistence;
 using LastApple.PlaylistGeneration;
 using LastApple.Web.Extensions;
 using LastApple.Web.Lastfm;
+using LastApple.Web.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
@@ -138,6 +139,8 @@ public class Startup(IConfiguration configuration)
             app.UseExceptionHandler("/Error");
             app.UseHsts();
         }
+
+        app.UseMiddleware<ExceptionHandlingMiddleware>();
 
         app.UseCors(AllowCorsPolicy);
 

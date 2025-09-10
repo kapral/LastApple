@@ -17,6 +17,11 @@ Always reference these instructions first and fallback to search or bash command
 - **Mandatory Test Execution**: Always ensure both .NET and JavaScript tests pass before making any commit. Use `dotnet test` and `npm test` in ClientApp.
 - **Test Preservation**: Never delete tests in order to fix them. Instead, update tests appropriately or fix the underlying code causing test failures.
 - **No AAA Comments**: Avoid using `// arrange`, `// act`, `// assert` comments in test code. Keep tests clean and self-documenting.
+- **Test Assertion Patterns**: Follow these specific patterns:
+  1. Replace `Assert.ThrowsAsync(` syntax with `Assert.That(..., Throws.TypeOf<TException>())`
+  2. Never use `Assert.DoesNotThrow(...)`, just make the actual call directly
+  3. If a test doesn't use `await`, make it `void` instead of `async Task`
+  4. Don't put `async () => await` in lambdas, just use `() => method()` for synchronous calls
 - **Test-First Approach**: When possible, create tests that validate the expected behavior before implementing changes.
 - **Existing Test Compatibility**: Ensure new changes don't break existing tests unless the test needs to be updated for the new functionality.
 - **Mock Dependencies**: Use existing mocking patterns for external dependencies (Apple Music API, Last.fm API, MongoDB).

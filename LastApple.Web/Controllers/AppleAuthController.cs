@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using LastApple.Web.Exceptions;
 using LastApple.Web.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -51,12 +52,12 @@ public class AppleAuthController(IDeveloperTokenProvider tokenProvider,
 
     [HttpDelete]
     [Route("sessiondata")]
-    public async Task<IActionResult> DeleteSessionData()
+    public async Task DeleteSessionData()
     {
         var session = await sessionProvider.GetSession();
 
         if (session.Id == Guid.Empty)
-            return BadRequest();
+            throw new BadRequestException();
 
         session = session with
         {
@@ -65,7 +66,5 @@ public class AppleAuthController(IDeveloperTokenProvider tokenProvider,
         };
 
         await sessionRepository.SaveSession(session);
-
-        return NoContent();
     }
 }
