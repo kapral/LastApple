@@ -13,6 +13,7 @@ import { PlaybackStates } from '../../musicKitEnums';
 import { LastfmContext } from '../../lastfm/LastfmContext';
 import { AuthenticationState } from '../../authentication';
 import { getImageUrl as utilGetImageUrl } from '../../utils/imageUtils';
+import { useLastfmIntegration } from '../../hooks/useLastfmIntegration';
 
 interface IPlayerProps {
     stationId: string;
@@ -31,16 +32,9 @@ export const StationPlayer: React.FC<IPlayerProps> = ({ stationId }) => {
 
     const context = useContext(LastfmContext);
     
-    const musicKitRef = useRef<MusicKit.MusicKitInstance | null>(null);
-    const pendingEventsRef = useRef<IAddTrackEvent[]>([]);
-    const stationRef = useRef<IStation | null>(null);
-    const requestedItemsRef = useRef(0);
-    const hubConnectionRef = useRef<HubConnection | null>(null);
-    const currentTrackScrobbledRef = useRef(false);
-    const playbackStateSubscriptionRef = useRef<((x: MusicKit.Events['playbackStateDidChange']) => Promise<void>) | null>(null);
-
-    const isScrobblingEnabled = context.authentication.state === AuthenticationState.Authenticated && context.isScrobblingEnabled;
-
+    // Use Last.fm integration hook
+    const { isScrobblingEnabled, scrobble, setNowPlaying, handleScrobblingSwitch, lastfmAuthenticated } = useLastfmIntegration();
+    
     const getCurrentQueuePosition = useCallback(() => {
         if (!musicKitRef.current) return 0;
         const queuePosition = musicKitRef.current.queue.position;
@@ -109,25 +103,16 @@ export const StationPlayer: React.FC<IPlayerProps> = ({ stationId }) => {
             await stationApi.topUp(stationId, stationRef.current.definition.stationType, itemsToAdd);
         }
     }, [stationId, getCurrentQueuePosition]);
+    
+    const musicKitRef = useRef<MusicKit.MusicKitInstance | null>(null);
+    const pendingEventsRef = useRef<IAddTrackEvent[]>([]);
+    const stationRef = useRef<IStation | null>(null);
+    const requestedItemsRef = useRef(0);
+    const hubConnectionRef = useRef<HubConnection | null>(null);
+    const currentTrackScrobbledRef = useRef(false);
+    const playbackStateSubscriptionRef = useRef<((x: MusicKit.Events['playbackStateDidChange']) => Promise<void>) | null>(null);
 
-    const scrobble = useCallback(async () => {
-        if (!currentTrack) return;
-        await lastfmApi.postScrobble(
-            currentTrack.attributes.artistName,
-            currentTrack.attributes.name,
-            currentTrack.attributes.albumName,
-            currentTrack.attributes.duration
-        );
-    }, [currentTrack]);
 
-    const setNowPlaying = useCallback(async (item: MusicKit.MediaItem) => {
-        await lastfmApi.postNowPlaying(
-            item.attributes.artistName,
-            item.attributes.name,
-            item.attributes.albumName,
-            item.playbackDuration
-        );
-    }, []);
 
     const subscribeToStationEvents = useCallback(async () => {
         if (hubConnectionRef.current) return;
@@ -239,8 +224,8 @@ export const StationPlayer: React.FC<IPlayerProps> = ({ stationId }) => {
                     return;
                 }
 
-                if (isScrobblingEnabled) {
-                    await scrobble();
+                if (currentTrack && isScrobblingEnabled) {
+                    await scrobble(currentTrack);
                     currentTrackScrobbledRef.current = true;
                 }
             });
@@ -354,9 +339,7 @@ export const StationPlayer: React.FC<IPlayerProps> = ({ stationId }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []); // No dependencies to prevent loops
 
-    const handleScrobblingSwitch = useCallback((value: boolean) => {
-        context.setIsScrobblingEnabled(value);
-    }, [context]);
+
 
     useEffect(() => {
         if (stationId) {
@@ -401,7 +384,7 @@ export const StationPlayer: React.FC<IPlayerProps> = ({ stationId }) => {
                 onPlayPause={handlePlayPause}
                 isScrobblingEnabled={isScrobblingEnabled}
                 onScrobblingSwitch={handleScrobblingSwitch}
-                lastfmAuthenticated={context.authentication.state === AuthenticationState.Authenticated}
+                lastfmAuthenticated={lastfmAuthenticated}
             />
             <Playlist
                 tracks={tracks}
