@@ -42,7 +42,7 @@ export const useStationData = (stationId: string) => {
 
             if (songs.length === 0) {
                 console.warn(`Could not find song with id ${event.trackId}`);
-                return;
+                continue;
             }
 
             await appendTracksToQueue([songs[0]], setTracks);
@@ -50,8 +50,6 @@ export const useStationData = (stationId: string) => {
             if (queueLength === 1) {
                 await play();
             }
-
-            return;
         }
     }, []);
 
@@ -70,14 +68,11 @@ export const useStationData = (stationId: string) => {
         setTracks(currentTracks => {
             const newTracks = [...currentTracks];
             newTracks.splice(offset, count);
-            
-            // Perform async operations without depending on state
-            (async () => {
-                await stationApi.deleteSongs(stationRef.current!.id, offset, count);
-            })();
-            
             return newTracks;
         });
+        
+        // Perform async operations after state update
+        await stationApi.deleteSongs(stationRef.current.id, offset, count);
     }, []);
 
     return {

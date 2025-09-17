@@ -34,8 +34,7 @@ export const useStationConnection = ({ stationId, onTrackAdded }: UseStationConn
             const event = { trackId, position };
             await onTrackAdded(event);
         });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [stationId]); // Only depend on stationId
+    }, [stationId, onTrackAdded]);
 
     const addPendingEvent = useCallback((event: IAddTrackEvent) => {
         pendingEventsRef.current.push(event);

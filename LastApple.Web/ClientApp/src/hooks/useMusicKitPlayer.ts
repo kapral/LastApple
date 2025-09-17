@@ -21,7 +21,6 @@ export const useMusicKitPlayer = () => {
 
     const appendTracksToQueue = useCallback(async (trackList: MusicKit.Songs[], setTracks: React.Dispatch<React.SetStateAction<MusicKit.MediaItem[]>>) => {
         const instance = await getInstance();
-        if (!instance) return;
         
         await instance.playLater({ songs: trackList.map(t => t.id) });
         
@@ -31,53 +30,41 @@ export const useMusicKitPlayer = () => {
 
     const play = useCallback(async () => {
         const instance = await getInstance();
-        if (instance) {
-            await instance.play();
-        }
+        await instance.play();
     }, [getInstance]);
 
     const stop = useCallback(async () => {
         const instance = await getInstance();
-        if (instance) {
-            instance.stop();
-        }
+        instance.stop();
     }, [getInstance]);
 
     const clearQueue = useCallback(async () => {
         const instance = await getInstance();
-        if (instance) {
-            await instance.clearQueue();
-        }
+        await instance.clearQueue();
     }, [getInstance]);
 
     const skipToPreviousItem = useCallback(async () => {
         const instance = await getInstance();
-        if (instance) {
-            if (instance.isPlaying) {
-                instance.pause();
-            }
-            await instance.skipToPreviousItem();
+        if (instance.isPlaying) {
+            instance.pause();
         }
+        await instance.skipToPreviousItem();
     }, [getInstance]);
 
     const skipToNextItem = useCallback(async () => {
         const instance = await getInstance();
-        if (instance) {
-            if (instance.isPlaying) {
-                instance.pause();
-            }
-            await instance.skipToNextItem();
+        if (instance.isPlaying) {
+            instance.pause();
         }
+        await instance.skipToNextItem();
     }, [getInstance]);
 
     const changeToMediaAtIndex = useCallback(async (index: number) => {
         const instance = await getInstance();
-        if (instance) {
-            if (instance.isPlaying) {
-                instance.pause();
-            }
-            await instance.changeToMediaAtIndex(index);
+        if (instance.isPlaying) {
+            instance.pause();
         }
+        await instance.changeToMediaAtIndex(index);
     }, [getInstance]);
 
     const setupEventListeners = useCallback(async (
@@ -88,7 +75,6 @@ export const useMusicKitPlayer = () => {
         switchPrev: () => Promise<void>
     ) => {
         const instance = await getInstance();
-        if (!instance) return;
 
         playbackStateSubscriptionRef.current = handleStateChange;
         instance.addEventListener('playbackStateDidChange', playbackStateSubscriptionRef.current);
@@ -109,7 +95,6 @@ export const useMusicKitPlayer = () => {
 
     const fetchSongs = useCallback(async (songIds: string[]) => {
         const instance = await getInstance();
-        if (!instance) return [];
         
         const response = await instance.api.music(`/v1/catalog/${instance.storefrontId}/songs`, { ids: songIds });
         return response.data.data;
