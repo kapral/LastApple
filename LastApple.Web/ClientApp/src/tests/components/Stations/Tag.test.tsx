@@ -81,13 +81,14 @@ describe('Tag', () => {
     });
 
     it('updates state when input value changes', () => {
-        const component = new Tag(defaultProps);
-        const mockSetState = jest.fn();
-        component.setState = mockSetState;
+        const mockOnOptionsChanged = jest.fn();
 
-        component.handleChanged('electronic');
+        render(<Tag {...defaultProps} onOptionsChanged={mockOnOptionsChanged} />);
 
-        expect(mockSetState).toHaveBeenCalledWith({ tagName: 'electronic' });
+        const input = screen.getByPlaceholderText('Rock...');
+        fireEvent.change(input, { target: { value: 'electronic' } });
+
+        expect(mockOnOptionsChanged).toHaveBeenCalledWith(true);
     });
 
     it('creates station when triggerCreate is true', async () => {

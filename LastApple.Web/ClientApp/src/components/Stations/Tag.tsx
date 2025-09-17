@@ -1,39 +1,36 @@
-import React, { Component } from "react";
+import React, { useState, useEffect } from "react";
 import { IStationParams } from "../IStationParams";
 import stationApi from "../../restClients/StationApi";
 
-export class Tag extends Component<IStationParams, { tagName: string }> {
-    constructor(props) {
-        super(props);
+export const Tag: React.FC<IStationParams> & { Definition: any } = ({ triggerCreate, onStationCreated, onOptionsChanged }) => {
+    const [tagName, setTagName] = useState<string | null>(null);
 
-        this.state = { tagName: null };
-    }
+    useEffect(() => {
+        const createStation = async () => {
+            if (triggerCreate) {
+                const station = await stationApi.postStation('tags', tagName);
+                onStationCreated(station.id);
+            }
+        };
 
-    async componentDidUpdate() {
-        if (this.props.triggerCreate) {
-            const station = await stationApi.postStation('tags', this.state.tagName);
+        createStation();
+    }, [triggerCreate, tagName, onStationCreated]);
 
-            this.props.onStationCreated(station.id);
-        }
-    }
-
-    render(): React.ReactNode {
-        return <div className={'station-parameters'}>
-            <input style={{ width: '100%', padding: '6px 12px', borderWidth: '1px' }}
-                   placeholder={'Rock...'}
-                   type={'text'}
-                   onChange={e => this.handleChanged(e.currentTarget.value)}/>
-        </div>
-    }
-
-    handleChanged(tag: string) {
-        this.setState({ tagName: tag });
-        this.props.onOptionsChanged(!!tag);
-    }
-
-    static Definition = {
-        title: 'Tag',
-        description: 'A station consisting of tracks related to a last.fm tag.',
-        type: Tag
+    const handleChanged = (tag: string) => {
+        setTagName(tag);
+        onOptionsChanged(!!tag);
     };
-}
+
+    return <div className={'station-parameters'}>
+        <input style={{ width: '100%', padding: '6px 12px', borderWidth: '1px' }}
+               placeholder={'Rock...'}
+               type={'text'}
+               onChange={e => handleChanged(e.currentTarget.value)}/>
+    </div>
+};
+
+Tag.Definition = {
+    title: 'Tag',
+    description: 'A station consisting of tracks related to a last.fm tag.',
+    type: Tag
+};

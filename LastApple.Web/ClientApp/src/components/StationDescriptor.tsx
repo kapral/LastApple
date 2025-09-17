@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import { IStationDefinition } from './IStationDefinition';
 import { Redirect } from 'react-router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -24,47 +24,39 @@ const descriptorTitleStyles: React.CSSProperties = {
     color: '#EEE'
 };
 
-export class StationDescriptor extends Component<DescriptorProps, { isValid: boolean, triggerStationCreate: boolean, createdStationId: string }> {
-    constructor(props) {
-        super(props);
+export const StationDescriptor: React.FC<DescriptorProps> = ({ definition, StationComponent }) => {
+    const [isValid, setIsValid] = useState(false);
+    const [triggerStationCreate, setTriggerStationCreate] = useState(false);
+    const [createdStationId, setCreatedStationId] = useState<string | null>(null);
 
-        this.state = {
-            isValid: false,
-            triggerStationCreate: false,
-            createdStationId: null
-        };
+    if (createdStationId) {
+        return <Redirect to={`/station/${createdStationId}`}/>
     }
 
-    render(): React.ReactNode {
-        if (this.state.createdStationId) {
-            return <Redirect to={`/station/${this.state.createdStationId}`}/>
-        }
-
-        return <div className={'station-descriptor'} style={descriptorStyles}>
-            <h4 style={descriptorTitleStyles}>{this.props.definition.title}</h4>
-                <div style={{ color: '#AAA' }}>{this.props.definition.description}</div>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <this.props.StationComponent
-                        triggerCreate={this.state.triggerStationCreate}
-                        onStationCreated={id => this.setState({ createdStationId: id })}
-                        onOptionsChanged={x => this.handleOptionsChanged(x)} />
-                    <span onClick={() => this.handleStationCreate()}>
-                        <FontAwesomeIcon style={{ color: this.state.isValid ? '#8e0000' : '#333' }} icon={faArrowCircleRight} size='2x' />
-                    </span>
-                </div>
-            </div>;
-    }
-
-    handleStationCreate() {
-        if (!this.state.isValid)
+    const handleStationCreate = () => {
+        if (!isValid)
             return;
 
-        this.setState({ triggerStationCreate: true });
-    }
+        setTriggerStationCreate(true);
+    };
 
-    handleOptionsChanged(isValid) {
-        if (this.state.isValid !== isValid) {
-            this.setState({ isValid });
+    const handleOptionsChanged = (isValidOption: boolean) => {
+        if (isValid !== isValidOption) {
+            setIsValid(isValidOption);
         }
-    }
-}
+    };
+
+    return <div className={'station-descriptor'} style={descriptorStyles}>
+        <h4 style={descriptorTitleStyles}>{definition.title}</h4>
+            <div style={{ color: '#AAA' }}>{definition.description}</div>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+                <StationComponent
+                    triggerCreate={triggerStationCreate}
+                    onStationCreated={id => setCreatedStationId(id)}
+                    onOptionsChanged={x => handleOptionsChanged(x)} />
+                <span onClick={() => handleStationCreate()}>
+                    <FontAwesomeIcon style={{ color: isValid ? '#8e0000' : '#333' }} icon={faArrowCircleRight} size='2x' />
+                </span>
+            </div>
+        </div>;
+};
