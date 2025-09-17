@@ -1,4 +1,4 @@
-import { StationPlayer } from './components/Player/StationPlayer';
+import { getImageUrl } from './utils/imageUtils';
 
 declare var MediaMetadata;
 
@@ -9,12 +9,12 @@ class MediaSessionManager {
         
         navigator.mediaSession.metadata = new MediaMetadata({
             artwork: [
-                { src: StationPlayer.getImageUrl(artworkURL, 96), sizes: '96x96', type: 'image/jpg' },
-                { src: StationPlayer.getImageUrl(artworkURL, 128), sizes: '128x128', type: 'image/jpg' },
-                { src: StationPlayer.getImageUrl(artworkURL, 192), sizes: '192x192', type: 'image/jpg' },
-                { src: StationPlayer.getImageUrl(artworkURL, 256), sizes: '256x256', type: 'image/jpg' },
-                { src: StationPlayer.getImageUrl(artworkURL, 384), sizes: '384x384', type: 'image/jpg' },
-                { src: StationPlayer.getImageUrl(artworkURL, 512), sizes: '512x512', type: 'image/jpg' }
+                { src: getImageUrl(artworkURL, 96), sizes: '96x96', type: 'image/jpg' },
+                { src: getImageUrl(artworkURL, 128), sizes: '128x128', type: 'image/jpg' },
+                { src: getImageUrl(artworkURL, 192), sizes: '192x192', type: 'image/jpg' },
+                { src: getImageUrl(artworkURL, 256), sizes: '256x256', type: 'image/jpg' },
+                { src: getImageUrl(artworkURL, 384), sizes: '384x384', type: 'image/jpg' },
+                { src: getImageUrl(artworkURL, 512), sizes: '512x512', type: 'image/jpg' }
             ]
         });
     }

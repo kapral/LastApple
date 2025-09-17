@@ -273,23 +273,23 @@ describe('StationPlayer', () => {
 
     it('provides static getImageUrl method', () => {
         const testUrl = 'https://example.com/image/{w}x{h}.jpg';
-        const result = StationPlayer.getImageUrl(testUrl);
+        const result = (StationPlayer as any).getImageUrl(testUrl);
         expect(result).toBe('https://example.com/image/400x400.jpg');
     });
 
     it('handles null image url in getImageUrl', () => {
-        const result = StationPlayer.getImageUrl(null);
+        const result = (StationPlayer as any).getImageUrl(null);
         expect(result).toBe('default-album-cover.png');
     });
 
     it('handles undefined image url in getImageUrl', () => {
-        const result = StationPlayer.getImageUrl(undefined);
+        const result = (StationPlayer as any).getImageUrl(undefined);
         expect(result).toBe('default-album-cover.png');
     });
 
     it('replaces image dimensions correctly in getImageUrl', () => {
         const testUrl = 'https://music.apple.com/artwork/{w}x{h}bb.jpg';
-        const result = StationPlayer.getImageUrl(testUrl);
+        const result = (StationPlayer as any).getImageUrl(testUrl);
         expect(result).toBe('https://music.apple.com/artwork/400x400bb.jpg');
     });
 
