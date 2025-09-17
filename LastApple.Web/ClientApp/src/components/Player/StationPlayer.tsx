@@ -12,6 +12,8 @@ import { AuthenticationState } from '../../authentication';
 import { getImageUrl as utilGetImageUrl } from '../../utils/imageUtils';
 import { useLastfmIntegration } from '../../hooks/useLastfmIntegration';
 import { useStationConnection } from '../../hooks/useStationConnection';
+import { useMusicKitPlayer } from '../../hooks/useMusicKitPlayer';
+import { useStationData } from '../../hooks/useStationData';
 
 interface IPlayerProps {
     stationId: string;
@@ -44,6 +46,9 @@ export const StationPlayer: React.FC<IPlayerProps> = ({ stationId }) => {
             await addTracks([event]);
         }
     });
+    
+    // Use MusicKit player hook
+    const musicKitPlayer = useMusicKitPlayer();
     
     const getCurrentQueuePosition = useCallback(() => {
         if (!musicKitRef.current) return 0;
