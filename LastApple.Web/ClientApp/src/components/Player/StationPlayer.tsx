@@ -1,11 +1,8 @@
 import React, { useState, useCallback, useEffect, useRef, useContext } from 'react';
 import musicKit from '../../musicKit';
-import * as signalR from '@aspnet/signalr';
-import { HubConnection } from '@aspnet/signalr';
 import { Playlist } from './Playlist';
 import lastfmApi from '../../restClients/LastfmApi';
 import stationApi, { IStation } from '../../restClients/StationApi';
-import environment from '../../Environment';
 import { PlayerControls } from './PlayerControls';
 import { Spinner } from 'react-bootstrap';
 import { instance as mediaSessionManager } from '../../MediaSessionManager';
@@ -14,6 +11,7 @@ import { LastfmContext } from '../../lastfm/LastfmContext';
 import { AuthenticationState } from '../../authentication';
 import { getImageUrl as utilGetImageUrl } from '../../utils/imageUtils';
 import { useLastfmIntegration } from '../../hooks/useLastfmIntegration';
+import { useStationConnection } from '../../hooks/useStationConnection';
 
 interface IPlayerProps {
     stationId: string;
@@ -34,6 +32,18 @@ export const StationPlayer: React.FC<IPlayerProps> = ({ stationId }) => {
     
     // Use Last.fm integration hook
     const { isScrobblingEnabled, scrobble, setNowPlaying, handleScrobblingSwitch, lastfmAuthenticated } = useLastfmIntegration();
+    
+    // Use station connection hook
+    const stationConnection = useStationConnection({
+        stationId,
+        onTrackAdded: async (event) => {
+            if (!stationRef.current) {
+                stationConnection.addPendingEvent(event);
+                return;
+            }
+            await addTracks([event]);
+        }
+    });
     
     const getCurrentQueuePosition = useCallback(() => {
         if (!musicKitRef.current) return 0;
@@ -105,40 +115,14 @@ export const StationPlayer: React.FC<IPlayerProps> = ({ stationId }) => {
     }, [stationId, getCurrentQueuePosition]);
     
     const musicKitRef = useRef<MusicKit.MusicKitInstance | null>(null);
-    const pendingEventsRef = useRef<IAddTrackEvent[]>([]);
     const stationRef = useRef<IStation | null>(null);
     const requestedItemsRef = useRef(0);
-    const hubConnectionRef = useRef<HubConnection | null>(null);
     const currentTrackScrobbledRef = useRef(false);
     const playbackStateSubscriptionRef = useRef<((x: MusicKit.Events['playbackStateDidChange']) => Promise<void>) | null>(null);
 
 
 
-    const subscribeToStationEvents = useCallback(async () => {
-        if (hubConnectionRef.current) return;
 
-        hubConnectionRef.current = new signalR.HubConnectionBuilder()
-            .withUrl(`${environment.apiUrl}hubs`)
-            .build();
-
-        await hubConnectionRef.current.start();
-
-        hubConnectionRef.current.on('trackAdded', async (trackStationId: string, trackId: string, position: number) => {
-            if (trackStationId !== stationId) {
-                return;
-            }
-
-            const event = { trackId, position };
-
-            if (!stationRef.current) {
-                pendingEventsRef.current.push(event);
-                return;
-            }
-
-            await addTracks([event]);
-        });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [stationId]); // Only depend on stationId
 
     const handleStateChange = useCallback(async (event: MusicKit.Events['playbackStateDidChange']) => {
         if (!event || suppressEvents) {
@@ -177,7 +161,6 @@ export const StationPlayer: React.FC<IPlayerProps> = ({ stationId }) => {
         }
 
         stationRef.current = null;
-        pendingEventsRef.current = [];
 
         setSuppressEvents(true);
         setCurrentTrack(undefined);
@@ -189,7 +172,7 @@ export const StationPlayer: React.FC<IPlayerProps> = ({ stationId }) => {
         } else {
             musicKitRef.current = await musicKit.getInstance();
 
-            await subscribeToStationEvents();
+            await stationConnection.subscribeToStationEvents();
 
             playbackStateSubscriptionRef.current = handleStateChange;
             musicKitRef.current.addEventListener('playbackStateDidChange', playbackStateSubscriptionRef.current);
@@ -256,8 +239,7 @@ export const StationPlayer: React.FC<IPlayerProps> = ({ stationId }) => {
             }
         }
 
-        await addTracks(pendingEventsRef.current);
-        pendingEventsRef.current = [];
+        await addTracks(stationConnection.getPendingEvents());
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [stationId]); // Only depend on stationId to prevent infinite loops
 
@@ -355,9 +337,7 @@ export const StationPlayer: React.FC<IPlayerProps> = ({ stationId }) => {
 
     useEffect(() => {
         return () => {
-            if (hubConnectionRef.current) {
-                hubConnectionRef.current.off('trackAdded');
-            }
+            stationConnection.cleanup();
             if (musicKitRef.current && playbackStateSubscriptionRef.current) {
                 musicKitRef.current.removeEventListener('playbackStateDidChange', playbackStateSubscriptionRef.current);
                 musicKitRef.current.removeEventListener('playbackProgressDidChange');
