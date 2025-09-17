@@ -1,3 +1,4 @@
+using System;
 using System.Net.Http;
 using AppleMusicApi;
 using IF.Lastfm.Core.Api;
@@ -10,6 +11,7 @@ using LastApple.Web.Lastfm;
 using LastApple.Web.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -51,6 +53,8 @@ public class Startup(IConfiguration configuration)
         services.Configure<AppCredentials>(Configuration.GetSection("AppleAppCredentials"));
         services.Configure<LastfmApiParams>(Configuration.GetSection("Lastfm"));
 
+        services.AddHttpClient();
+        services.AddSingleton(TimeProvider.System);
         services.AddTransient<IDeveloperTokenGenerator, DeveloperTokenGenerator>();
         services.AddSingleton<IDeveloperTokenProvider, DeveloperTokenProvider>();
 
@@ -125,6 +129,12 @@ public class Startup(IConfiguration configuration)
         services.Decorate<ISessionRepository, CachingSessionRepository>();
 
         services.AddSignalR();
+
+        services.AddControllers(options =>
+        {
+            options.OutputFormatters.RemoveType<HttpNoContentOutputFormatter>();
+            options.OutputFormatters.RemoveType<StringOutputFormatter>();
+        });
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
