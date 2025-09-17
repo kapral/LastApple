@@ -1,5 +1,5 @@
 import ReactSwitch from "react-switch";
-import * as React from "react";
+import React from 'react';
 
 export type PlayerHeaderProps = { currentTrack: MusicKit.MediaItem, isScrobblingEnabled: boolean, onScrobblingSwitch(enabled: boolean): void, lastfmAuthenticated: boolean };
 

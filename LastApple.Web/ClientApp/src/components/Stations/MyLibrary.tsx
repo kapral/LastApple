@@ -26,7 +26,7 @@ export class MyLibrary extends Component<IStationParams> {
 
     render(): React.ReactNode {
         const showWarning = this.context.authentication.state === AuthenticationState.Unauthenticated;
-        return <div style={{ display: 'flex', flex: 1 }}>
+        return <div className='station-parameters' style={{ display: 'flex', flex: 1 }}>
             <div style={{ margin: '10px 10px 10px 0', color: '#ffc123', display: showWarning ? 'block' : 'none' }}>Log in to last.fm to listen to your library.</div>
             <div style={{ flex: 1, height: '54px' }}></div>
         </div>;

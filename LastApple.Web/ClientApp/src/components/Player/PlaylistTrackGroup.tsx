@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from 'react';
 import { Dropdown } from "react-bootstrap";
 import { CustomToggle } from "./CustomToggle";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -26,7 +26,7 @@ export const PlaylistTrackGroup = React.memo((props: React.PropsWithChildren<Pla
                 height: '60px',
                 width: '60px',
                 verticalAlign: 'top'
-            }} alt={'album logo'} src={props.tracks[0].attributes.artwork.url.replace('{w}x{h}', '60x60')}/>
+            }} alt={'album logo'} src={props.tracks?.[0]?.attributes?.artwork?.url?.replace('{w}x{h}', '60x60') || ''}/>
             <div className={'album-header'} style={{
                 display: 'inline-block',
                 width: 'calc(100% - 60px)',
@@ -41,7 +41,7 @@ export const PlaylistTrackGroup = React.memo((props: React.PropsWithChildren<Pla
                         <FontAwesomeIcon style={{ verticalAlign: 'bottom', margin: '.6rem .5rem' }} icon={faEllipsisH} />
                     </Dropdown.Toggle>
                     <Dropdown.Menu>
-                        <Dropdown.Item onSelect={() => props.addAlbumToLibrary(props.tracks[0])} disabled={!musicKit.instance.isAuthorized}>
+                        <Dropdown.Item onSelect={() => props.tracks?.[0] && props.addAlbumToLibrary(props.tracks[0])} disabled={!musicKit.instance?.isAuthorized}>
                                         <span style={{
                                             display: 'inline-block',
                                             width: '16px',
@@ -65,8 +65,8 @@ export const PlaylistTrackGroup = React.memo((props: React.PropsWithChildren<Pla
                         </Dropdown.Item>
                     </Dropdown.Menu>
                 </Dropdown>
-                <h5 style={{ margin: '0' }}>{props.tracks[0].attributes.albumName}</h5>
-                <h6 style={{ margin: '.5rem 0 0 0', color: '#BBB' }}>{props.tracks[0].attributes.artistName}</h6>
+                <h5 style={{ margin: '0' }}>{props.tracks?.[0]?.attributes?.albumName || ''}</h5>
+                <h6 style={{ margin: '.5rem 0 0 0', color: '#BBB' }}>{props.tracks?.[0]?.attributes?.artistName || ''}</h6>
             </div>
         </div>
         {props.children}

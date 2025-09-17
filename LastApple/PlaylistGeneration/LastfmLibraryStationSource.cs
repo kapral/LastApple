@@ -11,17 +11,13 @@ namespace LastApple.PlaylistGeneration;
 
 public class LastfmLibraryStationSource(IUserApi userApi) : IStationSource<LastfmLibraryStationDefinition>
 {
-    private readonly IUserApi userApi = userApi ?? throw new ArgumentNullException(nameof(userApi));
-
     public async Task<IReadOnlyCollection<Artist>> GetStationArtists(LastfmLibraryStationDefinition definition)
     {
-        if (definition == null) throw new ArgumentNullException(nameof(definition));
+        ArgumentNullException.ThrowIfNull(definition);
 
         var response = await userApi.GetTopArtists(definition.User, pagenumber: 1, count: 100, span: GetSpan(definition.Period));
 
-        return response.Success
-                   ? response.Content.Select(x => new Artist(Name: x.Name)).ToArray()
-                   : [];
+        return response.Select(x => new Artist(Name: x.Name)).ToArray();
     }
 
     private static LastStatsTimeSpan GetSpan(string period)

@@ -26,7 +26,7 @@ public class CachingStationSource<TDefinition>(IStationSource<TDefinition> concr
         artists[definition] =   cachedArtists;
 
         if (cachedArtists.Attempts >= Constants.MaxRetryAttempts)
-            return Array.Empty<Artist>();
+            return [];
 
         return await LoadArtists(definition, cachedArtists);
     }

@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using LastApple.Web.Exceptions;
 using LastApple.Web.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,27 +11,23 @@ public class AppleAuthController(IDeveloperTokenProvider tokenProvider,
                                  ISessionProvider sessionProvider,
                                  ISessionRepository sessionRepository) : Controller
 {
-    private readonly IDeveloperTokenProvider tokenProvider = tokenProvider ?? throw new ArgumentNullException(nameof(tokenProvider));
-    private readonly ISessionProvider        sessionProvider = sessionProvider ?? throw new ArgumentNullException(nameof(sessionProvider));
-    private readonly ISessionRepository      sessionRepository = sessionRepository ?? throw new ArgumentNullException(nameof(sessionRepository));
-
     [HttpGet]
     [Route("developertoken")]
-    public IActionResult GetDeveloperToken()
+    public string GetDeveloperToken()
     {
-        return Json(tokenProvider.GetToken());
+        return tokenProvider.GetToken();
     }
 
     [HttpGet]
     [Route("sessiondata")]
-    public async Task<IActionResult> GetSessionData()
+    public async Task<Session> GetSessionData()
     {
-        return Json(await sessionProvider.GetSession());
+        return await sessionProvider.GetSession();
     }
 
     [HttpPost]
     [Route("sessiondata")]
-    public async Task<IActionResult> PostSessionData([FromBody] AppleMusicSessionData sessionData)
+    public async Task<Session> PostSessionData([FromBody] AppleMusicSessionData sessionData)
     {
         var session = await sessionProvider.GetSession();
 
@@ -50,17 +47,17 @@ public class AppleAuthController(IDeveloperTokenProvider tokenProvider,
 
         await sessionRepository.SaveSession(session);
 
-        return Json(session);
+        return session;
     }
 
     [HttpDelete]
     [Route("sessiondata")]
-    public async Task<IActionResult> DeleteSessionData()
+    public async Task DeleteSessionData()
     {
         var session = await sessionProvider.GetSession();
 
         if (session.Id == Guid.Empty)
-            return BadRequest();
+            throw new BadRequestException();
 
         session = session with
         {
@@ -69,7 +66,5 @@ public class AppleAuthController(IDeveloperTokenProvider tokenProvider,
         };
 
         await sessionRepository.SaveSession(session);
-
-        return NoContent();
     }
 }

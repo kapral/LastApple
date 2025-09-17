@@ -16,12 +16,9 @@ public class TrackRepository(IArtistApi artistApi) : ITrackRepository
 
     private readonly Dictionary<string, CacheItems<Track>> tracksByArtist = new();
 
-    private readonly IArtistApi artistApi = artistApi ?? throw new ArgumentNullException(nameof(artistApi));
-
-    public Task<IReadOnlyCollection<Track>> GetArtistTracks(
-        Artist artist)
+    public Task<IReadOnlyCollection<Track>> GetArtistTracks(Artist artist)
     {
-        if (artist == null) throw new ArgumentNullException(nameof(artist));
+        ArgumentNullException.ThrowIfNull(artist);
 
         lock (artistLocks.GetOrAdd(artist.Name, () => new object()))
         {
@@ -38,7 +35,7 @@ public class TrackRepository(IArtistApi artistApi) : ITrackRepository
                 return Task.FromResult(cachedTracks.Items);
 
             if (cachedTracks.Attempts >= Constants.MaxRetryAttempts)
-                return Task.FromResult<IReadOnlyCollection<Track>>(Array.Empty<Track>());
+                return Task.FromResult<IReadOnlyCollection<Track>>([]);
 
             return LoadTracks(artist, cachedTracks);
         }
@@ -46,7 +43,8 @@ public class TrackRepository(IArtistApi artistApi) : ITrackRepository
 
     public bool ArtistHasTracks(Artist artist)
     {
-        return !tracksByArtist.TryGetValue(artist.Name, out var tracks) || !tracks.HasNoData;
+        return !tracksByArtist.TryGetValue(artist.Name, out var tracks) ||
+               (!tracks.HasNoData && !(tracks.Items != null && !tracks.Items.Any()));
     }
 
     private Task<IReadOnlyCollection<Track>> LoadTracks(Artist artist, CacheItems<Track> cachedTracks)
@@ -61,7 +59,7 @@ public class TrackRepository(IArtistApi artistApi) : ITrackRepository
     private static IReadOnlyCollection<Track> SetContent(Task<PageResponse<LastTrack>> previousTask, CacheItems<Track> cacheItems)
     {
         if (!previousTask.IsCompletedSuccessfully || !previousTask.Result.Success)
-            return Array.Empty<Track>();
+            return [];
 
         cacheItems.Items = ExtractResult(previousTask);
 
@@ -69,5 +67,5 @@ public class TrackRepository(IArtistApi artistApi) : ITrackRepository
     }
 
     private static IReadOnlyCollection<Track> ExtractResult(Task<PageResponse<LastTrack>> task)
-        => task.Result.Content.Select(x => new Track(ArtistName: x.ArtistName, Name: x.Name)).ToArray();
+        => task.Result.Select(x => new Track(ArtistName: x.ArtistName, Name: x.Name)).ToArray();
 }

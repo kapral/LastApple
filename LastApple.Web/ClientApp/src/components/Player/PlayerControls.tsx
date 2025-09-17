@@ -2,7 +2,7 @@ import { ProgressControl } from "./ProgressControl";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStepBackward } from "@fortawesome/free-solid-svg-icons/faStepBackward";
 import { faPause, faPlay, faStepForward } from "@fortawesome/free-solid-svg-icons";
-import * as React from "react";
+import React from 'react';
 import { StationPlayer } from "./StationPlayer";
 import { PlayerHeader, PlayerHeaderProps } from "./PlayerHeader";
 
@@ -60,7 +60,7 @@ export const PlayerControls = (props: PlayerControlsProps) =>
                 lastfmAuthenticated={props.lastfmAuthenticated}
             />}
             <div className={'album-art'} style={{
-                backgroundImage: `url(${StationPlayer.getImageUrl(props.currentTrack && props.currentTrack.attributes.artwork.url)})`,
+                backgroundImage: `url(${StationPlayer.getImageUrl(props.currentTrack?.attributes?.artwork?.url)})`,
                 ...albumArtStyles
             }}>
                 <div style={controlsContainerStyles}>

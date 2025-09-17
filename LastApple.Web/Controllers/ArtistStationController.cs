@@ -16,7 +16,7 @@ public class ArtistStationController(IStationRepository stationRepository,
 {
     [HttpPost]
     [Route("{joinedIds}")]
-    public async Task<ActionResult> Create(string joinedIds)
+    public async Task<Station<ArtistsStationDefinition>> Create(string joinedIds)
     {
         var definition = new ArtistsStationDefinition();
         var artistIds = joinedIds.Split(',').Select(x => x.Trim()).ToArray();
@@ -49,14 +49,14 @@ public class ArtistStationController(IStationRepository stationRepository,
 
         stationRepository.Create(station);
 
-        return Json(station);
+        return station;
     }
 
     private async Task<IEnumerable<string>> GetSongs(string artistId)
     {
         var storefront = await storefrontProvider.GetStorefront();
         var artist     = await catalogApi.GetArtist(artistId, storefront) ?? throw new InvalidOperationException($"Artist {artistId} was not found.");
-        var albumIds   = artist.Relationships.Albums.Data.Select(x => x.Id);
+        var albumIds   = artist.Relationships.Albums.Data.Select(x => x.Id).ToArray();
         var albums     = await catalogApi.GetAlbums(albumIds, storefront);
 
         return albums.SelectMany(x => x.Relationships.Tracks.Data.Select(t => t.Id));

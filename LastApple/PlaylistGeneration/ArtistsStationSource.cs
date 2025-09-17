@@ -10,7 +10,7 @@ public class ArtistsStationSource : IStationSource<ArtistsStationDefinition>
 {
     public Task<IReadOnlyCollection<Artist>> GetStationArtists(ArtistsStationDefinition definition)
     {
-        if (definition == null) throw new ArgumentNullException(nameof(definition));
+        ArgumentNullException.ThrowIfNull(definition);
 
         return Task.FromResult<IReadOnlyCollection<Artist>>(definition.Artists.Select(x => new Artist(Name: x)).ToArray());
     }

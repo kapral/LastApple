@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using LastApple.Model;
 
@@ -10,10 +9,6 @@ public class StationGenerator<TStation>(IStationTrackGenerator<TStation> trackGe
                                         IStationEventMediator stationEventMediator)
     : IStationGenerator<TStation> where TStation : IStationDefinition
 {
-    private readonly IStationTrackGenerator<TStation> trackGenerator = trackGenerator ?? throw new ArgumentNullException(nameof(trackGenerator));
-    private readonly ITrackIdProvider trackIdProvider = trackIdProvider ?? throw new ArgumentNullException(nameof(trackIdProvider));
-    private readonly IStationEventMediator stationEventMediator = stationEventMediator ?? throw new ArgumentNullException(nameof(stationEventMediator));
-
     private const int AttemptsLimit = 50;
 
     public async Task Generate(Station<TStation> station, string storefront) {
@@ -38,14 +33,20 @@ public class StationGenerator<TStation>(IStationTrackGenerator<TStation> trackGe
 
             var nextTrack = await trackGenerator.GetNext(station.Definition);
             if (nextTrack == null)
+            {
                 continue;
+            }
 
             var trackId = await trackIdProvider.FindTrackId(nextTrack.ArtistName, nextTrack.Name, storefront);
             if (trackId == null)
+            {
                 continue;
+            }
 
             if (station.SongIds.Any(trackId.Equals))
+            {
                 continue;
+            }
 
             station.SongIds.Add(trackId);
             stationEventMediator.NotifyTrackAdded(station.Id, trackId, station.SongIds.Count - 1);

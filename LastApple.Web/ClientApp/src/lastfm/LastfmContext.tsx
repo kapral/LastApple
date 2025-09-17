@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { AuthenticationState } from "../authentication";
 import { assertNonNullable } from "../utils/mics";
 import { ILastfmUser } from "../restClients/LastfmApi";
