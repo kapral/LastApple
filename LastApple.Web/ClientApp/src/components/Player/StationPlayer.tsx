@@ -416,6 +416,3 @@ export const StationPlayer: React.FC<IPlayerProps> = ({ stationId }) => {
         </div>
     );
 };
-
-// Attach the static method to the new functional component for backward compatibility
-(StationPlayer as any).getImageUrl = utilGetImageUrl;
