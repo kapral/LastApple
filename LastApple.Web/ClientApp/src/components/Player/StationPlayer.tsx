@@ -1,15 +1,15 @@
-import React from 'react';
+import React, { useState, useCallback, useEffect, useRef, useContext } from 'react';
 import musicKit from '../../musicKit';
 import * as signalR from '@aspnet/signalr';
-import {HubConnection} from '@aspnet/signalr';
-import {Playlist} from './Playlist';
+import { HubConnection } from '@aspnet/signalr';
+import { Playlist } from './Playlist';
 import lastfmApi from '../../restClients/LastfmApi';
-import stationApi, {IStation} from '../../restClients/StationApi'
+import stationApi, { IStation } from '../../restClients/StationApi';
 import environment from '../../Environment';
-import {PlayerControls} from './PlayerControls';
-import {Spinner} from 'react-bootstrap';
-import {instance as mediaSessionManager} from '../../MediaSessionManager'
-import {PlaybackStates} from '../../musicKitEnums';
+import { PlayerControls } from './PlayerControls';
+import { Spinner } from 'react-bootstrap';
+import { instance as mediaSessionManager } from '../../MediaSessionManager';
+import { PlaybackStates } from '../../musicKitEnums';
 import { LastfmContext } from '../../lastfm/LastfmContext';
 import { AuthenticationState } from '../../authentication';
 
@@ -17,210 +17,76 @@ interface IPlayerProps {
     stationId: string;
 }
 
-interface IPlayerState {
-    currentTrack?: MusicKit.MediaItem;
-    tracks: MusicKit.MediaItem[];
-    suppressEvents: boolean;
-    isPlaying: boolean;
-}
-
 interface IAddTrackEvent {
     trackId: string;
     position: number;
 }
 
-export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
-    static contextType = LastfmContext;
-    context: React.ContextType<typeof LastfmContext>;
+export const StationPlayer: React.FC<IPlayerProps> = ({ stationId }) => {
+    const [currentTrack, setCurrentTrack] = useState<MusicKit.MediaItem | undefined>();
+    const [tracks, setTracks] = useState<MusicKit.MediaItem[]>([]);
+    const [suppressEvents, setSuppressEvents] = useState(false);
+    const [isPlaying, setIsPlaying] = useState(false);
 
-    musicKit: MusicKit.MusicKitInstance;
-    pendingEvents: IAddTrackEvent[] = [];
-    station: IStation;
-    requestedItems = 0;
-    hubConnection: HubConnection;
+    const context = useContext(LastfmContext);
+    
+    const musicKitRef = useRef<MusicKit.MusicKitInstance | null>(null);
+    const pendingEventsRef = useRef<IAddTrackEvent[]>([]);
+    const stationRef = useRef<IStation | null>(null);
+    const requestedItemsRef = useRef(0);
+    const hubConnectionRef = useRef<HubConnection | null>(null);
+    const currentTrackScrobbledRef = useRef(false);
+    const playbackStateSubscriptionRef = useRef<((x: MusicKit.Events['playbackStateDidChange']) => Promise<void>) | null>(null);
 
-    currentTrackScrobbled = false;
+    const isScrobblingEnabled = context.authentication.state === AuthenticationState.Authenticated && context.isScrobblingEnabled;
 
-    private playbackStateSubscription: (x: MusicKit.Events['playbackStateDidChange']) => Promise<void>;
+    const getCurrentQueuePosition = useCallback(() => {
+        if (!musicKitRef.current) return 0;
+        const queuePosition = musicKitRef.current.queue.position;
+        return queuePosition !== -1 ? queuePosition : 0;
+    }, []);
 
-    constructor(props: IPlayerProps) {
-        super(props);
+    const appendTracksToQueue = useCallback(async (trackList: MusicKit.Songs[]) => {
+        if (!musicKitRef.current) return;
+        
+        // @ts-ignore - Songs can be used as MediaItem in this context
+        const currentTracks = tracks.concat(trackList);
+        
+        await musicKitRef.current.playLater({ songs: trackList.map(t => t.id) });
+        setTracks(currentTracks);
+    }, [tracks]);
 
-        this.state = {
-            tracks: [],
-            suppressEvents: false,
-            isPlaying: false
-        };
-    }
-
-    async init() {
-        if (!this.props.stationId)
-            return;
-
-        if (this.station && this.station.id === this.props.stationId) {
-            return;
+    const play = useCallback(async () => {
+        if (musicKitRef.current) {
+            await musicKitRef.current.play();
         }
+    }, []);
 
-        this.station = null;
-        this.pendingEvents = [];
+    const addTracks = useCallback(async (addTrackEvents: IAddTrackEvent[]) => {
+        if (!musicKitRef.current) return;
 
-        if (!this.state.suppressEvents)
-            this.setState({ suppressEvents: true });
-
-        if (this.state.tracks.length)
-            this.setState({ currentTrack: null, tracks: [] });
-
-        if (this.musicKit) {
-            this.musicKit.stop();
-            await this.musicKit.clearQueue();
-        } else {
-            this.musicKit = await musicKit.getInstance();
-
-            await this.subscribeToStationEvents();
-
-            this.playbackStateSubscription = async (x: MusicKit.Events['playbackStateDidChange']) => await this.handleStateChange(x);
-            this.musicKit.addEventListener('playbackStateDidChange', this.playbackStateSubscription);
-            this.musicKit.addEventListener('nowPlayingItemDidChange', async (event: MusicKit.Events['nowPlayingItemDidChange']) => {
-                if (!event.item) {
-                    return;
-                }
-
-                document.title = `${event.item.title} - ${event.item.artistName}`;
-                this.currentTrackScrobbled = false;
-
-                this.setState({ currentTrack: event.item });
-
-                if (this.isScrobblingEnabled) {
-                    await this.setNowPlaying(event.item);
-                }
-
-                if (this.station.isContinuous) {
-                    await this.topUp();
-                }
-
-                mediaSessionManager.updateSessionMetadata(event.item.artworkURL);
-            });
-            this.musicKit.addEventListener('playbackProgressDidChange', async (event: MusicKit.Events['playbackProgressDidChange']) => {
-                if (this.currentTrackScrobbled) {
-                    return;
-                }
-
-                if (event.progress < 0.9) {
-                    return;
-                }
-
-                if (this.isScrobblingEnabled) {
-                    await this.scrobble();
-                    this.currentTrackScrobbled = true;
-                }
-            });
-
-            mediaSessionManager.setNextHandler(() => this.switchNext());
-            mediaSessionManager.setPrevHandler(() => this.switchPrev());
-        }
-
-        this.station = await stationApi.getStation(this.props.stationId);
-
-        const batchItems = (arr: string[], size: number) =>
-            arr.length > size
-                ? [arr.slice(0, size), ...batchItems(arr.slice(size), size)]
-                : [arr];
-
-        for (let batch of batchItems(this.station.songIds, 300)) {
-            if (batch.length) {
-                const songs = await this.musicKit.api.music(`/v1/catalog/${this.musicKit.storefrontId}/songs`, { ids: batch });
-
-                await this.appendTracksToQueue(songs.data.data);
-            }
-        }
-
-        this.setState({ suppressEvents: false });
-        if (this.musicKit.queue.items.length) {
-            let context = new AudioContext();
-
-            if (context.state === 'running') {
-                await this.play();
-            }
-        }
-
-        await this.addTracks(this.pendingEvents);
-        this.pendingEvents = [];
-    }
-
-    async play() {
-        await this.musicKit.play()
-    }
-
-    async appendTracksToQueue(tracks: MusicKit.Songs[]) {
-        // @ts-ignore
-        const currentTracks = this.state.tracks.concat(tracks);
-
-        await this.musicKit.playLater({ songs: tracks.map(t => t.id) });
-        this.setState({ tracks: currentTracks });
-    }
-
-    async componentDidUpdate(prevProps: IPlayerProps) {
-        if (this.props.stationId !== prevProps.stationId)
-            await this.init();
-    }
-
-    async componentDidMount() {
-        await this.init();
-    }
-
-    componentWillUnmount() {
-        this.hubConnection.off('trackAdded');
-        this.musicKit.removeEventListener('playbackStateDidChange');
-        this.musicKit.removeEventListener('playbackProgressDidChange');
-        this.musicKit.removeEventListener('nowPlayingItemDidChange');
-    }
-
-    async subscribeToStationEvents() {
-        this.hubConnection = new signalR.HubConnectionBuilder()
-            .withUrl(`${environment.apiUrl}hubs`)
-            .build();
-
-        await this.hubConnection.start();
-
-        this.hubConnection.on('trackAdded', async (stationId: string, trackId: string, position: number) => {
-            if (stationId !== this.props.stationId) {
-                return;
-            }
-
-            const event = { trackId, position };
-
-            if (!this.station) {
-                this.pendingEvents.push(event);
-                return;
-            }
-
-            await this.addTracks([event]);
-        });
-    }
-
-    async addTracks(addTrackEvents: IAddTrackEvent[]) {
         for (let event of addTrackEvents) {
-            let existingItem = this.musicKit.queue.item(event.position);
+            let existingItem = musicKitRef.current.queue.item(event.position);
 
             if (!existingItem) {
-                let songs = await this.musicKit.api.music(`/v1/catalog/${this.musicKit.storefrontId}/songs`, { ids: [event.trackId] });
+                let songs = await musicKitRef.current.api.music(`/v1/catalog/${musicKitRef.current.storefrontId}/songs`, { ids: [event.trackId] });
 
                 if (songs.data.data.length === 0) {
                     console.warn(`Could not find song with id ${event.trackId}`);
                     return;
                 }
 
-                await this.appendTracksToQueue([songs.data.data[0]]);
+                await appendTracksToQueue([songs.data.data[0]]);
 
-                if (this.musicKit.queue.items.length === 1) {
-                    await this.play();
+                if (musicKitRef.current.queue.items.length === 1) {
+                    await play();
                 }
 
                 return;
             }
 
-            if (this.requestedItems > 0) {
-                this.requestedItems--;
+            if (requestedItemsRef.current > 0) {
+                requestedItemsRef.current--;
             }
 
             if (existingItem.id === event.trackId) {
@@ -229,160 +95,306 @@ export class StationPlayer extends React.Component<IPlayerProps, IPlayerState> {
 
             console.warn(`Position ${event.position} already occupied by a different item.`);
         }
-    }
+    }, [appendTracksToQueue, play]);
 
-    async handleStateChange(event: MusicKit.Events['playbackStateDidChange']) {
-        if (!event) {
-            return;
-        }
+    const topUp = useCallback(async () => {
+        if (!stationRef.current || !musicKitRef.current) return;
 
-        if (this.state.suppressEvents)
-            return;
-
-        const playing = event.state as unknown as PlaybackStates === PlaybackStates.playing;
-        if (this.state.isPlaying !== playing) {
-            this.setState({ isPlaying: playing });
-        }
-    }
-
-    get isScrobblingEnabled() {
-        return this.context.authentication.state === AuthenticationState.Authenticated && this.context.isScrobblingEnabled;
-    }
-
-    async topUp() {
-        const itemsLeft = this.musicKit.queue.items.length - this.getCurrentQueuePosition() + this.requestedItems;
-        const itemsToAdd = this.station.size - itemsLeft;
+        const itemsLeft = musicKitRef.current.queue.items.length - getCurrentQueuePosition() + requestedItemsRef.current;
+        const itemsToAdd = stationRef.current.size - itemsLeft;
 
         if (itemsToAdd > 0) {
-            this.requestedItems += itemsToAdd;
-            await stationApi.topUp(this.props.stationId, this.station.definition.stationType, itemsToAdd);
+            requestedItemsRef.current += itemsToAdd;
+            await stationApi.topUp(stationId, stationRef.current.definition.stationType, itemsToAdd);
         }
-    }
+    }, [stationId, getCurrentQueuePosition]);
 
-    getCurrentQueuePosition() {
-        const queuePosition = this.musicKit.queue.position;
+    const scrobble = useCallback(async () => {
+        if (!currentTrack) return;
+        await lastfmApi.postScrobble(
+            currentTrack.attributes.artistName,
+            currentTrack.attributes.name,
+            currentTrack.attributes.albumName,
+            currentTrack.attributes.duration
+        );
+    }, [currentTrack]);
 
-        return queuePosition !== -1 ? queuePosition : 0;
-    }
+    const setNowPlaying = useCallback(async (item: MusicKit.MediaItem) => {
+        await lastfmApi.postNowPlaying(
+            item.attributes.artistName,
+            item.attributes.name,
+            item.attributes.albumName,
+            item.playbackDuration
+        );
+    }, []);
 
-    async scrobble() {
-        await lastfmApi.postScrobble(this.state.currentTrack.attributes.artistName,
-                                     this.state.currentTrack.attributes.name,
-                                     this.state.currentTrack.attributes.albumName,
-                                     this.state.currentTrack.attributes.duration);
-    }
+    const subscribeToStationEvents = useCallback(async () => {
+        if (hubConnectionRef.current) return;
 
-    async setNowPlaying(item: MusicKit.MediaItem) {
-        await lastfmApi.postNowPlaying(item.attributes.artistName,
-                                       item.attributes.name,
-                                       item.attributes.albumName,
-                                       item.playbackDuration);
-    }
+        hubConnectionRef.current = new signalR.HubConnectionBuilder()
+            .withUrl(`${environment.apiUrl}hubs`)
+            .build();
 
-    switchPrev = async() => {
-        if (this.musicKit.isPlaying)
-            this.musicKit.pause();
+        await hubConnectionRef.current.start();
 
-        await this.musicKit.skipToPreviousItem();
-    };
+        hubConnectionRef.current.on('trackAdded', async (trackStationId: string, trackId: string, position: number) => {
+            if (trackStationId !== stationId) {
+                return;
+            }
 
-    switchNext = async() => {
-        if (this.musicKit.isPlaying)
-            this.musicKit.pause();
+            const event = { trackId, position };
 
-        await this.musicKit.skipToNextItem();
-    };
+            if (!stationRef.current) {
+                pendingEventsRef.current.push(event);
+                return;
+            }
 
-    getPlaylistPagingOffset(): number {
-        if (this.station.isContinuous) {
-            return this.getCurrentQueuePosition();
+            await addTracks([event]);
+        });
+    }, [stationId, addTracks]);
+
+    const handleStateChange = useCallback(async (event: MusicKit.Events['playbackStateDidChange']) => {
+        if (!event || suppressEvents) {
+            return;
         }
 
+        const playing = event.state as unknown as PlaybackStates === PlaybackStates.playing;
+        if (isPlaying !== playing) {
+            setIsPlaying(playing);
+        }
+    }, [suppressEvents, isPlaying]);
+
+    const switchPrev = useCallback(async () => {
+        if (!musicKitRef.current) return;
+        
+        if (musicKitRef.current.isPlaying) {
+            musicKitRef.current.pause();
+        }
+        await musicKitRef.current.skipToPreviousItem();
+    }, []);
+
+    const switchNext = useCallback(async () => {
+        if (!musicKitRef.current) return;
+        
+        if (musicKitRef.current.isPlaying) {
+            musicKitRef.current.pause();
+        }
+        await musicKitRef.current.skipToNextItem();
+    }, []);
+
+    const init = useCallback(async () => {
+        if (!stationId) return;
+
+        if (stationRef.current && stationRef.current.id === stationId) {
+            return;
+        }
+
+        stationRef.current = null;
+        pendingEventsRef.current = [];
+
+        if (!suppressEvents) {
+            setSuppressEvents(true);
+        }
+
+        if (tracks.length) {
+            setCurrentTrack(undefined);
+            setTracks([]);
+        }
+
+        if (musicKitRef.current) {
+            musicKitRef.current.stop();
+            await musicKitRef.current.clearQueue();
+        } else {
+            musicKitRef.current = await musicKit.getInstance();
+
+            await subscribeToStationEvents();
+
+            playbackStateSubscriptionRef.current = handleStateChange;
+            musicKitRef.current.addEventListener('playbackStateDidChange', playbackStateSubscriptionRef.current);
+            
+            musicKitRef.current.addEventListener('nowPlayingItemDidChange', async (event: MusicKit.Events['nowPlayingItemDidChange']) => {
+                if (!event.item) {
+                    return;
+                }
+
+                document.title = `${event.item.title} - ${event.item.artistName}`;
+                currentTrackScrobbledRef.current = false;
+
+                setCurrentTrack(event.item);
+
+                if (isScrobblingEnabled) {
+                    await setNowPlaying(event.item);
+                }
+
+                if (stationRef.current?.isContinuous) {
+                    await topUp();
+                }
+
+                mediaSessionManager.updateSessionMetadata(event.item.artworkURL);
+            });
+            
+            musicKitRef.current.addEventListener('playbackProgressDidChange', async (event: MusicKit.Events['playbackProgressDidChange']) => {
+                if (currentTrackScrobbledRef.current) {
+                    return;
+                }
+
+                if (event.progress < 0.9) {
+                    return;
+                }
+
+                if (isScrobblingEnabled) {
+                    await scrobble();
+                    currentTrackScrobbledRef.current = true;
+                }
+            });
+
+            mediaSessionManager.setNextHandler(() => switchNext());
+            mediaSessionManager.setPrevHandler(() => switchPrev());
+        }
+
+        stationRef.current = await stationApi.getStation(stationId);
+
+        const batchItems = (arr: string[], size: number) =>
+            arr.length > size
+                ? [arr.slice(0, size), ...batchItems(arr.slice(size), size)]
+                : [arr];
+
+        for (let batch of batchItems(stationRef.current.songIds, 300)) {
+            if (batch.length) {
+                const songs = await musicKitRef.current.api.music(`/v1/catalog/${musicKitRef.current.storefrontId}/songs`, { ids: batch });
+                await appendTracksToQueue(songs.data.data);
+            }
+        }
+
+        setSuppressEvents(false);
+        if (musicKitRef.current.queue.items.length) {
+            let context = new AudioContext();
+            if (context.state === 'running') {
+                await play();
+            }
+        }
+
+        await addTracks(pendingEventsRef.current);
+        pendingEventsRef.current = [];
+    }, [stationId, suppressEvents, tracks.length, subscribeToStationEvents, handleStateChange, isScrobblingEnabled, setNowPlaying, topUp, scrobble, switchNext, switchPrev, appendTracksToQueue, play, addTracks]);
+
+    const handlePlayPause = useCallback(async () => {
+        if (!musicKitRef.current) return;
+
+        if (musicKitRef.current.isPlaying) {
+            musicKitRef.current.pause();
+            return;
+        }
+
+        await play();
+    }, [play]);
+
+    const getPlaylistPagingOffset = useCallback((): number => {
+        if (stationRef.current?.isContinuous) {
+            return getCurrentQueuePosition();
+        }
         return 0;
+    }, [getCurrentQueuePosition]);
+
+    const handleTrackSwitched = useCallback(async (index: number) => {
+        if (!musicKitRef.current || !stationRef.current) return;
+
+        const offset = getPlaylistPagingOffset() + index;
+        const track = tracks[offset];
+
+        if (currentTrack === track) {
+            await handlePlayPause();
+            return;
+        }
+
+        if (musicKitRef.current.isPlaying) {
+            musicKitRef.current.pause();
+        }
+
+        await musicKitRef.current.changeToMediaAtIndex(offset);
+        setCurrentTrack(track);
+
+        if (stationRef.current.isContinuous) {
+            await topUp();
+        }
+    }, [tracks, currentTrack, getPlaylistPagingOffset, handlePlayPause, topUp]);
+
+    const handleTracksRemoved = useCallback(async (position: number, count: number) => {
+        if (!stationRef.current) return;
+
+        const offset = getPlaylistPagingOffset() + position;
+
+        const newTracks = [...tracks];
+        newTracks.splice(offset, count);
+        setTracks(newTracks);
+
+        await stationApi.deleteSongs(stationRef.current.id, offset, count);
+
+        if (stationRef.current.isContinuous) {
+            await topUp();
+        }
+    }, [tracks, getPlaylistPagingOffset, topUp]);
+
+    const handleScrobblingSwitch = useCallback((value: boolean) => {
+        context.setIsScrobblingEnabled(value);
+    }, [context]);
+
+    useEffect(() => {
+        if (stationId) {
+            init();
+        }
+    }, [stationId, init]);
+
+    useEffect(() => {
+        return () => {
+            if (hubConnectionRef.current) {
+                hubConnectionRef.current.off('trackAdded');
+            }
+            if (musicKitRef.current && playbackStateSubscriptionRef.current) {
+                musicKitRef.current.removeEventListener('playbackStateDidChange', playbackStateSubscriptionRef.current);
+                musicKitRef.current.removeEventListener('playbackProgressDidChange');
+                musicKitRef.current.removeEventListener('nowPlayingItemDidChange');
+            }
+        };
+    }, []);
+
+    if (!stationRef.current || !tracks.length) {
+        return (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '200px' }}>
+                <Spinner animation="border" data-testid="spinner" />
+            </div>
+        );
     }
 
-    render() {
-        if (!this.station || !this.state.tracks.length)
-            return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '200px' }}>
-                <Spinner animation="border" />
-            </div>;
-
-        return <div>
+    return (
+        <div>
             <PlayerControls
-                currentTrack={this.state.currentTrack}
-                isPlaying={this.state.isPlaying}
-                switchPrev={this.switchPrev}
-                switchNext={this.switchNext}
-                onPlayPause={this.handlePlayPause}
-                isScrobblingEnabled={this.isScrobblingEnabled}
-                onScrobblingSwitch={this.handleScrobblingSwitch}
-                lastfmAuthenticated={this.context.authentication.state === AuthenticationState.Authenticated}
+                currentTrack={currentTrack}
+                isPlaying={isPlaying}
+                switchPrev={switchPrev}
+                switchNext={switchNext}
+                onPlayPause={handlePlayPause}
+                isScrobblingEnabled={isScrobblingEnabled}
+                onScrobblingSwitch={handleScrobblingSwitch}
+                lastfmAuthenticated={context.authentication.state === AuthenticationState.Authenticated}
             />
             <Playlist
-                tracks={this.state.tracks}
-                isPlaying={this.state.isPlaying}
-                offset={this.getPlaylistPagingOffset()}
-                limit={this.station.isContinuous ? 10 : 1000}
-                currentTrack={this.state.currentTrack}
-                showAlbumInfo={this.station.isGroupedByAlbum}
-                onTrackSwitch={this.handleTrackSwitched}
-                onRemove={this.handleTracksRemoved}
+                tracks={tracks}
+                isPlaying={isPlaying}
+                offset={getPlaylistPagingOffset()}
+                limit={stationRef.current.isContinuous ? 10 : 1000}
+                currentTrack={currentTrack}
+                showAlbumInfo={stationRef.current.isGroupedByAlbum}
+                onTrackSwitch={handleTrackSwitched}
+                onRemove={handleTracksRemoved}
             />
-        </div>;
-    }
+        </div>
+    );
+};
 
-    static getImageUrl(sourceUrl: string, size: number = 400) {
-        return sourceUrl
-            ? sourceUrl.replace('{w}x{h}', `${size}x${size}`).replace('2000x2000', `${size}x${size}`)
-            : 'default-album-cover.png';
-    }
-
-    handlePlayPause = async () => {
-        if (this.musicKit.isPlaying) {
-            this.musicKit.pause();
-            return;
-        }
-
-        await this.play();
-    };
-
-    handleTrackSwitched = async (index: number) => {
-        const offset = this.getPlaylistPagingOffset() + index;
-        const track = this.state.tracks[offset];
-
-        if (this.state.currentTrack === track) {
-            await this.handlePlayPause();
-
-            return;
-        }
-
-        if (this.musicKit.isPlaying){
-            this.musicKit.pause();
-        }
-
-        await this.musicKit.changeToMediaAtIndex(offset);
-
-        this.setState({ currentTrack: track });
-
-        if (this.station.isContinuous) {
-            await this.topUp();
-        }
-    };
-
-    handleTracksRemoved = async (position: number, count: number) => {
-        const offset = this.getPlaylistPagingOffset() + position;
-
-        this.state.tracks.splice(offset, count);
-        this.setState({ tracks: this.state.tracks.slice() });
-
-        await stationApi.deleteSongs(this.station.id, offset, count);
-
-        if (this.station.isContinuous) {
-            await this.topUp();
-        }
-    };
-
-    handleScrobblingSwitch = (value: boolean) => {
-        this.context.setIsScrobblingEnabled(value);
-    }
-}
+// Attach the static method to the new functional component for backward compatibility
+(StationPlayer as any).getImageUrl = (sourceUrl: string, size: number = 400) => {
+    return sourceUrl
+        ? sourceUrl.replace('{w}x{h}', `${size}x${size}`).replace('2000x2000', `${size}x${size}`)
+        : 'default-album-cover.png';
+};
