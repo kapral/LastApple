@@ -58,10 +58,13 @@ export const StationPlayer: React.FC<IPlayerProps> = ({ stationId }) => {
         }
 
         const playing = event.state as unknown as PlaybackStates === PlaybackStates.playing;
-        if (isPlaying !== playing) {
-            setIsPlaying(playing);
-        }
-    }, [suppressEvents, isPlaying]);
+        setIsPlaying(current => {
+            if (current !== playing) {
+                return playing;
+            }
+            return current;
+        });
+    }, [suppressEvents]);
 
     const init = useCallback(async () => {
         if (!stationId) return;
@@ -75,43 +78,46 @@ export const StationPlayer: React.FC<IPlayerProps> = ({ stationId }) => {
         stationData.setTracks([]);
 
         const instance = await musicKitPlayer.getInstance();
-        if (instance) {
+        const isFirstTime = musicKitPlayer.isFirstTime();
+        
+        if (!isFirstTime) {
             await musicKitPlayer.stop();
             await musicKitPlayer.clearQueue();
+        } else {
+            // Only setup event listeners once when instance is first created
+            await stationConnection.subscribeToStationEvents();
+            await musicKitPlayer.setupEventListeners(
+                handleStateChange,
+                async (event: MusicKit.Events['nowPlayingItemDidChange']) => {
+                    if (!event.item) return;
+
+                    document.title = `${event.item.title} - ${event.item.artistName}`;
+                    currentTrackScrobbledRef.current = false;
+                    setCurrentTrack(event.item);
+
+                    if (isScrobblingEnabled) {
+                        await setNowPlaying(event.item);
+                    }
+
+                    if (stationData.station?.isContinuous) {
+                        const queueLength = (await musicKitPlayer.getInstance()).queue.items.length;
+                        await stationData.topUp(musicKitPlayer.getCurrentQueuePosition, queueLength);
+                    }
+
+                    mediaSessionManager.updateSessionMetadata(event.item.artworkURL);
+                },
+                async (event: MusicKit.Events['playbackProgressDidChange']) => {
+                    if (currentTrackScrobbledRef.current || event.progress < 0.9) return;
+
+                    if (currentTrack && isScrobblingEnabled) {
+                        await scrobble(currentTrack);
+                        currentTrackScrobbledRef.current = true;
+                    }
+                },
+                musicKitPlayer.skipToNextItem,
+                musicKitPlayer.skipToPreviousItem
+            );
         }
-
-        await stationConnection.subscribeToStationEvents();
-        await musicKitPlayer.setupEventListeners(
-            handleStateChange,
-            async (event: MusicKit.Events['nowPlayingItemDidChange']) => {
-                if (!event.item) return;
-
-                document.title = `${event.item.title} - ${event.item.artistName}`;
-                currentTrackScrobbledRef.current = false;
-                setCurrentTrack(event.item);
-
-                if (isScrobblingEnabled) {
-                    await setNowPlaying(event.item);
-                }
-
-                if (stationData.station?.isContinuous) {
-                    const queueLength = (await musicKitPlayer.getInstance()).queue.items.length;
-                    await stationData.topUp(musicKitPlayer.getCurrentQueuePosition, queueLength);
-                }
-
-                mediaSessionManager.updateSessionMetadata(event.item.artworkURL);
-            },
-            async (event: MusicKit.Events['playbackProgressDidChange']) => {
-                if (currentTrackScrobbledRef.current || event.progress < 0.9) return;
-
-                if (currentTrack && isScrobblingEnabled) {
-                    await scrobble(currentTrack);
-                    currentTrackScrobbledRef.current = true;
-                }
-            },
-            musicKitPlayer.skipToNextItem,
-            musicKitPlayer.skipToPreviousItem
-        );
 
         const station = await stationData.loadStation();
         if (!station) return;

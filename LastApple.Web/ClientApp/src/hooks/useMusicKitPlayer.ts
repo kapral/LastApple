@@ -5,6 +5,7 @@ import { instance as mediaSessionManager } from '../MediaSessionManager';
 export const useMusicKitPlayer = () => {
     const musicKitRef = useRef<MusicKit.MusicKitInstance | null>(null);
     const playbackStateSubscriptionRef = useRef<((x: MusicKit.Events['playbackStateDidChange']) => Promise<void>) | null>(null);
+    const isInitializedRef = useRef(false);
 
     const getCurrentQueuePosition = useCallback(() => {
         if (!musicKitRef.current) return 0;
@@ -15,8 +16,17 @@ export const useMusicKitPlayer = () => {
     const getInstance = useCallback(async () => {
         if (!musicKitRef.current) {
             musicKitRef.current = await musicKit.getInstance();
+            isInitializedRef.current = false; // Mark as newly created
         }
         return musicKitRef.current;
+    }, []);
+
+    const isFirstTime = useCallback(() => {
+        if (!isInitializedRef.current) {
+            isInitializedRef.current = true;
+            return true;
+        }
+        return false;
     }, []);
 
     const appendTracksToQueue = useCallback(async (trackList: MusicKit.Songs[], setTracks: React.Dispatch<React.SetStateAction<MusicKit.MediaItem[]>>) => {
@@ -104,6 +114,7 @@ export const useMusicKitPlayer = () => {
         musicKitRef,
         getCurrentQueuePosition,
         getInstance,
+        isFirstTime,
         appendTracksToQueue,
         play,
         stop,
