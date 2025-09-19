@@ -32,24 +32,40 @@ export const useStationData = (stationId: string) => {
 
     const addTracks = useCallback(async (
         addTrackEvents: IAddTrackEvent[],
-        fetchSongs: (songIds: string[]) => Promise<MusicKit.Songs[]>,
+        getInstance: () => Promise<MusicKit.MusicKitInstance>,
         appendTracksToQueue: (trackList: MusicKit.Songs[], setTracks: React.Dispatch<React.SetStateAction<MusicKit.MediaItem[]>>) => Promise<void>,
-        play: () => Promise<void>,
-        queueLength: number
+        play: () => Promise<void>
     ) => {
         for (let event of addTrackEvents) {
-            const songs = await fetchSongs([event.trackId]);
+            const instance = await getInstance();
+            let existingItem = instance.queue.item(event.position);
 
-            if (songs.length === 0) {
-                console.warn(`Could not find song with id ${event.trackId}`);
-                continue;
+            if (!existingItem) {
+                let songs = await instance.api.music(`/v1/catalog/${instance.storefrontId}/songs`, { ids: [event.trackId] });
+
+                if (songs.data.data.length === 0) {
+                    console.warn(`Could not find song with id ${event.trackId}`);
+                    return;
+                }
+
+                await appendTracksToQueue([songs.data.data[0]], setTracks);
+
+                if (instance.queue.items.length === 1) {
+                    await play();
+                }
+
+                return;
             }
 
-            await appendTracksToQueue([songs[0]], setTracks);
-
-            if (queueLength === 1) {
-                await play();
+            if (requestedItemsRef.current > 0) {
+                requestedItemsRef.current--;
             }
+
+            if (existingItem.id === event.trackId) {
+                return;
+            }
+
+            console.warn(`Position ${event.position} already occupied by a different item.`);
         }
     }, []);
 

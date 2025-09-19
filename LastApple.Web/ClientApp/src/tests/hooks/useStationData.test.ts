@@ -19,53 +19,69 @@ describe('useStationData', () => {
         jest.clearAllMocks();
     });
 
-    it('should process multiple track events correctly', async () => {
+    it('should process track events with original logic', async () => {
         const { result } = renderHook(() => useStationData('test-station'));
         
         // Mock dependencies
-        const mockFetchSongs = jest.fn()
-            .mockResolvedValueOnce([{ id: 'song1', title: 'Song 1' }])
-            .mockResolvedValueOnce([{ id: 'song2', title: 'Song 2' }])
-            .mockResolvedValueOnce([]); // This one should be skipped with continue
+        const mockInstance = {
+            queue: {
+                item: jest.fn().mockReturnValue(null), // No existing item
+                items: { length: 0 }
+            },
+            api: {
+                music: jest.fn().mockResolvedValue({ data: { data: [{ id: 'song1', title: 'Song 1' }] } })
+            },
+            storefrontId: 'us'
+        };
         
+        const mockGetInstance = jest.fn().mockResolvedValue(mockInstance);
         const mockAppendTracksToQueue = jest.fn().mockResolvedValue(undefined);
         const mockPlay = jest.fn().mockResolvedValue(undefined);
         
         const events = [
             { trackId: 'song1', position: 0 },
-            { trackId: 'song2', position: 1 },
-            { trackId: 'invalid-song', position: 2 }, // This should be skipped
+            { trackId: 'song2', position: 1 }, // This won't be processed due to return
         ];
 
         await act(async () => {
             await result.current.addTracks(
                 events,
-                mockFetchSongs,
+                mockGetInstance,
                 mockAppendTracksToQueue,
-                mockPlay,
-                5 // queueLength > 1, so play shouldn't be called
+                mockPlay
             );
         });
 
-        // Should have called fetchSongs for all events
-        expect(mockFetchSongs).toHaveBeenCalledTimes(3);
-        expect(mockFetchSongs).toHaveBeenNthCalledWith(1, ['song1']);
-        expect(mockFetchSongs).toHaveBeenNthCalledWith(2, ['song2']);
-        expect(mockFetchSongs).toHaveBeenNthCalledWith(3, ['invalid-song']);
+        // Should have called getInstance only for first event (return stops processing)
+        expect(mockGetInstance).toHaveBeenCalledTimes(1);
+        
+        // Should have called queue.item only for first event
+        expect(mockInstance.queue.item).toHaveBeenCalledTimes(1);
+        expect(mockInstance.queue.item).toHaveBeenCalledWith(0);
 
-        // Should have called appendTracksToQueue only for valid songs (not the invalid one)
-        expect(mockAppendTracksToQueue).toHaveBeenCalledTimes(2);
-        expect(mockAppendTracksToQueue).toHaveBeenNthCalledWith(1, [{ id: 'song1', title: 'Song 1' }], result.current.setTracks);
-        expect(mockAppendTracksToQueue).toHaveBeenNthCalledWith(2, [{ id: 'song2', title: 'Song 2' }], result.current.setTracks);
+        // Should have called appendTracksToQueue for first song
+        expect(mockAppendTracksToQueue).toHaveBeenCalledTimes(1);
+        expect(mockAppendTracksToQueue).toHaveBeenCalledWith([{ id: 'song1', title: 'Song 1' }], result.current.setTracks);
 
-        // Play should not be called since queueLength > 1
+        // Play should not be called since queue length > 1 initially
         expect(mockPlay).not.toHaveBeenCalled();
     });
 
     it('should call play when queueLength is 1', async () => {
         const { result } = renderHook(() => useStationData('test-station'));
         
-        const mockFetchSongs = jest.fn().mockResolvedValue([{ id: 'song1', title: 'Song 1' }]);
+        const mockInstance = {
+            queue: {
+                item: jest.fn().mockReturnValue(null), // No existing item
+                items: { length: 1 }
+            },
+            api: {
+                music: jest.fn().mockResolvedValue({ data: { data: [{ id: 'song1', title: 'Song 1' }] } })
+            },
+            storefrontId: 'us'
+        };
+        
+        const mockGetInstance = jest.fn().mockResolvedValue(mockInstance);
         const mockAppendTracksToQueue = jest.fn().mockResolvedValue(undefined);
         const mockPlay = jest.fn().mockResolvedValue(undefined);
         
@@ -74,10 +90,9 @@ describe('useStationData', () => {
         await act(async () => {
             await result.current.addTracks(
                 events,
-                mockFetchSongs,
+                mockGetInstance,
                 mockAppendTracksToQueue,
-                mockPlay,
-                1 // queueLength = 1, so play should be called
+                mockPlay
             );
         });
 
@@ -85,43 +100,90 @@ describe('useStationData', () => {
         expect(mockPlay).toHaveBeenCalledTimes(1);
     });
 
-    it('should continue processing events even when one fails', async () => {
+    it('should handle existing items in queue correctly', async () => {
+        const { result } = renderHook(() => useStationData('test-station'));
+        
+        const mockExistingItem = { id: 'song1' };
+        const mockInstance = {
+            queue: {
+                item: jest.fn().mockReturnValue(mockExistingItem), // Existing item
+                items: { length: 2 }
+            },
+            api: { music: jest.fn() },
+            storefrontId: 'us'
+        };
+        
+        const mockGetInstance = jest.fn().mockResolvedValue(mockInstance);
+        const mockAppendTracksToQueue = jest.fn().mockResolvedValue(undefined);
+        const mockPlay = jest.fn().mockResolvedValue(undefined);
+        
+        const events = [{ trackId: 'song1', position: 0 }]; // Same ID as existing
+
+        await act(async () => {
+            await result.current.addTracks(
+                events,
+                mockGetInstance,
+                mockAppendTracksToQueue,
+                mockPlay
+            );
+        });
+
+        // Should have checked for existing item
+        expect(mockInstance.queue.item).toHaveBeenCalledWith(0);
+        
+        // Should not call appendTracksToQueue since item exists with same ID
+        expect(mockAppendTracksToQueue).not.toHaveBeenCalled();
+        
+        // Should not call play
+        expect(mockPlay).not.toHaveBeenCalled();
+        
+        // API should not be called since item already exists
+        expect(mockInstance.api.music).not.toHaveBeenCalled();
+    });
+
+    it('should stop processing when song not found', async () => {
         const { result } = renderHook(() => useStationData('test-station'));
         
         // Mock console.warn to avoid noise in test output
         const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
         
-        const mockFetchSongs = jest.fn()
-            .mockResolvedValueOnce([]) // First event fails
-            .mockResolvedValueOnce([{ id: 'song2', title: 'Song 2' }]); // Second event succeeds
+        const mockInstance = {
+            queue: {
+                item: jest.fn().mockReturnValue(null), // No existing item
+                items: { length: 0 }
+            },
+            api: {
+                music: jest.fn().mockResolvedValue({ data: { data: [] } }) // No songs found
+            },
+            storefrontId: 'us'
+        };
         
+        const mockGetInstance = jest.fn().mockResolvedValue(mockInstance);
         const mockAppendTracksToQueue = jest.fn().mockResolvedValue(undefined);
         const mockPlay = jest.fn().mockResolvedValue(undefined);
         
         const events = [
-            { trackId: 'invalid-song', position: 0 }, // This should fail and be skipped
-            { trackId: 'song2', position: 1 }, // This should succeed
+            { trackId: 'invalid-song', position: 0 }, // This should fail and stop processing
+            { trackId: 'song2', position: 1 }, // This should not be processed due to return
         ];
 
         await act(async () => {
             await result.current.addTracks(
                 events,
-                mockFetchSongs,
+                mockGetInstance,
                 mockAppendTracksToQueue,
-                mockPlay,
-                5
+                mockPlay
             );
         });
 
-        // Should have tried to fetch both songs
-        expect(mockFetchSongs).toHaveBeenCalledTimes(2);
+        // Should have tried to process first event only (return stops processing)
+        expect(mockGetInstance).toHaveBeenCalledTimes(1);
         
         // Should have warned about the first invalid song
         expect(consoleWarnSpy).toHaveBeenCalledWith('Could not find song with id invalid-song');
         
-        // Should have successfully processed the second song
-        expect(mockAppendTracksToQueue).toHaveBeenCalledTimes(1);
-        expect(mockAppendTracksToQueue).toHaveBeenCalledWith([{ id: 'song2', title: 'Song 2' }], result.current.setTracks);
+        // Should not have processed any songs due to return
+        expect(mockAppendTracksToQueue).not.toHaveBeenCalled();
 
         consoleWarnSpy.mockRestore();
     });

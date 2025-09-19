@@ -42,10 +42,7 @@ export const StationPlayer: React.FC<IPlayerProps> = ({ stationId }) => {
                 stationConnection.addPendingEvent(event);
                 return;
             }
-            const instance = await musicKitPlayer.getInstance();
-            if (instance) {
-                await stationData.addTracks([event], musicKitPlayer.fetchSongs, musicKitPlayer.appendTracksToQueue, musicKitPlayer.play, instance.queue.items.length);
-            }
+            await stationData.addTracks([event], musicKitPlayer.getInstance, musicKitPlayer.appendTracksToQueue, musicKitPlayer.play);
         }
     });
     
@@ -142,15 +139,14 @@ export const StationPlayer: React.FC<IPlayerProps> = ({ stationId }) => {
 
         const pendingEvents = stationConnection.getPendingEvents();
         if (pendingEvents.length > 0) {
-            await stationData.addTracks(pendingEvents, musicKitPlayer.fetchSongs, musicKitPlayer.appendTracksToQueue, musicKitPlayer.play, queueItems.length);
+            await stationData.addTracks(pendingEvents, musicKitPlayer.getInstance, musicKitPlayer.appendTracksToQueue, musicKitPlayer.play);
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [stationId]); // Only depend on stationId to prevent infinite loops
 
     const handlePlayPause = useCallback(async () => {
         const instance = await musicKitPlayer.getInstance();
-        if (!instance) return;
-
+        
         if (instance.isPlaying) {
             instance.pause();
             return;
