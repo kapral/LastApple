@@ -161,7 +161,7 @@ export const StationPlayer: React.FC<IPlayerProps> = ({ stationId }) => {
         const offset = stationData.getPlaylistPagingOffset(musicKitPlayer.getCurrentQueuePosition) + index;
         const track = stationData.tracks[offset];
         
-        if (currentTrack === track) {
+        if (currentTrack && track && currentTrack.id === track.id) {
             await handlePlayPause();
             return;
         }
