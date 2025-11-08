@@ -197,12 +197,7 @@ export const StationPlayer: React.FC<IPlayerProps> = ({ stationId }) => {
 
     useEffect(() => {
         if (stationId) {
-            // Use setTimeout to defer the init call, preventing infinite loops in tests
-            const timeoutId = setTimeout(() => {
-                init();
-            }, 0);
-            
-            return () => clearTimeout(timeoutId);
+            init();
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [stationId]); // Only depend on stationId
@@ -212,7 +207,8 @@ export const StationPlayer: React.FC<IPlayerProps> = ({ stationId }) => {
             stationConnection.cleanup();
             musicKitPlayer.cleanup();
         };
-    }, [musicKitPlayer, stationConnection]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // Only cleanup on unmount
 
     if (!stationData.station || !stationData.tracks.length) {
         return (
