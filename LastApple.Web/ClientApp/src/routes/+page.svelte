@@ -1,29 +1,30 @@
 <script lang="ts">
-	// Temporary home page for initial setup verification
+	// Home page - ready for station list components
 	const appName = 'LastApple';
 	const framework = 'Svelte + SvelteKit';
 </script>
 
 <svelte:head>
-	<title>Lastream - {framework}</title>
+	<title>Lastream - Music Station Generator</title>
 </svelte:head>
 
-<div style="background-color: #222; color: #CCC; max-width: 900px; margin: 0 auto; padding: 20px;">
-	<h1>{appName} - Migration to {framework}</h1>
-	<p>✅ Phase 2: Project Setup & Infrastructure - IN PROGRESS</p>
+<div style="padding: 20px;">
+	<h1>Welcome to Lastream</h1>
+	<p>Create personalized music stations powered by Last.fm and Apple Music.</p>
 	
-	<h2>Setup Status:</h2>
-	<ul>
-		<li>✅ SvelteKit initialized</li>
-		<li>✅ TypeScript configured</li>
-		<li>✅ Vite build tool configured</li>
-		<li>✅ Bootstrap CSS integrated</li>
-		<li>✅ FontAwesome integrated</li>
-		<li>✅ MusicKit.js loaded</li>
-		<li>⏳ React components migration pending</li>
-	</ul>
-
-	<p style="margin-top: 40px;">
-		<strong>Next Steps:</strong> Begin migrating React components to Svelte
-	</p>
+	<div style="margin-top: 40px;">
+		<h2>Migration Progress</h2>
+		<p>✅ Phase 2: Project Setup - COMPLETE</p>
+		<p>🔄 Phase 3: Core Infrastructure - IN PROGRESS</p>
+		
+		<h3 style="margin-top: 30px;">Phase 3 Status:</h3>
+		<ul>
+			<li>✅ Svelte stores created (app, apple, lastfm)</li>
+			<li>✅ Utility functions migrated</li>
+			<li>✅ Type definitions migrated</li>
+			<li>✅ Header component created</li>
+			<li>✅ Footer component created</li>
+			<li>⏳ Station components pending</li>
+		</ul>
+	</div>
 </div>
