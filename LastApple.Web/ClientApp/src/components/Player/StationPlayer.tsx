@@ -24,17 +24,9 @@ export const StationPlayer: React.FC<IPlayerProps> = ({ stationId }) => {
     const [suppressEvents, setSuppressEvents] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
 
-    const context = useContext(LastfmContext);
-    
-    // Use Last.fm integration hook
     const { isScrobblingEnabled, scrobble, setNowPlaying, handleScrobblingSwitch, lastfmAuthenticated } = useLastfmIntegration();
-    
-    // Use MusicKit player hook
     const musicKitPlayer = useMusicKitPlayer();
-    
-    // Use station data hook
     const stationData = useStationData(stationId);
-    // Use station connection hook
     const stationConnection = useStationConnection({
         stationId,
         onTrackAdded: async (event) => {
@@ -45,12 +37,8 @@ export const StationPlayer: React.FC<IPlayerProps> = ({ stationId }) => {
             await stationData.addTracks([event], musicKitPlayer.getInstance, musicKitPlayer.appendTracksToQueue, musicKitPlayer.play);
         }
     });
-    
+
     const currentTrackScrobbledRef = useRef(false);
-
-
-
-
 
     const handleStateChange = useCallback(async (event: MusicKit.Events['playbackStateDidChange']) => {
         if (!event || suppressEvents) {
@@ -77,14 +65,9 @@ export const StationPlayer: React.FC<IPlayerProps> = ({ stationId }) => {
         setCurrentTrack(undefined);
         stationData.setTracks([]);
 
-        const instance = await musicKitPlayer.getInstance();
         const isFirstTime = musicKitPlayer.isFirstTime();
-        
-        if (!isFirstTime) {
-            await musicKitPlayer.stop();
-            await musicKitPlayer.clearQueue();
-        } else {
-            // Only setup event listeners once when instance is first created
+
+        if (isFirstTime) {
             await stationConnection.subscribeToStationEvents();
             await musicKitPlayer.setupEventListeners(
                 handleStateChange,
@@ -117,6 +100,9 @@ export const StationPlayer: React.FC<IPlayerProps> = ({ stationId }) => {
                 musicKitPlayer.skipToNextItem,
                 musicKitPlayer.skipToPreviousItem
             );
+        } else {
+            await musicKitPlayer.stop();
+            await musicKitPlayer.clearQueue();
         }
 
         const station = await stationData.loadStation();
@@ -152,7 +138,7 @@ export const StationPlayer: React.FC<IPlayerProps> = ({ stationId }) => {
 
     const handlePlayPause = useCallback(async () => {
         const instance = await musicKitPlayer.getInstance();
-        
+
         if (instance.isPlaying) {
             instance.pause();
             return;
@@ -166,12 +152,12 @@ export const StationPlayer: React.FC<IPlayerProps> = ({ stationId }) => {
 
         const offset = stationData.getPlaylistPagingOffset(musicKitPlayer.getCurrentQueuePosition) + index;
         const track = stationData.tracks[offset];
-        
+
         if (currentTrack && track && currentTrack.id === track.id) {
             await handlePlayPause();
             return;
         }
-        
+
         await musicKitPlayer.changeToMediaAtIndex(offset);
         setCurrentTrack(track);
 
