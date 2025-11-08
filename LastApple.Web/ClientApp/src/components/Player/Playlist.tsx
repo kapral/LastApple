@@ -68,8 +68,8 @@ export const Playlist: React.FC<PlaylistProps> = memo(({
             {visibleTracks.map((track, index) => <PlaylistTrack
                 key={index}
                 track={track}
-                isCurrent={currentTrack === track}
-                isPlaying={currentTrack === track && isPlaying}
+                isCurrent={currentTrack && track && currentTrack.id === track.id}
+                isPlaying={currentTrack && track && isPlaying && currentTrack.id === track.id}
                 index={index}
                 groupOffset={0}
                 onTrackSwitch={onTrackSwitch}

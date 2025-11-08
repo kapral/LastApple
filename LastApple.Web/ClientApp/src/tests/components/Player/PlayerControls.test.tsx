@@ -2,9 +2,14 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { PlayerControls } from '../../../components/Player/PlayerControls';
 import * as StationPlayer from '../../../components/Player/StationPlayer'
+import * as imageUtils from '../../../utils/imageUtils';
 import AsMock from "../../AsMock";
 
 // Mock dependencies
+jest.mock('../../../utils/imageUtils', () => ({
+    getImageUrl: jest.fn((url) => url || 'default-album-cover.png')
+}));
+
 jest.mock('../../../components/Player/PlayerHeader', () => ({
     PlayerHeader: ({ currentTrack, isScrobblingEnabled, onScrobblingSwitch, lastfmAuthenticated }: any) => (
         <div data-testid="player-header">
@@ -121,7 +126,7 @@ describe('PlayerControls', () => {
 
     it('displays album artwork with correct background image', () => {
         // Set up the mock implementation
-        AsMock(StationPlayer.StationPlayer.getImageUrl).mockImplementation((url) => {
+        AsMock(imageUtils.getImageUrl).mockImplementation((url) => {
             if (!url) return '';
             return url.replace('{w}x{h}', '400x400');
         });
