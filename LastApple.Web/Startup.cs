@@ -12,7 +12,7 @@ using LastApple.Web.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Formatters;
-using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
+using Microsoft.AspNetCore.SpaServices;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -42,7 +42,7 @@ public class Startup(IConfiguration configuration)
         });
         services.AddRazorPages();
 
-        // In production, the React files will be served from this directory
+        // In production, the Svelte files will be served from this directory
         services.AddSpaStaticFiles(configuration =>
         {
             configuration.RootPath = "ClientApp/build";
@@ -171,7 +171,8 @@ public class Startup(IConfiguration configuration)
 
             if (env.IsDevelopment())
             {
-                spa.UseReactDevelopmentServer(npmScript: "start");
+                // Use Vite development server for Svelte
+                spa.UseProxyToSpaDevelopmentServer("http://localhost:3000");
             }
         });
     }
