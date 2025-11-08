@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { appStore } from '$lib/stores/app';
+	import LastfmAvatar from './LastfmAvatar.svelte';
 	
 	// Subscribe to app store for latest station ID
 	$: latestStationId = $appStore.latestStationId;
@@ -13,7 +14,7 @@
 			<h2>lastream</h2>
 		</div>
 		<div class="avatar-container">
-			<!-- LastfmAvatar placeholder -->
+			<LastfmAvatar />
 		</div>
 	</div>
 
