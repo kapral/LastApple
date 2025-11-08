@@ -12,8 +12,17 @@
 	});
 </script>
 
-<div style="background-color: #222; color: #CCC; max-width: 900px; margin: 0 auto;">
+<div class="layout-container">
 	<Header />
 	<slot />
 	<Footer />
 </div>
+
+<style>
+	.layout-container {
+		background-color: #222;
+		color: #CCC;
+		max-width: 900px;
+		margin: 0 auto;
+	}
+</style>

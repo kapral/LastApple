@@ -8,16 +8,16 @@
 	<title>Lastream - Music Station Generator</title>
 </svelte:head>
 
-<div style="padding: 20px;">
+<div class="home-container">
 	<h1>Welcome to Lastream</h1>
 	<p>Create personalized music stations powered by Last.fm and Apple Music.</p>
 	
-	<div style="margin-top: 40px;">
+	<div class="migration-section">
 		<h2>Migration Progress</h2>
 		<p>✅ Phase 2: Project Setup - COMPLETE</p>
 		<p>🔄 Phase 3: Core Infrastructure - IN PROGRESS</p>
 		
-		<h3 style="margin-top: 30px;">Phase 3 Status:</h3>
+		<h3>Phase 3 Status:</h3>
 		<ul>
 			<li>✅ Svelte stores created (app, apple, lastfm)</li>
 			<li>✅ Utility functions migrated</li>
@@ -28,3 +28,17 @@
 		</ul>
 	</div>
 </div>
+
+<style>
+	.home-container {
+		padding: 20px;
+	}
+
+	.migration-section {
+		margin-top: 40px;
+	}
+
+	.migration-section h3 {
+		margin-top: 30px;
+	}
+</style>
