@@ -1,10 +1,10 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import StationDescriptor from './StationDescriptor.svelte';
-  import MyLibrary from './Stations/MyLibrary.svelte';
-  import SingleArtist from './Stations/SingleArtist.svelte';
-  import SimilarArtists from './Stations/SimilarArtists.svelte';
-  import Tag from './Stations/Tag.svelte';
+  import * as MyLibrary from './Stations/MyLibrary.svelte';
+  import * as SingleArtist from './Stations/SingleArtist.svelte';
+  import * as SimilarArtists from './Stations/SimilarArtists.svelte';
+  import * as Tag from './Stations/Tag.svelte';
 
   let createdStationId: string | null = null;
 
@@ -15,21 +15,21 @@
 </script>
 
 <div class="station-list">
-  <StationDescriptor 
-    definition={MyLibrary.Definition} 
-    StationComponent={MyLibrary}
+  <StationDescriptor
+    definition={MyLibrary.Definition}
+    StationComponent={MyLibrary.default}
     on:stationCreated={(e) => handleStationCreated(e.detail)} />
-  <StationDescriptor 
-    definition={SingleArtist.Definition} 
-    StationComponent={SingleArtist}
+  <StationDescriptor
+          definition={SingleArtist.Definition}
+          StationComponent={SingleArtist.default}
     on:stationCreated={(e) => handleStationCreated(e.detail)} />
-  <StationDescriptor 
-    definition={SimilarArtists.Definition} 
-    StationComponent={SimilarArtists}
+  <StationDescriptor
+          definition={SimilarArtists.Definition}
+          StationComponent={SimilarArtists.default}
     on:stationCreated={(e) => handleStationCreated(e.detail)} />
-  <StationDescriptor 
-    definition={Tag.Definition} 
-    StationComponent={Tag}
+  <StationDescriptor
+          definition={Tag.Definition}
+          StationComponent={Tag.default}
     on:stationCreated={(e) => handleStationCreated(e.detail)} />
 </div>
 

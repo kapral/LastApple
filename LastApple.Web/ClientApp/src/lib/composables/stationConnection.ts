@@ -1,5 +1,5 @@
 import * as signalR from '@microsoft/signalr';
-import { Environment } from '$lib/Environment';
+import { environment } from '$lib/Environment';
 
 export interface StationConnection {
     connection: signalR.HubConnection;
@@ -10,15 +10,15 @@ export interface StationConnection {
 
 export async function connectToStation(stationId: string): Promise<StationConnection> {
     const connection = new signalR.HubConnectionBuilder()
-        .withUrl(`${Environment.apiBaseUrl}/hubs/station`)
+        .withUrl(`${environment.apiUrl}/hubs/station`)
         .withAutomaticReconnect()
         .build();
-    
+
     await connection.start();
-    
+
     // Join the station group
     await connection.invoke('JoinStation', stationId);
-    
+
     return {
         connection,
         onTrackAdded: (callback) => {

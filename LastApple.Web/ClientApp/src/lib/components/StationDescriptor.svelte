@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
+  import { type Component, createEventDispatcher } from 'svelte';
 
   export let definition: { name: string; description: string; icon: string };
-  export let StationComponent: any;
+  export let StationComponent: Component;
 
   const dispatch = createEventDispatcher();
 

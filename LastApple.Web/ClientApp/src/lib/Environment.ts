@@ -3,6 +3,4 @@ class Environment {
     websiteUrl = 'https://lastream.net/';
 }
 
-const environment = new Environment();
-
-export default environment;
+export const environment = new Environment();

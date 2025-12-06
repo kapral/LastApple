@@ -1,13 +1,12 @@
 import { lastfmStore } from '$lib/stores/lastfm';
 import { AuthenticationState } from '$lib/types/authentication';
-import * as LastfmApi from '$lib/services/LastfmApi';
+import { lastfmApi } from '$lib/services/LastfmApi';
 
 export async function authorizeLastfm(): Promise<void> {
     try {
         lastfmStore.setAuthenticationState(AuthenticationState.Loading);
-        
-        const authUrl = await LastfmApi.getAuthUrl();
-        window.location.href = authUrl;
+
+        window.location.href = await lastfmApi.getAuthUrl(window.location.href);
     } catch (error) {
         console.error('Last.fm authorization failed:', error);
         lastfmStore.setAuthenticationState(AuthenticationState.Unauthenticated);
@@ -18,22 +17,22 @@ export async function authorizeLastfm(): Promise<void> {
 export async function checkLastfmAuthentication(): Promise<void> {
     try {
         lastfmStore.setAuthenticationState(AuthenticationState.Loading);
-        
+
         // Check URL for callback token
         const urlParams = new URLSearchParams(window.location.search);
         const token = urlParams.get('token');
-        
+
         if (token) {
             // Exchange token for session
-            await LastfmApi.postToken(token);
-            
+            await lastfmApi.postToken(token);
+
             // Clear token from URL
             window.history.replaceState({}, document.title, window.location.pathname);
         }
-        
+
         // Get user info
-        const user = await LastfmApi.getUser();
-        
+        const user = await lastfmApi.getUser();
+
         if (user) {
             lastfmStore.setUser(user);
             lastfmStore.setAuthenticationState(AuthenticationState.Authenticated);
@@ -48,8 +47,8 @@ export async function checkLastfmAuthentication(): Promise<void> {
 
 export async function unauthorizeLastfm(): Promise<void> {
     try {
-        await LastfmApi.logout();
-        
+        await lastfmApi.logout();
+
         lastfmStore.setUser(undefined);
         lastfmStore.setAuthenticationState(AuthenticationState.Unauthenticated);
     } catch (error) {

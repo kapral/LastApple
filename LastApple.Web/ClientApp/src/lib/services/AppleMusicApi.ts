@@ -1,4 +1,4 @@
-import { Environment } from '$lib/Environment';
+import { environment } from '$lib/Environment';
 
 export interface ISessionData {
     id?: string;
@@ -19,21 +19,21 @@ export interface ITag {
 
 class AppleMusicApi {
     async getDeveloperToken(): Promise<string> {
-        const tokenResponse = await fetch(`${Environment.apiUrl}api/apple/auth/developertoken`);
+        const tokenResponse = await fetch(`${environment.apiUrl}api/apple/auth/developertoken`);
         return await tokenResponse.json();
     }
 
     async getSessionData(): Promise<ISessionData> {
         const sessionId = typeof window !== 'undefined' ? localStorage.getItem('SessionId') : null;
-        const response = await fetch(`${Environment.apiUrl}api/apple/auth/sessiondata`, { 
-            headers: { 'X-SessionId': sessionId || '' } 
+        const response = await fetch(`${environment.apiUrl}api/apple/auth/sessiondata`, {
+            headers: { 'X-SessionId': sessionId || '' }
         });
         return await response.json();
     }
 
     async postSessionData(data: ISessionData): Promise<ISessionData> {
         const sessionId = typeof window !== 'undefined' ? localStorage.getItem('SessionId') : null;
-        const response = await fetch(`${Environment.apiUrl}api/apple/auth/sessiondata`, {
+        const response = await fetch(`${environment.apiUrl}api/apple/auth/sessiondata`, {
             body: JSON.stringify(data),
             method: 'POST',
             headers: {
@@ -46,19 +46,19 @@ class AppleMusicApi {
 
     async deleteSessionData(): Promise<void> {
         const sessionId = typeof window !== 'undefined' ? localStorage.getItem('SessionId') : null;
-        await fetch(`${Environment.apiUrl}api/apple/auth/sessiondata`, {
+        await fetch(`${environment.apiUrl}api/apple/auth/sessiondata`, {
             method: 'DELETE',
             headers: { 'X-SessionId': sessionId || '' }
         });
     }
 
     async searchArtists(term: string): Promise<IArtist[]> {
-        const response = await fetch(`${Environment.apiUrl}api/applemusic/search/artists?term=${encodeURIComponent(term)}`);
+        const response = await fetch(`${environment.apiUrl}api/applemusic/search/artists?term=${encodeURIComponent(term)}`);
         return await response.json();
     }
 
     async searchTags(term: string): Promise<ITag[]> {
-        const response = await fetch(`${Environment.apiUrl}api/applemusic/search/tags?term=${encodeURIComponent(term)}`);
+        const response = await fetch(`${environment.apiUrl}api/applemusic/search/tags?term=${encodeURIComponent(term)}`);
         return await response.json();
     }
 }

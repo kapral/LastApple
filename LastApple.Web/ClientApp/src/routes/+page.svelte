@@ -1,22 +1,16 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
-  import { onMount } from 'svelte';
+  import AppleUnauthenticatedWarning from '$lib/components/AppleUnauthenticatedWarning.svelte';
+  import StationsList from '$lib/components/StationsList.svelte';
+  import { appleStore } from '$lib/stores/apple';
+  import { AuthenticationState } from '$lib/types/authentication';
 
-  // Redirect to /home on mount
-  onMount(() => {
-    goto('/home', { replaceState: true });
-  });
+  $: showWarning = $appleStore.authenticationState === AuthenticationState.Unauthenticated;
 </script>
 
-<div class="loading-container">
-  <p>Loading...</p>
-</div>
+{#if showWarning}
+  <AppleUnauthenticatedWarning />
+{/if}
 
-<style>
-  .loading-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 200px;
-  }
-</style>
+<div>
+  <StationsList />
+</div>
