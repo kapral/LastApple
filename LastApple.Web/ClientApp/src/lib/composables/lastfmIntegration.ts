@@ -5,6 +5,7 @@ import * as LastfmApi from '$lib/services/LastfmApi';
 import { getMusicKitInstance } from './musicKitPlayer';
 
 let isInitialized = false;
+let currentTrackScrobbled = false;
 
 export async function setupLastfmIntegration(): Promise<void> {
     if (isInitialized) {
@@ -26,7 +27,7 @@ export async function setupLastfmIntegration(): Promise<void> {
         
         // Listen to playback events
         musicKit.addEventListener('nowPlayingItemDidChange', handleNowPlayingChange);
-        musicKit.addEventListener('playbackStateDidChange', handlePlaybackStateChange);
+        musicKit.addEventListener('playbackProgressDidChange', handlePlaybackProgressChange);
         
         isInitialized = true;
     } catch (error) {
@@ -38,6 +39,14 @@ async function handleNowPlayingChange(event: any): Promise<void> {
     const item = event.item;
     
     if (!item) {
+        return;
+    }
+    
+    // Reset scrobble flag for new track
+    currentTrackScrobbled = false;
+    
+    const lastfmState = get(lastfmStore);
+    if (lastfmState.authenticationState !== AuthenticationState.Authenticated || !lastfmState.isScrobblingEnabled) {
         return;
     }
     
@@ -53,44 +62,34 @@ async function handleNowPlayingChange(event: any): Promise<void> {
     }
 }
 
-let scrobbleTimer: ReturnType<typeof setTimeout> | null = null;
-
-async function handlePlaybackStateChange(event: any): Promise<void> {
-    const musicKit = await getMusicKitInstance();
-    const item = musicKit.nowPlayingItem;
-    
-    if (!item) {
+async function handlePlaybackProgressChange(event: any): Promise<void> {
+    // Scrobble when track reaches 90% completion
+    if (currentTrackScrobbled || !event.progress || event.progress < 0.9) {
         return;
     }
     
-    // Scrobble after 50% of track has played or 4 minutes (whichever comes first)
-    const scrobbleTime = Math.min(item.playbackDuration * 0.5, 240) * 1000;
+    const lastfmState = get(lastfmStore);
+    if (lastfmState.authenticationState !== AuthenticationState.Authenticated || !lastfmState.isScrobblingEnabled) {
+        return;
+    }
     
-    if (event.state === MusicKit.PlaybackStates.playing) {
-        // Clear any existing timer
-        if (scrobbleTimer) {
-            clearTimeout(scrobbleTimer);
-        }
-        
-        // Set timer to scrobble
-        scrobbleTimer = setTimeout(async () => {
-            try {
-                await LastfmApi.postScrobble({
-                    artist: item.artistName,
-                    track: item.title,
-                    album: item.albumName,
-                    timestamp: Math.floor(Date.now() / 1000),
-                    duration: Math.floor(item.playbackDuration)
-                });
-            } catch (error) {
-                console.error('Failed to scrobble track:', error);
-            }
-        }, scrobbleTime);
-    } else {
-        // Clear timer if playback stopped/paused
-        if (scrobbleTimer) {
-            clearTimeout(scrobbleTimer);
-            scrobbleTimer = null;
-        }
+    const musicKit = await getMusicKitInstance();
+    const currentTrack = musicKit.nowPlayingItem;
+    
+    if (!currentTrack) {
+        return;
+    }
+    
+    try {
+        await LastfmApi.postScrobble({
+            artist: currentTrack.artistName,
+            track: currentTrack.title,
+            album: currentTrack.albumName,
+            timestamp: Math.floor(Date.now() / 1000),
+            duration: Math.floor(currentTrack.playbackDuration)
+        });
+        currentTrackScrobbled = true;
+    } catch (error) {
+        console.error('Failed to scrobble track:', error);
     }
 }

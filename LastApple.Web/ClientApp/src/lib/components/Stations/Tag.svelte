@@ -1,8 +1,7 @@
 <script context="module" lang="ts">
   export const Definition = {
-    name: 'Tag',
-    description: 'Play songs from a specific tag/genre',
-    icon: 'fa-solid fa-tag'
+    title: 'Tag',
+    description: 'A station consisting of tracks related to a last.fm tag.'
   };
 </script>
 

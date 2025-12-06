@@ -1,8 +1,7 @@
 <script context="module" lang="ts">
   export const Definition = {
-    name: 'Single Artist',
-    description: 'Play songs from a single artist',
-    icon: 'fa-solid fa-user'
+    title: 'Artist',
+    description: 'Play all tracks of one artist.'
   };
 </script>
 

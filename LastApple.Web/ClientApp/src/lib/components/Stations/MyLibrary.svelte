@@ -1,8 +1,7 @@
 <script context="module" lang="ts">
   export const Definition = {
-    name: 'My Library',
-    description: 'Play songs from your library',
-    icon: 'fa-solid fa-music'
+    title: 'My last.fm Library',
+    description: 'A continuous station based on your last.fm library.'
   };
 </script>
 

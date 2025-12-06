@@ -1,8 +1,7 @@
 <script context="module" lang="ts">
   export const Definition = {
-    name: 'Similar Artists',
-    description: 'Play songs from similar artists',
-    icon: 'fa-solid fa-users'
+    title: 'Similar Artists',
+    description: 'A station containing an artist and similar performers.'
   };
 </script>
 
