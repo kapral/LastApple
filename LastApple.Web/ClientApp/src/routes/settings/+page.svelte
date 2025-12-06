@@ -2,6 +2,8 @@
   import { appleStore } from '$lib/stores/apple';
   import { lastfmStore } from '$lib/stores/lastfm';
   import { AuthenticationState } from '$lib/types/authentication';
+  import { authorizeAppleMusic, unauthorizeAppleMusic } from '$lib/services/AppleAuthService';
+  import { authorizeLastfm, unauthorizeLastfm } from '$lib/services/LastfmAuthService';
 
   $: isAppleAuthenticated = $appleStore.authenticationState === AuthenticationState.Authenticated;
   $: isLastfmAuthenticated = $lastfmStore.authenticationState === AuthenticationState.Authenticated;
@@ -9,13 +11,19 @@
                  $lastfmStore.authenticationState === AuthenticationState.Loading;
 
   async function toggleAppleAuthentication() {
-    // Authentication logic will be added in Phase 5-6
-    console.log('Toggle Apple auth:', !isAppleAuthenticated);
+    if (isAppleAuthenticated) {
+      await unauthorizeAppleMusic();
+    } else {
+      await authorizeAppleMusic();
+    }
   }
 
   async function toggleLastfmAuthentication() {
-    // Authentication logic will be added in Phase 5-6
-    console.log('Toggle Lastfm auth:', !isLastfmAuthenticated);
+    if (isLastfmAuthenticated) {
+      await unauthorizeLastfm();
+    } else {
+      await authorizeLastfm();
+    }
   }
 </script>
 
