@@ -17,13 +17,7 @@ export interface IStation {
 export async function createStation(params: IStationParams): Promise<string> {
     const sessionId = typeof window !== 'undefined' ? localStorage.getItem('SessionId') : null;
 
-    let url = `${environment.apiUrl}api/station/${params.stationType}`;
-
-    if (params.artistName) {
-        url += `/${encodeURIComponent(params.artistName)}`;
-    } else if (params.tag) {
-        url += `/${encodeURIComponent(params.tag)}`;
-    }
+    let url = `${environment.apiUrl}api/station/${params.stationType}/${params.stationName}`;
 
     const response = await fetch(url, {
         method: 'POST',

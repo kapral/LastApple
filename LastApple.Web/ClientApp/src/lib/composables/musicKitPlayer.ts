@@ -1,4 +1,4 @@
-import { getDeveloperToken } from '$lib/services/AppleMusicApi';
+import appleMusicApi from '$lib/services/AppleMusicApi';
 
 let musicKitInstance: MusicKit.MusicKitInstance | null = null;
 
@@ -6,7 +6,7 @@ export async function getMusicKitInstance(): Promise<MusicKit.MusicKitInstance> 
     if (musicKitInstance) {
         return musicKitInstance;
     }
-    
+
     return await initializeMusicKit();
 }
 
@@ -14,10 +14,10 @@ export async function initializeMusicKit(): Promise<MusicKit.MusicKitInstance> {
     if (musicKitInstance) {
         return musicKitInstance;
     }
-    
+
     // Get developer token from API
-    const developerToken = await getDeveloperToken();
-    
+    const developerToken = await appleMusicApi.getDeveloperToken();
+
     // Configure MusicKit
     await MusicKit.configure({
         developerToken: developerToken,
@@ -26,8 +26,8 @@ export async function initializeMusicKit(): Promise<MusicKit.MusicKitInstance> {
             build: '1.0.0'
         }
     });
-    
+
     musicKitInstance = MusicKit.getInstance();
-    
+
     return musicKitInstance;
 }

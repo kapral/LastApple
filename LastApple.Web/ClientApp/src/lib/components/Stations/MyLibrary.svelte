@@ -20,9 +20,10 @@
 
     try {
       const stationId = await createStation({
-        stationType: 'my-library'
+        stationType: 'lastfmlibrary',
+        stationName: 'my'
       });
-      
+
       onStationCreated(stationId);
       goto(`/station/${stationId}`);
     } catch (err) {
@@ -35,15 +36,13 @@
 </script>
 
 <div class="my-library-container">
-  <p class="mb-3">Create a station from your Apple Music library.</p>
-
   {#if error}
     <div class="alert alert-danger">{error}</div>
   {/if}
 
-  <button 
-    class="btn btn-primary" 
-    on:click={handleCreate} 
+  <button
+    class="btn btn-primary"
+    on:click={handleCreate}
     disabled={isCreating}
   >
     {isCreating ? 'Creating Station...' : 'Play from My Library'}

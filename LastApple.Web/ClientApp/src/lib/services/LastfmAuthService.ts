@@ -24,7 +24,10 @@ export async function checkLastfmAuthentication(): Promise<void> {
 
         if (token) {
             // Exchange token for session
-            await lastfmApi.postToken(token);
+            const sessionIdResponse = await lastfmApi.postToken(token);
+            const sessionId = await sessionIdResponse.json();
+
+            localStorage.setItem('SessionId', sessionId);
 
             // Clear token from URL
             window.history.replaceState({}, document.title, window.location.pathname);

@@ -38,9 +38,9 @@
     try {
       const stationId = await createStation({
         stationType: 'tag',
-        tag: selectedTag.name
+        stationName: selectedTag.name
       });
-      
+
       onStationCreated(stationId);
       goto(`/station/${stationId}`);
     } catch (err) {
@@ -54,7 +54,6 @@
 
 <div class="tag-container">
   <div class="mb-3">
-    <label for="tag-search" class="form-label">Search for a tag/genre:</label>
     <Search
       searchFunction={searchTags}
       onSelect={handleTagSelect}
@@ -72,9 +71,9 @@
     <div class="alert alert-danger">{error}</div>
   {/if}
 
-  <button 
-    class="btn btn-primary" 
-    on:click={handleCreate} 
+  <button
+    class="btn btn-primary"
+    on:click={handleCreate}
     disabled={!selectedTag || isCreating}
   >
     {isCreating ? 'Creating Station...' : 'Create Tag Station'}

@@ -38,10 +38,9 @@
     try {
       const stationId = await createStation({
         stationType: 'similar-artists',
-        artistId: selectedArtist.id,
-        artistName: selectedArtist.name
+        stationName: selectedArtist.name
       });
-      
+
       onStationCreated(stationId);
       goto(`/station/${stationId}`);
     } catch (err) {
@@ -55,7 +54,6 @@
 
 <div class="similar-artists-container">
   <div class="mb-3">
-    <label for="artist-search" class="form-label">Search for an artist:</label>
     <Search
       searchFunction={searchArtists}
       onSelect={handleArtistSelect}
@@ -73,9 +71,9 @@
     <div class="alert alert-danger">{error}</div>
   {/if}
 
-  <button 
-    class="btn btn-primary" 
-    on:click={handleCreate} 
+  <button
+    class="btn btn-primary"
+    on:click={handleCreate}
     disabled={!selectedArtist || isCreating}
   >
     {isCreating ? 'Creating Station...' : 'Create Similar Artists Station'}
