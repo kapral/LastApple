@@ -4,6 +4,7 @@
   import { appStore } from '$lib/stores/app';
   import { AuthenticationState } from '$lib/types/authentication';
   import AppleUnauthenticatedWarning from '$lib/components/AppleUnauthenticatedWarning.svelte';
+  import StationPlayer from '$lib/components/Player/StationPlayer.svelte';
   import { onMount } from 'svelte';
 
   $: stationId = $page.params.id;
@@ -20,14 +21,4 @@
   <AppleUnauthenticatedWarning />
 {/if}
 
-<div class="station-player-container">
-  <h3>Now Playing: Station {stationId}</h3>
-  <p>Station player component will be implemented in Phase 4 (Player Components migration)</p>
-  <!-- StationPlayer component will be added here -->
-</div>
-
-<style>
-  .station-player-container {
-    padding: 20px;
-  }
-</style>
+<StationPlayer {stationId} />
