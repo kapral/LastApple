@@ -1,4 +1,5 @@
 <script lang="ts">
+	export const ssr = false;
 	import { onMount } from 'svelte';
 	import 'bootstrap/dist/css/bootstrap.css';
 	import '@fortawesome/fontawesome-free/css/all.css';
