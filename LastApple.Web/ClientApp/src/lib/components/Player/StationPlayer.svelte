@@ -21,39 +21,44 @@
   let cleanupLastfm: (() => void) | null = null;
   let currentTrackScrobbled = false;
   let isFirstTime = true;
-  let currentQueuePosition = 0;
+
   let pendingEvents: Array<{ trackId: string; position: number }> = [];
   
   $: isScrobblingEnabled = $lastfmStore.isScrobblingEnabled;
   $: lastfmAuthenticated = $lastfmStore.isAuthenticated;
   
+  function getCurrentQueuePosition(): number {
+    if (!musicKit) return 0;
+    const position = musicKit.queue.position;
+    return position !== -1 ? position : 0;
+  }
+  
   function getPlaylistPagingOffset(): number {
     if (!station || !station.isContinuous) {
       return 0;
     }
-    const position = currentQueuePosition;
+    const position = getCurrentQueuePosition();
     return Math.max(0, position - 5);
   }
   
-  async function fetchSongs(songIds: string[]): Promise<MusicKit.MediaItem[]> {
+  async function fetchSongs(songIds: string[]): Promise<MusicKit.Songs> {
     if (!musicKit) return [];
     try {
       const response = await musicKit.api.songs(songIds);
-      return response as unknown as MusicKit.MediaItem[];
+      return response as MusicKit.Songs;
     } catch (error) {
       console.error('Error fetching songs:', error);
       return [];
     }
   }
   
-  async function appendTracksToQueue(songs: MusicKit.MediaItem[], updateTracks?: (tracks: MusicKit.MediaItem[]) => void): Promise<void> {
+  async function appendTracksToQueue(songs: MusicKit.Songs): Promise<void> {
     if (!musicKit || !songs.length) return;
     
     try {
-      await musicKit.queue.append({ items: songs });
-      if (updateTracks) {
-        tracks = [...tracks, ...songs];
-      }
+      await musicKit.playLater({ songs: songs.map(s => s.id) });
+      // @ts-ignore - Songs can be used as MediaItem in this context
+      tracks = [...tracks, ...songs];
     } catch (error) {
       console.error('Error appending tracks:', error);
     }
@@ -79,7 +84,7 @@
         const newTracks = await response.json();
         if (newTracks && newTracks.length > 0) {
           const songs = await fetchSongs(newTracks);
-          await appendTracksToQueue(songs, (updatedTracks) => { tracks = updatedTracks; });
+          await appendTracksToQueue(songs);
         }
       }
     } catch (error) {
@@ -95,7 +100,7 @@
     
     const trackIds = events.map(e => e.trackId);
     const songs = await fetchSongs(trackIds);
-    await appendTracksToQueue(songs, (updatedTracks) => { tracks = updatedTracks; });
+    await appendTracksToQueue(songs);
     
     if (!musicKit.isPlaying) {
       await musicKit.play();
@@ -142,6 +147,9 @@
       return;
     }
     
+    if (musicKit.isPlaying) {
+      musicKit.pause();
+    }
     await musicKit.changeToMediaAtIndex(offset);
     currentTrack = track;
     
@@ -166,9 +174,7 @@
     currentTrackScrobbled = false;
     currentTrack = event.item;
     
-    if (musicKit) {
-      currentQueuePosition = musicKit.queue.position;
-    }
+    // Queue position is tracked via getCurrentQueuePosition() helper
     
     // Set now playing on Last.fm
     if (isScrobblingEnabled && $lastfmStore.user) {
@@ -256,8 +262,8 @@
       isFirstTime = false;
     } else if (musicKit) {
       // Not first time, clear queue
-      await musicKit.stop();
-      musicKit.queue.items = [];
+      musicKit.stop();
+      await musicKit.clearQueue();
     }
     
     // Load station
@@ -272,7 +278,7 @@
       const batch = songIds.slice(i, i + batchSize);
       if (batch.length > 0) {
         const songs = await fetchSongs(batch);
-        await appendTracksToQueue(songs, (updatedTracks) => { tracks = updatedTracks; });
+        await appendTracksToQueue(songs);
       }
     }
     
@@ -305,11 +311,17 @@
   
   async function skipToPreviousItem(): Promise<void> {
     if (!musicKit) return;
+    if (musicKit.isPlaying) {
+      musicKit.pause();
+    }
     await musicKit.skipToPreviousItem();
   }
   
   async function skipToNextItem(): Promise<void> {
     if (!musicKit) return;
+    if (musicKit.isPlaying) {
+      musicKit.pause();
+    }
     await musicKit.skipToNextItem();
   }
   
