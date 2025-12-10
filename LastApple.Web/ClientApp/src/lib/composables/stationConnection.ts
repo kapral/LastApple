@@ -10,26 +10,16 @@ export interface StationConnection {
 
 export async function connectToStation(stationId: string): Promise<StationConnection> {
     const connection = new signalR.HubConnectionBuilder()
-        .withUrl(`${environment.apiUrl}/hubs/station`)
+        .withUrl(`${environment.apiUrl}hubs`)
         .withAutomaticReconnect()
         .build();
 
     await connection.start();
 
-    // Join the station group
-    await connection.invoke('JoinStation', stationId);
-
     return {
         connection,
         onTrackAdded: (callback) => {
-            connection.on('TrackAdded', callback);
-        },
-        onStationComplete: (callback) => {
-            connection.on('StationComplete', callback);
-        },
-        disconnect: async () => {
-            await connection.invoke('LeaveStation', stationId);
-            await connection.stop();
+            connection.on('trackAdded', callback);
         }
     };
 }
