@@ -1,45 +1,66 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import Header from '$lib/components/Header.svelte';
+import { latestStationId } from '$lib/stores/app';
 
-// Mock the stores
-vi.mock('$lib/stores/app', () => ({
-    appStore: {
-        subscribe: vi.fn((callback) => {
-            callback({ latestStationId: null });
-            return () => {};
-        })
-    }
-}));
-
-vi.mock('$lib/components/LastfmAvatar.svelte', () => ({
-    default: {
-        render: () => ({ html: '<div data-testid="lastfm-avatar">LastfmAvatar</div>' })
-    }
-}));
-
-describe('Header Component', () => {
+describe('Header', () => {
     beforeEach(() => {
-        vi.clearAllMocks();
+        latestStationId.set(null);
     });
 
-    it('renders the logo and title', () => {
+    it('renders the logo image with alt text', () => {
         render(Header);
-        
-        expect(screen.getByAltText('logo')).toBeInTheDocument();
-        expect(screen.getByText('lastream')).toBeInTheDocument();
+
+        const logo = screen.getByAltText('logo');
+        expect(logo).toBeInTheDocument();
+        expect(logo.tagName).toBe('IMG');
     });
 
-    it('renders navigation links', () => {
+    it('renders the application title "lastream"', () => {
         render(Header);
-        
-        expect(screen.getByText('New station')).toBeInTheDocument();
-        expect(screen.getByText('Settings')).toBeInTheDocument();
+
+        const title = screen.getByRole('heading', { name: /lastream/i });
+        expect(title).toBeInTheDocument();
     });
 
-    it('renders LastfmAvatar component', () => {
+    it('renders "New station" navigation link pointing to home', () => {
         render(Header);
-        
-        expect(screen.getByTestId('lastfm-avatar')).toBeInTheDocument();
+
+        const newStationLink = screen.getByRole('link', { name: /new station/i });
+        expect(newStationLink).toBeInTheDocument();
+        expect(newStationLink).toHaveAttribute('href', '/');
+    });
+
+    it('renders "Settings" navigation link pointing to /settings', () => {
+        render(Header);
+
+        const settingsLink = screen.getByRole('link', { name: /settings/i });
+        expect(settingsLink).toBeInTheDocument();
+        expect(settingsLink).toHaveAttribute('href', '/settings');
+    });
+
+    it('does NOT render "Now playing" link when no station is active', () => {
+        latestStationId.set(null);
+        render(Header);
+
+        const nowPlayingLink = screen.queryByRole('link', { name: /now playing/i });
+        expect(nowPlayingLink).not.toBeInTheDocument();
+    });
+
+    it('renders "Now playing" link with correct href when a station is active', () => {
+        latestStationId.set('test-station-123');
+        render(Header);
+
+        const nowPlayingLink = screen.getByRole('link', { name: /now playing/i });
+        expect(nowPlayingLink).toBeInTheDocument();
+        expect(nowPlayingLink).toHaveAttribute('href', '/station/test-station-123');
+    });
+
+    it('renders LastfmAvatar component in the header', () => {
+        render(Header);
+
+        // The LastfmAvatar should be present
+        const avatar = screen.getByTestId('lastfm-avatar');
+        expect(avatar).toBeInTheDocument();
     });
 });

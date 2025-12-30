@@ -1,31 +1,10 @@
 <script lang="ts">
-	// Placeholder - will be implemented in Phase 4
+	// Minimal stub - implementation pending Phase 4
 	import type { IStationParams } from '../IStationParams';
 	
 	interface Props extends IStationParams {}
 	
 	let { triggerCreate, onStationCreated, onOptionsChanged }: Props = $props();
-	let selectedArtist: { name: string } | null = $state(null);
-	
-	$effect(() => {
-		onOptionsChanged(selectedArtist !== null);
-	});
-	
-	$effect(() => {
-		if (triggerCreate && selectedArtist) {
-			// Create station
-			onStationCreated('test-station-id');
-		}
-	});
-	
-	async function searchArtists(query: string) {
-		// Will use Last.fm API in Phase 4
-		return [];
-	}
-	
-	function handleChanged(results: any[]) {
-		selectedArtist = results.length > 0 ? results[0] : null;
-	}
 	
 	export const Definition = {
 		title: 'Similar Artists',
@@ -34,12 +13,7 @@
 	};
 </script>
 
+<!-- Minimal placeholder - no behavior implemented -->
 <div class="station-parameters">
-	<div data-testid="search-component">
-		<input 
-			data-testid="search-input"
-			placeholder="Placebo..."
-			class="form-control"
-		/>
-	</div>
+	<!-- TODO: Implement Search with Last.fm API -->
 </div>
