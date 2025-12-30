@@ -1,17 +1,9 @@
 <script lang="ts">
-	// Placeholder - will be implemented in Phase 4
+	// Minimal stub - implementation pending Phase 4
+	// Tests will fail until real implementation is added
 </script>
 
-<div class="header" data-testid="header">
-	<a href="/">
-		<img src="/logo.png" alt="logo" class="logo" />
-	</a>
-	<div class="title-container">
-		<h2>lastream</h2>
-	</div>
-	<nav>
-		<a href="/">New station</a>
-		<a href="/settings">Settings</a>
-	</nav>
-	<div data-testid="lastfm-avatar">LastfmAvatar</div>
+<!-- Minimal placeholder - no behavior implemented -->
+<div class="header">
+	<!-- TODO: Implement logo, title, navigation, LastfmAvatar -->
 </div>

@@ -36,21 +36,27 @@ describe('PlayerControls', () => {
         vi.clearAllMocks();
     });
 
-    it('renders without crashing', () => {
-        render(PlayerControls, { props: defaultProps });
-    });
-
     it('applies player-controls class', () => {
         const { container } = render(PlayerControls, { props: defaultProps });
 
         expect(container.querySelector('.player-controls')).toBeInTheDocument();
     });
 
-    it('renders PlayerHeader when currentTrack is provided', () => {
+    it('renders album art with background image from track artwork', () => {
+        const { container } = render(PlayerControls, { props: defaultProps });
+
+        const albumArt = container.querySelector('.album-art');
+        expect(albumArt).toBeInTheDocument();
+        // Should have background-image style with the artwork URL
+        expect(albumArt).toHaveStyle({ backgroundPosition: 'center' });
+    });
+
+    it('renders PlayerHeader component with track info', () => {
         render(PlayerControls, { props: defaultProps });
 
-        expect(screen.getByTestId('player-header')).toBeInTheDocument();
-        expect(screen.getByTestId('track-name')).toHaveTextContent('Test Song');
+        // PlayerHeader should show track name and artist
+        expect(screen.getByText('Test Song')).toBeInTheDocument();
+        expect(screen.getByText('Test Artist')).toBeInTheDocument();
     });
 
     it('does not render PlayerHeader when currentTrack is undefined', () => {
@@ -58,41 +64,76 @@ describe('PlayerControls', () => {
             props: { ...defaultProps, currentTrack: undefined } 
         });
 
-        expect(screen.queryByTestId('player-header')).not.toBeInTheDocument();
+        expect(screen.queryByText('Test Song')).not.toBeInTheDocument();
     });
 
-    it('renders control buttons', () => {
-        render(PlayerControls, { props: defaultProps });
+    it('renders ProgressControl component', () => {
+        const { container } = render(PlayerControls, { props: defaultProps });
 
-        expect(screen.getByTestId('prev-button')).toBeInTheDocument();
-        expect(screen.getByTestId('play-pause-button')).toBeInTheDocument();
-        expect(screen.getByTestId('next-button')).toBeInTheDocument();
+        // ProgressControl should be present
+        expect(container.querySelector('.progress-control')).toBeInTheDocument();
     });
 
-    it('calls switchPrev when prev button is clicked', async () => {
+    it('renders previous, play/pause, and next buttons', () => {
         render(PlayerControls, { props: defaultProps });
 
-        await fireEvent.click(screen.getByTestId('prev-button'));
-        expect(defaultProps.switchPrev).toHaveBeenCalled();
+        // Should render FontAwesome icons for controls
+        expect(screen.getByRole('button', { name: /previous/i })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /play|pause/i })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /next/i })).toBeInTheDocument();
+    });
+
+    it('shows play icon when not playing', () => {
+        render(PlayerControls, { props: { ...defaultProps, isPlaying: false } });
+
+        const playButton = screen.getByRole('button', { name: /play/i });
+        expect(playButton).toBeInTheDocument();
+    });
+
+    it('shows pause icon when playing', () => {
+        render(PlayerControls, { props: { ...defaultProps, isPlaying: true } });
+
+        const pauseButton = screen.getByRole('button', { name: /pause/i });
+        expect(pauseButton).toBeInTheDocument();
+    });
+
+    it('calls switchPrev when previous button is clicked', async () => {
+        render(PlayerControls, { props: defaultProps });
+
+        const prevButton = screen.getByRole('button', { name: /previous/i });
+        await fireEvent.click(prevButton);
+        
+        expect(defaultProps.switchPrev).toHaveBeenCalledTimes(1);
     });
 
     it('calls switchNext when next button is clicked', async () => {
         render(PlayerControls, { props: defaultProps });
 
-        await fireEvent.click(screen.getByTestId('next-button'));
-        expect(defaultProps.switchNext).toHaveBeenCalled();
+        const nextButton = screen.getByRole('button', { name: /next/i });
+        await fireEvent.click(nextButton);
+        
+        expect(defaultProps.switchNext).toHaveBeenCalledTimes(1);
     });
 
     it('calls onPlayPause when play/pause button is clicked', async () => {
         render(PlayerControls, { props: defaultProps });
 
-        await fireEvent.click(screen.getByTestId('play-pause-button'));
-        expect(defaultProps.onPlayPause).toHaveBeenCalled();
+        const playButton = screen.getByRole('button', { name: /play/i });
+        await fireEvent.click(playButton);
+        
+        expect(defaultProps.onPlayPause).toHaveBeenCalledTimes(1);
     });
 
-    it('renders progress control', () => {
-        render(PlayerControls, { props: defaultProps });
+    it('passes scrobbling props to PlayerHeader', () => {
+        render(PlayerControls, { 
+            props: { 
+                ...defaultProps, 
+                isScrobblingEnabled: true,
+                lastfmAuthenticated: true 
+            } 
+        });
 
-        expect(screen.getByTestId('progress-control')).toBeInTheDocument();
+        // When lastfm is authenticated and scrobbling enabled, should show scrobbling UI
+        expect(screen.getByRole('switch', { name: /scrobbling/i })).toBeInTheDocument();
     });
 });
