@@ -64,10 +64,13 @@ describe('PlaylistTrack', () => {
         expect(container.querySelector('.current')).not.toBeInTheDocument();
     });
 
-    it('renders dropdown menu', () => {
-        render(PlaylistTrack, { props: defaultProps });
+    it('renders dropdown menu when toggle is clicked', async () => {
+        const { container } = render(PlaylistTrack, { props: defaultProps });
 
         expect(screen.getByTestId('dropdown')).toBeInTheDocument();
+        // Click the toggle to open dropdown
+        const toggle = container.querySelector('.custom-toggle');
+        await fireEvent.click(toggle!);
         expect(screen.getByTestId('dropdown-menu')).toBeInTheDocument();
     });
 
