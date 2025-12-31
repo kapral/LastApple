@@ -14,8 +14,9 @@ interface LastfmAuthStore {
 }
 
 function createLastfmAuthStore() {
+    // Initialize as Loading - will be updated when authentication check runs
     const { subscribe, set, update } = writable<LastfmAuthStore>({
-        state: AuthenticationState.Unauthenticated,
+        state: AuthenticationState.Loading,
         user: undefined,
         isScrobblingEnabled: true
     });
