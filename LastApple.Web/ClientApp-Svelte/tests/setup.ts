@@ -1,5 +1,6 @@
 import '@testing-library/jest-dom/vitest';
 import { vi } from 'vitest';
+import { readable } from 'svelte/store';
 
 // Mock $env/dynamic/public
 vi.mock('$env/dynamic/public', () => ({
@@ -18,6 +19,21 @@ vi.mock('$app/navigation', () => ({
     afterNavigate: vi.fn(),
     beforeNavigate: vi.fn(),
     onNavigate: vi.fn()
+}));
+
+// Mock $app/stores
+vi.mock('$app/stores', () => ({
+    page: readable({
+        url: new URL('http://localhost:5173/'),
+        params: {},
+        route: { id: '/' },
+        status: 200,
+        error: null,
+        data: {},
+        form: null
+    }),
+    navigating: readable(null),
+    updated: readable(false)
 }));
 
 // Mock $app/environment

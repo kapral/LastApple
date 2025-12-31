@@ -6,8 +6,9 @@ interface AppleAuthStore {
 }
 
 function createAppleAuthStore() {
+    // Initialize as Unauthenticated - will be updated when authentication check runs
     const { subscribe, set, update } = writable<AppleAuthStore>({
-        state: AuthenticationState.Loading
+        state: AuthenticationState.Unauthenticated
     });
 
     return {
