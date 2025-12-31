@@ -1,5 +1,7 @@
 // Station API client
-// Placeholder - will be implemented in Phase 4
+import { env } from '$env/dynamic/public';
+
+const API_URL = env.PUBLIC_API_URL || '/';
 
 export interface IStationDefinition {
     stationType: string;
@@ -14,23 +16,35 @@ export interface IStation {
     definition: IStationDefinition;
 }
 
+function getSessionId(): string | null {
+    if (typeof localStorage === 'undefined') return null;
+    return localStorage.getItem('SessionId');
+}
+
 const stationApi = {
     async getStation(stationId: string): Promise<IStation> {
-        // Placeholder - will call /api/station/{id}
-        throw new Error('Not implemented');
+        const response = await fetch(`${API_URL}api/station/${stationId}`);
+        return await response.json();
+    },
+
+    async postStation(stationType: string, name: string | null): Promise<IStation> {
+        const response = await fetch(`${API_URL}api/station/${stationType}/${name}`, {
+            method: 'POST',
+            headers: { 'X-SessionId': getSessionId() || '' }
+        });
+        return await response.json();
     },
 
     async topUp(stationId: string, stationType: string, count: number): Promise<void> {
-        // Placeholder - will call /api/station/{id}/top-up
+        await fetch(`${API_URL}api/station/${stationType}/${stationId}/topup/${count}`, {
+            method: 'POST'
+        });
     },
 
     async deleteSongs(stationId: string, position: number, count: number): Promise<void> {
-        // Placeholder - will call DELETE /api/station/{id}/songs
-    },
-
-    async createStation(definition: IStationDefinition): Promise<IStation> {
-        // Placeholder - will call POST /api/station
-        throw new Error('Not implemented');
+        await fetch(`${API_URL}api/station/${stationId}/songs?position=${position}&count=${count}`, {
+            method: 'DELETE'
+        });
     }
 };
 

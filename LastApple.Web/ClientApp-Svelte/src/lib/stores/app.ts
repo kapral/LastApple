@@ -1,18 +1,4 @@
 import { writable } from 'svelte/store';
 
-interface AppStore {
-    latestStationId: string | undefined;
-}
-
-function createAppStore() {
-    const { subscribe, set, update } = writable<AppStore>({
-        latestStationId: undefined
-    });
-
-    return {
-        subscribe,
-        setLatestStationId: (id: string | undefined) => update(s => ({ ...s, latestStationId: id }))
-    };
-}
-
-export const appStore = createAppStore();
+// Simple store for latest station ID - used by Header for "Now playing" link
+export const latestStationId = writable<string | null>(null);
