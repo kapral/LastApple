@@ -12,7 +12,7 @@
 		goto('/settings');
 	}
 	
-	let avatarUrl = $derived($lastfmAuthStore.user?.avatar?.[0]?.url ?? lastfmLogo);
+	let avatarUrl = $derived($lastfmAuthStore.user?.avatar?.[0] ?? lastfmLogo);
 	let profileUrl = $derived($lastfmAuthStore.user ? `https://www.last.fm/user/${$lastfmAuthStore.user.name}` : undefined);
 	let displayName = $derived($lastfmAuthStore.user?.name ?? 'Log in');
 </script>

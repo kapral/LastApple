@@ -36,11 +36,12 @@ const lastfmApi = {
         return await response.json();
     },
 
-    async postToken(token: string): Promise<Response> {
-        return await fetch(`${API_URL}api/lastfm/auth?token=${token}`, {
+    async postToken(token: string): Promise<string> {
+        const response = await fetch(`${API_URL}api/lastfm/auth?token=${token}`, {
             method: 'POST',
             headers: { 'X-SessionId': getSessionId() || '' }
         });
+        return await response.json();
     },
 
     async logout(): Promise<Response> {
@@ -81,3 +82,6 @@ const lastfmApi = {
 };
 
 export default lastfmApi;
+
+// Named exports for convenience
+export const { getAuthUrl, searchArtist, searchTag, postToken, logout, getUser, scrobble, updateNowPlaying } = lastfmApi;
