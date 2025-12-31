@@ -1,7 +1,17 @@
 <script lang="ts">
-	// Placeholder for Home component - will be implemented in Phase 4
+	import StationsList from '$lib/components/StationsList.svelte';
+	import AppleUnauthenticatedWarning from '$lib/components/AppleUnauthenticatedWarning.svelte';
+	import { appleAuthStore } from '$lib/stores/appleAuth';
+	import { AuthenticationState } from '$lib/services/authentication';
+	
+	let showWarning = $derived($appleAuthStore.state === AuthenticationState.Unauthenticated);
 </script>
 
 <div data-testid="home">
-	<p>Home page placeholder - Phase 4 will implement the full component</p>
+	{#if showWarning}
+		<AppleUnauthenticatedWarning />
+	{/if}
+	<div>
+		<StationsList />
+	</div>
 </div>

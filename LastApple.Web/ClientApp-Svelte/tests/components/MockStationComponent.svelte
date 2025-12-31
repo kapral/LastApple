@@ -21,4 +21,4 @@
 	});
 </script>
 
-<div>Mock Station Component</div>
+<div data-testid="mock-station-component">Mock Station Component</div>
