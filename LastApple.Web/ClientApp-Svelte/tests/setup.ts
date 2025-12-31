@@ -2,10 +2,11 @@ import '@testing-library/jest-dom/vitest';
 import { vi } from 'vitest';
 import { readable } from 'svelte/store';
 
-// Mock $env/dynamic/public
-vi.mock('$env/dynamic/public', () => ({
-    env: {
-        PUBLIC_API_BASE_URL: 'http://localhost:5000'
+// Mock environment service
+vi.mock('$lib/services/environment', () => ({
+    default: {
+        apiUrl: 'http://localhost:5000/',
+        websiteUrl: 'http://localhost:3000/'
     }
 }));
 

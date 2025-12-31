@@ -1,20 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/svelte';
-import Tag from '$lib/components/Stations/Tag.svelte';
 
-// Mock lastfm API
-const mockSearchTag = vi.fn();
+// Mock lastfm API - use inline factory to avoid hoisting issues
 vi.mock('$lib/api/lastfmApi', () => ({
     default: {
-        searchTag: mockSearchTag
+        searchTag: vi.fn().mockResolvedValue([])
     }
 }));
 
 // Mock station API
-const mockPostStation = vi.fn();
 vi.mock('$lib/api/stationApi', () => ({
     default: {
-        postStation: mockPostStation
+        postStation: vi.fn().mockResolvedValue({ id: 'mock-station-id' })
     }
 }));
 
@@ -27,28 +24,36 @@ describe('Tag', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        mockSearchTag.mockResolvedValue([]);
+        defaultProps.onStationCreated = vi.fn();
+        defaultProps.onOptionsChanged = vi.fn();
     });
 
-    it('applies station-parameters class', () => {
+    it('applies station-parameters class', async () => {
+        const { default: Tag } = await import('$lib/components/Stations/Tag.svelte');
         const { container } = render(Tag, { props: defaultProps });
 
         expect(container.querySelector('.station-parameters')).toBeInTheDocument();
     });
 
-    it('renders Search component with placeholder "indie..."', () => {
+    it('renders Search component with placeholder "indie..."', async () => {
+        const { default: Tag } = await import('$lib/components/Stations/Tag.svelte');
         render(Tag, { props: defaultProps });
 
         expect(screen.getByPlaceholderText('indie...')).toBeInTheDocument();
     });
 
-    it('calls onOptionsChanged(false) initially (no tag selected)', () => {
+    it('calls onOptionsChanged(false) initially (no tag selected)', async () => {
+        const { default: Tag } = await import('$lib/components/Stations/Tag.svelte');
         render(Tag, { props: defaultProps });
 
         expect(defaultProps.onOptionsChanged).toHaveBeenCalledWith(false);
     });
 
     it('searches Last.fm tags when user types', async () => {
+        const lastfmApi = await import('$lib/api/lastfmApi');
+        const mockSearchTag = vi.mocked(lastfmApi.default.searchTag);
+
+        const { default: Tag } = await import('$lib/components/Stations/Tag.svelte');
         render(Tag, { props: defaultProps });
 
         const input = screen.getByPlaceholderText('indie...');
@@ -60,11 +65,14 @@ describe('Tag', () => {
     });
 
     it('displays tag names from Last.fm search results', async () => {
+        const lastfmApi = await import('$lib/api/lastfmApi');
+        const mockSearchTag = vi.mocked(lastfmApi.default.searchTag);
         mockSearchTag.mockResolvedValue([
             { name: 'indie' },
             { name: 'indie rock' }
         ]);
 
+        const { default: Tag } = await import('$lib/components/Stations/Tag.svelte');
         render(Tag, { props: defaultProps });
 
         const input = screen.getByPlaceholderText('indie...');
@@ -76,8 +84,11 @@ describe('Tag', () => {
     });
 
     it('calls onOptionsChanged(true) when tag is selected', async () => {
+        const lastfmApi = await import('$lib/api/lastfmApi');
+        const mockSearchTag = vi.mocked(lastfmApi.default.searchTag);
         mockSearchTag.mockResolvedValue([{ name: 'indie' }]);
 
+        const { default: Tag } = await import('$lib/components/Stations/Tag.svelte');
         render(Tag, { props: defaultProps });
 
         const input = screen.getByPlaceholderText('indie...');
@@ -93,8 +104,11 @@ describe('Tag', () => {
     });
 
     it('creates station with "tag" type when triggered', async () => {
+        const stationApi = await import('$lib/api/stationApi');
+        const mockPostStation = vi.mocked(stationApi.default.postStation);
         mockPostStation.mockResolvedValue({ id: 'tag-station-id' });
 
+        const { default: Tag } = await import('$lib/components/Stations/Tag.svelte');
         const { rerender } = render(Tag, { 
             props: { ...defaultProps, triggerCreate: false } 
         });
@@ -107,8 +121,11 @@ describe('Tag', () => {
     });
 
     it('calls onStationCreated with station ID after creation', async () => {
+        const stationApi = await import('$lib/api/stationApi');
+        const mockPostStation = vi.mocked(stationApi.default.postStation);
         mockPostStation.mockResolvedValue({ id: 'tag-123' });
 
+        const { default: Tag } = await import('$lib/components/Stations/Tag.svelte');
         const { rerender } = render(Tag, { 
             props: { ...defaultProps, triggerCreate: false } 
         });
@@ -120,8 +137,8 @@ describe('Tag', () => {
         });
     });
 
-    it('exposes Definition with correct title', () => {
-        expect(Tag).toHaveProperty('Definition');
-        expect(Tag.Definition.title).toBe('Tag');
+    it('exposes Definition with correct title', async () => {
+        const { Definition } = await import('$lib/components/Stations/Tag.svelte');
+        expect(Definition.title).toBe('Tag');
     });
 });

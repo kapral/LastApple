@@ -1,65 +1,101 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/svelte';
 import { writable } from 'svelte/store';
+import { AuthenticationState } from '$lib/services/authentication';
 
-// Mock dependencies
+const mockMusicKitInstance = {
+    api: {
+        music: vi.fn().mockResolvedValue({
+            data: {
+                data: [
+                    { id: 'song-1', attributes: { name: 'Test Song 1', artistName: 'Artist 1', albumName: 'Album 1' } },
+                    { id: 'song-2', attributes: { name: 'Test Song 2', artistName: 'Artist 2', albumName: 'Album 1' } },
+                    { id: 'song-3', attributes: { name: 'Test Song 3', artistName: 'Artist 3', albumName: 'Album 2' } }
+                ]
+            }
+        })
+    },
+    storefrontId: 'us',
+    queue: {
+        items: [{ id: 'song-1' }, { id: 'song-2' }, { id: 'song-3' }],
+        item: vi.fn(() => null),
+        position: 0
+    },
+    play: vi.fn().mockResolvedValue(undefined),
+    playLater: vi.fn().mockResolvedValue(undefined),
+    setQueue: vi.fn().mockResolvedValue(undefined),
+    stop: vi.fn(),
+    clearQueue: vi.fn().mockResolvedValue(undefined),
+    skipToNextItem: vi.fn().mockResolvedValue(undefined),
+    skipToPreviousItem: vi.fn().mockResolvedValue(undefined),
+    changeToMediaAtIndex: vi.fn().mockResolvedValue(undefined),
+    nowPlayingItem: null,
+    isPlaying: false,
+    pause: vi.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn()
+};
+
+// Mock station API
 vi.mock('$lib/api/stationApi', () => ({
-    getStation: vi.fn().mockResolvedValue({
-        id: 'test-station',
-        name: 'Test Station',
-        songIds: ['123', '456', '789'],
-        isContinuous: false,
-        isGroupedByAlbum: false,
-        size: 10,
-        definition: {
-            stationType: 'test-type'
-        }
-    }),
-    deleteSongs: vi.fn().mockResolvedValue(undefined),
-    topUp: vi.fn().mockResolvedValue(undefined)
+    default: {
+        getStation: vi.fn().mockResolvedValue({
+            id: 'test-station-123',
+            name: 'Test Station',
+            songIds: ['song-1', 'song-2', 'song-3'],
+            isContinuous: false,
+            isGroupedByAlbum: false,
+            size: 10,
+            definition: {
+                stationType: 'test-type'
+            }
+        }),
+        deleteSongs: vi.fn().mockResolvedValue(undefined),
+        topUp: vi.fn().mockResolvedValue(undefined)
+    }
 }));
 
+// Mock musicKit service
 vi.mock('$lib/services/musicKit', () => ({
-    getMusicKitInstance: vi.fn(() => ({
-        api: {
-            music: vi.fn().mockResolvedValue({
-                data: {
-                    data: [
-                        { id: '123', attributes: { name: 'Test Song 1', artistName: 'Artist 1' } },
-                        { id: '456', attributes: { name: 'Test Song 2', artistName: 'Artist 2' } },
-                        { id: '789', attributes: { name: 'Test Song 3', artistName: 'Artist 3' } }
-                    ]
-                }
-            })
-        },
-        queue: {
-            items: [],
-            item: vi.fn(() => null),
-            position: -1,
-            append: vi.fn(),
-            prepend: vi.fn(),
-            remove: vi.fn()
-        },
-        play: vi.fn(),
-        stop: vi.fn(),
-        skipToNextItem: vi.fn(),
-        skipToPreviousItem: vi.fn(),
-        nowPlayingItem: null,
-        isPlaying: false,
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn()
-    })),
+    default: {
+        getInstance: vi.fn().mockResolvedValue(mockMusicKitInstance)
+    },
+    getMusicKitInstance: vi.fn(() => mockMusicKitInstance),
     formatMediaTime: vi.fn((s) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`)
 }));
 
-// Mock lastfm auth state
-const mockLastfmAuthState = writable({
-    state: 'authenticated',
-    user: { name: 'testuser' }
-});
+// Mock lastfm API
+vi.mock('$lib/api/lastfmApi', () => ({
+    default: {
+        scrobble: vi.fn().mockResolvedValue(undefined),
+        updateNowPlaying: vi.fn().mockResolvedValue(undefined)
+    }
+}));
 
-vi.mock('$lib/stores/lastfmAuthState', () => ({
-    lastfmAuthState: mockLastfmAuthState
+// Mock lastfm auth store
+const mockLastfmAuthStore = {
+    ...writable({
+        state: AuthenticationState.Authenticated,
+        user: { name: 'testuser' },
+        isScrobblingEnabled: true
+    }),
+    setIsScrobblingEnabled: vi.fn()
+};
+
+vi.mock('$lib/stores/lastfmAuth', () => ({
+    lastfmAuthState: mockLastfmAuthStore
+}));
+
+// Mock signalR
+vi.mock('@microsoft/signalr', () => ({
+    HubConnectionBuilder: vi.fn(() => ({
+        withUrl: vi.fn().mockReturnThis(),
+        build: vi.fn(() => ({
+            start: vi.fn().mockResolvedValue(undefined),
+            on: vi.fn(),
+            off: vi.fn()
+        }))
+    }))
 }));
 
 describe('StationPlayer', () => {
@@ -84,7 +120,7 @@ describe('StationPlayer', () => {
     });
 
     it('fetches station data on mount', async () => {
-        const stationApi = await import('$lib/api/stationApi');
+        const { default: stationApi } = await import('$lib/api/stationApi');
 
         const { default: StationPlayer } = await import('$lib/components/Player/StationPlayer.svelte');
         render(StationPlayer, { props: { stationId: 'my-station-id' } });
@@ -129,9 +165,9 @@ describe('StationPlayer', () => {
         render(StationPlayer, { props: defaultProps });
 
         await waitFor(() => {
-            expect(screen.getByTestId('prev-button')).toBeInTheDocument();
-            expect(screen.getByTestId('play-pause-button')).toBeInTheDocument();
-            expect(screen.getByTestId('next-button')).toBeInTheDocument();
+            expect(screen.getByLabelText('previous')).toBeInTheDocument();
+            expect(screen.getByLabelText(/play|pause/)).toBeInTheDocument();
+            expect(screen.getByLabelText('next')).toBeInTheDocument();
         });
     });
 
