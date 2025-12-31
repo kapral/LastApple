@@ -167,11 +167,12 @@ public class Startup(IConfiguration configuration)
 
         app.UseSpa(spa =>
         {
-            spa.Options.SourcePath = "ClientApp";
+            spa.Options.SourcePath = "ClientApp-Svelte";
 
             if (env.IsDevelopment())
             {
-                spa.UseReactDevelopmentServer(npmScript: "start");
+                // Use Vite development server for Svelte
+                spa.UseProxyToSpaDevelopmentServer("http://localhost:3000");
             }
         });
     }
