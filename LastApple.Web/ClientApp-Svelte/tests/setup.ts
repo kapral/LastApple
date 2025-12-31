@@ -44,22 +44,40 @@ vi.mock('$app/environment', () => ({
     version: 'test'
 }));
 
+// Create a mock MusicKit instance for reuse
+const mockMusicKitInstance = {
+    isAuthorized: false,
+    authorize: vi.fn().mockResolvedValue(undefined),
+    unauthorize: vi.fn().mockResolvedValue(undefined),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    nowPlayingItem: null,
+    isPlaying: false,
+    currentPlaybackDuration: 180,
+    currentPlaybackTime: 0,
+    seekToTime: vi.fn().mockResolvedValue(undefined),
+    api: {
+        music: vi.fn()
+    }
+};
+
 // Mock musicKitService
 vi.mock('$lib/services/musicKit', () => ({
     default: {
-        getInstance: vi.fn().mockResolvedValue({
-            isAuthorized: false,
-            authorize: vi.fn().mockResolvedValue(undefined),
-            unauthorize: vi.fn().mockResolvedValue(undefined),
-            addEventListener: vi.fn(),
-            removeEventListener: vi.fn(),
-            nowPlayingItem: null,
-            isPlaying: false,
-            api: {
-                music: vi.fn()
-            }
-        })
-    }
+        getInstance: vi.fn().mockResolvedValue(mockMusicKitInstance),
+        formatMediaTime: vi.fn((seconds: number) => {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }),
+        instance: mockMusicKitInstance
+    },
+    getMusicKitInstance: vi.fn(() => mockMusicKitInstance),
+    formatMediaTime: vi.fn((seconds: number) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
+    })
 }));
 
 // Mock appleMusicApi

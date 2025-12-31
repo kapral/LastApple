@@ -47,16 +47,16 @@ describe('PlayerControls', () => {
 
         const albumArt = container.querySelector('.album-art');
         expect(albumArt).toBeInTheDocument();
-        // Should have background-image style with the artwork URL
-        expect(albumArt).toHaveStyle({ backgroundPosition: 'center' });
+        // Should have background-image inline style with the artwork URL
+        expect(albumArt).toHaveAttribute('style', expect.stringContaining('background-image'));
     });
 
     it('renders PlayerHeader component with track info', () => {
         render(PlayerControls, { props: defaultProps });
 
-        // PlayerHeader should show track name and artist
+        // PlayerHeader should show track name and artist info
         expect(screen.getByText('Test Song')).toBeInTheDocument();
-        expect(screen.getByText('Test Artist')).toBeInTheDocument();
+        expect(screen.getByText('Test Artist - Test Album')).toBeInTheDocument();
     });
 
     it('does not render PlayerHeader when currentTrack is undefined', () => {
