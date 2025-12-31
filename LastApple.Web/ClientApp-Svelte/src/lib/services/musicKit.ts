@@ -46,4 +46,16 @@ class MusicKitService {
 
 const musicKit = new MusicKitService();
 
+// Named exports for components that need synchronous access
+export function getMusicKitInstance(): MusicKit.MusicKitInstance {
+    if (!musicKit.instance) {
+        throw new Error('MusicKit not initialized. Call getInstance() first.');
+    }
+    return musicKit.instance;
+}
+
+export function formatMediaTime(seconds: number): string {
+    return musicKit.formatMediaTime(seconds);
+}
+
 export default musicKit;
