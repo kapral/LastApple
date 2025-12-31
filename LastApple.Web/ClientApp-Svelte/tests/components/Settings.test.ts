@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/svelte';
+import { render, screen, fireEvent, waitFor } from '@testing-library/svelte';
 import Settings from '$lib/components/Settings.svelte';
 import { appleAuthState } from '$lib/stores/appleAuth';
 import { lastfmAuthState } from '$lib/stores/lastfmAuth';
@@ -88,10 +88,15 @@ describe('Settings', () => {
         render(Settings);
         
         const toggle = screen.getByRole('switch', { name: /apple music/i });
-        await fireEvent.click(toggle);
         
-        // Should trigger login - implementation will call appleAuthentication.loginApple
-        // For now, we just verify the toggle is interactive
-        expect(toggle).toBeInTheDocument();
+        // Clicking the toggle should trigger login which changes state to Loading
+        // This verifies the toggle is interactive and connected to auth logic
+        fireEvent.click(toggle);
+        
+        // After click, state changes to Loading, so we should see spinner
+        // The toggle will be gone while loading - that's expected behavior
+        await waitFor(() => {
+            expect(screen.getByRole('status')).toBeInTheDocument();
+        });
     });
 });

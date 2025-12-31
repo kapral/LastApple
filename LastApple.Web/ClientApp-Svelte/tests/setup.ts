@@ -44,6 +44,36 @@ vi.mock('$app/environment', () => ({
     version: 'test'
 }));
 
+// Mock musicKitService
+vi.mock('$lib/services/musicKit', () => ({
+    default: {
+        getInstance: vi.fn().mockResolvedValue({
+            isAuthorized: false,
+            authorize: vi.fn().mockResolvedValue(undefined),
+            unauthorize: vi.fn().mockResolvedValue(undefined),
+            addEventListener: vi.fn(),
+            removeEventListener: vi.fn(),
+            nowPlayingItem: null,
+            isPlaying: false,
+            api: {
+                music: vi.fn()
+            }
+        })
+    }
+}));
+
+// Mock appleMusicApi
+vi.mock('$lib/api/appleMusicApi', () => ({
+    default: {
+        getSessionData: vi.fn().mockResolvedValue(null),
+        postSessionData: vi.fn().mockResolvedValue({ id: 'test-session-id' }),
+        deleteSessionData: vi.fn().mockResolvedValue(undefined)
+    },
+    getSessionData: vi.fn().mockResolvedValue(null),
+    postSessionData: vi.fn().mockResolvedValue({ id: 'test-session-id' }),
+    deleteSessionData: vi.fn().mockResolvedValue(undefined)
+}));
+
 // Mock window.MusicKit globally for tests
 (global as any).window = global.window || {};
 (global.window as any).MusicKit = {

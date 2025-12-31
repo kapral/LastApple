@@ -13,8 +13,10 @@ function createAppleAuthStore() {
 
     return {
         subscribe,
+        set,
         setState: (state: AuthenticationState) => update(s => ({ ...s, state }))
     };
 }
 
 export const appleAuthStore = createAppleAuthStore();
+export const appleAuthState = appleAuthStore;
