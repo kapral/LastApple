@@ -1,7 +1,16 @@
 <script lang="ts">
+	import { page } from '$app/stores';
 	import { latestStationId } from '$lib/stores/app';
 	import LastfmAvatar from './LastfmAvatar.svelte';
 	import logo from '$lib/images/logo.png';
+	
+	const navLinkStyle = 'color: #DDD; padding: 10px; text-decoration: none; display: inline-block;';
+	const activeStyle = 'background: #222;';
+	const nowPlayingActiveStyle = 'background: #0E0E0E;';
+	
+	let isHome = $derived($page.url.pathname === '/');
+	let isStation = $derived($page.url.pathname.startsWith('/station/'));
+	let isSettings = $derived($page.url.pathname === '/settings');
 </script>
 
 <div class="header" style="background: #000; padding: 10px 10px 0; padding-top: max(env(safe-area-inset-top), 10px);">
@@ -17,10 +26,10 @@
 	</div>
 
 	<div style="display: flex; align-items: center;">
-		<a href="/" style="color: #DDD; padding: 10px; text-decoration: none; display: inline-block;">New station</a>
+		<a href="/" style="{navLinkStyle} {isHome ? activeStyle : ''}">New station</a>
 		{#if $latestStationId}
-			<a href="/station/{$latestStationId}" style="color: #DDD; padding: 10px; text-decoration: none; display: inline-block;">Now playing</a>
+			<a href="/station/{$latestStationId}" style="{navLinkStyle} {isStation ? nowPlayingActiveStyle : ''}">Now playing</a>
 		{/if}
-		<a href="/settings" style="color: #DDD; padding: 10px; text-decoration: none; display: inline-block;">Settings</a>
+		<a href="/settings" style="{navLinkStyle} {isSettings ? nowPlayingActiveStyle : ''}">Settings</a>
 	</div>
 </div>
