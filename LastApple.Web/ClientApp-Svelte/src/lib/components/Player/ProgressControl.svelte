@@ -6,10 +6,16 @@
 	let rewindPosition = $state(0);
 	let currentPlaybackPercent = $state(0);
 	let currentPlaybackTime = $state(0);
+	let duration = $state(0);
 
 	function handlePlaybackTimeChanged(event: any) {
 		const eventCurrentPlaybackTime = event.currentPlaybackTime;
 		const currentPlaybackDuration = event.currentPlaybackDuration;
+
+		// Update duration from event
+		if (currentPlaybackDuration && Number.isFinite(currentPlaybackDuration) && currentPlaybackDuration > 0) {
+			duration = currentPlaybackDuration;
+		}
 
 		if (currentPlaybackDuration === 0 || !Number.isFinite(currentPlaybackDuration)) {
 			currentPlaybackTime = eventCurrentPlaybackTime;
@@ -54,7 +60,6 @@
 		rewindPosition = 0;
 	}
 
-	let duration = $derived(browser ? getMusicKitInstance().currentPlaybackDuration : 0);
 	let rewindPercent = $derived(duration > 0 ? (rewindPosition / duration) * 100 : 0);
 
 	onMount(() => {

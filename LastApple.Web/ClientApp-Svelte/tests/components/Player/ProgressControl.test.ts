@@ -77,6 +77,24 @@ describe('ProgressControl', () => {
         const { default: ProgressControl } = await import('$lib/components/Player/ProgressControl.svelte');
         render(ProgressControl);
 
+        // Duration is updated when playbackTimeDidChange event fires
+        // Get the event handler that was registered
+        const addEventListenerCalls = vi.mocked(mockInstance.addEventListener).mock.calls;
+        const playbackTimeHandler = addEventListenerCalls.find(
+            (call) => call[0] === 'playbackTimeDidChange'
+        )?.[1] as (event: any) => void;
+
+        // Simulate the event firing with duration
+        if (playbackTimeHandler) {
+            playbackTimeHandler({
+                currentPlaybackTime: 60,
+                currentPlaybackDuration: 180
+            });
+        }
+
+        // Allow Svelte to update
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
         expect(mockMusicKit.formatMediaTime).toHaveBeenCalledWith(180);
     });
 

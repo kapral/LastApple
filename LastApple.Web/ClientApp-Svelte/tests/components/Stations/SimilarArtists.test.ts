@@ -1,20 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/svelte';
-import SimilarArtists from '$lib/components/Stations/SimilarArtists.svelte';
 
-// Mock lastfm API
-const mockSearchArtist = vi.fn();
+// Mock lastfm API - use inline factory to avoid hoisting issues
 vi.mock('$lib/api/lastfmApi', () => ({
     default: {
-        searchArtist: mockSearchArtist
+        searchArtist: vi.fn().mockResolvedValue([])
     }
 }));
 
 // Mock station API
-const mockPostStation = vi.fn();
 vi.mock('$lib/api/stationApi', () => ({
     default: {
-        postStation: mockPostStation
+        postStation: vi.fn().mockResolvedValue({ id: 'mock-station-id' })
     }
 }));
 
@@ -27,28 +24,36 @@ describe('SimilarArtists', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        mockSearchArtist.mockResolvedValue([]);
+        defaultProps.onStationCreated = vi.fn();
+        defaultProps.onOptionsChanged = vi.fn();
     });
 
-    it('applies station-parameters class', () => {
+    it('applies station-parameters class', async () => {
+        const { default: SimilarArtists } = await import('$lib/components/Stations/SimilarArtists.svelte');
         const { container } = render(SimilarArtists, { props: defaultProps });
 
         expect(container.querySelector('.station-parameters')).toBeInTheDocument();
     });
 
-    it('renders Search component with placeholder "Placebo..."', () => {
+    it('renders Search component with placeholder "Placebo..."', async () => {
+        const { default: SimilarArtists } = await import('$lib/components/Stations/SimilarArtists.svelte');
         render(SimilarArtists, { props: defaultProps });
 
         expect(screen.getByPlaceholderText('Placebo...')).toBeInTheDocument();
     });
 
-    it('calls onOptionsChanged(false) initially (no artist selected)', () => {
+    it('calls onOptionsChanged(false) initially (no artist selected)', async () => {
+        const { default: SimilarArtists } = await import('$lib/components/Stations/SimilarArtists.svelte');
         render(SimilarArtists, { props: defaultProps });
 
         expect(defaultProps.onOptionsChanged).toHaveBeenCalledWith(false);
     });
 
     it('searches Last.fm API when user types', async () => {
+        const lastfmApi = await import('$lib/api/lastfmApi');
+        const mockSearchArtist = vi.mocked(lastfmApi.default.searchArtist);
+        
+        const { default: SimilarArtists } = await import('$lib/components/Stations/SimilarArtists.svelte');
         render(SimilarArtists, { props: defaultProps });
 
         const input = screen.getByPlaceholderText('Placebo...');
@@ -60,11 +65,14 @@ describe('SimilarArtists', () => {
     });
 
     it('displays artist names from Last.fm search results', async () => {
+        const lastfmApi = await import('$lib/api/lastfmApi');
+        const mockSearchArtist = vi.mocked(lastfmApi.default.searchArtist);
         mockSearchArtist.mockResolvedValue([
             { name: 'Placebo' },
             { name: 'Placebo Effect' }
         ]);
 
+        const { default: SimilarArtists } = await import('$lib/components/Stations/SimilarArtists.svelte');
         render(SimilarArtists, { props: defaultProps });
 
         const input = screen.getByPlaceholderText('Placebo...');
@@ -76,8 +84,11 @@ describe('SimilarArtists', () => {
     });
 
     it('calls onOptionsChanged(true) when artist is selected', async () => {
+        const lastfmApi = await import('$lib/api/lastfmApi');
+        const mockSearchArtist = vi.mocked(lastfmApi.default.searchArtist);
         mockSearchArtist.mockResolvedValue([{ name: 'Placebo' }]);
 
+        const { default: SimilarArtists } = await import('$lib/components/Stations/SimilarArtists.svelte');
         render(SimilarArtists, { props: defaultProps });
 
         const input = screen.getByPlaceholderText('Placebo...');
@@ -93,8 +104,11 @@ describe('SimilarArtists', () => {
     });
 
     it('creates station with "similarartists" type when triggered', async () => {
+        const stationApi = await import('$lib/api/stationApi');
+        const mockPostStation = vi.mocked(stationApi.default.postStation);
         mockPostStation.mockResolvedValue({ id: 'new-station-id' });
 
+        const { default: SimilarArtists } = await import('$lib/components/Stations/SimilarArtists.svelte');
         const { rerender } = render(SimilarArtists, { 
             props: { ...defaultProps, triggerCreate: false } 
         });
@@ -107,8 +121,11 @@ describe('SimilarArtists', () => {
     });
 
     it('calls onStationCreated with station ID after creation', async () => {
+        const stationApi = await import('$lib/api/stationApi');
+        const mockPostStation = vi.mocked(stationApi.default.postStation);
         mockPostStation.mockResolvedValue({ id: 'similar-station-123' });
 
+        const { default: SimilarArtists } = await import('$lib/components/Stations/SimilarArtists.svelte');
         const { rerender } = render(SimilarArtists, { 
             props: { ...defaultProps, triggerCreate: false } 
         });

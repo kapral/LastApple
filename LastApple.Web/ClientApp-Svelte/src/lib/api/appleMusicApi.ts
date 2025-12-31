@@ -1,7 +1,7 @@
 // Apple Music API client
-import { env } from '$env/dynamic/public';
+import environment from '$lib/services/environment';
 
-const API_URL = env.PUBLIC_API_URL || '/';
+const API_URL = environment.apiUrl;
 
 export interface ISessionData {
     id?: string;

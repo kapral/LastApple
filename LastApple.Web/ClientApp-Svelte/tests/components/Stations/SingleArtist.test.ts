@@ -1,22 +1,20 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/svelte';
-import SingleArtist from '$lib/components/Stations/SingleArtist.svelte';
 
-// Mock the musicKit module
-const mockGetInstance = vi.fn();
-const mockApiMusic = vi.fn();
-
+// Mock the musicKit module - use inline factory to avoid hoisting issues
 vi.mock('$lib/services/musicKit', () => ({
     default: {
-        getInstance: mockGetInstance
+        getInstance: vi.fn().mockResolvedValue({
+            api: { music: vi.fn().mockResolvedValue({ data: { results: { artists: { data: [] } } } }) },
+            storefrontId: 'us'
+        })
     }
 }));
 
 // Mock station API
-const mockPostStation = vi.fn();
 vi.mock('$lib/api/stationApi', () => ({
     default: {
-        postStation: mockPostStation
+        postStation: vi.fn().mockResolvedValue({ id: 'mock-station-id' })
     }
 }));
 
@@ -29,34 +27,37 @@ describe('SingleArtist', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        mockGetInstance.mockResolvedValue({
-            api: { music: mockApiMusic },
-            storefrontId: 'us'
-        });
-        mockApiMusic.mockResolvedValue({
-            data: { results: { artists: { data: [] } } }
-        });
+        defaultProps.onStationCreated = vi.fn();
+        defaultProps.onOptionsChanged = vi.fn();
     });
 
-    it('applies station-parameters class', () => {
+    it('applies station-parameters class', async () => {
+        const { default: SingleArtist } = await import('$lib/components/Stations/SingleArtist.svelte');
         const { container } = render(SingleArtist, { props: defaultProps });
 
         expect(container.querySelector('.station-parameters')).toBeInTheDocument();
     });
 
-    it('renders Search component with placeholder "Radiohead..."', () => {
+    it('renders Search component with placeholder "Radiohead..."', async () => {
+        const { default: SingleArtist } = await import('$lib/components/Stations/SingleArtist.svelte');
         render(SingleArtist, { props: defaultProps });
 
         expect(screen.getByPlaceholderText('Radiohead...')).toBeInTheDocument();
     });
 
-    it('calls onOptionsChanged(false) initially (no artist selected)', () => {
+    it('calls onOptionsChanged(false) initially (no artist selected)', async () => {
+        const { default: SingleArtist } = await import('$lib/components/Stations/SingleArtist.svelte');
         render(SingleArtist, { props: defaultProps });
 
         expect(defaultProps.onOptionsChanged).toHaveBeenCalledWith(false);
     });
 
     it('searches Apple Music catalog when user types', async () => {
+        const musicKit = await import('$lib/services/musicKit');
+        const mockInstance = await vi.mocked(musicKit.default.getInstance)();
+        const mockApiMusic = vi.mocked(mockInstance.api.music);
+
+        const { default: SingleArtist } = await import('$lib/components/Stations/SingleArtist.svelte');
         render(SingleArtist, { props: defaultProps });
 
         const input = screen.getByPlaceholderText('Radiohead...');
@@ -71,6 +72,9 @@ describe('SingleArtist', () => {
     });
 
     it('calls onOptionsChanged(true) when artist is selected', async () => {
+        const musicKit = await import('$lib/services/musicKit');
+        const mockInstance = await vi.mocked(musicKit.default.getInstance)();
+        const mockApiMusic = vi.mocked(mockInstance.api.music);
         mockApiMusic.mockResolvedValue({
             data: {
                 results: {
@@ -81,6 +85,7 @@ describe('SingleArtist', () => {
             }
         });
 
+        const { default: SingleArtist } = await import('$lib/components/Stations/SingleArtist.svelte');
         render(SingleArtist, { props: defaultProps });
 
         const input = screen.getByPlaceholderText('Radiohead...');
@@ -97,8 +102,11 @@ describe('SingleArtist', () => {
     });
 
     it('creates station via API when triggerCreate becomes true', async () => {
+        const stationApi = await import('$lib/api/stationApi');
+        const mockPostStation = vi.mocked(stationApi.default.postStation);
         mockPostStation.mockResolvedValue({ id: 'new-station-id' });
 
+        const { default: SingleArtist } = await import('$lib/components/Stations/SingleArtist.svelte');
         const { rerender } = render(SingleArtist, { 
             props: { ...defaultProps, triggerCreate: false } 
         });
@@ -113,8 +121,11 @@ describe('SingleArtist', () => {
     });
 
     it('calls onStationCreated with new station ID after creation', async () => {
+        const stationApi = await import('$lib/api/stationApi');
+        const mockPostStation = vi.mocked(stationApi.default.postStation);
         mockPostStation.mockResolvedValue({ id: 'created-station-123' });
 
+        const { default: SingleArtist } = await import('$lib/components/Stations/SingleArtist.svelte');
         const { rerender } = render(SingleArtist, { 
             props: { ...defaultProps, triggerCreate: false } 
         });
@@ -127,6 +138,9 @@ describe('SingleArtist', () => {
     });
 
     it('uses labelAccessor to display artist name from attributes', async () => {
+        const musicKit = await import('$lib/services/musicKit');
+        const mockInstance = await vi.mocked(musicKit.default.getInstance)();
+        const mockApiMusic = vi.mocked(mockInstance.api.music);
         mockApiMusic.mockResolvedValue({
             data: {
                 results: {
@@ -137,6 +151,7 @@ describe('SingleArtist', () => {
             }
         });
 
+        const { default: SingleArtist } = await import('$lib/components/Stations/SingleArtist.svelte');
         render(SingleArtist, { props: defaultProps });
 
         const input = screen.getByPlaceholderText('Radiohead...');

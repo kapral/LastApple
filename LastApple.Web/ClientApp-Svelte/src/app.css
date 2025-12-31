@@ -438,11 +438,15 @@ h1, h2, h3, h4, h5, h6 {
     background: #00000099;
     margin-bottom: 5px;
     padding: 0.4rem;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
 }
 
 .playlist-track-group .album-header {
-    display: inline-block;
-    width: calc(100% - 60px);
+    display: block;
+    flex: 1;
+    min-width: 0;
     padding: 7px 0 0 10px;
 }
 

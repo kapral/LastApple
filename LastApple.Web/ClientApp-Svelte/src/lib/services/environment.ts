@@ -1,7 +1,5 @@
 class Environment {
-    apiUrl =  'https://lastream.azurewebsites.net/';
-    websiteUrl = 'https://lastream.net/';
-    hubUrl = 'https://lastream.azurewebsites.net/hubs/station';
+    apiUrl = 'https://localhost:5001/';
 }
 
 const environment = new Environment();
