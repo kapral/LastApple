@@ -73,18 +73,24 @@ describe('PlaylistTrackGroup', () => {
         });
     });
 
-    it('renders dropdown menu', async () => {
+    it('renders dropdown menu when toggle is clicked', async () => {
         const { default: PlaylistTrackGroup } = await import('$lib/components/Player/PlaylistTrackGroup.svelte');
-        render(PlaylistTrackGroup, { props: defaultProps });
+        const { container } = render(PlaylistTrackGroup, { props: defaultProps });
 
         expect(screen.getByTestId('dropdown-toggle')).toBeInTheDocument();
+        // Click the toggle to open dropdown
+        const toggle = container.querySelector('.custom-toggle');
+        await fireEvent.click(toggle!);
         expect(screen.getByTestId('dropdown-menu')).toBeInTheDocument();
     });
 
     it('renders add album to library option', async () => {
         const { default: PlaylistTrackGroup } = await import('$lib/components/Player/PlaylistTrackGroup.svelte');
-        render(PlaylistTrackGroup, { props: defaultProps });
+        const { container } = render(PlaylistTrackGroup, { props: defaultProps });
 
+        // Open dropdown first
+        const toggle = container.querySelector('.custom-toggle');
+        await fireEvent.click(toggle!);
         const addAlbumItem = screen.getByText(/Add.*AppleMusic Library/i);
         expect(addAlbumItem).toBeInTheDocument();
     });
@@ -94,8 +100,11 @@ describe('PlaylistTrackGroup', () => {
         const testTracks = [createMockTrack({ id: 'album-track-1' })];
 
         const { default: PlaylistTrackGroup } = await import('$lib/components/Player/PlaylistTrackGroup.svelte');
-        render(PlaylistTrackGroup, { props: { ...defaultProps, addAlbumToLibrary: mockAddAlbumToLibrary, tracks: testTracks } });
+        const { container } = render(PlaylistTrackGroup, { props: { ...defaultProps, addAlbumToLibrary: mockAddAlbumToLibrary, tracks: testTracks } });
 
+        // Open dropdown first
+        const toggle = container.querySelector('.custom-toggle');
+        await fireEvent.click(toggle!);
         const addAlbumItem = screen.getByText(/Add.*AppleMusic Library/i);
         await fireEvent.click(addAlbumItem);
 
@@ -104,8 +113,11 @@ describe('PlaylistTrackGroup', () => {
 
     it('renders remove option', async () => {
         const { default: PlaylistTrackGroup } = await import('$lib/components/Player/PlaylistTrackGroup.svelte');
-        render(PlaylistTrackGroup, { props: defaultProps });
+        const { container } = render(PlaylistTrackGroup, { props: defaultProps });
 
+        // Open dropdown first
+        const toggle = container.querySelector('.custom-toggle');
+        await fireEvent.click(toggle!);
         const removeItem = screen.getByText(/Remove/i);
         expect(removeItem).toBeInTheDocument();
     });
@@ -114,8 +126,11 @@ describe('PlaylistTrackGroup', () => {
         const mockOnRemove = vi.fn();
 
         const { default: PlaylistTrackGroup } = await import('$lib/components/Player/PlaylistTrackGroup.svelte');
-        render(PlaylistTrackGroup, { props: { ...defaultProps, onRemove: mockOnRemove } });
+        const { container } = render(PlaylistTrackGroup, { props: { ...defaultProps, onRemove: mockOnRemove } });
 
+        // Open dropdown first
+        const toggle = container.querySelector('.custom-toggle');
+        await fireEvent.click(toggle!);
         const removeItem = screen.getByText(/Remove/i);
         await fireEvent.click(removeItem);
 
