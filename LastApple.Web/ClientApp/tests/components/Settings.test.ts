@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/svelte';
 import Settings from '$lib/components/Settings.svelte';
 import { appleAuthState } from '$lib/stores/appleAuth';
 import { lastfmAuthState } from '$lib/stores/lastfmAuth';
-import { AuthenticationState } from '$lib/services/authentication';
+import { AuthenticationState } from '$lib/models/authenticationState';
 
 describe('Settings', () => {
     beforeEach(() => {

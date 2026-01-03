@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { writable, get, derived } from 'svelte/store';
-import { AuthenticationState } from '$lib/services/authentication';
+import { AuthenticationState } from '$lib/models/authenticationState';
 
 // Instead of mocking the actual store, we test the derived store logic directly
 describe('appleUnauthenticatedWarning', () => {

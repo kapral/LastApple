@@ -1,5 +1,27 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
+
+// Create a shared mock instance for MusicKit
+const mockMusicKitInstance = {
+    currentPlaybackDuration: 180,
+    currentPlaybackTime: 0,
+    seekToTime: vi.fn().mockResolvedValue(undefined),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn()
+};
+
+// Mock MusicKit - must be before importing PlayerControls since it uses ProgressControl
+vi.mock('$lib/services/musicKit', () => ({
+    default: {
+        getExistingInstance: vi.fn(() => mockMusicKitInstance),
+        formatMediaTime: vi.fn((seconds: number) => {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = Math.floor(seconds % 60);
+            return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+        })
+    }
+}));
+
 import PlayerControls from '$lib/components/Player/PlayerControls.svelte';
 
 const createMockTrack = (overrides: Partial<MusicKit.MediaItem> = {}): MusicKit.MediaItem => ({
