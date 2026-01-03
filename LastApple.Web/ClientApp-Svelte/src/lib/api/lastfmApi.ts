@@ -1,13 +1,7 @@
-// Last.fm API client
 import environment from '$lib/services/environment';
+import type { ILastfmUser } from "$lib/models/lastfmUser";
 
 const API_URL = environment.apiUrl;
-
-export interface ILastfmUser {
-    readonly name: string;
-    readonly url: string;
-    readonly avatar: Array<string>;
-}
 
 interface ILastfmArtist {
     name: string;
@@ -15,8 +9,7 @@ interface ILastfmArtist {
 }
 
 function getSessionId(): string | null {
-    if (typeof localStorage === 'undefined') return null;
-    return localStorage.getItem('SessionId');
+    return localStorage?.getItem('SessionId');
 }
 
 const lastfmApi = {
@@ -82,6 +75,3 @@ const lastfmApi = {
 };
 
 export default lastfmApi;
-
-// Named exports for convenience
-export const { getAuthUrl, searchArtist, searchTag, postToken, logout, getUser, scrobble, updateNowPlaying } = lastfmApi;
