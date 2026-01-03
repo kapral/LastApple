@@ -1,99 +1,99 @@
 <script lang="ts">
-	import { onMount, onDestroy } from 'svelte';
-	import musicKit from '$lib/services/musicKit';
+    import { onMount, onDestroy } from 'svelte';
+    import musicKit from '$lib/services/musicKit';
 
-	let rewindPosition = $state(0);
-	let currentPlaybackPercent = $state(0);
-	let currentPlaybackTime = $state(0);
-	let duration = $state(0);
+    let rewindPosition = $state(0);
+    let currentPlaybackPercent = $state(0);
+    let currentPlaybackTime = $state(0);
+    let duration = $state(0);
 
-	function handlePlaybackTimeChanged(event: any) {
-		const eventCurrentPlaybackTime = event.currentPlaybackTime;
-		const currentPlaybackDuration = event.currentPlaybackDuration;
+    function handlePlaybackTimeChanged(event: any) {
+        const eventCurrentPlaybackTime = event.currentPlaybackTime;
+        const currentPlaybackDuration = event.currentPlaybackDuration;
 
-		if (currentPlaybackDuration && Number.isFinite(currentPlaybackDuration) && currentPlaybackDuration > 0) {
-			duration = currentPlaybackDuration;
-		}
+        if (currentPlaybackDuration && Number.isFinite(currentPlaybackDuration) && currentPlaybackDuration > 0) {
+            duration = currentPlaybackDuration;
+        }
 
-		if (currentPlaybackDuration === 0 || !Number.isFinite(currentPlaybackDuration)) {
-			currentPlaybackTime = eventCurrentPlaybackTime;
-			currentPlaybackPercent = 0;
-			return;
-		}
+        if (currentPlaybackDuration === 0 || !Number.isFinite(currentPlaybackDuration)) {
+            currentPlaybackTime = eventCurrentPlaybackTime;
+            currentPlaybackPercent = 0;
+            return;
+        }
 
-		if (eventCurrentPlaybackTime === currentPlaybackTime) {
-			const diff = (1 / currentPlaybackDuration / 4) * 100;
-			currentPlaybackPercent = currentPlaybackPercent + diff;
-			return;
-		}
+        if (eventCurrentPlaybackTime === currentPlaybackTime) {
+            const diff = (1 / currentPlaybackDuration / 4) * 100;
+            currentPlaybackPercent = currentPlaybackPercent + diff;
+            return;
+        }
 
-		currentPlaybackPercent = (eventCurrentPlaybackTime / currentPlaybackDuration) * 100;
-		currentPlaybackTime = eventCurrentPlaybackTime;
-	}
+        currentPlaybackPercent = (eventCurrentPlaybackTime / currentPlaybackDuration) * 100;
+        currentPlaybackTime = eventCurrentPlaybackTime;
+    }
 
-	function handleMove(e: MouseEvent) {
-		const target = e.currentTarget as HTMLElement;
-		const rect = target.getBoundingClientRect();
-		const instance = musicKit.getExistingInstance();
-		const newRewindPosition = (e.clientX - rect.left) * instance.currentPlaybackDuration / rect.width;
+    function handleMove(e: MouseEvent) {
+        const target = e.currentTarget as HTMLElement;
+        const rect = target.getBoundingClientRect();
+        const instance = musicKit.getExistingInstance();
+        const newRewindPosition = (e.clientX - rect.left) * instance.currentPlaybackDuration / rect.width;
 
-		if (Math.abs(rewindPosition - newRewindPosition) < 1) {
-			return;
-		}
+        if (Math.abs(rewindPosition - newRewindPosition) < 1) {
+            return;
+        }
 
-		rewindPosition = newRewindPosition;
-	}
+        rewindPosition = newRewindPosition;
+    }
 
-	async function handleSeek(time: number) {
-		const instance = musicKit.getExistingInstance();
-		currentPlaybackPercent = (time / instance.currentPlaybackDuration) * 100;
-		await instance.seekToTime(time);
-	}
+    async function handleSeek(time: number) {
+        const instance = musicKit.getExistingInstance();
+        currentPlaybackPercent = (time / instance.currentPlaybackDuration) * 100;
+        await instance.seekToTime(time);
+    }
 
-	async function handleClick() {
-		await handleSeek(rewindPosition);
-	}
+    async function handleClick() {
+        await handleSeek(rewindPosition);
+    }
 
-	function handleMouseLeave() {
-		rewindPosition = 0;
-	}
+    function handleMouseLeave() {
+        rewindPosition = 0;
+    }
 
-	let rewindPercent = $derived(duration > 0 ? (rewindPosition / duration) * 100 : 0);
+    let rewindPercent = $derived(duration > 0 ? (rewindPosition / duration) * 100 : 0);
 
-	onMount(() => {
-		const instance = musicKit.getExistingInstance();
-		instance.addEventListener('playbackTimeDidChange', handlePlaybackTimeChanged);
-	});
+    onMount(() => {
+        const instance = musicKit.getExistingInstance();
+        instance.addEventListener('playbackTimeDidChange', handlePlaybackTimeChanged);
+    });
 
-	onDestroy(() => {
-		const instance = musicKit.getExistingInstance();
-		instance.removeEventListener('playbackTimeDidChange', handlePlaybackTimeChanged);
-	});
+    onDestroy(() => {
+        const instance = musicKit.getExistingInstance();
+        instance.removeEventListener('playbackTimeDidChange', handlePlaybackTimeChanged);
+    });
 </script>
 
 <div class="progress-control">
-	<span class="time-display">{musicKit.formatMediaTime(currentPlaybackTime)}</span>
-	<div class="progress-container">
-		<!-- svelte-ignore a11y_click_events_have_key_events -->
-		<!-- svelte-ignore a11y_no_static_element_interactions -->
-		<div
-			class="progress-wrapper"
-			onmousemove={handleMove}
-			onmouseup={handleClick}
-			onmouseleave={handleMouseLeave}
-		>
-			<div class="audio-progress">
-				<div
-					class="playing-progress"
-					style:width="{currentPlaybackPercent}%"
-					style:display={rewindPercent !== 0 ? 'none' : 'block'}
-				></div>
-				<div
-					class="playing-progress rewind"
-					style:width="{rewindPercent}%"
-				></div>
-			</div>
-		</div>
-	</div>
-	<span class="time-display">{musicKit.formatMediaTime(duration)}</span>
+    <span class="time-display">{musicKit.formatMediaTime(currentPlaybackTime)}</span>
+    <div class="progress-container">
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <div
+            class="progress-wrapper"
+            onmousemove={handleMove}
+            onmouseup={handleClick}
+            onmouseleave={handleMouseLeave}
+        >
+            <div class="audio-progress">
+                <div
+                    class="playing-progress"
+                    style:width="{currentPlaybackPercent}%"
+                    style:display={rewindPercent !== 0 ? 'none' : 'block'}
+                ></div>
+                <div
+                    class="playing-progress rewind"
+                    style:width="{rewindPercent}%"
+                ></div>
+            </div>
+        </div>
+    </div>
+    <span class="time-display">{musicKit.formatMediaTime(duration)}</span>
 </div>
