@@ -1,5 +1,7 @@
+import { PUBLIC_API_URL } from '$env/static/public';
+
 class Environment {
-    apiUrl = 'https://localhost:5001/';
+    apiUrl = PUBLIC_API_URL;
 }
 
 const environment = new Environment();
