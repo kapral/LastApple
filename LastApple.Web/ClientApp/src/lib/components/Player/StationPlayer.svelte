@@ -8,7 +8,6 @@
     import musicKit from '$lib/services/musicKit';
     import { lastfmAuthState } from '$lib/stores/lastfmAuth';
     import { AuthenticationState } from '$lib/models/authenticationState';
-    import { PlaybackStates } from '$lib/services/musicKitEnums';
     import { HubConnectionBuilder, type HubConnection } from '@microsoft/signalr';
     import environment from '$lib/services/environment';
 
@@ -158,7 +157,7 @@
     async function handleStateChange(event: MusicKit.Events['playbackStateDidChange']) {
         if (!event || suppressEvents) return;
 
-        const playing = (event.state as unknown as PlaybackStates) === PlaybackStates.playing;
+        const playing = event.state === MusicKit.PlaybackStates.playing;
         if (isPlaying !== playing) {
             isPlaying = playing;
         }
