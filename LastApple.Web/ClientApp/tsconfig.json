@@ -1,31 +1,20 @@
 {
-  "compilerOptions": {
-    "target": "es2016",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true,
-    "module": "esnext",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "react",
-    "strict": false,
-    "experimentalDecorators": true,
-    "typeRoots": [
-      "src/typings",
-      "node_modules/@types"
-    ],
-    "noFallthroughCasesInSwitch": true
-  },
-  "include": [
-    "src"
-  ]
+	"extends": "./.svelte-kit/tsconfig.json",
+	"compilerOptions": {
+		"rewriteRelativeImportExtensions": true,
+		"allowJs": true,
+		"checkJs": true,
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+		"resolveJsonModule": true,
+		"skipLibCheck": true,
+		"sourceMap": true,
+		"strict": false,
+		"moduleResolution": "bundler",
+		"typeRoots": [
+			"src/lib/@types",
+			"node_modules/@types"
+		]
+	},
+	"include": ["src/**/*.ts", "src/**/*.svelte", "tests/**/*.ts"]
 }

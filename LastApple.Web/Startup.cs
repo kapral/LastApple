@@ -167,7 +167,7 @@ public class Startup(IConfiguration configuration)
 
         app.UseSpa(spa =>
         {
-            spa.Options.SourcePath = "ClientApp-Svelte";
+            spa.Options.SourcePath = "ClientApp";
 
             if (env.IsDevelopment())
             {
