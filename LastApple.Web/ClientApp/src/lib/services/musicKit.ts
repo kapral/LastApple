@@ -15,8 +15,6 @@ class MusicKitService {
 
         const token = await appleMusicApi.getDeveloperToken();
 
-        console.log(logo);
-
         const instance = await this.musicKit.configure({
             app: {
                 name: 'Lastream',
