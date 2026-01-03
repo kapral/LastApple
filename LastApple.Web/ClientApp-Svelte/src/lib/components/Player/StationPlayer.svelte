@@ -7,7 +7,7 @@
 	import lastfmApi from '$lib/api/lastfmApi';
 	import musicKit from '$lib/services/musicKit';
 	import { lastfmAuthState } from '$lib/stores/lastfmAuth';
-	import { AuthenticationState } from '$lib/services/authentication';
+	import { AuthenticationState } from '$lib/models/authenticationState';
 	import { PlaybackStates } from '$lib/services/musicKitEnums';
 	import { HubConnectionBuilder, type HubConnection } from '@microsoft/signalr';
 	import environment from '$lib/services/environment';
@@ -23,7 +23,6 @@
 
 	let { stationId }: Props = $props();
 
-	// State
 	let station: IStation | null = $state(null);
 	let tracks: MusicKit.MediaItem[] = $state([]);
 	let currentTrack: MusicKit.MediaItem | undefined = $state(undefined);
@@ -31,7 +30,6 @@
 	let suppressEvents = $state(false);
 	let isLoading = $state(true);
 
-	// Refs (non-reactive)
 	let musicKitInstance: MusicKit.MusicKitInstance | null = null;
 	let hubConnection: HubConnection | null = null;
 	let pendingEvents: IAddTrackEvent[] = [];
@@ -39,13 +37,11 @@
 	let requestedItems = 0;
 	let isFirstTime = true;
 
-	// Derived values
 	let isScrobblingEnabled = $derived(
 		$lastfmAuthState.state === AuthenticationState.Authenticated && $lastfmAuthState.isScrobblingEnabled
 	);
 	let lastfmAuthenticated = $derived($lastfmAuthState.state === AuthenticationState.Authenticated);
 
-	// Helper functions
 	function getCurrentQueuePosition(): number {
 		if (!musicKitInstance) return 0;
 		const pos = musicKitInstance.queue.position;
@@ -59,12 +55,10 @@
 		return 0;
 	}
 
-	// Batch helper
 	function batchItems<T>(arr: T[], size: number): T[][] {
 		return arr.length > size ? [arr.slice(0, size), ...batchItems(arr.slice(size), size)] : [arr];
 	}
 
-	// SignalR connection
 	async function subscribeToStationEvents() {
 		if (hubConnection) return;
 
@@ -123,7 +117,6 @@
 		console.warn(`Position ${event.position} already occupied by a different item.`);
 	}
 
-	// Lastfm integration
 	async function scrobble(track: MusicKit.MediaItem) {
 		if (!isScrobblingEnabled) return;
 
@@ -149,7 +142,6 @@
 		lastfmAuthState.setIsScrobblingEnabled(enabled);
 	}
 
-	// Top up station
 	async function topUp() {
 		if (!station || !musicKitInstance) return;
 
@@ -163,7 +155,6 @@
 		}
 	}
 
-	// MusicKit event handlers
 	async function handleStateChange(event: MusicKit.Events['playbackStateDidChange']) {
 		if (!event || suppressEvents) return;
 
@@ -198,7 +189,6 @@
 		}
 	}
 
-	// Player controls
 	async function handlePlayPause() {
 		if (!musicKitInstance) return;
 
@@ -252,13 +242,10 @@
 		if (!station) return;
 
 		const offset = getPlaylistPagingOffset() + position;
-
-		// Update tracks
 		const newTracks = [...tracks];
 		newTracks.splice(offset, count);
 		tracks = newTracks;
 
-		// Delete from server
 		await stationApi.deleteSongs(station.id, offset, count);
 
 		if (station.isContinuous) {
@@ -266,7 +253,6 @@
 		}
 	}
 
-	// Initialize station
 	async function init() {
 		if (!stationId) return;
 
@@ -292,10 +278,6 @@
 		} else {
 			musicKitInstance.stop();
 			await musicKitInstance.clearQueue();
-			// Wait for queue to be fully cleared
-			while (musicKitInstance.queue.items.length > 0) {
-				await new Promise(resolve => setTimeout(resolve, 50));
-			}
 		}
 
 		station = await stationApi.getStation(stationId);
@@ -304,7 +286,6 @@
 			return;
 		}
 
-		// Load songs in batches
 		let isFirstBatch = true;
 		for (const batch of batchItems(station.songIds, 300)) {
 			if (batch.length) {
@@ -313,13 +294,11 @@
 					{ ids: batch }
 				);
 				const songs = response.data.data as unknown as MusicKit.MediaItem[];
-				
+
 				if (isFirstBatch) {
-					// Use setQueue for first batch to replace any existing queue
 					await musicKitInstance.setQueue({ songs: songs.map((s) => s.id) });
 					isFirstBatch = false;
 				} else {
-					// Use playLater for subsequent batches to append
 					await musicKitInstance.playLater({ songs: songs.map((s) => s.id) });
 				}
 				tracks = [...tracks, ...songs];
@@ -331,17 +310,12 @@
 
 		const queueItems = musicKitInstance.queue.items;
 		if (queueItems.length) {
-			try {
-				const context = new AudioContext();
-				if (context.state === 'running') {
-					await musicKitInstance.play();
-				}
-			} catch {
-				// AudioContext may not be available in tests
+			const context = new AudioContext();
+			if (context.state === 'running') {
+				await musicKitInstance.play();
 			}
 		}
 
-		// Process pending events
 		if (pendingEvents.length > 0) {
 			for (const event of pendingEvents) {
 				await handleTrackAdded(event);
@@ -350,16 +324,11 @@
 		}
 	}
 
-	// Lifecycle
 	onDestroy(() => {
-		if (hubConnection) {
-			hubConnection.off('trackAdded');
-		}
-		if (musicKitInstance) {
-			musicKitInstance.removeEventListener('playbackStateDidChange', handleStateChange);
-			musicKitInstance.removeEventListener('playbackProgressDidChange', handlePlaybackProgressChange);
-			musicKitInstance.removeEventListener('nowPlayingItemDidChange', handleNowPlayingItemChange);
-		}
+		hubConnection.off('trackAdded');
+		musicKitInstance.removeEventListener('playbackStateDidChange', handleStateChange);
+		musicKitInstance.removeEventListener('playbackProgressDidChange', handlePlaybackProgressChange);
+		musicKitInstance.removeEventListener('nowPlayingItemDidChange', handleNowPlayingItemChange);
 	});
 
 	// React to stationId changes (also runs on mount)

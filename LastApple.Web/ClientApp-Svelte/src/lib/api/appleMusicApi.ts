@@ -1,4 +1,3 @@
-// Apple Music API client
 import environment from '$lib/services/environment';
 
 const API_URL = environment.apiUrl;
@@ -10,8 +9,7 @@ export interface ISessionData {
 }
 
 function getSessionId(): string | null {
-    if (typeof localStorage === 'undefined') return null;
-    return localStorage.getItem('SessionId');
+    return localStorage?.getItem('SessionId');
 }
 
 const appleMusicApi = {

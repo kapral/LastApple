@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
-	import { browser } from '$app/environment';
-	import { getMusicKitInstance, formatMediaTime } from '$lib/services/musicKit';
+	import musicKit from '$lib/services/musicKit';
 
 	let rewindPosition = $state(0);
 	let currentPlaybackPercent = $state(0);
@@ -12,7 +11,6 @@
 		const eventCurrentPlaybackTime = event.currentPlaybackTime;
 		const currentPlaybackDuration = event.currentPlaybackDuration;
 
-		// Update duration from event
 		if (currentPlaybackDuration && Number.isFinite(currentPlaybackDuration) && currentPlaybackDuration > 0) {
 			duration = currentPlaybackDuration;
 		}
@@ -36,7 +34,7 @@
 	function handleMove(e: MouseEvent) {
 		const target = e.currentTarget as HTMLElement;
 		const rect = target.getBoundingClientRect();
-		const instance = getMusicKitInstance();
+		const instance = musicKit.getExistingInstance();
 		const newRewindPosition = (e.clientX - rect.left) * instance.currentPlaybackDuration / rect.width;
 
 		if (Math.abs(rewindPosition - newRewindPosition) < 1) {
@@ -47,7 +45,7 @@
 	}
 
 	async function handleSeek(time: number) {
-		const instance = getMusicKitInstance();
+		const instance = musicKit.getExistingInstance();
 		currentPlaybackPercent = (time / instance.currentPlaybackDuration) * 100;
 		await instance.seekToTime(time);
 	}
@@ -63,24 +61,18 @@
 	let rewindPercent = $derived(duration > 0 ? (rewindPosition / duration) * 100 : 0);
 
 	onMount(() => {
-		if (!browser) return;
-		const instance = getMusicKitInstance();
+		const instance = musicKit.getExistingInstance();
 		instance.addEventListener('playbackTimeDidChange', handlePlaybackTimeChanged);
 	});
 
 	onDestroy(() => {
-		if (!browser) return;
-		try {
-			const instance = getMusicKitInstance();
-			instance.removeEventListener('playbackTimeDidChange', handlePlaybackTimeChanged);
-		} catch {
-			// Instance may not be available during cleanup
-		}
+		const instance = musicKit.getExistingInstance();
+		instance.removeEventListener('playbackTimeDidChange', handlePlaybackTimeChanged);
 	});
 </script>
 
 <div class="progress-control">
-	<span class="time-display">{formatMediaTime(currentPlaybackTime)}</span>
+	<span class="time-display">{musicKit.formatMediaTime(currentPlaybackTime)}</span>
 	<div class="progress-container">
 		<!-- svelte-ignore a11y_click_events_have_key_events -->
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -103,5 +95,5 @@
 			</div>
 		</div>
 	</div>
-	<span class="time-display">{formatMediaTime(duration)}</span>
+	<span class="time-display">{musicKit.formatMediaTime(duration)}</span>
 </div>

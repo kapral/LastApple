@@ -1,15 +1,11 @@
-// MusicKit service
-import { browser } from '$app/environment';
+import appleMusicApi from "$lib/api/appleMusicApi";
 
 class MusicKitService {
     instance: MusicKit.MusicKitInstance | null = null;
     instancePromise: Promise<MusicKit.MusicKitInstance> | null = null;
+    private musicKit = (window as any).MusicKit;
 
     async getInstance(): Promise<MusicKit.MusicKitInstance> {
-        if (!browser) {
-            throw new Error('MusicKit can only be used in browser');
-        }
-
         if (this.instancePromise) {
             return await this.instancePromise;
         }
@@ -17,12 +13,11 @@ class MusicKitService {
         let resolve: (value: MusicKit.MusicKitInstance) => void;
         this.instancePromise = new Promise<MusicKit.MusicKitInstance>(r => resolve = r);
 
-        // Dynamic import to avoid SSR issues
-        const { default: appleMusicApi } = await import('$lib/api/appleMusicApi');
         const token = await appleMusicApi.getDeveloperToken();
 
-        const musicKit = (window as any).MusicKit;
-        const instance = await musicKit.configure({
+        console.log(logo);
+
+        const instance = await this.musicKit.configure({
             app: {
                 name: 'Lastream',
                 build: '1.0.0',
@@ -37,25 +32,18 @@ class MusicKitService {
         return this.instance;
     }
 
-    formatMediaTime(seconds: number): string {
-        if (!browser) return '0:00';
-        const musicKit = (window as any).MusicKit;
-        return musicKit.formatMediaTime(Number.isFinite(seconds) ? seconds : 0);
+    getExistingInstance(): MusicKit.MusicKitInstance {
+        if (!musicKit.instance) {
+            throw new Error('MusicKit not initialized. Call getInstance() first.');
+        }
+        return musicKit.instance;
+    }
+
+    formatMediaTime(seconds: number):string {
+        return this.musicKit.formatMediaTime(Number.isFinite(seconds) ? seconds : 0);
     }
 }
 
 const musicKit = new MusicKitService();
-
-// Named exports for components that need synchronous access
-export function getMusicKitInstance(): MusicKit.MusicKitInstance {
-    if (!musicKit.instance) {
-        throw new Error('MusicKit not initialized. Call getInstance() first.');
-    }
-    return musicKit.instance;
-}
-
-export function formatMediaTime(seconds: number): string {
-    return musicKit.formatMediaTime(seconds);
-}
 
 export default musicKit;

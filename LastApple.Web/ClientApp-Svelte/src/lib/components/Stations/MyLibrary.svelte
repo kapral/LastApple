@@ -1,6 +1,6 @@
 <script lang="ts" module>
-	import type { IStationDefinition } from '../IStationDefinition';
-	
+	import type { IStationDefinition } from '$lib/models/stationDefinition';
+
 	export const Definition: IStationDefinition = {
 		title: 'My last.fm Library',
 		description: 'A continuous station based on your last.fm library.',
@@ -9,32 +9,30 @@
 </script>
 
 <script lang="ts">
-	import type { IStationParams } from '../IStationParams';
+	import type { IStationParams } from '$lib/models/stationParams';
 	import { lastfmAuthStore } from '$lib/stores/lastfmAuth';
-	import { AuthenticationState } from '$lib/services/authentication';
+	import { AuthenticationState } from '$lib/models/authenticationState';
 	import stationApi from '$lib/api/stationApi';
-	
+
 	interface Props extends IStationParams {}
-	
+
 	let { triggerCreate, onStationCreated, onOptionsChanged }: Props = $props();
-	
-	// MyLibrary is valid when user is authenticated with last.fm
+
 	$effect(() => {
 		onOptionsChanged($lastfmAuthStore.state === AuthenticationState.Authenticated);
 	});
-	
-	// Handle station creation when triggerCreate becomes true
+
 	$effect(() => {
 		if (triggerCreate) {
 			createStation();
 		}
 	});
-	
+
 	async function createStation() {
 		const station = await stationApi.postStation('lastfmlibrary', 'my');
 		onStationCreated(station.id);
 	}
-	
+
 	let showWarning = $derived($lastfmAuthStore.state === AuthenticationState.Unauthenticated);
 </script>
 

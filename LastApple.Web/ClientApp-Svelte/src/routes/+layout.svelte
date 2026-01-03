@@ -5,11 +5,10 @@
 	import Header from '$lib/components/Header.svelte';
 	import Footer from '$lib/components/Footer.svelte';
 	import NowPlaying from '$lib/components/NowPlaying.svelte';
-	import { browser } from '$app/environment';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
-	import { checkLastfmLogin, handleLastfmCallback } from '$lib/services/lastfmAuthentication';
-	import { checkAppleLogin } from '$lib/services/appleAuthentication';
+	import { checkAuthentication, handleCallback } from '$lib/services/lastfmAuthentication';
+	import { checkAuthorization } from '$lib/services/appleAuthentication';
 
 	let { children } = $props();
 
@@ -18,15 +17,13 @@
 	let stationId = $derived($page.params.stationId || '');
 
 	onMount(async () => {
-		if (!browser) return;
-		
 		// Handle Last.fm OAuth callback if token is in URL
-		await handleLastfmCallback();
-		
+		await handleCallback();
+
 		// Check auth status on startup
 		await Promise.all([
-			checkLastfmLogin(),
-			checkAppleLogin()
+			checkAuthentication(),
+			checkAuthorization()
 		]);
 	});
 </script>

@@ -1,35 +1,35 @@
 <script lang="ts">
 	import { appleAuthStore } from '$lib/stores/appleAuth';
 	import { lastfmAuthStore } from '$lib/stores/lastfmAuth';
-	import { AuthenticationState } from '$lib/services/authentication';
-	import { loginApple, logoutApple } from '$lib/services/appleAuthentication';
-	import { loginLastfm, logoutLastfm } from '$lib/services/lastfmAuthentication';
+	import { AuthenticationState } from '$lib/models/authenticationState';
+	import { authorize, unauthorize } from '$lib/services/appleAuthentication';
+	import { login, logout } from '$lib/services/lastfmAuthentication';
 	import appleMusicLogo from '$lib/images/apple-music-logo.png';
 	import lastfmLogo from '$lib/images/lastfm-logo.png';
-	
+
 	const rowStyles = 'flex: 1; display: flex; padding: 20px; align-items: center; border-bottom: 1px solid #333;';
 	const logoStyles = 'height: 30px; margin-right: 15px;';
-	
+
 	let isAppleAuthenticated = $derived($appleAuthStore.state === AuthenticationState.Authenticated);
 	let isLastfmAuthenticated = $derived($lastfmAuthStore.state === AuthenticationState.Authenticated);
 	let isLoading = $derived(
-		$appleAuthStore.state === AuthenticationState.Loading || 
+		$appleAuthStore.state === AuthenticationState.Loading ||
 		$lastfmAuthStore.state === AuthenticationState.Loading
 	);
-	
+
 	async function toggleAppleAuthentication() {
 		if (isAppleAuthenticated) {
-			await logoutApple();
+			await unauthorize();
 		} else {
-			await loginApple();
+			await authorize();
 		}
 	}
-	
+
 	async function toggleLastfmAuthentication() {
 		if (isLastfmAuthenticated) {
-			await logoutLastfm();
+			await logout();
 		} else {
-			await loginLastfm();
+			await login();
 		}
 	}
 </script>
@@ -48,8 +48,8 @@
 				<img style={logoStyles} src={appleMusicLogo} alt="Apple Music Logo" />
 				<div style="flex: 1;">Apple Music</div>
 				<label class="switch" aria-label="Toggle Apple Music connection">
-					<input 
-						type="checkbox" 
+					<input
+						type="checkbox"
 						checked={isAppleAuthenticated}
 						onchange={toggleAppleAuthentication}
 						role="switch"
@@ -63,8 +63,8 @@
 				<img style={logoStyles} src={lastfmLogo} alt="Last.fm Logo" />
 				<div style="flex: 1;">Last.fm</div>
 				<label class="switch" aria-label="Toggle Last.fm connection">
-					<input 
-						type="checkbox" 
+					<input
+						type="checkbox"
 						checked={isLastfmAuthenticated}
 						onchange={toggleLastfmAuthentication}
 						role="switch"

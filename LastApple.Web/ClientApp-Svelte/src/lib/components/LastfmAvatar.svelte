@@ -1,19 +1,19 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { lastfmAuthStore } from '$lib/stores/lastfmAuth';
-	import { AuthenticationState } from '$lib/services/authentication';
+	import { AuthenticationState } from '$lib/models/authenticationState';
 	import lastfmLogo from '$lib/images/lastfm-logo.png';
-	
+
 	function handleClick(event: MouseEvent) {
-		if ($lastfmAuthStore.user !== undefined) {
-			return; // Let the link navigate to lastfm profile
+		if ($lastfmAuthStore.user) {
+			return;
 		}
 		event.preventDefault();
 		goto('/settings');
 	}
-	
+
 	let avatarUrl = $derived($lastfmAuthStore.user?.avatar?.[0] ?? lastfmLogo);
-	let profileUrl = $derived($lastfmAuthStore.user ? `https://www.last.fm/user/${$lastfmAuthStore.user.name}` : undefined);
+	let profileUrl = $derived($lastfmAuthStore.user ? `https://www.last.fm/user/${$lastfmAuthStore.user.name}` : null);
 	let displayName = $derived($lastfmAuthStore.user?.name ?? 'Log in');
 </script>
 
@@ -25,7 +25,7 @@
 			</div>
 		</div>
 	{:else}
-		<a 
+		<a
 			style="color: #DDD; text-decoration: none; display: flex; flex-direction: column; align-items: center;"
 			class="lastfm-profile"
 			href={profileUrl}

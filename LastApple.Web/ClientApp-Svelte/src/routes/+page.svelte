@@ -2,8 +2,8 @@
 	import StationsList from '$lib/components/StationsList.svelte';
 	import AppleUnauthenticatedWarning from '$lib/components/AppleUnauthenticatedWarning.svelte';
 	import { appleAuthStore } from '$lib/stores/appleAuth';
-	import { AuthenticationState } from '$lib/services/authentication';
-	
+	import { AuthenticationState } from '$lib/models/AuthenticationState';
+
 	let showWarning = $derived($appleAuthStore.state === AuthenticationState.Unauthenticated);
 </script>
 

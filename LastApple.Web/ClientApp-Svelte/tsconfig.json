@@ -12,10 +12,9 @@
 		"strict": false,
 		"moduleResolution": "bundler",
 		"typeRoots": [
-			"src/lib/typings",
+			"src/lib/@types",
 			"node_modules/@types"
-		],
-		"types": ["vitest/globals"]
+		]
 	},
 	"include": ["src/**/*.ts", "src/**/*.svelte", "tests/**/*.ts"]
 }

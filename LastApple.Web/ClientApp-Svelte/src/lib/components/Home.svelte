@@ -1,8 +1,8 @@
 <script lang="ts">
 	// Placeholder - will be implemented in Phase 4
 	import { appleAuthStore } from '$lib/stores/appleAuth';
-	import { AuthenticationState } from '$lib/services/authentication';
-	
+	import { AuthenticationState } from '$lib/models/authenticationState';
+
 	// Reactive variable for showing warning
 	let showWarning = $derived($appleAuthStore.state === AuthenticationState.Unauthenticated);
 </script>

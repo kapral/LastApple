@@ -1,5 +1,5 @@
 <script lang="ts">
-	import musicKit from '$lib/services/musicKit';
+	import musicKit from '$lib/services/musicKit.ts';
 	import PlaylistTrack from './PlaylistTrack.svelte';
 	import PlaylistTrackGroup from './PlaylistTrackGroup.svelte';
 
@@ -25,7 +25,7 @@
 
 	let groupedTracks = $derived.by(() => {
 		const groups: { all: TrackGroup[]; current: string } = { all: [], current: '' };
-		
+
 		visibleTracks.forEach((track, index) => {
 			if (groups.current === track.attributes.albumName) {
 				groups.all[groups.all.length - 1].tracks.push(track);
@@ -34,7 +34,7 @@
 				groups.all.push({ tracks: [track], index });
 			}
 		});
-		
+
 		return groups.all;
 	});
 

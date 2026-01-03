@@ -6,6 +6,10 @@ declare namespace MusicKit {
         isPlaying: boolean;
         stop(): Promise<void>;
         clearQueue(): Promise<Queue>;
+        api: {
+            music: (path: string, params: { ids: string[] } | { term: string, types: string[], l: string })
+                => Promise<{ data: { data?: MusicKitMediaItem[], results: { artists: { data: MusicKitMediaItem[] } } } }>
+        };
     }
 
     interface MediaItem {

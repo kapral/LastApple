@@ -1,6 +1,6 @@
 import { derived, type Readable } from 'svelte/store';
 import { appleAuthState } from './appleAuth';
-import { AuthenticationState } from '$lib/services/authentication';
+import { AuthenticationState } from '$lib/models/authenticationState';
 
 /**
  * Derived store that indicates whether the Apple unauthenticated warning should be shown.

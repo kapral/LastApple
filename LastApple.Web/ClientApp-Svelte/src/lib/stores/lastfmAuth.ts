@@ -1,11 +1,6 @@
 import { writable } from 'svelte/store';
-import { AuthenticationState } from '$lib/services/authentication';
-
-export interface ILastfmUser {
-    readonly name: string;
-    readonly url: string;
-    readonly avatar: Array<string>;
-}
+import type { ILastfmUser } from "$lib/models/lastfmUser";
+import { AuthenticationState } from "$lib/models/authenticationState";
 
 interface LastfmAuthStore {
     state: AuthenticationState;
@@ -14,7 +9,6 @@ interface LastfmAuthStore {
 }
 
 function createLastfmAuthStore() {
-    // Initialize as Loading - will be updated when authentication check runs
     const { subscribe, set, update } = writable<LastfmAuthStore>({
         state: AuthenticationState.Loading,
         user: undefined,

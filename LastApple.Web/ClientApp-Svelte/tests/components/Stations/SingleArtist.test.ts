@@ -107,8 +107,8 @@ describe('SingleArtist', () => {
         mockPostStation.mockResolvedValue({ id: 'new-station-id' });
 
         const { default: SingleArtist } = await import('$lib/components/Stations/SingleArtist.svelte');
-        const { rerender } = render(SingleArtist, { 
-            props: { ...defaultProps, triggerCreate: false } 
+        const { rerender } = render(SingleArtist, {
+            props: { ...defaultProps, triggerCreate: false }
         });
 
         // Simulate artist selection happened
@@ -126,8 +126,8 @@ describe('SingleArtist', () => {
         mockPostStation.mockResolvedValue({ id: 'created-station-123' });
 
         const { default: SingleArtist } = await import('$lib/components/Stations/SingleArtist.svelte');
-        const { rerender } = render(SingleArtist, { 
-            props: { ...defaultProps, triggerCreate: false } 
+        const { rerender } = render(SingleArtist, {
+            props: { ...defaultProps, triggerCreate: false }
         });
 
         await rerender({ ...defaultProps, triggerCreate: true });
