@@ -84,13 +84,15 @@ vi.mock('$lib/services/musicKit', () => ({
 // Mock appleMusicApi
 vi.mock('$lib/api/appleMusicApi', () => ({
     default: {
+        getDeveloperToken: vi.fn().mockResolvedValue('mock-developer-token'),
         getSessionData: vi.fn().mockResolvedValue(null),
         postSessionData: vi.fn().mockResolvedValue({ id: 'test-session-id' }),
-        deleteSessionData: vi.fn().mockResolvedValue(undefined)
+        logout: vi.fn().mockResolvedValue(undefined)
     },
+    getDeveloperToken: vi.fn().mockResolvedValue('mock-developer-token'),
     getSessionData: vi.fn().mockResolvedValue(null),
     postSessionData: vi.fn().mockResolvedValue({ id: 'test-session-id' }),
-    deleteSessionData: vi.fn().mockResolvedValue(undefined)
+    logout: vi.fn().mockResolvedValue(undefined)
 }));
 
 // Mock window.MusicKit globally for tests

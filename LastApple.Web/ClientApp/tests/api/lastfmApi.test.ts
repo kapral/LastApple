@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // Mock environment
-vi.mock('$lib/config/environment', () => ({
+vi.mock('$lib/services/environment', () => ({
     default: {
         apiUrl: 'http://localhost:5000/'
     }
@@ -90,9 +90,11 @@ describe('LastfmApi', () => {
     describe('postToken', () => {
         it('should post token with session header', async () => {
             const token = 'test-token';
-            const mockResponse = { status: 200 };
+            const mockResponseData = 'session-key-123';
 
-            mockFetch.mockResolvedValueOnce(mockResponse);
+            mockFetch.mockResolvedValueOnce({
+                json: vi.fn().mockResolvedValue(mockResponseData)
+            });
 
             const { default: LastfmApi } = await import('$lib/api/lastfmApi');
             const result = await LastfmApi.postToken(token);
@@ -104,7 +106,7 @@ describe('LastfmApi', () => {
                     headers: { 'X-SessionId': 'test-session-id' }
                 }
             );
-            expect(result).toBe(mockResponse);
+            expect(result).toBe(mockResponseData);
         });
     });
 
@@ -144,7 +146,7 @@ describe('LastfmApi', () => {
             const result = await LastfmApi.getUser();
 
             expect(mockFetch).toHaveBeenCalledWith(
-                'http://localhost:5000/api/lastfm/user',
+                'http://localhost:5000/api/lastfm/auth/user',
                 {
                     headers: { 'X-SessionId': 'test-session-id' }
                 }
@@ -161,11 +163,15 @@ describe('LastfmApi', () => {
             await LastfmApi.scrobble('Test Song', 'Test Artist', 'Test Album', 1234567890);
 
             expect(mockFetch).toHaveBeenCalledWith(
-                expect.stringContaining('http://localhost:5000/api/lastfm/scrobble'),
-                expect.objectContaining({
+                'http://localhost:5000/api/lastfm/scrobble',
+                {
                     method: 'POST',
-                    headers: { 'X-SessionId': 'test-session-id' }
-                })
+                    headers: {
+                        'X-SessionId': 'test-session-id',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ artist: 'Test Artist', song: 'Test Song', album: 'Test Album', timestamp: 1234567890 })
+                }
             );
         });
     });
@@ -178,11 +184,15 @@ describe('LastfmApi', () => {
             await LastfmApi.updateNowPlaying('Test Song', 'Test Artist', 'Test Album');
 
             expect(mockFetch).toHaveBeenCalledWith(
-                expect.stringContaining('http://localhost:5000/api/lastfm/nowplaying'),
-                expect.objectContaining({
+                'http://localhost:5000/api/lastfm/nowPlaying',
+                {
                     method: 'POST',
-                    headers: { 'X-SessionId': 'test-session-id' }
-                })
+                    headers: {
+                        'X-SessionId': 'test-session-id',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ artist: 'Test Artist', song: 'Test Song', album: 'Test Album' })
+                }
             );
         });
     });

@@ -101,7 +101,20 @@ describe('SingleArtist', () => {
         expect(defaultProps.onOptionsChanged).toHaveBeenCalledWith(true);
     });
 
-    it('creates station via API when triggerCreate becomes true', async () => {
+    it('creates station via API when triggerCreate becomes true after selecting artist', async () => {
+        const musicKit = await import('$lib/services/musicKit');
+        const mockInstance = await vi.mocked(musicKit.default.getInstance)();
+        const mockApiMusic = vi.mocked(mockInstance.api.music);
+        mockApiMusic.mockResolvedValue({
+            data: {
+                results: {
+                    artists: {
+                        data: [{ id: 'artist-456', attributes: { name: 'TestBand' } }]
+                    }
+                }
+            }
+        });
+
         const stationApi = await import('$lib/api/stationApi');
         const mockPostStation = vi.mocked(stationApi.default.postStation);
         mockPostStation.mockResolvedValue({ id: 'new-station-id' });
@@ -111,16 +124,38 @@ describe('SingleArtist', () => {
             props: { ...defaultProps, triggerCreate: false }
         });
 
-        // Simulate artist selection happened
+        // First select an artist
+        const input = screen.getByPlaceholderText('Radiohead...');
+        await fireEvent.input(input, { target: { value: 'TestBand' } });
+
+        await waitFor(() => {
+            expect(screen.getByText('TestBand')).toBeInTheDocument();
+        }, { timeout: 1000 });
+
+        await fireEvent.click(screen.getByText('TestBand'));
+
         // Then trigger create
         await rerender({ ...defaultProps, triggerCreate: true });
 
         await waitFor(() => {
-            expect(mockPostStation).toHaveBeenCalledWith('artist', expect.any(String));
+            expect(mockPostStation).toHaveBeenCalledWith('artist', 'artist-456');
         });
     });
 
     it('calls onStationCreated with new station ID after creation', async () => {
+        const musicKit = await import('$lib/services/musicKit');
+        const mockInstance = await vi.mocked(musicKit.default.getInstance)();
+        const mockApiMusic = vi.mocked(mockInstance.api.music);
+        mockApiMusic.mockResolvedValue({
+            data: {
+                results: {
+                    artists: {
+                        data: [{ id: 'artist-789', attributes: { name: 'AnotherBand' } }]
+                    }
+                }
+            }
+        });
+
         const stationApi = await import('$lib/api/stationApi');
         const mockPostStation = vi.mocked(stationApi.default.postStation);
         mockPostStation.mockResolvedValue({ id: 'created-station-123' });
@@ -130,11 +165,39 @@ describe('SingleArtist', () => {
             props: { ...defaultProps, triggerCreate: false }
         });
 
+        // First select an artist
+        const input = screen.getByPlaceholderText('Radiohead...');
+        await fireEvent.input(input, { target: { value: 'AnotherBand' } });
+
+        await waitFor(() => {
+            expect(screen.getByText('AnotherBand')).toBeInTheDocument();
+        }, { timeout: 1000 });
+
+        await fireEvent.click(screen.getByText('AnotherBand'));
+
+        // Then trigger create
         await rerender({ ...defaultProps, triggerCreate: true });
 
         await waitFor(() => {
             expect(defaultProps.onStationCreated).toHaveBeenCalledWith('created-station-123');
         });
+    });
+
+    it('does not create station when triggered without artist selection', async () => {
+        const stationApi = await import('$lib/api/stationApi');
+        const mockPostStation = vi.mocked(stationApi.default.postStation);
+
+        const { default: SingleArtist } = await import('$lib/components/Stations/SingleArtist.svelte');
+        const { rerender } = render(SingleArtist, {
+            props: { ...defaultProps, triggerCreate: false }
+        });
+
+        // Trigger create without selecting an artist
+        await rerender({ ...defaultProps, triggerCreate: true });
+
+        // Wait a bit and verify postStation was not called
+        await new Promise(resolve => setTimeout(resolve, 100));
+        expect(mockPostStation).not.toHaveBeenCalled();
     });
 
     it('uses labelAccessor to display artist name from attributes', async () => {

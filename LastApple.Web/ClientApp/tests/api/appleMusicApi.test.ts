@@ -1,11 +1,7 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, beforeAll } from 'vitest';
 
-// Mock environment
-vi.mock('$lib/config/environment', () => ({
-    default: {
-        apiUrl: 'http://localhost:5000/'
-    }
-}));
+// Unmock the module to test the real implementation
+vi.unmock('$lib/api/appleMusicApi');
 
 // Mock fetch
 const mockFetch = vi.fn();
@@ -19,6 +15,13 @@ const mockLocalStorage = {
     clear: vi.fn()
 };
 vi.stubGlobal('localStorage', mockLocalStorage);
+
+// Mock environment - must be before imports
+vi.mock('$lib/services/environment', () => ({
+    default: {
+        apiUrl: 'http://localhost:5000/'
+    }
+}));
 
 describe('AppleMusicApi', () => {
     beforeEach(() => {

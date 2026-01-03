@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/svelte';
 import { writable } from 'svelte/store';
-import { AuthenticationState } from '$lib/services/authentication';
+import { AuthenticationState } from '$lib/models/authenticationState';
 
 const mockMusicKitInstance = {
     api: {
@@ -58,10 +58,10 @@ vi.mock('$lib/api/stationApi', () => ({
 // Mock musicKit service
 vi.mock('$lib/services/musicKit', () => ({
     default: {
-        getInstance: vi.fn().mockResolvedValue(mockMusicKitInstance)
-    },
-    getMusicKitInstance: vi.fn(() => mockMusicKitInstance),
-    formatMediaTime: vi.fn((s) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`)
+        getInstance: vi.fn().mockResolvedValue(mockMusicKitInstance),
+        getExistingInstance: vi.fn(() => mockMusicKitInstance),
+        formatMediaTime: vi.fn((s) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`)
+    }
 }));
 
 // Mock lastfm API
@@ -150,7 +150,7 @@ describe('StationPlayer', () => {
 
     it('loads songs from MusicKit API', async () => {
         const musicKit = await import('$lib/services/musicKit');
-        const instance = musicKit.getMusicKitInstance();
+        const instance = await musicKit.default.getInstance();
 
         const { default: StationPlayer } = await import('$lib/components/Player/StationPlayer.svelte');
         render(StationPlayer, { props: defaultProps });

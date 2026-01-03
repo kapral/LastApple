@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import { writable } from 'svelte/store';
-import { AuthenticationState } from '$lib/services/authentication';
+import { AuthenticationState } from '$lib/models/authenticationState';
 
 // Mock the lastfm auth store
 const mockLastfmAuthStore = writable({

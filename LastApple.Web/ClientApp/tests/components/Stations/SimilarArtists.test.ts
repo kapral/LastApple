@@ -103,7 +103,11 @@ describe('SimilarArtists', () => {
         expect(defaultProps.onOptionsChanged).toHaveBeenCalledWith(true);
     });
 
-    it('creates station with "similarartists" type when triggered', async () => {
+    it('creates station with "similarartists" type when triggered after selecting artist', async () => {
+        const lastfmApi = await import('$lib/api/lastfmApi');
+        const mockSearchArtist = vi.mocked(lastfmApi.default.searchArtist);
+        mockSearchArtist.mockResolvedValue([{ name: 'Placebo' }]);
+
         const stationApi = await import('$lib/api/stationApi');
         const mockPostStation = vi.mocked(stationApi.default.postStation);
         mockPostStation.mockResolvedValue({ id: 'new-station-id' });
@@ -113,14 +117,29 @@ describe('SimilarArtists', () => {
             props: { ...defaultProps, triggerCreate: false } 
         });
 
+        // First, select an artist
+        const input = screen.getByPlaceholderText('Placebo...');
+        await fireEvent.input(input, { target: { value: 'Placebo' } });
+
+        await waitFor(() => {
+            expect(screen.getByText('Placebo')).toBeInTheDocument();
+        }, { timeout: 1000 });
+
+        await fireEvent.click(screen.getByText('Placebo'));
+
+        // Then trigger create
         await rerender({ ...defaultProps, triggerCreate: true });
 
         await waitFor(() => {
-            expect(mockPostStation).toHaveBeenCalledWith('similarartists', expect.any(String));
+            expect(mockPostStation).toHaveBeenCalledWith('similarartists', 'Placebo');
         });
     });
 
     it('calls onStationCreated with station ID after creation', async () => {
+        const lastfmApi = await import('$lib/api/lastfmApi');
+        const mockSearchArtist = vi.mocked(lastfmApi.default.searchArtist);
+        mockSearchArtist.mockResolvedValue([{ name: 'TestArtist' }]);
+
         const stationApi = await import('$lib/api/stationApi');
         const mockPostStation = vi.mocked(stationApi.default.postStation);
         mockPostStation.mockResolvedValue({ id: 'similar-station-123' });
@@ -130,10 +149,38 @@ describe('SimilarArtists', () => {
             props: { ...defaultProps, triggerCreate: false } 
         });
 
+        // First, select an artist
+        const input = screen.getByPlaceholderText('Placebo...');
+        await fireEvent.input(input, { target: { value: 'TestArtist' } });
+
+        await waitFor(() => {
+            expect(screen.getByText('TestArtist')).toBeInTheDocument();
+        }, { timeout: 1000 });
+
+        await fireEvent.click(screen.getByText('TestArtist'));
+
+        // Then trigger create
         await rerender({ ...defaultProps, triggerCreate: true });
 
         await waitFor(() => {
             expect(defaultProps.onStationCreated).toHaveBeenCalledWith('similar-station-123');
         });
+    });
+
+    it('does not create station when triggered without artist selection', async () => {
+        const stationApi = await import('$lib/api/stationApi');
+        const mockPostStation = vi.mocked(stationApi.default.postStation);
+
+        const { default: SimilarArtists } = await import('$lib/components/Stations/SimilarArtists.svelte');
+        const { rerender } = render(SimilarArtists, { 
+            props: { ...defaultProps, triggerCreate: false } 
+        });
+
+        // Trigger create without selecting an artist
+        await rerender({ ...defaultProps, triggerCreate: true });
+
+        // Wait a bit and verify postStation was not called
+        await new Promise(resolve => setTimeout(resolve, 100));
+        expect(mockPostStation).not.toHaveBeenCalled();
     });
 });

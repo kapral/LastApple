@@ -12,14 +12,18 @@ const mockInstance = {
     removeEventListener: vi.fn()
 };
 
-// Mock MusicKit
+const formatMediaTimeMock = vi.fn((seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+});
+
+// Mock MusicKit - use default export with getExistingInstance method
 vi.mock('$lib/services/musicKit', () => ({
-    getMusicKitInstance: vi.fn(() => mockInstance),
-    formatMediaTime: vi.fn((seconds: number) => {
-        const minutes = Math.floor(seconds / 60);
-        const remainingSeconds = Math.floor(seconds % 60);
-        return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-    })
+    default: {
+        getExistingInstance: vi.fn(() => mockInstance),
+        formatMediaTime: formatMediaTimeMock
+    }
 }));
 
 describe('ProgressControl', () => {
@@ -59,20 +63,18 @@ describe('ProgressControl', () => {
     });
 
     it('displays formatted current time', async () => {
-        const mockMusicKit = await import('$lib/services/musicKit');
-        vi.mocked(mockMusicKit.formatMediaTime).mockReturnValue('0:00');
+        formatMediaTimeMock.mockReturnValue('0:00');
 
         const { default: ProgressControl } = await import('$lib/components/Player/ProgressControl.svelte');
         render(ProgressControl);
 
-        expect(mockMusicKit.formatMediaTime).toHaveBeenCalledWith(0);
+        expect(formatMediaTimeMock).toHaveBeenCalledWith(0);
         const timeElements = screen.getAllByText('0:00');
         expect(timeElements.length).toBeGreaterThan(0);
     });
 
     it('displays formatted total duration', async () => {
-        const mockMusicKit = await import('$lib/services/musicKit');
-        vi.mocked(mockMusicKit.formatMediaTime).mockReturnValue('3:00');
+        formatMediaTimeMock.mockReturnValue('3:00');
 
         const { default: ProgressControl } = await import('$lib/components/Player/ProgressControl.svelte');
         render(ProgressControl);
@@ -95,7 +97,7 @@ describe('ProgressControl', () => {
         // Allow Svelte to update
         await new Promise((resolve) => setTimeout(resolve, 0));
 
-        expect(mockMusicKit.formatMediaTime).toHaveBeenCalledWith(180);
+        expect(formatMediaTimeMock).toHaveBeenCalledWith(180);
     });
 
     it('renders progress bar with correct structure', async () => {
