@@ -4,6 +4,8 @@ declare namespace MusicKit {
         currentPlaybackDuration: number;
         queue: Queue;
         isPlaying: boolean;
+        volume: number;
+        shuffleMode: number;
         stop(): Promise<void>;
         clearQueue(): Promise<Queue>;
         api: {

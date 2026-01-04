@@ -354,6 +354,7 @@
                 {isScrobblingEnabled}
                 onScrobblingSwitch={handleScrobblingSwitch}
                 {lastfmAuthenticated}
+                isContinuous={station.isContinuous}
             />
         </div>
         <div data-testid="playlist">
