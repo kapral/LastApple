@@ -36,7 +36,6 @@ jobs:
       run: cd LastApple.Web/ClientApp && npm ci
 
     - name: Run Frontend tests
-      run: cd LastApple.Web/ClientApp && npm run test -- --coverage
-
+      run: cd LastApple.Web/ClientApp && npm run test:coverage
     - name: Webpack build
       run: cd LastApple.Web/ClientApp && npm run build

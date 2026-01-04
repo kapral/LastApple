@@ -111,7 +111,8 @@ vi.mock('$lib/api/appleMusicApi', () => ({
     })
 };
 
-// Mock AudioContext
-global.AudioContext = vi.fn().mockImplementation(() => ({
-    state: 'running'
-})) as any;
+// Mock AudioContext as a class for Vitest 4.x compatibility
+class MockAudioContext {
+    state = 'running';
+}
+global.AudioContext = MockAudioContext as any;
