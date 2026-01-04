@@ -527,3 +527,109 @@ h1, h2, h3, h4, h5, h6 {
 .custom-toggle {
     cursor: pointer;
 }
+
+/* Volume Control Styles */
+.volume-control {
+    display: inline-flex;
+    align-items: center;
+    vertical-align: middle;
+    margin-left: 10px;
+}
+
+.volume-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #FFF;
+    padding: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+
+.volume-button:hover {
+    opacity: 0.9;
+}
+
+.volume-button svg {
+    width: 20px;
+    height: 20px;
+}
+
+.volume-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 80px;
+    height: 4px;
+    background: #40404054;
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+}
+
+.volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    background: #FFF;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.volume-slider::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    background: #FFF;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+}
+
+/* Main Controls Layout */
+.main-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.controls-left,
+.controls-right {
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.controls-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.control-button {
+    display: flex;
+}
+
+/* Secondary Button Styles */
+.control-button.secondary {
+    opacity: 0.6;
+    transition: opacity 0.2s;
+    margin: 0;
+    padding: 3px;
+}
+
+.control-button.secondary svg {
+    width: 20px;
+    height: 20px;
+}
+
+.control-button.secondary.active {
+    opacity: 1;
+    color: #8e0000;
+}
+
+.control-button.secondary:hover {
+    opacity: 0.9;
+}
