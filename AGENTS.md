@@ -49,6 +49,8 @@ Always reference these instructions first and fallback to search or bash command
 
 ### GitHub Packages Authentication
 
+If there is already a `github` entry under `packageSourceCredentials` in `nuget.config`, skip this section, no need to authenticate anything.
+
 This project depends on a private NuGet package `Inflatable.Lastfm` hosted on GitHub Packages. To build the solution locally or in CI/CD, you need to authenticate with GitHub Packages using a Personal Access Token.
 
 #### For Local Development
@@ -75,20 +77,6 @@ The repository is configured with `GH_TOKEN` secret for CI/CD authentication. Th
 #### For AI Agent Development
 
 When working with AI agents in this repository, the `GH_TOKEN` secret should be available as an environment variable for automated builds.
-
-### Build Process (CRITICAL TIMING INFORMATION)
-**AUTHENTICATION REQUIREMENT**: This repository requires GitHub Packages authentication for the private `Inflatable.Lastfm` package (version 1.3.0-auth).
-
-#### With GitHub Packages Access:
-- Configure NuGet source with authentication: `dotnet nuget add source --username [username] --password ${{ secrets.GH_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/kapral/index.json"`
-- Restore packages: `dotnet restore` -- takes 2-3 minutes for private packages. NEVER CANCEL. Set timeout to 5+ minutes.
-- Build solution: `dotnet build --configuration Release` -- takes 10-15 seconds per project. NEVER CANCEL.
-- Run .NET tests: `dotnet test` -- runs unit tests with mocks, takes 10-15 seconds. Set timeout to 5+ minutes.
-
-#### Without GitHub Packages Access:
-- .NET restore and build will FAIL due to missing `Inflatable.Lastfm` v1.3.0-auth package
-- Only AppleMusicApi project can be built independently: `dotnet build AppleMusicApi/AppleMusicApi.csproj --configuration Release` -- takes 8-10 seconds
-- Document this limitation in any build issues encountered
 
 ### Frontend Development
 - Install packages: `cd LastApple.Web/ClientApp && npm ci` -- takes 3-5 minutes. NEVER CANCEL. Set timeout to 10+ minutes.
