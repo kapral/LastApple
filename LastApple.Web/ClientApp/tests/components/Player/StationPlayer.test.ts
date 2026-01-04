@@ -86,16 +86,20 @@ vi.mock('$lib/stores/lastfmAuth', () => ({
     lastfmAuthState: mockLastfmAuthStore
 }));
 
-// Mock signalR
+// Mock signalR - use a class for Vitest 4.x compatibility
+class MockHubConnection {
+    start = vi.fn().mockResolvedValue(undefined);
+    on = vi.fn();
+    off = vi.fn();
+}
+
+class MockHubConnectionBuilder {
+    withUrl() { return this; }
+    build() { return new MockHubConnection(); }
+}
+
 vi.mock('@microsoft/signalr', () => ({
-    HubConnectionBuilder: vi.fn(() => ({
-        withUrl: vi.fn().mockReturnThis(),
-        build: vi.fn(() => ({
-            start: vi.fn().mockResolvedValue(undefined),
-            on: vi.fn(),
-            off: vi.fn()
-        }))
-    }))
+    HubConnectionBuilder: MockHubConnectionBuilder
 }));
 
 describe('StationPlayer', () => {
