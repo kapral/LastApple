@@ -5,6 +5,8 @@ import { render, screen, fireEvent } from '@testing-library/svelte';
 const mockMusicKitInstance = {
     currentPlaybackDuration: 180,
     currentPlaybackTime: 0,
+    volume: 1,
+    shuffleMode: 0,
     seekToTime: vi.fn().mockResolvedValue(undefined),
     addEventListener: vi.fn(),
     removeEventListener: vi.fn()
@@ -51,7 +53,8 @@ describe('PlayerControls', () => {
         onPlayPause: vi.fn(),
         isScrobblingEnabled: false,
         onScrobblingSwitch: vi.fn(),
-        lastfmAuthenticated: true
+        lastfmAuthenticated: true,
+        isContinuous: false
     };
 
     beforeEach(() => {
@@ -157,5 +160,33 @@ describe('PlayerControls', () => {
 
         // When lastfm is authenticated and scrobbling enabled, should show scrobbling UI
         expect(screen.getByRole('switch', { name: /scrobbling/i })).toBeInTheDocument();
+    });
+
+    it('renders shuffle button when station is not continuous', () => {
+        render(PlayerControls, { props: { ...defaultProps, isContinuous: false } });
+
+        const shuffleButton = screen.getByRole('button', { name: /shuffle/i });
+        expect(shuffleButton).toBeInTheDocument();
+    });
+
+    it('does not render shuffle button when station is continuous', () => {
+        render(PlayerControls, { props: { ...defaultProps, isContinuous: true } });
+
+        expect(screen.queryByRole('button', { name: /shuffle/i })).not.toBeInTheDocument();
+    });
+
+    it('toggles shuffle mode when shuffle button is clicked', async () => {
+        render(PlayerControls, { props: { ...defaultProps, isContinuous: false } });
+
+        const shuffleButton = screen.getByRole('button', { name: /shuffle/i });
+        await fireEvent.click(shuffleButton);
+        
+        expect(mockMusicKitInstance.shuffleMode).toBe(1);
+    });
+
+    it('renders volume control', () => {
+        const { container } = render(PlayerControls, { props: defaultProps });
+
+        expect(container.querySelector('.volume-control')).toBeInTheDocument();
     });
 });
