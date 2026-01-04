@@ -18,7 +18,7 @@ jobs:
         dotnet-version: 8.x
     - uses: actions/setup-node@v3
       with:
-        node-version: '18.x'
+        node-version: '24.x'
 
     - name: Add GH packages
       run: |
@@ -34,8 +34,8 @@ jobs:
     - name: Install npm packages
       run: cd LastApple.Web/ClientApp && npm ci
 
-    - name: Run React tests
-      run: cd LastApple.Web/ClientApp && npm run test -- --coverage --watchAll=false
+    - name: Run Frontend tests
+      run: cd LastApple.Web/ClientApp && npm run test -- --coverage
 
     - name: Webpack build
       run: cd LastApple.Web/ClientApp && npm run build
