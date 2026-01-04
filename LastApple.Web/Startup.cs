@@ -171,7 +171,8 @@ public class Startup(IConfiguration configuration)
 
             if (env.IsDevelopment())
             {
-                spa.UseReactDevelopmentServer(npmScript: "start");
+                // Use Vite development server for Svelte
+                spa.UseProxyToSpaDevelopmentServer("http://localhost:3000");
             }
         });
     }
