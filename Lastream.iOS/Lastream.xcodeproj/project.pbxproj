@@ -1,0 +1,833 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		07283FF732D5846EE27ED4AC /* StationDescriptorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 960D68599F13BFE7A1E689E3 /* StationDescriptorView.swift */; };
+		0821C9D97B62D32AFDC97BA2 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A6A0663C8171D7102F95474 /* SettingsView.swift */; };
+		10C922869364023FD2CE0775 /* LastfmAPITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A12F4226CAB8DD06C2832E67 /* LastfmAPITests.swift */; };
+		132C95201C1A3B897AE0769A /* MockAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E835849D9271D7ACC9EFBC6 /* MockAPIClient.swift */; };
+		2002F83EB35D042329A464BF /* LastfmAuthServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E27426AB595C0ACD3E0178CD /* LastfmAuthServiceTests.swift */; };
+		2548CC5667E10BE92589E516 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991D461D49583C17FAFA7B2D /* HomeView.swift */; };
+		2C4D619BA84D45CDC7E80E34 /* StationPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C2D1396EEAD85D8C0F58B3E /* StationPlayerView.swift */; };
+		3091E3E8E9196A2A4327BE85 /* LastfmAuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE984572DDC0C413A5A2B88C /* LastfmAuthService.swift */; };
+		341B36660056341E7A8E971F /* AuthenticationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACF5930106651CAFEF54EC37 /* AuthenticationState.swift */; };
+		395F6D80AF8F275150289BF2 /* Station.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3525CFE2FA0D6E1E00397CB /* Station.swift */; };
+		3F11453628F35995A5CDEB87 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A21F7B7C593794C3E48CF7 /* Session.swift */; };
+		42BE5D62DD6AA6FDA3A0F2C3 /* LastfmAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC901B300A1A62F30FFE22B7 /* LastfmAPI.swift */; };
+		48369054E7E2C4B7E9D40FF1 /* AppleAuthAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1610EC0FE317943FDA28C3A /* AppleAuthAPI.swift */; };
+		4BB1501073955DFA6FC7948B /* PreviewMocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D30C942B205EE9DFBF839B9 /* PreviewMocks.swift */; };
+		5948C7FA8300BF3C0334FB50 /* ModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6478BF7910B6EEA627E95F04 /* ModelTests.swift */; };
+		62EC4FC72D13B97D98A2EB12 /* KeychainHelperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBA4D0658D22C7F84FE6356C /* KeychainHelperTests.swift */; };
+		6934A91C09C25628F6C1D44E /* StationAPITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4F22A51B3D96F0E761C7C8 /* StationAPITests.swift */; };
+		70C46AA63207CC9128E55A0C /* Color+Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6BA42C28B588EBB3C7F6C6E /* Color+Theme.swift */; };
+		744FB63BEAB41E77718EF4A8 /* MockAppleAuthAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420E836F07213B64C0A453F8 /* MockAppleAuthAPI.swift */; };
+		7D8607348B653244B0C98A54 /* AppleMusicAuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F0EB7EDB5B9005FBDA3344B /* AppleMusicAuthService.swift */; };
+		81DB81B2BE838BB9645F6A59 /* SignalRClient in Frameworks */ = {isa = PBXBuildFile; productRef = 86B58F45FFE860B6A7019223 /* SignalRClient */; };
+		83764E81EEE33FC9C022FA54 /* APIClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAB1A0BA6A48DE9CC8B57366 /* APIClientTests.swift */; };
+		869297704BB7D027EA459D4B /* AuthWarningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFF9902CDA4541CD0F6333C3 /* AuthWarningView.swift */; };
+		8832E3D89959A46F49451E2D /* MockLastfmAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2302D88DD5DAE617BABA8805 /* MockLastfmAPI.swift */; };
+		8CF05C395051C280C1F77F4B /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A3AEDBDC44ABDE7366CC1D2 /* ContentView.swift */; };
+		95DEE7168B4C607D08B18BF8 /* LastfmUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587DFB49CD6215912B1E3180 /* LastfmUser.swift */; };
+		A6F0BAF4DEA355A9FEC29860 /* StationListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6AF3D0920B6970EEAEB8355 /* StationListView.swift */; };
+		AD133205254748BA81CFA290 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7A70F4E61B06EE363CA17D3 /* APIClient.swift */; };
+		ADC22FCE9F423EE1F6949D1C /* LastreamApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AE74C51CE83C64C5EDF1C1B /* LastreamApp.swift */; };
+		B8E13DB0E06B7DA7EE2E5D05 /* AppleAuthAPITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CA9C3569FECA1C95BDF14B4 /* AppleAuthAPITests.swift */; };
+		BAB40830C243DB27D66E944A /* AppleMusicAuthServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E2CE663FBA8A073752CBAFA /* AppleMusicAuthServiceTests.swift */; };
+		BB5A550035B45120194DCEEC /* View+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 266B9EE8B37CE0ACDF0AC83F /* View+Extensions.swift */; };
+		C48F30ED30E1C2B7A8D13DF8 /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 412D57711D3E427AE0A5BF6F /* Environment.swift */; };
+		CB66F01FBC25DEC73CAADCE2 /* HeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF7ED6603E643521CBBA5E6 /* HeaderView.swift */; };
+		D0C466B4AB6194718446B6E2 /* KeychainHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C61F018BB34CF4CA9DAFB9F /* KeychainHelper.swift */; };
+		D82E124094B6702486B4AAA8 /* StationAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB926B5D93AB4924A5455EFF /* StationAPI.swift */; };
+		D942F414BE3C85DD186C7FC2 /* MockStationAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 558B4F10EB98F6CC8AD60790 /* MockStationAPI.swift */; };
+		DD52405CD2C3392461ECA7C7 /* FooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2E1C83FB458B68AB66D5071 /* FooterView.swift */; };
+		E5930C184E6A0D2AB8B8FEB5 /* LastreamUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC71D30D0C4C2ED6FE3ECE8 /* LastreamUITests.swift */; };
+		E9E95617E219B8DC0737CF3F /* MockMusicKitProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F182F940A9DF1AD42BB7123 /* MockMusicKitProvider.swift */; };
+		F0A9B633B24EB23AA51E87F5 /* MusicKitProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DEB137D1294B547D172AF57 /* MusicKitProvider.swift */; };
+		FD79CF186CCFBAD5B6CA9077 /* SpinnerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9AD5A75638728C76A3DC886 /* SpinnerView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		918F8F0DC5A1C7466B19F680 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0CFCECCDF1937A821BE08D1E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4050FC62A862C463FB0F860B;
+			remoteInfo = Lastream;
+		};
+		92FC9EFFD4966F4125DB84CF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0CFCECCDF1937A821BE08D1E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4050FC62A862C463FB0F860B;
+			remoteInfo = Lastream;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		01282398FDF50572D9E0F455 /* LastreamTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = LastreamTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		0A4F22A51B3D96F0E761C7C8 /* StationAPITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationAPITests.swift; sourceTree = "<group>"; };
+		0A6A0663C8171D7102F95474 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		2302D88DD5DAE617BABA8805 /* MockLastfmAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockLastfmAPI.swift; sourceTree = "<group>"; };
+		266B9EE8B37CE0ACDF0AC83F /* View+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Extensions.swift"; sourceTree = "<group>"; };
+		412D57711D3E427AE0A5BF6F /* Environment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Environment.swift; sourceTree = "<group>"; };
+		420E836F07213B64C0A453F8 /* MockAppleAuthAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAppleAuthAPI.swift; sourceTree = "<group>"; };
+		4AE74C51CE83C64C5EDF1C1B /* LastreamApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LastreamApp.swift; sourceTree = "<group>"; };
+		4F0EB7EDB5B9005FBDA3344B /* AppleMusicAuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleMusicAuthService.swift; sourceTree = "<group>"; };
+		52020EAB5C81C719F026E0F2 /* Lastream.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Lastream.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		558B4F10EB98F6CC8AD60790 /* MockStationAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockStationAPI.swift; sourceTree = "<group>"; };
+		587DFB49CD6215912B1E3180 /* LastfmUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LastfmUser.swift; sourceTree = "<group>"; };
+		5E835849D9271D7ACC9EFBC6 /* MockAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAPIClient.swift; sourceTree = "<group>"; };
+		5FC71D30D0C4C2ED6FE3ECE8 /* LastreamUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LastreamUITests.swift; sourceTree = "<group>"; };
+		6478BF7910B6EEA627E95F04 /* ModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelTests.swift; sourceTree = "<group>"; };
+		6C2D1396EEAD85D8C0F58B3E /* StationPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationPlayerView.swift; sourceTree = "<group>"; };
+		6CA9C3569FECA1C95BDF14B4 /* AppleAuthAPITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleAuthAPITests.swift; sourceTree = "<group>"; };
+		6DEB137D1294B547D172AF57 /* MusicKitProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicKitProvider.swift; sourceTree = "<group>"; };
+		7AF7ED6603E643521CBBA5E6 /* HeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderView.swift; sourceTree = "<group>"; };
+		8D30C942B205EE9DFBF839B9 /* PreviewMocks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewMocks.swift; sourceTree = "<group>"; };
+		8F182F940A9DF1AD42BB7123 /* MockMusicKitProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockMusicKitProvider.swift; sourceTree = "<group>"; };
+		960D68599F13BFE7A1E689E3 /* StationDescriptorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationDescriptorView.swift; sourceTree = "<group>"; };
+		991D461D49583C17FAFA7B2D /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		9A3AEDBDC44ABDE7366CC1D2 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		9C61F018BB34CF4CA9DAFB9F /* KeychainHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainHelper.swift; sourceTree = "<group>"; };
+		9E2CE663FBA8A073752CBAFA /* AppleMusicAuthServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleMusicAuthServiceTests.swift; sourceTree = "<group>"; };
+		A12F4226CAB8DD06C2832E67 /* LastfmAPITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LastfmAPITests.swift; sourceTree = "<group>"; };
+		A3525CFE2FA0D6E1E00397CB /* Station.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Station.swift; sourceTree = "<group>"; };
+		A7A70F4E61B06EE363CA17D3 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
+		AB926B5D93AB4924A5455EFF /* StationAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationAPI.swift; sourceTree = "<group>"; };
+		ACF5930106651CAFEF54EC37 /* AuthenticationState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationState.swift; sourceTree = "<group>"; };
+		B2E1C83FB458B68AB66D5071 /* FooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FooterView.swift; sourceTree = "<group>"; };
+		C6BA42C28B588EBB3C7F6C6E /* Color+Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Theme.swift"; sourceTree = "<group>"; };
+		CAB1A0BA6A48DE9CC8B57366 /* APIClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClientTests.swift; sourceTree = "<group>"; };
+		D1610EC0FE317943FDA28C3A /* AppleAuthAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleAuthAPI.swift; sourceTree = "<group>"; };
+		E27426AB595C0ACD3E0178CD /* LastfmAuthServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LastfmAuthServiceTests.swift; sourceTree = "<group>"; };
+		E5A21F7B7C593794C3E48CF7 /* Session.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
+		E6AF3D0920B6970EEAEB8355 /* StationListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationListView.swift; sourceTree = "<group>"; };
+		E9AD5A75638728C76A3DC886 /* SpinnerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpinnerView.swift; sourceTree = "<group>"; };
+		EE984572DDC0C413A5A2B88C /* LastfmAuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LastfmAuthService.swift; sourceTree = "<group>"; };
+		EFD445CF7CC0594D3CC967A1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		FBA4D0658D22C7F84FE6356C /* KeychainHelperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainHelperTests.swift; sourceTree = "<group>"; };
+		FBCC3BA97A928C5B8A382452 /* LastreamUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = LastreamUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		FC901B300A1A62F30FFE22B7 /* LastfmAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LastfmAPI.swift; sourceTree = "<group>"; };
+		FFF9902CDA4541CD0F6333C3 /* AuthWarningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthWarningView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		0E5CF29A8D984639140B70AB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				81DB81B2BE838BB9645F6A59 /* SignalRClient in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		040D08DC7892947288646725 /* Player */ = {
+			isa = PBXGroup;
+			children = (
+				6C2D1396EEAD85D8C0F58B3E /* StationPlayerView.swift */,
+			);
+			path = Player;
+			sourceTree = "<group>";
+		};
+		0A22A1F468914F4188AC1644 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				33DFBB1332474CFE15452CA6 /* Components */,
+				B7E116322C938D265A1028E6 /* Home */,
+				040D08DC7892947288646725 /* Player */,
+				A481FEBA3F28D40E38556200 /* Settings */,
+				EE789DF51570FFDF0270F721 /* Stations */,
+				9A3AEDBDC44ABDE7366CC1D2 /* ContentView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		0FFDF2D80183BA5C5544BCC8 /* Authentication */ = {
+			isa = PBXGroup;
+			children = (
+				4F0EB7EDB5B9005FBDA3344B /* AppleMusicAuthService.swift */,
+				EE984572DDC0C413A5A2B88C /* LastfmAuthService.swift */,
+				6DEB137D1294B547D172AF57 /* MusicKitProvider.swift */,
+			);
+			path = Authentication;
+			sourceTree = "<group>";
+		};
+		1D91D08A76E5491D4201EE41 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				CFBC37C473E2DE3337342293 /* API */,
+				0FFDF2D80183BA5C5544BCC8 /* Authentication */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		1EF915662B474077108C905A /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				ACF5930106651CAFEF54EC37 /* AuthenticationState.swift */,
+				587DFB49CD6215912B1E3180 /* LastfmUser.swift */,
+				E5A21F7B7C593794C3E48CF7 /* Session.swift */,
+				A3525CFE2FA0D6E1E00397CB /* Station.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		319BCFE57779D7E2465D4DE8 = {
+			isa = PBXGroup;
+			children = (
+				A859763877021AB1253DE7DA /* Lastream */,
+				E9C9B45885730F1C354E66B3 /* LastreamTests */,
+				8B76AC0B70756A2DAE88427E /* LastreamUITests */,
+				98263214149196DB8805D265 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		33DFBB1332474CFE15452CA6 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				FFF9902CDA4541CD0F6333C3 /* AuthWarningView.swift */,
+				B2E1C83FB458B68AB66D5071 /* FooterView.swift */,
+				7AF7ED6603E643521CBBA5E6 /* HeaderView.swift */,
+				E9AD5A75638728C76A3DC886 /* SpinnerView.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		4B5E6DC12E80554FCB41CBAD /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				9C61F018BB34CF4CA9DAFB9F /* KeychainHelper.swift */,
+				8D30C942B205EE9DFBF839B9 /* PreviewMocks.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		4F0673DFD3329730E7D76FB4 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				FBA4D0658D22C7F84FE6356C /* KeychainHelperTests.swift */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		55924F53C2A54F5FB983B034 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				C6BA42C28B588EBB3C7F6C6E /* Color+Theme.swift */,
+				266B9EE8B37CE0ACDF0AC83F /* View+Extensions.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		8B76AC0B70756A2DAE88427E /* LastreamUITests */ = {
+			isa = PBXGroup;
+			children = (
+				5FC71D30D0C4C2ED6FE3ECE8 /* LastreamUITests.swift */,
+			);
+			path = LastreamUITests;
+			sourceTree = "<group>";
+		};
+		98263214149196DB8805D265 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				52020EAB5C81C719F026E0F2 /* Lastream.app */,
+				01282398FDF50572D9E0F455 /* LastreamTests.xctest */,
+				FBCC3BA97A928C5B8A382452 /* LastreamUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A481FEBA3F28D40E38556200 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				0A6A0663C8171D7102F95474 /* SettingsView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		A859763877021AB1253DE7DA /* Lastream */ = {
+			isa = PBXGroup;
+			children = (
+				FF4786D8120496F80697C330 /* Core */,
+				1EF915662B474077108C905A /* Models */,
+				1D91D08A76E5491D4201EE41 /* Services */,
+				0A22A1F468914F4188AC1644 /* Views */,
+				EFD445CF7CC0594D3CC967A1 /* Info.plist */,
+				4AE74C51CE83C64C5EDF1C1B /* LastreamApp.swift */,
+			);
+			path = Lastream;
+			sourceTree = "<group>";
+		};
+		AD73C57A37F87A25CBE88C44 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				CAB1A0BA6A48DE9CC8B57366 /* APIClientTests.swift */,
+				6CA9C3569FECA1C95BDF14B4 /* AppleAuthAPITests.swift */,
+				9E2CE663FBA8A073752CBAFA /* AppleMusicAuthServiceTests.swift */,
+				A12F4226CAB8DD06C2832E67 /* LastfmAPITests.swift */,
+				E27426AB595C0ACD3E0178CD /* LastfmAuthServiceTests.swift */,
+				0A4F22A51B3D96F0E761C7C8 /* StationAPITests.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		B7E116322C938D265A1028E6 /* Home */ = {
+			isa = PBXGroup;
+			children = (
+				991D461D49583C17FAFA7B2D /* HomeView.swift */,
+				E6AF3D0920B6970EEAEB8355 /* StationListView.swift */,
+			);
+			path = Home;
+			sourceTree = "<group>";
+		};
+		B7E216616D548ACE03393D23 /* Configuration */ = {
+			isa = PBXGroup;
+			children = (
+				412D57711D3E427AE0A5BF6F /* Environment.swift */,
+			);
+			path = Configuration;
+			sourceTree = "<group>";
+		};
+		CFBC37C473E2DE3337342293 /* API */ = {
+			isa = PBXGroup;
+			children = (
+				A7A70F4E61B06EE363CA17D3 /* APIClient.swift */,
+				D1610EC0FE317943FDA28C3A /* AppleAuthAPI.swift */,
+				FC901B300A1A62F30FFE22B7 /* LastfmAPI.swift */,
+				AB926B5D93AB4924A5455EFF /* StationAPI.swift */,
+			);
+			path = API;
+			sourceTree = "<group>";
+		};
+		E4A822FD4939E8B1DA0CD568 /* Mocks */ = {
+			isa = PBXGroup;
+			children = (
+				5E835849D9271D7ACC9EFBC6 /* MockAPIClient.swift */,
+				420E836F07213B64C0A453F8 /* MockAppleAuthAPI.swift */,
+				2302D88DD5DAE617BABA8805 /* MockLastfmAPI.swift */,
+				8F182F940A9DF1AD42BB7123 /* MockMusicKitProvider.swift */,
+				558B4F10EB98F6CC8AD60790 /* MockStationAPI.swift */,
+			);
+			path = Mocks;
+			sourceTree = "<group>";
+		};
+		E9C9B45885730F1C354E66B3 /* LastreamTests */ = {
+			isa = PBXGroup;
+			children = (
+				4F0673DFD3329730E7D76FB4 /* Core */,
+				E4A822FD4939E8B1DA0CD568 /* Mocks */,
+				FF07D14749A90AEDC10A517E /* Models */,
+				AD73C57A37F87A25CBE88C44 /* Services */,
+			);
+			path = LastreamTests;
+			sourceTree = "<group>";
+		};
+		EE789DF51570FFDF0270F721 /* Stations */ = {
+			isa = PBXGroup;
+			children = (
+				960D68599F13BFE7A1E689E3 /* StationDescriptorView.swift */,
+			);
+			path = Stations;
+			sourceTree = "<group>";
+		};
+		FF07D14749A90AEDC10A517E /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				6478BF7910B6EEA627E95F04 /* ModelTests.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		FF4786D8120496F80697C330 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				B7E216616D548ACE03393D23 /* Configuration */,
+				55924F53C2A54F5FB983B034 /* Extensions */,
+				4B5E6DC12E80554FCB41CBAD /* Utilities */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		4050FC62A862C463FB0F860B /* Lastream */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F7A776FE9367236CED96A07C /* Build configuration list for PBXNativeTarget "Lastream" */;
+			buildPhases = (
+				5E1BF5DA2793EEA99E326399 /* Sources */,
+				0E5CF29A8D984639140B70AB /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Lastream;
+			packageProductDependencies = (
+				86B58F45FFE860B6A7019223 /* SignalRClient */,
+			);
+			productName = Lastream;
+			productReference = 52020EAB5C81C719F026E0F2 /* Lastream.app */;
+			productType = "com.apple.product-type.application";
+		};
+		9E625146D343271B7AE21D3A /* LastreamTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A0B90A8674F09F72AE561528 /* Build configuration list for PBXNativeTarget "LastreamTests" */;
+			buildPhases = (
+				5073D516522A19E240F2442D /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				8ADA3A0823F0C8482765E824 /* PBXTargetDependency */,
+			);
+			name = LastreamTests;
+			packageProductDependencies = (
+			);
+			productName = LastreamTests;
+			productReference = 01282398FDF50572D9E0F455 /* LastreamTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		DDC031A7C75F9A97801585D0 /* LastreamUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3D6C1877DF7D96B695BC95CD /* Build configuration list for PBXNativeTarget "LastreamUITests" */;
+			buildPhases = (
+				D72957ED43086B04C8E8FA49 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C187C3E7B16D67DFA43030E7 /* PBXTargetDependency */,
+			);
+			name = LastreamUITests;
+			packageProductDependencies = (
+			);
+			productName = LastreamUITests;
+			productReference = FBCC3BA97A928C5B8A382452 /* LastreamUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		0CFCECCDF1937A821BE08D1E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					4050FC62A862C463FB0F860B = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+					9E625146D343271B7AE21D3A = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+					DDC031A7C75F9A97801585D0 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+						TestTargetID = 4050FC62A862C463FB0F860B;
+					};
+				};
+			};
+			buildConfigurationList = DE529FED4954C359508D8ABF /* Build configuration list for PBXProject "Lastream" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 319BCFE57779D7E2465D4DE8;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				CB4205742A7B06258B61E801 /* XCRemoteSwiftPackageReference "SignalR-Client-Swift" */,
+			);
+			preferredProjectObjectVersion = 77;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				4050FC62A862C463FB0F860B /* Lastream */,
+				9E625146D343271B7AE21D3A /* LastreamTests */,
+				DDC031A7C75F9A97801585D0 /* LastreamUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		5073D516522A19E240F2442D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				83764E81EEE33FC9C022FA54 /* APIClientTests.swift in Sources */,
+				B8E13DB0E06B7DA7EE2E5D05 /* AppleAuthAPITests.swift in Sources */,
+				BAB40830C243DB27D66E944A /* AppleMusicAuthServiceTests.swift in Sources */,
+				62EC4FC72D13B97D98A2EB12 /* KeychainHelperTests.swift in Sources */,
+				10C922869364023FD2CE0775 /* LastfmAPITests.swift in Sources */,
+				2002F83EB35D042329A464BF /* LastfmAuthServiceTests.swift in Sources */,
+				132C95201C1A3B897AE0769A /* MockAPIClient.swift in Sources */,
+				744FB63BEAB41E77718EF4A8 /* MockAppleAuthAPI.swift in Sources */,
+				8832E3D89959A46F49451E2D /* MockLastfmAPI.swift in Sources */,
+				E9E95617E219B8DC0737CF3F /* MockMusicKitProvider.swift in Sources */,
+				D942F414BE3C85DD186C7FC2 /* MockStationAPI.swift in Sources */,
+				5948C7FA8300BF3C0334FB50 /* ModelTests.swift in Sources */,
+				6934A91C09C25628F6C1D44E /* StationAPITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5E1BF5DA2793EEA99E326399 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AD133205254748BA81CFA290 /* APIClient.swift in Sources */,
+				48369054E7E2C4B7E9D40FF1 /* AppleAuthAPI.swift in Sources */,
+				7D8607348B653244B0C98A54 /* AppleMusicAuthService.swift in Sources */,
+				869297704BB7D027EA459D4B /* AuthWarningView.swift in Sources */,
+				341B36660056341E7A8E971F /* AuthenticationState.swift in Sources */,
+				70C46AA63207CC9128E55A0C /* Color+Theme.swift in Sources */,
+				8CF05C395051C280C1F77F4B /* ContentView.swift in Sources */,
+				C48F30ED30E1C2B7A8D13DF8 /* Environment.swift in Sources */,
+				DD52405CD2C3392461ECA7C7 /* FooterView.swift in Sources */,
+				CB66F01FBC25DEC73CAADCE2 /* HeaderView.swift in Sources */,
+				2548CC5667E10BE92589E516 /* HomeView.swift in Sources */,
+				D0C466B4AB6194718446B6E2 /* KeychainHelper.swift in Sources */,
+				42BE5D62DD6AA6FDA3A0F2C3 /* LastfmAPI.swift in Sources */,
+				3091E3E8E9196A2A4327BE85 /* LastfmAuthService.swift in Sources */,
+				95DEE7168B4C607D08B18BF8 /* LastfmUser.swift in Sources */,
+				ADC22FCE9F423EE1F6949D1C /* LastreamApp.swift in Sources */,
+				F0A9B633B24EB23AA51E87F5 /* MusicKitProvider.swift in Sources */,
+				4BB1501073955DFA6FC7948B /* PreviewMocks.swift in Sources */,
+				3F11453628F35995A5CDEB87 /* Session.swift in Sources */,
+				0821C9D97B62D32AFDC97BA2 /* SettingsView.swift in Sources */,
+				FD79CF186CCFBAD5B6CA9077 /* SpinnerView.swift in Sources */,
+				395F6D80AF8F275150289BF2 /* Station.swift in Sources */,
+				D82E124094B6702486B4AAA8 /* StationAPI.swift in Sources */,
+				07283FF732D5846EE27ED4AC /* StationDescriptorView.swift in Sources */,
+				A6F0BAF4DEA355A9FEC29860 /* StationListView.swift in Sources */,
+				2C4D619BA84D45CDC7E80E34 /* StationPlayerView.swift in Sources */,
+				BB5A550035B45120194DCEEC /* View+Extensions.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D72957ED43086B04C8E8FA49 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E5930C184E6A0D2AB8B8FEB5 /* LastreamUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		8ADA3A0823F0C8482765E824 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4050FC62A862C463FB0F860B /* Lastream */;
+			targetProxy = 92FC9EFFD4966F4125DB84CF /* PBXContainerItemProxy */;
+		};
+		C187C3E7B16D67DFA43030E7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4050FC62A862C463FB0F860B /* Lastream */;
+			targetProxy = 918F8F0DC5A1C7466B19F680 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		016F859B1E520FB6ABF30978 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.lastapple.lastapple.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Lastream;
+			};
+			name = Release;
+		};
+		17D1769CE9056A7F8EE0E1E0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.lastapple.lastapple.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Lastream.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Lastream";
+			};
+			name = Debug;
+		};
+		1ECB29CBECBC1D3D3F6FA5F6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Lastream/Lastream.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = Lastream/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Lastream;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.lastapple.lastapple;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		2EECFDAA3064539C27AD8BFC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		38E7981AB4F3269F7453FCF9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.lastapple.lastapple.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Lastream.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Lastream";
+			};
+			name = Release;
+		};
+		A869C9F3121763927B5757BA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		CD1D0695235D64A4BFBEE0DA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.lastapple.lastapple.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Lastream;
+			};
+			name = Debug;
+		};
+		DA3C7DC8802CC7675777B384 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Lastream/Lastream.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = Lastream/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Lastream;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.lastapple.lastapple;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		3D6C1877DF7D96B695BC95CD /* Build configuration list for PBXNativeTarget "LastreamUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CD1D0695235D64A4BFBEE0DA /* Debug */,
+				016F859B1E520FB6ABF30978 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		A0B90A8674F09F72AE561528 /* Build configuration list for PBXNativeTarget "LastreamTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				17D1769CE9056A7F8EE0E1E0 /* Debug */,
+				38E7981AB4F3269F7453FCF9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		DE529FED4954C359508D8ABF /* Build configuration list for PBXProject "Lastream" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2EECFDAA3064539C27AD8BFC /* Debug */,
+				A869C9F3121763927B5757BA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		F7A776FE9367236CED96A07C /* Build configuration list for PBXNativeTarget "Lastream" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1ECB29CBECBC1D3D3F6FA5F6 /* Debug */,
+				DA3C7DC8802CC7675777B384 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		CB4205742A7B06258B61E801 /* XCRemoteSwiftPackageReference "SignalR-Client-Swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/moozzyk/SignalR-Client-Swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.9.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		86B58F45FFE860B6A7019223 /* SignalRClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CB4205742A7B06258B61E801 /* XCRemoteSwiftPackageReference "SignalR-Client-Swift" */;
+			productName = SignalRClient;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 0CFCECCDF1937A821BE08D1E /* Project object */;
+}

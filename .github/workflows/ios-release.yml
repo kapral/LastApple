@@ -1,0 +1,86 @@
+name: iOS Release
+
+on:
+  push:
+    tags:
+      - 'ios-v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (e.g., 1.0.0)'
+        required: true
+        type: string
+
+jobs:
+  build-and-release:
+    runs-on: macos-15
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Select Xcode 16
+      run: sudo xcode-select -s /Applications/Xcode_16.app
+
+    - name: Show Xcode version
+      run: xcodebuild -version
+
+    - name: Setup Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.2'
+        bundler-cache: true
+        working-directory: Lastream.iOS
+
+    - name: Install Fastlane
+      run: |
+        cd Lastream.iOS
+        gem install fastlane
+
+    - name: Run Tests
+      run: |
+        cd Lastream.iOS
+        xcodebuild test \
+          -project Lastream.xcodeproj \
+          -scheme Lastream \
+          -destination 'platform=iOS Simulator,name=iPhone 16' \
+          CODE_SIGNING_ALLOWED=NO \
+          | xcpretty --color --test
+
+    - name: Setup Code Signing
+      env:
+        MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+        MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_TOKEN }}
+      run: |
+        cd Lastream.iOS
+        fastlane match appstore --readonly
+
+    - name: Set Version
+      run: |
+        cd Lastream.iOS
+        VERSION="${{ github.event.inputs.version || github.ref_name }}"
+        VERSION="${VERSION#ios-v}"
+        echo "Setting version to: $VERSION"
+        agvtool new-marketing-version "$VERSION"
+        agvtool new-version -all "$(date +%Y%m%d%H%M)"
+
+    - name: Build and Upload to TestFlight
+      env:
+        APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+        APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+        APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_KEY_CONTENT }}
+      run: |
+        cd Lastream.iOS
+        fastlane beta
+
+    - name: Create GitHub Release
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        name: iOS ${{ github.ref_name }}
+        body: |
+          iOS Release ${{ github.ref_name }}
+          
+          Uploaded to TestFlight for beta testing.
+        draft: false
+        prerelease: false

@@ -1,0 +1,64 @@
+name: iOS Build
+
+on:
+  push:
+    branches: [main, development]
+    paths:
+      - 'Lastream.iOS/**'
+      - '.github/workflows/ios-build.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'Lastream.iOS/**'
+      - '.github/workflows/ios-build.yml'
+
+jobs:
+  build:
+    runs-on: macos-15
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Select Xcode 16
+      run: sudo xcode-select -s /Applications/Xcode_16.app
+
+    - name: Show Xcode version
+      run: xcodebuild -version
+
+    - name: Show available destinations
+      run: |
+        xcodebuild -project Lastream.iOS/Lastream.xcodeproj \
+          -scheme Lastream \
+          -showdestinations
+
+    - name: Resolve Swift packages
+      run: |
+        cd Lastream.iOS
+        xcodebuild -resolvePackageDependencies \
+          -project Lastream.xcodeproj \
+          -scheme Lastream
+
+    - name: Build for iOS Simulator
+      run: |
+        cd Lastream.iOS
+        xcodebuild build \
+          -project Lastream.xcodeproj \
+          -scheme Lastream \
+          -destination 'platform=iOS Simulator,name=iPhone 16' \
+          -configuration Debug \
+          CODE_SIGNING_ALLOWED=NO \
+          ONLY_ACTIVE_ARCH=YES \
+          | xcpretty --color --simple
+
+    - name: Build Release configuration
+      run: |
+        cd Lastream.iOS
+        xcodebuild build \
+          -project Lastream.xcodeproj \
+          -scheme Lastream \
+          -destination 'platform=iOS Simulator,name=iPhone 16' \
+          -configuration Release \
+          CODE_SIGNING_ALLOWED=NO \
+          ONLY_ACTIVE_ARCH=YES \
+          | xcpretty --color --simple

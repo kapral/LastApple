@@ -1,0 +1,23 @@
+# Lastream iOS Matchfile
+# This file configures Fastlane Match for code signing.
+
+# Git repository URL where certificates and profiles are stored
+git_url(ENV["MATCH_GIT_URL"] || "https://github.com/kapral/certificates")
+
+# Storage mode (git, google_cloud, s3)
+storage_mode("git")
+
+# Type of provisioning profile to use
+type("appstore")
+
+# App identifiers to sync
+app_identifier(["com.lastapple.lastapple"])
+
+# Username (Apple ID)
+username(ENV["FASTLANE_USER"] || "")
+
+# Team ID
+team_id(ENV["FASTLANE_TEAM_ID"] || "")
+
+# For all available options, see:
+# https://docs.fastlane.tools/actions/match/
