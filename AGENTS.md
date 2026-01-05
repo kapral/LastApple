@@ -236,3 +236,145 @@ ALWAYS wait for builds and tests to complete. Build cancellation leads to incomp
 - **Isolation Testing**: Test components in isolation to identify the exact source of issues
 - **Baseline Validation**: Always establish a working baseline before making changes
 - **Documentation Sync**: Keep documentation in sync with code changes to avoid confusion
+
+## iOS Mobile App (Lastream.iOS)
+
+### Overview
+The iOS app is a native Swift/SwiftUI client for the Lastream music station generator. It uses MusicKit for Apple Music integration and connects to the same backend API as the web frontend.
+
+### Prerequisites
+- **Xcode 16.0+**: Required for iOS 18 and Swift 6 support
+- **xcodegen**: Project generator (can be downloaded from https://github.com/yonaskolb/XcodeGen/releases)
+- **Ruby 3.2+**: Required for Fastlane (optional, for CI/CD)
+
+### Project Structure
+```
+Lastream.iOS/
+├── project.yml              # XcodeGen project specification
+├── Package.swift            # Swift Package Manager (alternative build)
+├── Lastream/                # Main app source code
+│   ├── Core/               # Configuration, extensions, utilities
+│   ├── Models/             # Data models
+│   ├── Services/           # API and authentication services
+│   └── Views/              # SwiftUI views
+├── LastreamTests/          # Unit tests
+├── LastreamUITests/        # UI tests
+└── fastlane/               # Fastlane configuration
+```
+
+### Building the iOS App
+
+#### Generate Xcode Project (Required First Time)
+The Xcode project is generated from `project.yml` using xcodegen:
+```bash
+# Install xcodegen (if not available)
+curl -L "https://github.com/yonaskolb/XcodeGen/releases/latest/download/xcodegen.zip" -o /tmp/xcodegen.zip
+unzip -o /tmp/xcodegen.zip -d /tmp/xcodegen
+
+# Generate project
+cd Lastream.iOS
+/tmp/xcodegen/xcodegen/bin/xcodegen generate
+```
+
+#### Build Commands
+```bash
+cd Lastream.iOS
+
+# Build for iOS Simulator (Debug)
+xcodebuild build \
+  -project Lastream.xcodeproj \
+  -scheme Lastream \
+  -destination 'platform=iOS Simulator,name=iPhone 16' \
+  -configuration Debug \
+  CODE_SIGNING_ALLOWED=NO \
+  ONLY_ACTIVE_ARCH=YES
+
+# Build for Release (still no signing)
+xcodebuild build \
+  -project Lastream.xcodeproj \
+  -scheme Lastream \
+  -destination 'platform=iOS Simulator,name=iPhone 16' \
+  -configuration Release \
+  CODE_SIGNING_ALLOWED=NO
+```
+
+### Running iOS Tests
+```bash
+cd Lastream.iOS
+
+# Run unit tests
+xcodebuild test \
+  -project Lastream.xcodeproj \
+  -scheme Lastream \
+  -destination 'platform=iOS Simulator,name=iPhone 16' \
+  -only-testing:LastreamTests \
+  CODE_SIGNING_ALLOWED=NO
+
+# Run with coverage
+xcodebuild test \
+  -project Lastream.xcodeproj \
+  -scheme Lastream \
+  -destination 'platform=iOS Simulator,name=iPhone 16' \
+  -enableCodeCoverage YES \
+  CODE_SIGNING_ALLOWED=NO
+```
+
+### iOS Testing Strategy
+- **Swift Testing Framework**: Tests use `@Test` and `@Suite` macros from Swift Testing
+- **Mock Dependencies**: Use `@testable import Lastream` and mock implementations
+- **Expected Failures**: 
+  - Keychain tests may fail in simulator (limited Keychain access)
+  - Some API behavior tests may fail without actual network mocks
+- **Focus Areas**: Test API client logic, model encoding/decoding, and service protocols
+
+### iOS Code Style Guidelines
+- **Swift 6.0**: Use modern Swift concurrency (`async/await`, `@Sendable`)
+- **SwiftUI**: Use `@Observable` macro for state management (iOS 17+)
+- **Naming**: Use `AppEnvironment` (not `Environment`) to avoid SwiftUI conflicts
+- **Protocols**: All services have protocols for testability
+- **Preview Code**: Wrap in `#if DEBUG` and use `PreviewHelpers`
+
+### iOS CI/CD Workflows
+Located in `.github/workflows/`:
+- **ios-build.yml**: Build verification on push/PR to Lastream.iOS paths
+- **ios-test.yml**: Run unit tests with coverage reporting
+- **ios-release.yml**: Deploy to TestFlight on version tags (`ios-v*`)
+
+All workflows include XcodeGen project generation step before building.
+
+### Fastlane Configuration
+Located in `Lastream.iOS/fastlane/`:
+- **Appfile**: App identifier and team configuration
+- **Fastfile**: Lanes for test, beta, and release deployments
+- **Matchfile**: Code signing configuration using git storage
+
+**Required Secrets for CI/CD**:
+- `MATCH_PASSWORD`: Password for decrypting certificates
+- `MATCH_GIT_TOKEN`: GitHub token for certificates repository
+- `APP_STORE_CONNECT_KEY_ID`: App Store Connect API key ID
+- `APP_STORE_CONNECT_ISSUER_ID`: App Store Connect issuer ID
+- `APP_STORE_CONNECT_KEY_CONTENT`: Base64-encoded App Store Connect private key
+
+### iOS App Features
+The iOS app provides full feature parity with the web frontend:
+- **Authentication**: Apple Music (MusicKit) and Last.fm OAuth
+- **Station Types**: Artist, Similar Artists, Tag, Last.fm Library
+- **Music Player**: Full MusicKit integration with playback controls
+- **Real-time Updates**: SignalR connection for live track additions
+- **Scrobbling**: Automatic Last.fm scrobbling with 30-second threshold
+- **Settings**: Account management, scrobbling toggle, app info
+- **Accessibility**: Full VoiceOver support with descriptive labels
+
+### iOS Time Expectations (NEVER CANCEL)
+- **xcodegen generate**: 1-2 seconds
+- **Swift package resolution**: 10-30 seconds (first time with network)
+- **xcodebuild build (Debug)**: 30-60 seconds
+- **xcodebuild test**: 30-60 seconds
+- **Full clean build**: 2-3 minutes
+
+### iOS Troubleshooting
+- **Project won't open**: Regenerate with `xcodegen generate`
+- **Missing types in tests**: Ensure `@testable import Lastream` is present
+- **Keychain test failures**: Expected in simulator; tests work on device
+- **SignalR package errors**: Check network connectivity for package resolution
+- **Simulator not found**: Use `xcrun simctl list` to find available simulators

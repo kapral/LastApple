@@ -1,0 +1,73 @@
+name: iOS Build
+
+on:
+  push:
+    branches: [main, development]
+    paths:
+      - 'Lastream.iOS/**'
+      - '.github/workflows/ios-build.yml'
+  pull_request:
+    branches: [development]
+    paths:
+      - 'Lastream.iOS/**'
+      - '.github/workflows/ios-build.yml'
+
+jobs:
+  build:
+    runs-on: macos-14
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Select Xcode 16
+      run: sudo xcode-select -s /Applications/Xcode_16.1.app
+
+    - name: Show Xcode version
+      run: xcodebuild -version
+
+    - name: List available runtimes and simulators
+      run: |
+        echo "=== Available Runtimes ==="
+        xcrun simctl list runtimes
+        echo "=== Available Devices ==="
+        xcrun simctl list devices available | head -40
+
+    - name: Install XcodeGen
+      run: brew install xcodegen
+
+    - name: Generate Xcode project
+      run: |
+        cd Lastream.iOS
+        xcodegen generate
+
+    - name: Resolve Swift packages
+      run: |
+        cd Lastream.iOS
+        xcodebuild -resolvePackageDependencies \
+          -project Lastream.xcodeproj \
+          -scheme Lastream
+
+    - name: Build for iOS Simulator
+      run: |
+        set -o pipefail
+        cd Lastream.iOS
+        xcodebuild build \
+          -project Lastream.xcodeproj \
+          -scheme Lastream \
+          -destination 'platform=iOS Simulator,name=iPhone 15 Pro' \
+          -configuration Debug \
+          CODE_SIGNING_ALLOWED=NO \
+          | xcpretty --color --simple
+
+    - name: Build Release configuration
+      run: |
+        set -o pipefail
+        cd Lastream.iOS
+        xcodebuild build \
+          -project Lastream.xcodeproj \
+          -scheme Lastream \
+          -destination 'platform=iOS Simulator,name=iPhone 15 Pro' \
+          -configuration Release \
+          CODE_SIGNING_ALLOWED=NO \
+          | xcpretty --color --simple

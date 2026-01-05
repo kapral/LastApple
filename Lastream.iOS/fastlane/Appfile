@@ -1,0 +1,20 @@
+# Lastream iOS Appfile
+# This file defines the app's identifiers and Apple ID for Fastlane.
+
+# App identifier (bundle ID)
+app_identifier("com.lastapple.lastapple")
+
+# Apple ID email for App Store Connect
+# This should be set via environment variable or entered when prompted
+apple_id(ENV["FASTLANE_USER"] || "")
+
+# Team ID for the Apple Developer Portal
+# This should be set via environment variable or entered when prompted
+team_id(ENV["FASTLANE_TEAM_ID"] || "")
+
+# iTunes Connect Team ID
+# This should be set via environment variable or entered when prompted
+itc_team_id(ENV["FASTLANE_ITC_TEAM_ID"] || "")
+
+# For all available options, see:
+# https://docs.fastlane.tools/advanced/#appfile
