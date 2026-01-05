@@ -7,7 +7,7 @@ on:
       - 'Lastream.iOS/**'
       - '.github/workflows/ios-test.yml'
   pull_request:
-    branches: [main]
+    branches: [development]
     paths:
       - 'Lastream.iOS/**'
       - '.github/workflows/ios-test.yml'
@@ -21,10 +21,13 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Select Xcode 16
-      run: sudo xcode-select -s /Applications/Xcode_16.app
+      run: sudo xcode-select -s /Applications/Xcode_16.2.app
 
     - name: Show Xcode version
       run: xcodebuild -version
+
+    - name: List available simulators
+      run: xcrun simctl list devices available | grep -E "iPhone|iPad" | head -20
 
     - name: Install XcodeGen
       run: brew install xcodegen
@@ -43,16 +46,17 @@ jobs:
 
     - name: Run Unit Tests
       run: |
+        set -o pipefail
         cd Lastream.iOS
         xcodebuild test \
           -project Lastream.xcodeproj \
           -scheme Lastream \
-          -destination 'platform=iOS Simulator,name=iPhone 16' \
+          -destination 'platform=iOS Simulator,OS=latest,name=iPhone 16 Pro' \
           -only-testing:LastreamTests \
           -enableCodeCoverage YES \
           -resultBundlePath TestResults.xcresult \
           CODE_SIGNING_ALLOWED=NO \
-          | xcpretty --color --test || true
+          | xcpretty --color --test
 
     - name: Generate Coverage Report
       if: always()
