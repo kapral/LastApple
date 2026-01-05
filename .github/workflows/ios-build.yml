@@ -14,14 +14,14 @@ on:
 
 jobs:
   build:
-    runs-on: macos-15
+    runs-on: macos-14
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
 
     - name: Select Xcode 16
-      run: sudo xcode-select -s /Applications/Xcode_16.2.app
+      run: sudo xcode-select -s /Applications/Xcode_16.1.app
 
     - name: Show Xcode version
       run: xcodebuild -version
@@ -55,7 +55,7 @@ jobs:
         xcodebuild build \
           -project Lastream.xcodeproj \
           -scheme Lastream \
-          -destination 'generic/platform=iOS Simulator' \
+          -destination 'platform=iOS Simulator,name=iPhone 15 Pro' \
           -configuration Debug \
           CODE_SIGNING_ALLOWED=NO \
           | xcpretty --color --simple
@@ -67,7 +67,7 @@ jobs:
         xcodebuild build \
           -project Lastream.xcodeproj \
           -scheme Lastream \
-          -destination 'generic/platform=iOS Simulator' \
+          -destination 'platform=iOS Simulator,name=iPhone 15 Pro' \
           -configuration Release \
           CODE_SIGNING_ALLOWED=NO \
           | xcpretty --color --simple
