@@ -68,6 +68,17 @@ struct NowPlayingView: View {
         .padding()
         .background(Color.appSecondaryBackground)
         .cornerRadius(12)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(accessibilityDescription)
+    }
+    
+    private var accessibilityDescription: String {
+        if let track = track {
+            let playingState = isPlaying ? "Now playing" : "Paused"
+            return "\(playingState): \(track.title) by \(track.artistName) from \(track.albumName)"
+        } else {
+            return "Not playing. Select a track to play."
+        }
     }
     
     private var albumPlaceholder: some View {
@@ -77,6 +88,7 @@ struct NowPlayingView: View {
                 .font(.title2)
                 .foregroundColor(.appTextMuted)
         }
+        .accessibilityHidden(true)
     }
 }
 

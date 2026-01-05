@@ -8,6 +8,7 @@ struct HeaderView: View {
                 .font(.title2)
                 .fontWeight(.bold)
                 .foregroundColor(.appText)
+                .accessibilityAddTraits(.isHeader)
             
             Spacer()
             
@@ -16,6 +17,7 @@ struct HeaderView: View {
                     .font(.title3)
                     .foregroundColor(.appText)
             }
+            .accessibilityLabel("Settings")
         }
         .padding(.horizontal)
         .padding(.vertical, 12)

@@ -118,6 +118,19 @@ struct PlaylistTrackRow: View {
             .background(isCurrent ? Color.appAccent.opacity(0.1) : Color.clear)
         }
         .buttonStyle(.plain)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(accessibilityDescription)
+        .accessibilityHint("Double tap to play")
+    }
+    
+    private var accessibilityDescription: String {
+        var description = "Track \(index): \(track.title) by \(track.artistName)"
+        if isPlaying {
+            description = "Now playing, " + description
+        } else if isCurrent {
+            description = "Paused, " + description
+        }
+        return description
     }
     
     private func formatDuration(_ duration: TimeInterval) -> String {

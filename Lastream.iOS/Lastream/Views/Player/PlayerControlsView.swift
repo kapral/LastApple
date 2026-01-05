@@ -43,6 +43,7 @@ struct PlayerControlsView: View {
                         .font(.title2)
                         .foregroundColor(.appText)
                 }
+                .accessibilityLabel("Previous track")
                 
                 // Play/Pause
                 Button(action: onPlayPause) {
@@ -50,6 +51,7 @@ struct PlayerControlsView: View {
                         .font(.system(size: 64))
                         .foregroundColor(.appAccent)
                 }
+                .accessibilityLabel(isPlaying ? "Pause" : "Play")
                 
                 // Next
                 Button(action: onSkipNext) {
@@ -57,6 +59,7 @@ struct PlayerControlsView: View {
                         .font(.title2)
                         .foregroundColor(.appText)
                 }
+                .accessibilityLabel("Next track")
             }
         }
         .padding()

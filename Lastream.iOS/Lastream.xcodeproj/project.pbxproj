@@ -18,6 +18,7 @@
 		3091E3E8E9196A2A4327BE85 /* LastfmAuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE984572DDC0C413A5A2B88C /* LastfmAuthService.swift */; };
 		31FC9691DB7A57074CC9B4C9 /* MockStationHubService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9562ED9E47A95F5C9FA60A9B /* MockStationHubService.swift */; };
 		341B36660056341E7A8E971F /* AuthenticationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACF5930106651CAFEF54EC37 /* AuthenticationState.swift */; };
+		363AEA16D64640AFB167C7B2 /* StateViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49F1AEA4D9F31EE550C6B955 /* StateViewTests.swift */; };
 		395F6D80AF8F275150289BF2 /* Station.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3525CFE2FA0D6E1E00397CB /* Station.swift */; };
 		3F11453628F35995A5CDEB87 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A21F7B7C593794C3E48CF7 /* Session.swift */; };
 		42BE5D62DD6AA6FDA3A0F2C3 /* LastfmAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC901B300A1A62F30FFE22B7 /* LastfmAPI.swift */; };
@@ -50,6 +51,7 @@
 		ACEB087701FB4244E0076D22 /* StationHubServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A8ACAACB035B9DBA7FF0A4 /* StationHubServiceTests.swift */; };
 		AD133205254748BA81CFA290 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7A70F4E61B06EE363CA17D3 /* APIClient.swift */; };
 		ADC22FCE9F423EE1F6949D1C /* LastreamApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AE74C51CE83C64C5EDF1C1B /* LastreamApp.swift */; };
+		AFE06309FF1269E6D09FF2B8 /* StateViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7028E9E1160DA4A1C5A82BB /* StateViews.swift */; };
 		B561A20752CD04070D7680F5 /* SimilarArtistsStationOptionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CC3F9A34876A4E5B6FBE79A /* SimilarArtistsStationOptionsView.swift */; };
 		B8E13DB0E06B7DA7EE2E5D05 /* AppleAuthAPITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CA9C3569FECA1C95BDF14B4 /* AppleAuthAPITests.swift */; };
 		BAB40830C243DB27D66E944A /* AppleMusicAuthServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E2CE663FBA8A073752CBAFA /* AppleMusicAuthServiceTests.swift */; };
@@ -58,6 +60,7 @@
 		C48F30ED30E1C2B7A8D13DF8 /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 412D57711D3E427AE0A5BF6F /* Environment.swift */; };
 		C921202D7B24A3F363A341E8 /* MusicPlayerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B92384F14EE8FF9A73DF9133 /* MusicPlayerService.swift */; };
 		CB66F01FBC25DEC73CAADCE2 /* HeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF7ED6603E643521CBBA5E6 /* HeaderView.swift */; };
+		CCE2A69F104338A839FE918E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D994614A5EA790A86825B442 /* Assets.xcassets */; };
 		D0C466B4AB6194718446B6E2 /* KeychainHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C61F018BB34CF4CA9DAFB9F /* KeychainHelper.swift */; };
 		D31D4B7ECEF6475E2FF1917F /* TagStationOptionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFF73E07BE5657B2B64A3FEF /* TagStationOptionsView.swift */; };
 		D82E124094B6702486B4AAA8 /* StationAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB926B5D93AB4924A5455EFF /* StationAPI.swift */; };
@@ -103,6 +106,7 @@
 		412D57711D3E427AE0A5BF6F /* Environment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Environment.swift; sourceTree = "<group>"; };
 		413A13F7AD9C65A574EA85B7 /* MusicPlayerServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicPlayerServiceTests.swift; sourceTree = "<group>"; };
 		420E836F07213B64C0A453F8 /* MockAppleAuthAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAppleAuthAPI.swift; sourceTree = "<group>"; };
+		49F1AEA4D9F31EE550C6B955 /* StateViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateViewTests.swift; sourceTree = "<group>"; };
 		4AE74C51CE83C64C5EDF1C1B /* LastreamApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LastreamApp.swift; sourceTree = "<group>"; };
 		4F0EB7EDB5B9005FBDA3344B /* AppleMusicAuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleMusicAuthService.swift; sourceTree = "<group>"; };
 		52020EAB5C81C719F026E0F2 /* Lastream.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Lastream.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -144,10 +148,12 @@
 		CAB1A0BA6A48DE9CC8B57366 /* APIClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClientTests.swift; sourceTree = "<group>"; };
 		D1610EC0FE317943FDA28C3A /* AppleAuthAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleAuthAPI.swift; sourceTree = "<group>"; };
 		D8F55CF968B39909D4459DB9 /* StationHubService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationHubService.swift; sourceTree = "<group>"; };
+		D994614A5EA790A86825B442 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E27426AB595C0ACD3E0178CD /* LastfmAuthServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LastfmAuthServiceTests.swift; sourceTree = "<group>"; };
 		E51C06DB4EFF1196D920669E /* NowPlayingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingView.swift; sourceTree = "<group>"; };
 		E5A21F7B7C593794C3E48CF7 /* Session.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
 		E6AF3D0920B6970EEAEB8355 /* StationListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationListView.swift; sourceTree = "<group>"; };
+		E7028E9E1160DA4A1C5A82BB /* StateViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateViews.swift; sourceTree = "<group>"; };
 		E9AD5A75638728C76A3DC886 /* SpinnerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpinnerView.swift; sourceTree = "<group>"; };
 		EE984572DDC0C413A5A2B88C /* LastfmAuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LastfmAuthService.swift; sourceTree = "<group>"; };
 		EFD445CF7CC0594D3CC967A1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -255,6 +261,7 @@
 				7AF7ED6603E643521CBBA5E6 /* HeaderView.swift */,
 				307AF35EFF877D31B10253AD /* SearchField.swift */,
 				E9AD5A75638728C76A3DC886 /* SpinnerView.swift */,
+				E7028E9E1160DA4A1C5A82BB /* StateViews.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -324,6 +331,7 @@
 			isa = PBXGroup;
 			children = (
 				85984B5E7CDD5F6D0DFC211A /* SettingsViewTests.swift */,
+				49F1AEA4D9F31EE550C6B955 /* StateViewTests.swift */,
 				FED19D0C4F230309A327EC79 /* StationPlayerViewModelTests.swift */,
 			);
 			path = Views;
@@ -344,6 +352,7 @@
 				1EF915662B474077108C905A /* Models */,
 				1D91D08A76E5491D4201EE41 /* Services */,
 				0A22A1F468914F4188AC1644 /* Views */,
+				D994614A5EA790A86825B442 /* Assets.xcassets */,
 				EFD445CF7CC0594D3CC967A1 /* Info.plist */,
 				4AE74C51CE83C64C5EDF1C1B /* LastreamApp.swift */,
 			);
@@ -469,6 +478,7 @@
 			buildConfigurationList = F7A776FE9367236CED96A07C /* Build configuration list for PBXNativeTarget "Lastream" */;
 			buildPhases = (
 				5E1BF5DA2793EEA99E326399 /* Sources */,
+				E1AF14D590F157CB40216160 /* Resources */,
 				0E5CF29A8D984639140B70AB /* Frameworks */,
 			);
 			buildRules = (
@@ -567,6 +577,17 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXResourcesBuildPhase section */
+		E1AF14D590F157CB40216160 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CCE2A69F104338A839FE918E /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		5073D516522A19E240F2442D /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -591,6 +612,7 @@
 				A1125B4E260861C3DA55D39D /* MusicPlayerServiceTests.swift in Sources */,
 				6124C8C4CFF5128A9D952772 /* ScrobbleServiceTests.swift in Sources */,
 				632543439448A93307B00AB7 /* SettingsViewTests.swift in Sources */,
+				363AEA16D64640AFB167C7B2 /* StateViewTests.swift in Sources */,
 				6934A91C09C25628F6C1D44E /* StationAPITests.swift in Sources */,
 				E0B0EA46BDD3C1A3369C9FAD /* StationCreationTests.swift in Sources */,
 				ACEB087701FB4244E0076D22 /* StationHubServiceTests.swift in Sources */,
@@ -633,6 +655,7 @@
 				0821C9D97B62D32AFDC97BA2 /* SettingsView.swift in Sources */,
 				B561A20752CD04070D7680F5 /* SimilarArtistsStationOptionsView.swift in Sources */,
 				FD79CF186CCFBAD5B6CA9077 /* SpinnerView.swift in Sources */,
+				AFE06309FF1269E6D09FF2B8 /* StateViews.swift in Sources */,
 				395F6D80AF8F275150289BF2 /* Station.swift in Sources */,
 				D82E124094B6702486B4AAA8 /* StationAPI.swift in Sources */,
 				07283FF732D5846EE27ED4AC /* StationDescriptorView.swift in Sources */,

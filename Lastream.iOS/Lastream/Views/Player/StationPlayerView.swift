@@ -29,33 +29,23 @@ struct StationPlayerView: View {
                 VStack(spacing: 16) {
                     ProgressView()
                         .scaleEffect(1.5)
+                        .accessibilityLabel("Loading")
                     Text("Loading station...")
                         .font(.subheadline)
                         .foregroundColor(.appTextMuted)
                 }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Loading station")
             } else if let error = viewModel.error {
-                VStack(spacing: 16) {
-                    Image(systemName: "exclamationmark.triangle")
-                        .font(.largeTitle)
-                        .foregroundColor(.yellow)
-                    
-                    Text("Failed to load station")
-                        .font(.headline)
-                        .foregroundColor(.appText)
-                    
-                    Text(error)
-                        .font(.caption)
-                        .foregroundColor(.appTextMuted)
-                        .multilineTextAlignment(.center)
-                    
-                    Button("Try Again") {
+                ErrorView(
+                    title: "Failed to load station",
+                    message: error,
+                    retryAction: {
                         Task {
                             await viewModel.loadStation()
                         }
                     }
-                    .buttonStyle(.appPrimary)
-                }
-                .padding()
+                )
             } else {
                 VStack(spacing: 0) {
                     // Header
