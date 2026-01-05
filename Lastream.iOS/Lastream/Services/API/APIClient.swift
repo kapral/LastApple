@@ -63,6 +63,9 @@ protocol APIClientProtocol: Sendable {
 
 /// HTTP client for communicating with the Lastream backend API.
 final class APIClient: APIClientProtocol, @unchecked Sendable {
+    /// Shared API client instance.
+    static let shared = APIClient()
+    
     private let baseURL: URL
     private let session: URLSession
     private let decoder: JSONDecoder

@@ -65,24 +65,28 @@ struct StationOptionsView: View {
     let onStationCreated: (String) -> Void
     
     var body: some View {
-        VStack(spacing: 12) {
-            // Station-specific content would go here
-            // For now, show a placeholder
-            
-            Button {
-                // TODO: Implement station creation
-            } label: {
-                if isCreating {
-                    ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                } else {
-                    Text("Create Station")
-                }
-            }
-            .buttonStyle(.appPrimary)
-            .disabled(isCreating)
+        switch type {
+        case .artist:
+            ArtistStationOptionsView(
+                isCreating: $isCreating,
+                onStationCreated: onStationCreated
+            )
+        case .similarartists:
+            SimilarArtistsStationOptionsView(
+                isCreating: $isCreating,
+                onStationCreated: onStationCreated
+            )
+        case .tags:
+            TagStationOptionsView(
+                isCreating: $isCreating,
+                onStationCreated: onStationCreated
+            )
+        case .lastfmlibrary:
+            LibraryStationOptionsView(
+                isCreating: $isCreating,
+                onStationCreated: onStationCreated
+            )
         }
-        .padding()
     }
 }
 
