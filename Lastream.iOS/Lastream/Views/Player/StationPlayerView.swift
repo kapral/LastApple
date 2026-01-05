@@ -127,6 +127,11 @@ struct StationPlayerView: View {
         .task {
             await viewModel.loadStation()
         }
+        .onDisappear {
+            Task {
+                await viewModel.cleanup()
+            }
+        }
     }
 }
 
@@ -147,17 +152,20 @@ final class StationPlayerViewModel {
     private let stationId: String
     private let stationAPI: StationAPIProtocol
     private let player: any MusicPlayerProtocol
+    private let hubService: StationHubServiceProtocol?
     
     private var playerObserverTask: Task<Void, Never>?
     
     init(
         stationId: String,
         stationAPI: StationAPIProtocol,
-        player: any MusicPlayerProtocol = MusicPlayerService.shared
+        player: any MusicPlayerProtocol = MusicPlayerService.shared,
+        hubService: StationHubServiceProtocol? = StationHubService.shared
     ) {
         self.stationId = stationId
         self.stationAPI = stationAPI
         self.player = player
+        self.hubService = hubService
     }
     
     // Note: No deinit needed - Task will be cancelled when the view is deallocated.
@@ -169,6 +177,9 @@ final class StationPlayerViewModel {
         error = nil
         
         do {
+            // Connect to SignalR hub for real-time updates
+            await connectToHub()
+            
             // Fetch station data
             let stationData = try await stationAPI.getStation(id: stationId)
             station = stationData
@@ -190,6 +201,14 @@ final class StationPlayerViewModel {
             self.error = error.localizedDescription
             isLoading = false
         }
+    }
+    
+    /// Cleans up resources when the player is dismissed.
+    func cleanup() async {
+        playerObserverTask?.cancel()
+        playerObserverTask = nil
+        hubService?.unsubscribeFromStation()
+        await hubService?.disconnect()
     }
     
     // MARK: - Playback Controls
@@ -281,6 +300,43 @@ final class StationPlayerViewModel {
                     print("Failed to top up station: \(error)")
                 }
             }
+        }
+    }
+    
+    // MARK: - SignalR Integration
+    
+    private func connectToHub() async {
+        guard let hubService = hubService else { return }
+        
+        do {
+            try await hubService.connect()
+            hubService.subscribeToStation(id: stationId)
+            
+            // Handle track additions from the server
+            hubService.onTrackAdded { [weak self] stationId, trackId, position in
+                Task { @MainActor in
+                    await self?.handleTrackAdded(trackId: trackId, position: position)
+                }
+            }
+        } catch {
+            // SignalR connection failure is non-fatal
+            // The app will still work, just without real-time updates
+            print("Failed to connect to SignalR hub: \(error)")
+        }
+    }
+    
+    private func handleTrackAdded(trackId: String, position: Int) async {
+        // Add the new track to the player queue
+        do {
+            try await player.addToQueue(songId: trackId)
+            
+            // Update local station data
+            station?.songIds.append(trackId)
+            
+            // Sync queue from player
+            syncFromPlayer()
+        } catch {
+            print("Failed to add track to queue: \(error)")
         }
     }
 }

@@ -27,12 +27,14 @@ struct StationPlayerViewModelTests {
     private func makeViewModel(
         stationId: String = "test-station",
         stationAPI: MockStationAPI = MockStationAPI(),
-        player: MockMusicPlayerService = MockMusicPlayerService()
+        player: MockMusicPlayerService = MockMusicPlayerService(),
+        hubService: MockStationHubService? = nil
     ) -> StationPlayerViewModel {
         StationPlayerViewModel(
             stationId: stationId,
             stationAPI: stationAPI,
-            player: player
+            player: player,
+            hubService: hubService
         )
     }
     
@@ -169,5 +171,95 @@ struct StationPlayerViewModelTests {
         await viewModel.togglePlayPause()
         
         #expect(viewModel.error != nil)
+    }
+    
+    // MARK: - SignalR Integration Tests
+    
+    @Test("Load station connects to SignalR hub")
+    func testLoadStationConnectsToHub() async {
+        let stationAPI = MockStationAPI()
+        let player = MockMusicPlayerService()
+        let hubService = MockStationHubService()
+        stationAPI.getStationResult = .success(makeTestStation())
+        
+        let viewModel = makeViewModel(
+            stationAPI: stationAPI,
+            player: player,
+            hubService: hubService
+        )
+        
+        await viewModel.loadStation()
+        
+        #expect(hubService.connectCallCount == 1)
+        #expect(hubService.subscribeToStationCallCount == 1)
+        #expect(hubService.lastSubscribedStationId == "test-station")
+    }
+    
+    @Test("Load station continues even if SignalR fails")
+    func testLoadStationContinuesOnHubFailure() async {
+        let stationAPI = MockStationAPI()
+        let player = MockMusicPlayerService()
+        let hubService = MockStationHubService()
+        stationAPI.getStationResult = .success(makeTestStation())
+        hubService.connectError = SignalRError.connectionFailed
+        
+        let viewModel = makeViewModel(
+            stationAPI: stationAPI,
+            player: player,
+            hubService: hubService
+        )
+        
+        await viewModel.loadStation()
+        
+        // Station should still load despite hub failure
+        #expect(viewModel.station?.id == "test-station")
+        #expect(viewModel.error == nil)
+        #expect(player.loadSongsCallCount == 1)
+    }
+    
+    @Test("Cleanup disconnects from hub")
+    func testCleanupDisconnectsHub() async {
+        let stationAPI = MockStationAPI()
+        let player = MockMusicPlayerService()
+        let hubService = MockStationHubService()
+        stationAPI.getStationResult = .success(makeTestStation())
+        
+        let viewModel = makeViewModel(
+            stationAPI: stationAPI,
+            player: player,
+            hubService: hubService
+        )
+        
+        await viewModel.loadStation()
+        await viewModel.cleanup()
+        
+        #expect(hubService.disconnectCallCount == 1)
+        #expect(hubService.unsubscribeFromStationCallCount == 1)
+    }
+    
+    @Test("Track added event adds song to queue")
+    func testTrackAddedAddsToQueue() async {
+        let stationAPI = MockStationAPI()
+        let player = MockMusicPlayerService()
+        let hubService = MockStationHubService()
+        stationAPI.getStationResult = .success(makeTestStation())
+        
+        let viewModel = makeViewModel(
+            stationId: "test-station",
+            stationAPI: stationAPI,
+            player: player,
+            hubService: hubService
+        )
+        
+        await viewModel.loadStation()
+        
+        // Simulate a track added event from the server
+        hubService.simulateTrackAdded(stationId: "test-station", trackId: "new-track", position: 3)
+        
+        // Allow async processing
+        try? await Task.sleep(for: .milliseconds(50))
+        
+        #expect(player.addToQueueCallCount == 1)
+        #expect(player.lastAddedSongId == "new-track")
     }
 }
