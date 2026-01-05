@@ -149,23 +149,34 @@ final class StationPlayerViewModel {
     private(set) var isLoading: Bool = true
     private(set) var error: String?
     
+    /// Whether scrobbling is enabled.
+    var isScrobblingEnabled: Bool {
+        get { scrobbleService?.isEnabled ?? false }
+        set { scrobbleService?.isEnabled = newValue }
+    }
+    
     private let stationId: String
     private let stationAPI: StationAPIProtocol
     private let player: any MusicPlayerProtocol
     private let hubService: StationHubServiceProtocol?
+    private let scrobbleService: ScrobbleService?
     
     private var playerObserverTask: Task<Void, Never>?
+    private var lastScrobbledTrackId: String?
+    private var trackPlayStartTime: Date?
     
     init(
         stationId: String,
         stationAPI: StationAPIProtocol,
         player: any MusicPlayerProtocol = MusicPlayerService.shared,
-        hubService: StationHubServiceProtocol? = StationHubService.shared
+        hubService: StationHubServiceProtocol? = StationHubService.shared,
+        scrobbleService: ScrobbleService? = .shared
     ) {
         self.stationId = stationId
         self.stationAPI = stationAPI
         self.player = player
         self.hubService = hubService
+        self.scrobbleService = scrobbleService
     }
     
     // Note: No deinit needed - Task will be cancelled when the view is deallocated.
@@ -261,12 +272,46 @@ final class StationPlayerViewModel {
     // MARK: - Private Methods
     
     private func syncFromPlayer() {
+        let previousTrackId = currentTrack?.id
+        
         queue = player.queue
         currentTrack = player.currentTrack
         isPlaying = player.state == .playing
         currentTime = player.currentTime
         duration = player.duration
         queuePosition = player.queuePosition
+        
+        // Handle track changes for scrobbling
+        if let track = currentTrack, track.id != previousTrackId {
+            handleTrackChange(newTrack: track)
+        }
+        
+        // Check scrobble threshold
+        checkScrobbleThreshold()
+    }
+    
+    private func handleTrackChange(newTrack: QueueTrack) {
+        trackPlayStartTime = Date()
+        lastScrobbledTrackId = nil
+        
+        Task {
+            await scrobbleService?.onTrackStarted(newTrack)
+        }
+    }
+    
+    private func checkScrobbleThreshold() {
+        guard let track = currentTrack,
+              let service = scrobbleService,
+              track.id != lastScrobbledTrackId,
+              service.shouldScrobble(playedTime: currentTime, trackDuration: duration) else {
+            return
+        }
+        
+        lastScrobbledTrackId = track.id
+        
+        Task {
+            await service.onTrackPlayedThreshold(track)
+        }
     }
     
     private func startPlayerObserver() {
