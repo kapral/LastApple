@@ -28,6 +28,7 @@
 		5948C7FA8300BF3C0334FB50 /* ModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6478BF7910B6EEA627E95F04 /* ModelTests.swift */; };
 		6124C8C4CFF5128A9D952772 /* ScrobbleServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0315B647A200886CE5D2972 /* ScrobbleServiceTests.swift */; };
 		62EC4FC72D13B97D98A2EB12 /* KeychainHelperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBA4D0658D22C7F84FE6356C /* KeychainHelperTests.swift */; };
+		632543439448A93307B00AB7 /* SettingsViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85984B5E7CDD5F6D0DFC211A /* SettingsViewTests.swift */; };
 		6934A91C09C25628F6C1D44E /* StationAPITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4F22A51B3D96F0E761C7C8 /* StationAPITests.swift */; };
 		70C46AA63207CC9128E55A0C /* Color+Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6BA42C28B588EBB3C7F6C6E /* Color+Theme.swift */; };
 		744FB63BEAB41E77718EF4A8 /* MockAppleAuthAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420E836F07213B64C0A453F8 /* MockAppleAuthAPI.swift */; };
@@ -119,6 +120,7 @@
 		6CA9C3569FECA1C95BDF14B4 /* AppleAuthAPITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleAuthAPITests.swift; sourceTree = "<group>"; };
 		6DEB137D1294B547D172AF57 /* MusicKitProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicKitProvider.swift; sourceTree = "<group>"; };
 		7AF7ED6603E643521CBBA5E6 /* HeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderView.swift; sourceTree = "<group>"; };
+		85984B5E7CDD5F6D0DFC211A /* SettingsViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewTests.swift; sourceTree = "<group>"; };
 		8D30C942B205EE9DFBF839B9 /* PreviewMocks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewMocks.swift; sourceTree = "<group>"; };
 		8F182F940A9DF1AD42BB7123 /* MockMusicKitProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockMusicKitProvider.swift; sourceTree = "<group>"; };
 		93EE82F40776B990C8B062DE /* StationCreationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationCreationTests.swift; sourceTree = "<group>"; };
@@ -321,6 +323,7 @@
 		9CA474008A0700F5EBE03F87 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				85984B5E7CDD5F6D0DFC211A /* SettingsViewTests.swift */,
 				FED19D0C4F230309A327EC79 /* StationPlayerViewModelTests.swift */,
 			);
 			path = Views;
@@ -587,6 +590,7 @@
 				5948C7FA8300BF3C0334FB50 /* ModelTests.swift in Sources */,
 				A1125B4E260861C3DA55D39D /* MusicPlayerServiceTests.swift in Sources */,
 				6124C8C4CFF5128A9D952772 /* ScrobbleServiceTests.swift in Sources */,
+				632543439448A93307B00AB7 /* SettingsViewTests.swift in Sources */,
 				6934A91C09C25628F6C1D44E /* StationAPITests.swift in Sources */,
 				E0B0EA46BDD3C1A3369C9FAD /* StationCreationTests.swift in Sources */,
 				ACEB087701FB4244E0076D22 /* StationHubServiceTests.swift in Sources */,
