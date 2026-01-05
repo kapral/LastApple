@@ -19,6 +19,11 @@ struct Station: Codable, Identifiable, Sendable {
     
     /// The definition describing how the station was created.
     let definition: StationDefinition
+    
+    /// Convenience property to get the station type as an enum.
+    var stationType: StationType? {
+        StationType(rawValue: definition.stationType)
+    }
 }
 
 /// Describes the type and parameters of a station.
