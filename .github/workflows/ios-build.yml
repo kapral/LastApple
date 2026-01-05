@@ -26,11 +26,13 @@ jobs:
     - name: Show Xcode version
       run: xcodebuild -version
 
-    - name: Show available destinations
+    - name: Install XcodeGen
+      run: brew install xcodegen
+
+    - name: Generate Xcode project
       run: |
-        xcodebuild -project Lastream.iOS/Lastream.xcodeproj \
-          -scheme Lastream \
-          -showdestinations
+        cd Lastream.iOS
+        xcodegen generate
 
     - name: Resolve Swift packages
       run: |

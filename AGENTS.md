@@ -340,6 +340,31 @@ Located in `.github/workflows/`:
 - **ios-test.yml**: Run unit tests with coverage reporting
 - **ios-release.yml**: Deploy to TestFlight on version tags (`ios-v*`)
 
+All workflows include XcodeGen project generation step before building.
+
+### Fastlane Configuration
+Located in `Lastream.iOS/fastlane/`:
+- **Appfile**: App identifier and team configuration
+- **Fastfile**: Lanes for test, beta, and release deployments
+- **Matchfile**: Code signing configuration using git storage
+
+**Required Secrets for CI/CD**:
+- `MATCH_PASSWORD`: Password for decrypting certificates
+- `MATCH_GIT_TOKEN`: GitHub token for certificates repository
+- `APP_STORE_CONNECT_KEY_ID`: App Store Connect API key ID
+- `APP_STORE_CONNECT_ISSUER_ID`: App Store Connect issuer ID
+- `APP_STORE_CONNECT_KEY_CONTENT`: Base64-encoded App Store Connect private key
+
+### iOS App Features
+The iOS app provides full feature parity with the web frontend:
+- **Authentication**: Apple Music (MusicKit) and Last.fm OAuth
+- **Station Types**: Artist, Similar Artists, Tag, Last.fm Library
+- **Music Player**: Full MusicKit integration with playback controls
+- **Real-time Updates**: SignalR connection for live track additions
+- **Scrobbling**: Automatic Last.fm scrobbling with 30-second threshold
+- **Settings**: Account management, scrobbling toggle, app info
+- **Accessibility**: Full VoiceOver support with descriptive labels
+
 ### iOS Time Expectations (NEVER CANCEL)
 - **xcodegen generate**: 1-2 seconds
 - **Swift package resolution**: 10-30 seconds (first time with network)
