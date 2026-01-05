@@ -1,4 +1,5 @@
 import appleMusicApi from "$lib/api/appleMusicApi";
+import environment from './environment';
 
 class MusicKitService {
     instance: MusicKit.MusicKitInstance | null = null;
@@ -19,7 +20,7 @@ class MusicKitService {
             app: {
                 name: 'Lastream',
                 build: '1.0.0',
-                icon: '/logo.png'
+                icon: `${environment.apiUrl}/logo.png`
             },
             developerToken: token
         });
