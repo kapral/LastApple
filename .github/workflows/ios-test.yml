@@ -26,8 +26,24 @@ jobs:
     - name: Show Xcode version
       run: xcodebuild -version
 
-    - name: List available simulators
-      run: xcrun simctl list devices available | grep -E "iPhone|iPad" | head -20
+    - name: List available runtimes and simulators
+      run: |
+        echo "=== Available Runtimes ==="
+        xcrun simctl list runtimes
+        echo "=== Available Devices ==="
+        xcrun simctl list devices available | head -40
+
+    - name: Find available simulator
+      id: simulator
+      run: |
+        # Find an available iPhone simulator
+        SIMULATOR=$(xcrun simctl list devices available | grep "iPhone" | head -1 | sed 's/.*(\([^)]*\)).*/\1/')
+        if [ -z "$SIMULATOR" ]; then
+          echo "No iPhone simulator found!"
+          exit 1
+        fi
+        echo "Found simulator: $SIMULATOR"
+        echo "SIMULATOR_ID=$SIMULATOR" >> $GITHUB_OUTPUT
 
     - name: Install XcodeGen
       run: brew install xcodegen
@@ -51,7 +67,7 @@ jobs:
         xcodebuild test \
           -project Lastream.xcodeproj \
           -scheme Lastream \
-          -destination 'platform=iOS Simulator,OS=latest,name=iPhone 16 Pro' \
+          -destination 'platform=iOS Simulator,id=${{ steps.simulator.outputs.SIMULATOR_ID }}' \
           -only-testing:LastreamTests \
           -enableCodeCoverage YES \
           -resultBundlePath TestResults.xcresult \

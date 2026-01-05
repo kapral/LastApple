@@ -26,8 +26,12 @@ jobs:
     - name: Show Xcode version
       run: xcodebuild -version
 
-    - name: List available simulators
-      run: xcrun simctl list devices available | grep -E "iPhone|iPad" | head -20
+    - name: List available runtimes and simulators
+      run: |
+        echo "=== Available Runtimes ==="
+        xcrun simctl list runtimes
+        echo "=== Available Devices ==="
+        xcrun simctl list devices available | head -40
 
     - name: Install XcodeGen
       run: brew install xcodegen
@@ -51,10 +55,9 @@ jobs:
         xcodebuild build \
           -project Lastream.xcodeproj \
           -scheme Lastream \
-          -destination 'platform=iOS Simulator,OS=latest,name=iPhone 16 Pro' \
+          -destination 'generic/platform=iOS Simulator' \
           -configuration Debug \
           CODE_SIGNING_ALLOWED=NO \
-          ONLY_ACTIVE_ARCH=YES \
           | xcpretty --color --simple
 
     - name: Build Release configuration
@@ -64,8 +67,7 @@ jobs:
         xcodebuild build \
           -project Lastream.xcodeproj \
           -scheme Lastream \
-          -destination 'platform=iOS Simulator,OS=latest,name=iPhone 16 Pro' \
+          -destination 'generic/platform=iOS Simulator' \
           -configuration Release \
           CODE_SIGNING_ALLOWED=NO \
-          ONLY_ACTIVE_ARCH=YES \
           | xcpretty --color --simple
