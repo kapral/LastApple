@@ -7,7 +7,7 @@ on:
       - 'Lastream.iOS/**'
       - '.github/workflows/ios-build.yml'
   pull_request:
-    branches: [main]
+    branches: [development]
     paths:
       - 'Lastream.iOS/**'
       - '.github/workflows/ios-build.yml'
